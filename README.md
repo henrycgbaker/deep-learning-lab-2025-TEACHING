@@ -2,20 +2,42 @@
 
 Graduate-level lab materials covering deep learning fundamentals through modern architectures. Each lab builds practical skills with hands-on PyTorch implementations.
 
+## Getting Started
+
+| Notebook | Description |
+|----------|-------------|
+| [Python Foundations](lab_1_python_foundations.ipynb) | **Start here** — type hints, NumPy, PyTorch tensors, autograd basics |
+
 ## Labs
+
+### Neural Network Fundamentals
 
 | Lab | Notebook | Topics |
 |-----|----------|--------|
-| 1 | [lab_1_python_foundations.ipynb](lab_1_python_foundations.ipynb) | Type hints, NumPy, PyTorch tensors, autograd |
-| 2 | [lab_2_intro_to_ffnns.ipynb](lab_2_intro_to_ffnns.ipynb) | Feed-forward networks, backpropagation, MNIST |
-| 3 | [lab_3_tensorboard_vanishing_gradients_hyperparams.ipynb](lab_3_tensorboard_vanishing_gradients_hyperparams.ipynb) | TensorBoard, vanishing gradients, hyperparameter tuning |
-| 4 | [lab_4_introduction_to_cnns.ipynb](lab_4_introduction_to_cnns.ipynb) | Convolutional layers, pooling, image classification |
-| 5 | [lab_5_advanced_cnns.ipynb](lab_5_advanced_cnns.ipynb) | ResNet, skip connections, transfer learning, class imbalance |
-| 6 | [lab_6_rnn_foundations.ipynb](lab_6_rnn_foundations.ipynb) | Vanilla RNNs, BPTT, character-level language models |
-| 7 | [lab_7_rnn_adv.ipynb](lab_7_rnn_adv.ipynb) | LSTM, GRU, gating mechanisms |
-| 8 | [lab_8_seq2seq_attention.ipynb](lab_8_seq2seq_attention.ipynb) | Encoder-decoder, attention mechanisms, translation |
-| 9 | [lab_9_transformers.ipynb](lab_9_transformers.ipynb) | Self-attention, transformers, positional encoding |
-| 10 | [lab_10_mlops_finetuning_evaluation.ipynb](lab_10_mlops_finetuning_evaluation.ipynb) | HuggingFace, fine-tuning, MLOps practices |
+| 2 | [Intro to FFNNs](lab_2_intro_to_ffnns.ipynb) | Feed-forward networks, backpropagation, MNIST |
+| 3 | [TensorBoard & Tuning](lab_3_tensorboard_vanishing_gradients_hyperparams.ipynb) | Vanishing gradients, hyperparameter tuning |
+
+### Convolutional Networks
+
+| Lab | Notebook | Topics |
+|-----|----------|--------|
+| 4 | [Intro to CNNs](lab_4_introduction_to_cnns.ipynb) | Convolutions, pooling, image classification |
+| 5 | [Advanced CNNs](lab_5_advanced_cnns.ipynb) | ResNet, transfer learning, class imbalance |
+
+### Sequence Models
+
+| Lab | Notebook | Topics |
+|-----|----------|--------|
+| 6 | [RNN Foundations](lab_6_rnn_foundations.ipynb) | Vanilla RNNs, BPTT, language models |
+| 7 | [Advanced RNNs](lab_7_rnn_adv.ipynb) | LSTM, GRU, gating mechanisms |
+| 8 | [Seq2Seq & Attention](lab_8_seq2seq_attention.ipynb) | Encoder-decoder, attention, translation |
+
+### Transformers & Production
+
+| Lab | Notebook | Topics |
+|-----|----------|--------|
+| 9 | [Transformers](lab_9_transformers.ipynb) | Self-attention, positional encoding |
+| 10 | [MLOps & Fine-tuning](lab_10_mlops_finetuning_evaluation.ipynb) | HuggingFace, fine-tuning, evaluation |
 
 ## Problem Sets
 
