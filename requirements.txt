@@ -30,6 +30,7 @@ tensorboard
 
 # Optional: TensorFlow backend (some labs)
 # tensorflow>=2.13
+# tf-keras  # Required if using TensorFlow with transformers
 
 # Optional: Hyperparameter tuning (Lab 3)
 # optuna>=3.0
