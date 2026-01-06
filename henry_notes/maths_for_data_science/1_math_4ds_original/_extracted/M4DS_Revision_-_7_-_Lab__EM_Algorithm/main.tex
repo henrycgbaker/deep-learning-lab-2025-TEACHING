@@ -1,0 +1,210 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+\usepackage{graphicx}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize M4DS Final revision}
+\rhead{\footnotesize Henry Baker} 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf Mid Terms Fall 2023  \\ Henry Baker}
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: Lab 7 \\ EM Algorithm}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\begin{tcolorbox}
+    \textbf{High Level explanation of EM Algo}
+    \begin{enumerate}
+    \item Initialise parameters\begin{itemize}
+        \item $\mu_1, \mu_2$ = means 
+        \item $\sigma_1, \sigma_2$ = standard deviations
+        \item $\pi_1.\pi_2$ = mixing properties (the initial prob of being in one distribution)
+    \end{itemize}
+    \item E-step: Expectation - compute responsibilities of each data point (= calculate the $\gamma$ of each data point: the prob that each data point belongs to each component given current parameter values)
+    \item M-step: Maximisation - update the parameters based on the responsibilities (= MLE of each parameter given the $\gamma$ values for each data point (the parameters defined as some function involving sums of gamma-data point, so will give a single value).
+    \item Evaluate the new log-likelihood with new (i) parameter, (ii) responsibilities.
+    \item Check for convergence
+\end{enumerate}
+\end{tcolorbox}
+
+\section{Context; Set up}
+
+\begin{itemize}
+    \item Used to find Maximum Likelihood parameters of a statistical model with \textbf{latent variables}, which are hidden or unobserved characteristics of our data (i.e. where straightforward MLE cannot be applied). 
+    \item Going to model Old Faithful eruptions as a Gaussian Mixture (a mixture of 2 Normal distribution, each woth theeir own mean and variance).
+    \item Eruption can either be short type or long type, correspondinbg to a different (unobservced) geological process.
+    \item  Define $Z_1$ (first eruption) as r.v.:
+    \[Z_1 = 
+        \begin{cases} 
+        0 & \text{if eruption is long type} \\
+        1 & \text{if eruption is short type}
+        \end{cases} \]
+    $Z_2$ (second eruption):
+    \[Z_2 = 
+        \begin{cases} 
+        1 & \text{if eruption is long type} \\
+        0 & \text{if eruption is short type}
+        \end{cases} \]
+    \item Define $$\pi_1 = \text{probability eruption is short type}$$
+        $$\pi_2 = \text{probability eruption is long type}$$
+        Assume $\pi_1 + pi_2 = 1$ (i.e. there are no other types.
+    \item Define: $X$ = r.v. representing duration of eruption.
+\end{itemize}
+
+\textbf{Task is to produce an MLE estimate for the type  probabilities, and the means and variances of the two eruption types}
+
+\section{Attempting MLE}
+Using \textbf{Law Of Total Probability} to write PDF of $X$:
+\begin{align*}
+    Pr(X=x) &= Pr(Z_1 = 1) Pr(X=1|Z_1 = 1) + Pr(Z_2 = 1) Pr(X=x|Z_2 = 1)\\
+    &= \pi_1 \mathcal{N}(x | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x | \mu_2, \sigma_2)
+\end{align*}
+With this PDF, we can write down the \textbf{likelihood} of the dataset (where $n$ is number of observations in the dataset.
+$$L(x_1, \ldots, x_n; \mu_1, \mu_2, \sigma_1, \sigma_2, \pi_1, \pi_2) = \prod_{i=1}^{n} (\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2))$$
+As a \textbf{Log-Likelihood function}
+$$\ell(x_1, \ldots, x_n; \mu_1, \mu_2, \sigma_1, \sigma_2, \pi_1, \pi_2) = \sum_{i=1}^{n} \log(\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2))$$
+
+Here, each observation $x_i$ has a probability of being from either the first normal distribution ($\mathcal{N}(x_i | \mu_1, \sigma_1$) with weight $\pi_1$, or from the second normal distribution $\mathcal{N}(x_i | \mu_2, \sigma_2)$ with weight $\pi_2$.\\
+
+The weights $pi_1$ and $pi_1$ are essentially the mixing proportions (NB, as above, they should sum to 1).\\
+
+For a single observation $x_i$, the likelihood is the sum of the probabilities of $x_i$ coming from each distribution.\\
+
+When we have multiple independent observations, the total likelhood is the product of the individual likelihoods.
+
+\subsection{MLE for $mu_1$}
+Take first derivative of the log likelihood with respect to $\mu_1$. \\
+
+By the Chain Rule:$$\frac{d}{dx} \left( f(g(x)) \right) = f'(g(x)) \cdot g'(x)$$
+
+Let $f(y) &= \log(y), \text{ and } g(x_i) = \pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2).$\\
+
+The derivative of $f(y)$ with respect to  $y$ is: 
+$$f'(y) &= \frac{1}{y}.$$
+The derivative of $g(x_i)$ with respect to $\mu_1$ is: \\
+$$\frac{\partial}{\partial \mu_1} g(x_i) &= \frac{\partial}{\partial \mu_1} \left( \pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) \right) + \frac{\partial}{\partial \mu_1} \left( \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2) \right).$$
+
+Since $\pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2) \text{ does not depend on } \mu_1,$ its derivative is 0. Thus,
+$$\frac{\partial}{\partial \mu_1} g(x_i) &= \frac{\partial}{\partial \mu_1} \left( \pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) \right).$$
+
+Then:
+\begin{align*}
+\text{Then, } \frac{\partial \ell}{\partial \mu_1} &= \sum_{i=1}^{n} \frac{\partial}{\partial \mu_1} \log \left( g(x_i) \right) \\
+&= \sum_{i=1}^{n} \frac{1}{g(x_i)} \cdot \frac{\partial}{\partial \mu_1} g(x_i) \text{ by the chain rule} \\
+\text{Since only the first term of } g(x_i) &\text{ depends on } \mu_1\text{, its derivative is:} \\
+\frac{\partial}{\partial \mu_1} g(x_i) &= \frac{\partial}{\partial \mu_1} \left( \pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) \right) \\
+\text{Thus, } \frac{\partial \ell}{\partial \mu_1} &= \sum_{i=1}^{n} \frac{1}{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2)} \cdot \frac{\partial}{\partial \mu_1} \left( \pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) \right) \\
+\end{align*}
+
+\begin{tcolorbox}
+$$\frac{\partial \ell}{\partial \mu_1} = \sum_{i=1}^{n} \frac{1}{\pi_1 \mathcal{N}(x_i |\mu_1,\sigma_1) + \pi_2 \mathcal{N}(x_i |\mu_2,\sigma_2)} \underbrace{\frac{\partial}{\partial \mu_1} \pi_1 \mathcal{N}(x_i |\mu_1,\sigma_1)}_{\text{let's take this piece}}$$
+\end{tcolorbox}
+
+
+I SKIPPED THE REST HERE
+...\\
+set it to 1, and solve for $\mu_1$
+
+\section{Bayes rule to the Rescue}
+\subsection{Gammas}
+At this point, let#s take a moment to look at the expression we're trying to solve:
+$$0 = \sum_{i=1}^{n} \underbrace{ \frac{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1)}{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2)}}_{\textbf{what is this? We'll call this}\gamma} \cdot \left( \frac{x_i - \mu_1}{\sigma_1^2} \right)$$
+
+This is the probability that data point $i$ belongs to the first eruption time, given its eruption duration. \\
+We write down this probability and apply Bayes rule:
+$$\Pr(z_{1i} = 1 | x_i) &= \frac{f(x_i | z_{1i} = 1) \Pr(z_{1i} = 1)}{f(x_i)} \\
+&= \frac{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1)}{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2)}
+$$
+
+We will call this $\gamma_{1i}$; similarly, let $\gamma_2i = Pr(z_{2i} = 1|x_i)$\\
+
+\textbf{So the gammas are the probability that a certain data point belongs to their associated distribution (given the values observed)}.
+
+\subsection{Back to the maximisation problem}
+(bracketing the $\gamma$ for a moment:\\
+
+Solving for $mu_1$, we get:
+\begin{align*}
+0 &= \sum_{i=1}^{n} \gamma_{1i} \frac{x_i - \hat{\mu}_1}{\sigma_1^2} \\
+0 &= \sum_{i=1}^{n} \gamma_{1i}(x_i - \hat{\mu}_1) \\
+0 &= \sum_{i=1}^{n} \gamma_{1i}x_i - \sum_{i=1}^{n} \gamma_{1i}\hat{\mu}_1 \\
+\sum_{i=1}^{n} \gamma_{1i}\hat{\mu}_1 &= \sum_{i=1}^{n} \gamma_{1i}x_i \\
+\hat{\mu}_1 &= \frac{\sum_{i=1}^{n} \gamma_{1i}x_i}{\sum_{i=1}^{n} \gamma_{1i}} 
+\end{align*}
+
+And for $\hat{\mu}_2$ you would get the same thing:
+$$\hat{\mu}_2 &= \frac{\sum_{i=1}^{n} \gamma_{2i}x_i}{\sum_{i=1}^{n} \gamma_{2i}}$$
+In similar fashion, we can find the MLE for $\hat{\sigma}_1, \hat{\sigma}_2, \hat{\pi}_1, \text{ and } \hat{\pi}_2 \text{ as:}$
+
+\begin{tcolorbox}
+    
+\section{The EM Algorithm}
+\begin{enumerate}
+    \item \textbf{Initiatize your parameters} means $\mu_1, \mu_2$, standard deviations $\sigma_1, \sigma_2$ mixing properties $\pi_1, \pi_2$ to some starting points. (i.e. literally just assign them some numbers based from educated guesses based on your data. E.g. you might start with equal mixing properties ($\pi_1 = \pi_2 = 0.5)$\\
+
+    Evaluate the log likelihood under these values.
+    \item \textbf{E-Step - Expectation: (re)Compute the \textit{responsibilities} for each data point}: Evaluate $\gamma_{1i} = Pr(z_{1i} = 1|x_i)$ under the current parameter values. Also evaluate $\gamma_{2i} = Pr(z_{2i} = 1|x_i)$. You do this for each $x_i$ These are the \textbf{\textit{responsibilities}}. These are the probability that each data point belongs to each component of the mixture model.
+    \begin{align*}
+    \gamma_{1i} &= \frac{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1)}{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2)} \\
+    \gamma_{2i} &= \frac{\pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2)}{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2)}
+    \end{align*}
+
+
+    \item \textbf{M-step - Maximisation: update parameters based on \textit{responsibilities}}: Using the $\gamma_{1i}$ and $\gamma_2{i}$, update the parameters using the current responsibilities to maximise the expected log-likelihood. 
+
+    \begin{align*}
+    \hat{\mu}_1 &= \frac{\sum_{i=1}^{n} \gamma_{1i} x_i}{\sum_{i=1}^{n} \gamma_{1i}} \\
+    \hat{\mu}_2 &= \frac{\sum_{i=1}^{n} \gamma_{2i} x_i}{\sum_{i=1}^{n} \gamma_{2i}} \\
+    \hat{\sigma}_1 &= \sqrt{\frac{\sum_{i=1}^{n} \gamma_{1i} (x_i - \hat{\mu}_1)^2}{\sum_{i=1}^{n} \gamma_{1i}}} \\
+    \hat{\sigma}_2 &= \sqrt{\frac{\sum_{i=1}^{n} \gamma_{2i} (x_i - \hat{\mu}_2)^2}{\sum_{i=1}^{n} \gamma_{2i}}} \\
+    \hat{\pi}_1 &= \frac{1}{n} \sum_{i=1}^{n} \gamma_{1i} \\
+    \hat{\pi}_2 &= \frac{1}{n} \sum_{i=1}^{n} \gamma_{2i}
+    \end{align*}
+    
+    
+    These updates are done to improve the fit of the model to the data, based on the current responsibilities.\\
+    
+    \item \textbf{Evaluate the new log likelihood with your new paramaters and responsibilities}.
+    \begin{align*}
+    \text{Log-Likelihood}(\mu_1, \mu_2, \sigma_1, \sigma_2, \pi_1, \pi_2) = \sum_{i=1}^{n} \log \left( \pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2) \right)
+    \end{align*}
+    
+
+    \item Check for \textbf{convergence} - i.e when the log likelihood has not moved far from the log likelihood in the previous iteration.
+\end{enumerate}
+
+\end{tcolorbox}
+
+
+\end{document}

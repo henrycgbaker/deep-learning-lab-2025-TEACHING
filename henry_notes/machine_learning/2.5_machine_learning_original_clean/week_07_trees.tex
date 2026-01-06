@@ -1,0 +1,467 @@
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}}
+{\large \bfseries ML Lecture Notes 2024 --- Henry Baker}
+\\ \hline
+\end{tabular}
+
+\vspace*{0.3cm}
+\begin{center}
+	{\Large \bfseries ML Lecture Notes: Wk 7-II --- Tree-based methods}
+	\vspace{2mm}
+
+\end{center}
+\vspace{0.4cm}
+
+\section{Decision Tree as new basis for constructing functions}
+
+For both classification \& regression.\\
+
+Involve segmenting the predictor space into a number of simple regions. \\
+
+To make a prediction for a given observation, one typically uses the mean or mode of the training observations in the region to which it belongs. \\
+
+The decision tree is the most fundamental of these methods and serves as the building block for more advanced techniques like random forests and gradient boosting machines.\\
+
+\subsection{Constructing a Decision Tree}
+\begin{enumerate}
+    \item \textbf{Choose a Feature}
+    \begin{itemize}
+        \item At each node of the tree, the algorithm selects one feature that best splits the set of items. 
+        \item The criterion for "best" can depend on the task at hand (classification or regression)
+        \item and is determined by measures such as the Gini impurity, entropy for classification tasks, or variance reduction for regression.
+    \end{itemize}
+    \item \textbf{Splitting Data Based on Feature Values}
+    \begin{itemize}
+        \item  dataset is split into subsets based on the values of that feature. 
+        \item can be a binary split (e.g., high vs. low) or more granular, depending on the feature and splitting criteria used.
+    \end{itemize}
+    \item \textbf{Predictions at Terminal Nodes:}
+    \begin{itemize}
+        \item process of splitting continues recursively, creating a tree structure with nodes and branches, until a stopping criterion is reached (such as a minimum number of samples per node). 
+        \item terminal nodes, or leaves, represent the segments of the dataset that are as homogeneous as possible. 
+        \item In classification tasks, the prediction for each leaf node is usually the most common label (class) of the training samples in that node. 
+        \item For regression tasks, it's common to use the average of the training samples' target values in the node.
+    \end{itemize}
+    \item \textbf{Labels = {Good, Bad}:} 
+    \begin{itemize}
+        \item In the context of a binary classification problem where the outcomes are labeled as "good" or "bad," the decision tree will aim to separate the data such that each leaf node is as pure as possible with respect to these labels. 
+        \item The "average" mentioned refers to the proportion of each class in classification tasks, serving as the basis for making predictions for new data points that end up in each leaf.
+    \end{itemize}
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/tree.png}
+    \caption{NB sort of interaction effect along branches: '4 cylinders x continent'; 'horsepower x low-med-high'}
+    \label{fig:w02-fig40}
+\end{figure}
+
+\subsection{Properties of Decision Trees - adv vs disadv}
+
+\subsubsection{Advantages}
+\begin{itemize}
+    \item \textbf{Flexibility:} - v general hypothesis class
+    \begin{itemize}
+        \item can handle any input
+        \item can capture complex nonlinear relationships between the features and the response. 
+        \item can easily handle qualitative features without the need for dummy variables.
+    \end{itemize}
+    \item \textbf{Interpretability:}
+    \begin{itemize}
+        \item One of the main advantages of decision trees is their ease of interpretation. They can be visualized graphically and understood by non-experts, making them useful in decision-support systems.
+        \item you just traverse down the tree, at each node ask a question then at the end of asking these questions you have a prediction
+    \end{itemize}
+    \item \textbf{Non-parametric Nature:} 
+    \begin{itemize}
+        \item do not assume any specific functional form between the features and the response, making them adaptable to various scenarios.
+        \item Standardisation doesn't matter
+    \end{itemize}
+    \item \textbf{Capability:}
+    \begin{itemize}
+        \item With sufficient depth, a decision tree can theoretically capture any functional relationship between input features and the output.
+        \item fast and scalable (as they are greedy)
+        \item  This flexibility comes at the cost of a higher risk of overfitting, especially as the depth of the tree increases.
+    \end{itemize}
+    \item Robust to outliers
+    \begin{itemize}
+        \item 1) an outlier only affects the node it is in
+        \item 2) a single outlier wont make changes to the internal structure of how you would make these splits
+    \end{itemize}
+    \item Missingness is handled naturally - just split on whether the feature value is missing
+\end{itemize}
+
+\subsubsection{Disadvantages}
+
+\begin{itemize}
+    \item \textbf{Overfitting:} Without constraints, a decision tree can grow to perfectly fit the training data,
+        \begin{itemize}
+        \item To mitigate this, techniques such as pruning (reducing the size of the tree), setting a maximum depth, or requiring a minimum number of samples to split a node are commonly used. 
+        \item Additionally, ensemble methods like Random Forests and Gradient Boosting Machines aggregate the predictions of multiple trees to improve predictive performance and generalization to unseen data.
+        \end{itemize}
+        
+    \item \textbf{Suboptimal Predictive Performance - Simplicity Leading to Inaccuracy} 
+    \begin{itemize}
+        \item do not provide the same level of predictive accuracy as other, more complex models. 
+        \item partly because the simple, hierarchical decision-making process might not capture all the nuances in the data, especially in cases where relationships between variables are complex and non-linear.
+    \end{itemize}
+
+    \item \textbf{Difficulty in Optimizing for 'best tree;} 
+    \begin{itemize}
+        \item as cannot differentiate -> have to be greedy ->  Combinatorial Problem
+        \item The space of all possible trees for a given dataset is vast, and finding the optimal tree (i.e., the tree that minimizes some loss function over all possible trees) is computationally infeasible for all but the simplest datasets.
+        \item The greedy algorithms used to build trees can only assure finding locally optimal solutions at each step, which may not be globally optimal.
+    \end{itemize}
+    
+    \item \textbf{Computationally Intensive:} Although greedy recursive splitting is efficient compared to searching all possible trees, it can still be computationally intensive, especially with large datasets and a high number of features.
+    
+    \item \textbf{Local Optima:} The greedy approach does not guarantee finding the globally optimal tree. It makes the best decision at each step, which may not lead to the best overall tree.
+
+    \item \textbf{Instability to Data Changes}
+    \begin{itemize}
+        \item very sensitive to small changes in the training data. 
+        \item Adding or removing a few data points, especially if they are outliers or near decision boundaries, can lead to a significantly different tree structure. 
+        \item This sensitivity is indicative of high variance in the model, meaning that small changes in the data can lead to large changes in the model outcome.
+    \end{itemize}
+
+    \item \textbf{Instability to Feature Changes}
+    \begin{itemize}
+        \item model's reliance on hierarchical decisions based on feature values -> small changes in the feature set can lead to different decision trees. 
+        \item adding new features, removing existing ones, or even slight modifications to the values of the features.
+    \end{itemize}
+\end{itemize}
+
+\textbf{= High Variance Learners / overfitting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/variance learners.png}
+    \caption{High Variance Learners}
+    \label{fig:w02-fig41}
+\end{figure}
+
+\textbf{To mitigate: pruning + ensemble methods + careful cross validation}
+
+\begin{itemize}
+    \item \textbf{Pruning}
+    \item \textbf{Baggning} - turns downside into a positive!
+    \item \textbf{Random Forests and Boosting:} To mitigate some of these limitations and improve prediction accuracy, ensemble methods like Random Forests and Gradient Boosting Machines aggregate the predictions of multiple trees, each built on a subset of the data or with different initial conditions, to produce a more robust model.
+\end{itemize}
+
+\subsection{How should we split nodes}
+
+depends on the type of the feature (categorical or continuous) and the specific goals of the modeling task (classification or regression)
+
+\subsubsection{Categorical: Splitting by Unique value}
+\begin{itemize}
+    \item \textbf{Applicability:} This method is typically used for categorical variables. The idea is to partition the data into subsets based on the unique values of the selected feature. For a feature with $k$ unique values, this approach could potentially split a node into $k$ branches, each corresponding to one of the feature's values.
+    
+    \item \textbf{Advantages:} This approach is straightforward and ensures that the model captures the effect of each category of the variable on the outcome.
+    
+    \item \textbf{Disadvantages:} It can lead to very complex trees, especially if the categorical variable has many levels. This complexity can make the model prone to overfitting, as it may capture noise in the training data. Moreover, with a large number of splits, some branches might end up with very few data points, making the model's predictions less reliable.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/unique value.png}
+    \caption{Enter Caption}
+    \label{fig:w02-fig42}
+\end{figure}
+
+\subsubsection{Continuous: Splitting by Thresholding}
+
+\begin{itemize}
+    \item \textbf{Applicability:} Thresholding is predominantly used for continuous variables. The data at each node is split into two groups based on whether their values are above or below a certain threshold. This method can also be adapted for ordinal categorical variables by treating their ordered categories as continuous values.
+    
+    \item \textbf{Advantages:} This method is more scalable and generally leads to simpler trees. It's particularly effective for handling continuous variables, allowing the model to make splits that best separate the data with respect to the target variable. Thresholding helps in identifying critical values that differentiate outcomes, which can be valuable for interpretation and understanding the decision-making process of the tree.
+    
+    \item \textbf{Disadvantages:} The main challenge with thresholding is determining the optimal threshold for each split. This typically requires computational algorithms to search over many possible thresholds to find the one that best separates the data according to a criterion (like Gini impurity or information gain for classification, and variance reduction for regression).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/thresholding.png}
+    \caption{this is the shape we build up; ts flat within terminal nodes, discontinuous between nodes}
+    \label{fig:w02-fig43}
+\end{figure}
+
+\section{How to choose this split - how to optimise a tree?}
+
+There's no efficient way to construct the best tree (computationally intractable) $\rightarrow$ in practice, we greedily recurse down the tree.
+\begin{itemize}
+    \item Involves finding the partition that optimizes a certain criterion, aiming to best separate the data with respect to the target variable. 
+    \item Since the decision tree is built in a top-down manner, starting from the root and expanding down to the leaves, a greedy approach is employed at each step. 
+    \item However, \textbf{identifying the globally optimal decision tree—that is, the smallest tree that perfectly or best represents the data—is computationally infeasible for all but the simplest datasets due to the combinatorial explosion of possible trees}.
+\end{itemize}
+
+Here's how the process typically works in practice:\\
+
+\textbf{Greedy Recursive Splitting}\\
+
+\begin{enumerate}
+    \item \textbf{Start at the Root:} Begin with the entire dataset, considering all features and their possible values (or thresholds) for splitting.
+    
+    \item \textbf{Evaluate All Possible Splits:} For each feature, calculate the split criterion (e.g., Gini impurity, information gain, or variance reduction) for all possible values. This involves partitioning the data according to each split and evaluating how well it separates the data with respect to the target.
+    
+    \item \textbf{Choose the Best Split:} Select the feature and value that provide the best split according to the chosen criterion. This is the "greedy" part of the algorithm, as it chooses the best split at this particular step without regard to future splits.
+    
+    \item \textbf{Recursively Apply to Each Child Node:} Apply steps 2 and 3 recursively to each child node created by the split. Continue this process until a stopping criterion is met (e.g., maximum tree depth, minimum node size, or if no further improvement can be made).
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/recursive greedy.png}
+    \caption{Enter Caption}
+    \label{fig:w02-fig44}
+\end{figure}
+
+\textbf{NB: this gives us a general framework but it still doesn't tell us what is the optimum split at each location}
+
+
+
+\subsection{How can we fit a tree smartly?}
+
+We are partitioning the data space into regions $R_i$, based on certain conditions (thresholds for the features $\theta \rightarrow$ then making predictions based on avg outcome within those regions.\\
+
+\textbf{Node Definition}
+A node is defined as $R_1 = \{ x : x_1 \leq t_1, x_1 \leq t_2 \}$
+\begin{itemize}
+    \item Units with first feature less than or equal to $t_1$, etc
+    \item parameters $\theta$ define the model
+\end{itemize}
+
+\textbf{Prediction}
+Predictions for a test point $x$ are: $f(\Tilde{x}; \theta) = \sum^J_{j=1} \hat{y} (R_j) I{\hat{x} \in R_j})$.\\
+
+Where $\hat{y}(R_j) = \frac{\sum^n_{i=1} y_i I{x \in R_j})}{\sum^n_{i=1} I{x \in R_j})}$\\
+
+Intuitively: summing hte outcomes $y$ of the training data that fall within the same region $R_i$ as new prediction point $x$.\\
+
+\textbf{= just hte avg value of outcome within the node}\\
+
+\textbf{Loss function} measures measures the discrepancy between the actual outcomes $y_i$ and the predictions $f(x_i; \theta$.\\
+
+\begin{align*}
+    \mathcal{L}(\theta) &= \sum_i^n \ell (y_i, f(x_i)) \\
+    &= \sum_j^J \sum_{x_i \in R_j} \ell (y_i, \hat{y}(R_j))
+\end{align*}
+
+It is often defined as the sum of losses over all data points, where the loss for a single data point could be squared error for regression or log loss for classification, for example.
+
+\textbf{Challenge: Non-Differentiability}\\
+
+One major issue with decision trees, as highlighted, is that the process of selecting the best splits (i.e., optimizing the thresholds $\theta$ is inherently non-differentiable. \\
+
+The thresholds define boundaries that abruptly change the membership of data points to nodes, and consequently, the predictions.\\
+
+\begin{tcolorbox}
+    So, how to optimise?
+\begin{itemize}
+    \item Greedy Recursive Splitting -  At each step, the feature and threshold that result in the "best" split (according to some criterion like information gain or variance reduction) are chosen. This process is repeated recursively for each branch until a stopping condition is met
+    \item Dynamic Programming - For a fixed tree depth, one could, in theory, use dynamic programming to explore all possible trees. However, this is often computationally infeasible except for very small trees.
+    \item Randomization: Techniques like Random Forests introduce randomness into the tree building process by randomly selecting a subset of features to consider at each split or by bootstrapping the training data. This can help in exploring a larger space of possible models and can lead to better generalization.
+    \item Pruning: To address overfitting and reduce the complexity of the tree, post-hoc pruning methods can be applied. These methods simplify the tree after it has been fully grown, based on criteria such as the cost-complexity trade-off.
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{1) Greedy Recursive Splitting - If you can’t be smart, be greedy}
+To be greedy means to do the best thing at each step - Without thinking about the future or what might be best elsewhere
+
+\textcolor{red}{FINISH THIS NOTING}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/placeholder.png}
+    \caption{Enter Caption}
+    \label{fig:w02-fig45}
+\end{figure}
+
+
+How can we evaluate how good a potential split is?\\
+
+In the context of decision trees, especially for regression tasks, evaluating the quality of a potential split involves calculating how well the split organizes the data in terms of reducing variability (or error) within each resulting node. The Mean Squared Error (MSE) is a common metric for this purpose, reflecting the average squared difference between the observed actual outcomes and the predicted values, which, at any node of the tree, is typically the mean of the outcomes in that node. Here's how this process works in a greedy algorithm framework:
+
+\textbf{Evaluating a Potential Split}
+
+\begin{enumerate}
+    \item \textbf{Splitting the Data:} Consider a dataset $\mathcal{D}$ that you want to split into two subsets, $\mathcal{D}_{\text{left}}$ and $\mathcal{D}_{\text{right}}$, based on a certain feature's threshold. The goal is to find the threshold that best reduces the overall MSE.
+    
+    \item \textbf{Calculating MSE:} For each subset ($\mathcal{D}_{\text{left}}$ and $\mathcal{D}_{\text{right}}$), you calculate the MSE as follows:
+    \begin{itemize}
+        \item For each point in $\mathcal{D}_{\text{left}}$ or $\mathcal{D}_{\text{right}}$, compute the difference between the point's outcome $y$ and the average outcome $\bar{y}_{\mathcal{D}}$ of the subset.
+        \item Square these differences and average them over all points in the subset to get the MSE.
+    \end{itemize}
+    
+    \item \textbf{Weighted Average of MSE:} Since $\mathcal{D}_{\text{left}}$ and $\mathcal{D}_{\text{right}}$ may not contain the same number of points, you compute a weighted average of their MSEs to account for their relative sizes. This is given by:
+    \[
+    \text{MSE}_{\text{split}} = \frac{|\mathcal{D}_{\text{left}}|}{|\mathcal{D}|} \cdot \text{MSE}_{\mathcal{D}_{\text{left}}} + \frac{|\mathcal{D}_{\text{right}}|}{|\mathcal{D}|} \cdot \text{MSE}_{\mathcal{D}_{\text{right}}}
+    \]
+    Here, $|\mathcal{D}_{\text{left}}|$ and $|\mathcal{D}_{\text{right}}|$ are the sizes of the left and right subsets, respectively, and $|\mathcal{D}|$ is the size of the original dataset. The weights are thus the fractions of the dataset that go to the left and right, respectively.
+    
+    \item \textbf{Choosing the Best Split:} You evaluate this weighted average MSE for potential splits across all features and possible thresholds. The best split is the one that results in the lowest $\text{MSE}_{\text{split}}$, indicating that it most effectively reduces variability within each of the resulting subsets.
+\end{enumerate}
+
+\textbf{Greedy Nature of the Algorithm}
+
+The decision to choose the split that minimizes the MSE at each step, without considering future splits or the overall structure of the tree that these choices will lead to, embodies the greedy nature of the algorithm. This approach ensures that, at each step, the model is optimized to reduce error as much as possible given the current structure. However, it does not guarantee that the final tree will be the optimal structure for minimizing error across the entire dataset, due to the algorithm's local, rather than global, optimization focus.
+
+Despite this limitation, greedy algorithms are widely used for decision tree construction because they offer a practical balance between computational efficiency and model effectiveness. While they may not always find the absolute best model, they can still produce highly effective and interpretable models that perform well on a wide range of tasks.
+
+\subsubsection{Greed eventually overfits}
+
+Intuitive: if you keep splitting, you will keep reducing MSE in the training data... eventually will have $p = n$ where you perfectly predict training data....model increasingly adapts to the noise rather than the underlying pattern
+
+\subsection{2) Pruning}
+
+\subsubsection{Setting Tuning Parameter to Limit Tree Growth}
+
+\begin{itemize}
+    \item \textbf{Max Depth of the Tree:} Restricting the depth prevents the tree from creating highly specific rules that only apply to small portions of the data.
+    
+    \item \textbf{Minimum Number of Samples per Leaf:} each leaf node represents a reasonably large subset of the data, discouraging overly specific splits.
+    
+    \item \textbf{Minimum Number of Samples to Consider a Split:}
+\end{itemize}
+
+Tuned through CV
+
+\subsubsection{Cost-Complexity Pruning}
+
+also known as weakest link pruning.\\
+
+First allowing the decision tree to overfit the data and then pruning back the tree to improve its generalization capabilities.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/pruning.png}
+    \caption{CCP starts out with perfect test accuracy, then slowly prunes back based on}
+    \label{fig:w02-fig46}
+\end{figure}
+
+\begin{enumerate}
+    \item \textbf{Build the Whole Tree:} Initially, allow the decision tree to grow until it perfectly fits the training data.
+
+    \item \textbf{Prune the Tree:} Evaluate each node starting from the leaves and measure the increase in error (or decrease in accuracy) that would result from pruning (removing) that node and replacing it with its most common class (for classification) or average outcome (for regression). The increase in error is weighed against a complexity parameter ($\alpha$), which balances the trade-off between the tree's accuracy and its simplicity.
+
+    \item \textbf{Cutting Out Non-Beneficial Nodes:} If the error reduction (or accuracy gain) offered by a node is not greater than the complexity parameter, that node is pruned. This process is repeated recursively for each node in the tree until only nodes that provide a substantial benefit, according to the complexity parameter, remain.
+\end{enumerate}
+
+\textbf{Tuning the Complexity Parameter:} ($\alpha$) is tuned using cross-validation, where different values of $\alpha$ are tested to find the one that results in the best performance on a validation set or through out-of-bag error when using ensemble methods like Random Forests.
+
+
+\subsection{3) Randomization through Ensemble Techniques}
+
+Ensemble technique improve stability \& accuracy of ML algos - esp decision trees.
+
+\subsubsection{Bagging (Bootstrap Aggregating)}
+Turns downside into a positive! Leverages the "wisdom of the crowd," turning the instability of individual decision trees into a collective strength that achieves higher performance and reliability.\\
+
+
+Addresses the high variance and overfitting problems associated with decision trees by averaging multiple trees that individually may have high variance.\\
+
+A foundational technique for more complex ensemble methods like Random Forests.\\
+
+\textbf{How Bagging Works}
+
+\begin{enumerate}
+    \item \textbf{Botostrapping = Create Multiple Datasets:} create $M$ new datasets by sampling from the original dataset with replacement. Each bootstrapped dataset is likely to be different from the others.
+    
+    \item \textbf{Fit Separate Decision Trees:} For each of the $M$ bootstrapped datasets, fit a separate decision tree. Since each tree is trained on a slightly different dataset, they will differ from one another, capturing different aspects of the data.
+    
+    \item \textbf{Sampling Characteristics:} On average, each bootstrapped dataset contains about 63\% of the unique instances from the original dataset. The key to this is the bootstrapping process: there's about a 63\% chance (see slides for mathematical proof)
+    
+    \item \textbf{Out-of-Bag (OOB) Estimates:} For each tree, the remaining $\approx 37\%$ of the training instances that were not included in its bootstrapped dataset (the out-of-bag samples) can be used as a validation set to estimate the model's performance.
+    
+    \item \textbf{Aggregation:} To make a prediction for a new instance, bagging takes the predictions from all $M$ trees and then aggregates them to form a final prediction.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/bagging.png}
+    \caption{a) has a lot of weird shapes (overfit)... but as we start to use a 'bag' of boostrapped models, it smooths out}
+    \label{fig:w02-fig47}
+\end{figure}
+
+\textbf{Advantages of Bagging}
+
+\begin{itemize}
+    \item \textbf{Reduction in Variance:} By averaging multiple trees, bagging can significantly reduce the variance without increasing bias, leading to a more robust and accurate model overall.
+    
+    \item \textbf{Improved Accuracy:} Aggregating the predictions of multiple trees generally leads to higher accuracy than any of the individual trees.
+    
+    \item \textbf{OOB Error as an Estimator:} The OOB error, calculated by using each tree's OOB samples, provides a handy and unbiased estimate of the model's performance, similar to cross-validation but without the need for a separate validation set.
+    
+    \item \textbf{Parallelization:} Since each tree is built independently of the others, bagging can be easily parallelized, leading to computational efficiency.
+\end{itemize}
+
+\textbf{Bagging gives us useful random variation in the inclusion of samples -> beyond improving preduction 2 major advs: 1) Provides better estimates of error; 2) Allows estimation of variance of predictions}\\
+
+\textbf{1) Averaging over multiple poor models can be very good!} Each one needs to be better than useless, but very different from one another. \textbf{Injects randomness}\\
+
+NB - ideal number of models needed isn't always clear: tune with cv.\\
+
+\textbf{2) Using bagging to estimate variance}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/placeholder2.png}
+    \caption{Enter Caption}
+    \label{fig:w02-fig48}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/placeholder3.png}
+    \caption{Enter Caption}
+    \label{fig:w02-fig49}
+\end{figure}
+
+\subsubsection{Random Forests}
+
+= bagging on speed: add further improvements such as \textbf{feature subsampling} to increase the diversity among the trees. \\
+
+Random Forests extend the bagging technique by adding an extra layer of randomness to the tree-building process.
+\begin{itemize}
+    \item not only involves creating multiple trees on bootstrapped datasets (bagging)
+    \item but also randomly selects a \textbf{subset of features} at each split in the construction of the trees (we "hold out" features at each node)
+\end{itemize}
+introduces more variance/diversity among the learners/trees in the forest -> stronger overall model. \\
+
+\textbf{Individual trees are worse} - not always considering all features for every split, each tree in the Random Forest is likely to have a higher bias.... \\
+
+... means that the trees are less correlated with each other. \textbf{When their predictions are aggregated, the variance of the combined model is reduced}. (Aggregated by averaging for regression or voting for classification)
+
+
+Random forests can represent complex relationships very well
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/rand forest.png}
+    \caption{as you add models random forest starts to do better: this is because these trees are all injecting a degree of randomness; if there's good structure in your data and your features are meaningful,then you can avg over a bunch of them and you get good results}
+    \label{fig:w03-regression-vs-classification0}
+\end{figure}
+
+Random forests are basically an \textbf{atheoretical heuristic} that just happens to work really well.\\
+
+\section{Demonstration - Random Forests \& power of out-of-bag}
+
+in all of those rectangles: it takes avg within them
+decision tree function is basically a pixelated version\\
+
+out of bag estimate - almost as good as a test set, 
+or perhaps a more accurate comparison is to a CV set\\
+
+the out of bag sample allows you to work out how each data point influences the model (?)\\
+
+infintesimal boostrap: if you were to remove this one point in this area, 
+how would hte preduction change.... sothis means that our stnadard error is not constant
+across the functiin,,,, in areas where we have less/more data?, we will get inflated variance\\
+
+i think it's areas where the slopw is steeper we have higher variance
+because things are changing a lot so small changes in data point will have  big impact
+whereas where slopw is flat, variance in predictions will be less\\
+
+looks at correlation between trees - if highly correlated then 
+in the data we have high correlations iun preductions between trees - this is not great
+we want less correlation between the predictions
+... this motivates what we're about to look at nxt\\
+

@@ -1,0 +1,860 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Philosophical Foundations: The Computational Theory of Mind}{2}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Cybernetics and Early Neural Models (1940s--1950s)}{4}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}The Birth of Artificial Intelligence (1956)}{7}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}The Perceptron and Supervised Learning}{9}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}The First AI Winter (1970s)}{12}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Knowledge-Based Systems and Expert Systems (1980s)}{14}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}The Connectionist Revival (1980s)}{16}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}The Second AI Winter (Late 1980s--Early 1990s)}{18}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Unsupervised Learning}{18}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {10}Reinforcement Learning}{20}{section.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {11}The Statistical ML Renaissance (1990s--2000s)}{22}{section.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.1}Support Vector Machines}{22}{subsection.11.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.2}Ensemble Methods}{23}{subsection.11.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.3}Probabilistic Graphical Models}{23}{subsection.11.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {12}The Deep Learning Revolution (2010s--Present)}{24}{section.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {12.1}Why Now? The Convergence of Factors}{24}{subsection.12.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {12.2}Convolutional Networks and the Path to ImageNet}{25}{subsection.12.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {12.3}Transformers and Language Models}{26}{subsection.12.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {13}Summary: Recurring Themes in AI History}{28}{section.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {13.1}Looking Ahead}{29}{subsection.13.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {14}The Optimisation Framework}{30}{section.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {15}Maximum Likelihood Estimation (MLE)}{31}{section.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {15.1}The i.i.d.\ Assumption}{31}{subsection.15.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {15.2}From Likelihood to Negative Log-Likelihood}{32}{subsection.15.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {16}Linear Regression as MLE}{33}{section.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {16.1}The Probabilistic Model}{34}{subsection.16.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {16.2}Deriving the NLL}{34}{subsection.16.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {17}Residual Sum of Squares and the OLS Solution}{36}{section.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {17.1}The Analytic Solution}{36}{subsection.17.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {17.2}Geometric Interpretation: Orthogonal Projection}{38}{subsection.17.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Geometric interpretation of OLS: $\hat  {y}$ is the orthogonal projection of $y$ onto $\text  {Col}(X)$, and the residual $e$ is perpendicular to the column space.}}{38}{figure.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {17.3}What OLS Gives Us}{39}{subsection.17.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {18}KL Divergence and Cross-Entropy}{39}{section.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {18.1}Kullback-Leibler Divergence}{40}{subsection.18.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {18.2}Information-Theoretic Intuition}{40}{subsection.18.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {18.3}Why Asymmetry Matters}{41}{subsection.18.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {18.4}Cross-Entropy as a Loss Function}{42}{subsection.18.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {19}Variance of the OLS Estimator}{43}{section.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {19.1}Deriving the Variance}{43}{subsection.19.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {19.2}Homoskedastic Errors}{44}{subsection.19.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {19.3}Heteroskedastic Errors}{44}{subsection.19.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {20}Bayesian Inference and MAP Estimation}{46}{section.20}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Bayes' Rule: combining prior beliefs with observed data to form posterior beliefs. The posterior balances what we believed before (prior) with what the data tells us (likelihood).}}{46}{figure.2}\protected@file@percent }
+\newlabel{fig:bayes-rule}{{2}{46}{Bayes' Rule: combining prior beliefs with observed data to form posterior beliefs. The posterior balances what we believed before (prior) with what the data tells us (likelihood)}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {20.1}Maximum A Posteriori (MAP) Estimation}{47}{subsection.20.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {20.2}Interpreting Uncertainty: Credible vs Confidence Intervals}{48}{subsection.20.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {21}Empirical Risk Minimisation}{49}{section.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {21.1}Common Loss Functions}{50}{subsection.21.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {21.2}The Problem with 0-1 Loss}{50}{subsection.21.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Surrogate loss functions compared to 0-1 loss. All surrogate losses upper bound the 0-1 loss while being differentiable and (mostly) convex.}}{51}{figure.3}\protected@file@percent }
+\newlabel{fig:surrogate-losses}{{3}{51}{Surrogate loss functions compared to 0-1 loss. All surrogate losses upper bound the 0-1 loss while being differentiable and (mostly) convex}{figure.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {21.3}Classification Errors}{51}{subsection.21.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Confusion matrix structure showing the four possible outcomes of binary classification.}}{52}{figure.4}\protected@file@percent }
+\newlabel{fig:confusion-matrix}{{4}{52}{Confusion matrix structure showing the four possible outcomes of binary classification}{figure.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {22}Convexity and Optimisation}{52}{section.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {22.1}Convex Functions}{53}{subsection.22.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {22.2}Gradient Descent}{54}{subsection.22.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {22.3}Choosing the Learning Rate}{55}{subsection.22.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Effect of learning rate on gradient descent convergence. Loss versus iteration for different learning rates.}}{55}{figure.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {22.4}Stochastic Gradient Descent (SGD)}{55}{subsection.22.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {23}Logistic Regression}{56}{section.23}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces The sigmoid (logistic) function $\sigma (z) = 1/(1 + e^{-z})$ maps any real number to $(0, 1)$. At $z=0$, $\sigma (0) = 0.5$. The function saturates at 0 and 1 for large $|z|$.}}{57}{figure.6}\protected@file@percent }
+\newlabel{fig:sigmoid}{{6}{57}{The sigmoid (logistic) function $\sigma (z) = 1/(1 + e^{-z})$ maps any real number to $(0, 1)$. At $z=0$, $\sigma (0) = 0.5$. The function saturates at 0 and 1 for large $|z|$}{figure.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {23.1}Training: Binary Cross-Entropy}{58}{subsection.23.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {23.2}Decision Boundaries}{59}{subsection.23.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Linear decision boundary separating two classes. The boundary is the hyperplane where $x^\top \beta = 0$. Points on one side are classified as positive, points on the other as negative.}}{59}{figure.7}\protected@file@percent }
+\newlabel{fig:decision-boundary}{{7}{59}{Linear decision boundary separating two classes. The boundary is the hyperplane where $x^\top \beta = 0$. Points on one side are classified as positive, points on the other as negative}{figure.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {24}The Bias-Variance Tradeoff}{59}{section.24}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {24.1}Full Derivation of the Decomposition}{60}{subsection.24.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {24.2}Prediction Error Decomposition}{60}{subsection.24.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {24.3}Visual Intuition: The Bullseye}{61}{subsection.24.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {24.4}Example: Shrinkage Estimators}{62}{subsection.24.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {25}Preview: Regularisation and its Geometry}{63}{section.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {25.1}Regularised Loss Functions}{63}{subsection.25.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {25.2}Geometric Interpretation}{64}{subsection.25.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {25.3}Ridge Regression: Closed Form}{64}{subsection.25.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {26}Summary}{66}{section.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {27}Supervised Learning: A Quick Recap}{67}{section.27}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Regression vs classification in supervised learning. Left: regression fits a continuous function through the data. Right: classification finds a decision boundary separating classes.}}{67}{figure.8}\protected@file@percent }
+\newlabel{fig:regression-vs-classification}{{8}{67}{Regression vs classification in supervised learning. Left: regression fits a continuous function through the data. Right: classification finds a decision boundary separating classes}{figure.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {27.1}OLS Recap}{67}{subsection.27.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {28}From Linear to Nonlinear: Polynomial Regression}{68}{section.28}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {28.1}Why Polynomials Are Attractive (In Theory)}{69}{subsection.28.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {28.2}Feature Expansion: Power and Peril}{69}{subsection.28.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {28.3}The Problem: Choosing $M$}{71}{subsection.28.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Effect of polynomial degree on fit. Higher degrees fit training data perfectly but generalise poorly. This illustrates the fundamental tension in model selection: low $M$ underfits (misses the pattern), high $M$ overfits (memorises noise).}}{71}{figure.9}\protected@file@percent }
+\newlabel{fig:choosing-M}{{9}{71}{Effect of polynomial degree on fit. Higher degrees fit training data perfectly but generalise poorly. This illustrates the fundamental tension in model selection: low $M$ underfits (misses the pattern), high $M$ overfits (memorises noise)}{figure.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {28.4}Numerical Instability in High-Degree Polynomials}{72}{subsection.28.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Numerical instability in high-degree polynomials: small perturbations in data cause large changes in the fitted curve, particularly near the edges of the domain.}}{73}{figure.10}\protected@file@percent }
+\newlabel{fig:numerical-instability}{{10}{73}{Numerical instability in high-degree polynomials: small perturbations in data cause large changes in the fitted curve, particularly near the edges of the domain}{figure.10}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {28.4.1}Condition Numbers: A Deeper Look}{73}{subsubsection.28.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {28.5}Runge's Phenomenon}{75}{subsection.28.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {28.5.1}Solutions to Runge's Phenomenon}{75}{subsubsection.28.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {29}The Curse of Dimensionality}{76}{section.29}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {29.1}Volume Concentration}{77}{subsection.29.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {29.2}Distance Concentration}{78}{subsection.29.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {29.3}Implications for Machine Learning}{78}{subsection.29.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {30}Decomposing Prediction Error}{79}{section.30}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {30.1}The Bias-Variance Tradeoff: A First Look}{79}{subsection.30.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Bias-variance tradeoff: as model complexity increases, bias decreases but variance increases. The optimal complexity minimises total error (MSE). This U-shaped curve is fundamental to model selection.}}{80}{figure.11}\protected@file@percent }
+\newlabel{fig:bias-variance-MSE}{{11}{80}{Bias-variance tradeoff: as model complexity increases, bias decreases but variance increases. The optimal complexity minimises total error (MSE). This U-shaped curve is fundamental to model selection}{figure.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {30.2}Evaluation Metrics: Defining ``Risk''}{80}{subsection.30.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Confusion matrix showing Type I errors (false positives) and Type II errors (false negatives). These frame the loss in terms of incorrect predictions.}}{81}{figure.12}\protected@file@percent }
+\newlabel{fig:confusion-matrix}{{12}{81}{Confusion matrix showing Type I errors (false positives) and Type II errors (false negatives). These frame the loss in terms of incorrect predictions}{figure.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {30.3}Population Risk vs Empirical Risk}{82}{subsection.30.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {30.4}Three Levels of Optimality}{83}{subsection.30.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {30.5}Approximation vs Estimation Error}{84}{subsection.30.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {30.5.1}Approximation Error}{85}{subsubsection.30.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {30.5.2}Estimation Error}{85}{subsubsection.30.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {30.5.3}The Fundamental Tradeoff}{86}{subsubsection.30.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {30.6}Estimating Generalisation Error}{86}{subsection.30.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {31}Regularisation}{87}{section.31}\protected@file@percent }
+\newlabel{sec:regularisation}{{31}{87}{Regularisation}{section.31}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {31.1}The Mechanics of Regularisation}{88}{subsection.31.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {31.2}Uses of Regularisation}{88}{subsection.31.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {31.3}Ridge Regression (L2 Regularisation)}{89}{subsection.31.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {31.3.1}Ridge as Rescaled OLS}{89}{subsubsection.31.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {31.3.2}Geometric Interpretation of Ridge}{89}{subsubsection.31.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {31.4}Lasso Regression (L1 Regularisation)}{90}{subsection.31.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {31.4.1}Lasso as Soft Thresholding}{90}{subsubsection.31.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {31.4.2}Why Lasso Produces Sparsity: Geometric Intuition}{91}{subsubsection.31.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {31.5}Elastic Net}{92}{subsection.31.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {32}Multiple Perspectives on Regularisation}{92}{section.32}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {32.1}Perspective 1: Necessity (Invertibility)}{93}{subsection.32.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {32.2}Perspective 2: Bias-Variance Tradeoff}{93}{subsection.32.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {32.3}Perspective 3: Bayesian Interpretation (MAP)}{94}{subsection.32.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Bayes' theorem: the posterior $p(\theta | \mathcal  {D})$ is proportional to the prior $p(\theta )$ times the likelihood $p(\mathcal  {D} | \theta )$. Regularisation enters through the prior.}}{95}{figure.13}\protected@file@percent }
+\newlabel{fig:bayes-theorem}{{13}{95}{Bayes' theorem: the posterior $p(\theta | \mathcal {D})$ is proportional to the prior $p(\theta )$ times the likelihood $p(\mathcal {D} | \theta )$. Regularisation enters through the prior}{figure.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {32.4}Perspective 4: Geometric Interpretation}{96}{subsection.32.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {32.5}Perspective 5: Measurement Error}{96}{subsection.32.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {33}Model Selection and Validation}{97}{section.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {33.1}Validation Sets}{97}{subsection.33.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {33.2}Cross-Validation}{98}{subsection.33.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Cross-validation error as a function of model complexity (indexed on x-axis). The U-shaped curve shows the bias-variance tradeoff: too simple models underfit (high error on left), too complex models overfit (high error on right). The optimal complexity minimises CV error.}}{98}{figure.14}\protected@file@percent }
+\newlabel{fig:cv-error}{{14}{98}{Cross-validation error as a function of model complexity (indexed on x-axis). The U-shaped curve shows the bias-variance tradeoff: too simple models underfit (high error on left), too complex models overfit (high error on right). The optimal complexity minimises CV error}{figure.14}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {34}Regularised Polynomial Regression}{99}{section.34}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Regularised polynomial regression. The right panels show L2 regularisation producing smooth fits even with high-degree polynomials, avoiding the oscillatory behaviour of unregularised fits. Panel (c) is particularly notable: a smooth model that doesn't exhibit typical polynomial wiggles. Regularisation allows us to get the best of both worlds-expressivity without instability.}}{100}{figure.15}\protected@file@percent }
+\newlabel{fig:regularised-polynomial}{{15}{100}{Regularised polynomial regression. The right panels show L2 regularisation producing smooth fits even with high-degree polynomials, avoiding the oscillatory behaviour of unregularised fits. Panel (c) is particularly notable: a smooth model that doesn't exhibit typical polynomial wiggles. Regularisation allows us to get the best of both worlds-expressivity without instability}{figure.15}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {35}Summary}{101}{section.35}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {36}Cross-Validation}{102}{section.36}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {36.1}The Core Problem}{102}{subsection.36.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {36.2}Why Train-Test Split Isn't Enough}{103}{subsection.36.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {36.3}K-Fold Cross-Validation}{103}{subsection.36.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces 5-fold cross-validation: the data is split into 5 folds, and each fold serves as the validation set exactly once while the remaining 4 folds form the training set. After all 5 iterations, every observation has been used for both training (4 times) and validation (1 time).}}{104}{figure.16}\protected@file@percent }
+\newlabel{fig:kfold-cv}{{16}{104}{5-fold cross-validation: the data is split into 5 folds, and each fold serves as the validation set exactly once while the remaining 4 folds form the training set. After all 5 iterations, every observation has been used for both training (4 times) and validation (1 time)}{figure.16}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {36.3.1}Bias-Variance Tradeoff in K-Fold CV}{104}{subsubsection.36.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {36.3.2}Computational Cost}{105}{subsubsection.36.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {36.4}LOOCV for Linear Regression}{105}{subsection.36.4}\protected@file@percent }
+\newlabel{sec:loocv-shortcut}{{36.4}{105}{LOOCV for Linear Regression}{subsection.36.4}{}}
+\newlabel{box:loocv-derivation}{{36.4}{107}{LOOCV for Linear Regression}{subsection.36.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {36.5}One Standard Error Rule}{108}{subsection.36.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {36.5.1}Worked Example: Ridge Regression}{110}{subsubsection.36.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {36.5.2}When to Use the One Standard Error Rule}{110}{subsubsection.36.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {36.6}Grouped Cross-Validation}{111}{subsection.36.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces \textbf  {Left}: Group K-fold keeps all observations from a given group together in the same fold across all CV iterations. \textbf  {Right}: Time series split respects temporal ordering, always using past data to predict future data.}}{112}{figure.17}\protected@file@percent }
+\newlabel{fig:cv-grouping}{{17}{112}{\textbf {Left}: Group K-fold keeps all observations from a given group together in the same fold across all CV iterations. \textbf {Right}: Time series split respects temporal ordering, always using past data to predict future data}{figure.17}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {36.6.1}When Groups Matter}{112}{subsubsection.36.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {36.6.2}Stratified Cross-Validation}{113}{subsubsection.36.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {36.6.3}Nested Cross-Validation}{113}{subsubsection.36.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {37}Model Selection Criteria}{114}{section.37}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {37.1}Akaike Information Criterion (AIC)}{115}{subsection.37.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {37.2}Bayesian Information Criterion (BIC)}{116}{subsection.37.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {37.3}AIC vs BIC: Different Goals}{116}{subsection.37.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {37.4}Comparison with Cross-Validation}{117}{subsection.37.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {38}Frequentist vs Bayesian Risk}{118}{section.38}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {39}Generalisation Bounds}{119}{section.39}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {39.1}Error Decomposition Recap}{120}{subsection.39.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {39.2}Building Blocks: Concentration Inequalities}{121}{subsection.39.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Union bound: $P(A \cup B) \leq P(A) + P(B)$. The bound is loose when events overlap significantly (we double-count the intersection $A \cap B$), but it avoids computing complex intersections.}}{122}{figure.18}\protected@file@percent }
+\newlabel{fig:union-bound}{{18}{122}{Union bound: $P(A \cup B) \leq P(A) + P(B)$. The bound is loose when events overlap significantly (we double-count the intersection $A \cap B$), but it avoids computing complex intersections}{figure.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {39.3}First Generalisation Bound}{122}{subsection.39.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {39.4}Limitations of This Bound}{123}{subsection.39.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {40}Measuring Hypothesis Class Complexity}{123}{section.40}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {40.1}Intrinsic Dimensionality and the Manifold Hypothesis}{124}{subsection.40.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {40.2}VC Dimension}{125}{subsection.40.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Linear classifiers in 2D can shatter 3 points in general position: for any labelling of the 3 points, we can find a line that separates them correctly. Hence $\text  {VC}(\text  {linear classifiers in } \mathbb  {R}^2) \geq 3$.}}{125}{figure.19}\protected@file@percent }
+\newlabel{fig:shattering-1}{{19}{125}{Linear classifiers in 2D can shatter 3 points in general position: for any labelling of the 3 points, we can find a line that separates them correctly. Hence $\text {VC}(\text {linear classifiers in } \mathbb {R}^2) \geq 3$}{figure.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces However, 4 points in general position \textit  {cannot} be shattered by linear classifiers in 2D. The ``XOR'' labelling (opposite corners have the same label) cannot be achieved by any line. Hence $\text  {VC}(\text  {linear classifiers in } \mathbb  {R}^2) = 3 = d + 1$.}}{126}{figure.20}\protected@file@percent }
+\newlabel{fig:shattering-2}{{20}{126}{However, 4 points in general position \textit {cannot} be shattered by linear classifiers in 2D. The ``XOR'' labelling (opposite corners have the same label) cannot be achieved by any line. Hence $\text {VC}(\text {linear classifiers in } \mathbb {R}^2) = 3 = d + 1$}{figure.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces The function $f(x) = \text  {sign}(\sin (\omega x))$ has only \textbf  {one parameter} ($\omega $) but \textbf  {infinite VC dimension}. By choosing $\omega $ large enough, the function oscillates rapidly enough to shatter arbitrarily many points on the real line.}}{126}{figure.21}\protected@file@percent }
+\newlabel{fig:shattering-3}{{21}{126}{The function $f(x) = \text {sign}(\sin (\omega x))$ has only \textbf {one parameter} ($\omega $) but \textbf {infinite VC dimension}. By choosing $\omega $ large enough, the function oscillates rapidly enough to shatter arbitrarily many points on the real line}{figure.21}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {40.3}The VC Bound}{126}{subsection.40.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {40.4}Rademacher Complexity}{127}{subsection.40.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {41}Structural Risk Minimisation}{128}{section.41}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {42}Generalisation in Linear Regression}{128}{section.42}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {42.1}OLS Estimation Error}{129}{subsection.42.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {42.2}Singular Value Decomposition (SVD)}{129}{subsection.42.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {22}{\ignorespaces SVD dimensions: $X$ is $n \times p$, decomposed into $U$ ($n \times r$), $\Sigma $ ($r \times r$), and $V^\top $ ($r \times p$) where $r = \text  {rank}(X)$.}}{130}{figure.22}\protected@file@percent }
+\newlabel{fig:svd-dims}{{22}{130}{SVD dimensions: $X$ is $n \times p$, decomposed into $U$ ($n \times r$), $\Sigma $ ($r \times r$), and $V^\top $ ($r \times p$) where $r = \text {rank}(X)$}{figure.22}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {23}{\ignorespaces Geometric interpretation of SVD: any linear transformation can be decomposed as $V^\top $ (rotate input), $\Sigma $ (scale along axes), $U$ (rotate to output). SVD decomposes any linear transformation into rotation-scale-rotation.}}{130}{figure.23}\protected@file@percent }
+\newlabel{fig:svd-transform}{{23}{130}{Geometric interpretation of SVD: any linear transformation can be decomposed as $V^\top $ (rotate input), $\Sigma $ (scale along axes), $U$ (rotate to output). SVD decomposes any linear transformation into rotation-scale-rotation}{figure.23}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {43}Low vs High Dimensional Regimes}{131}{section.43}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {43.1}Low-Dimensional Regime: $p \ll n$}{131}{subsection.43.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {24}{\ignorespaces Low-dimensional regime: as $n$ increases, the excess risk decreases smoothly as $1/n$. More data leads to rapid improvement in generalisation.}}{131}{figure.24}\protected@file@percent }
+\newlabel{fig:low-dim}{{24}{131}{Low-dimensional regime: as $n$ increases, the excess risk decreases smoothly as $1/n$. More data leads to rapid improvement in generalisation}{figure.24}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {43.2}High-Dimensional Regime: $p > n$}{132}{subsection.43.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {25}{\ignorespaces High-dimensional regime: the relationship between model complexity and error follows different dynamics. Bias dominates, and adding data helps only marginally when $p$ is very large.}}{132}{figure.25}\protected@file@percent }
+\newlabel{fig:high-dim}{{25}{132}{High-dimensional regime: the relationship between model complexity and error follows different dynamics. Bias dominates, and adding data helps only marginally when $p$ is very large}{figure.25}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {43.3}The Interpolation Threshold and Double Descent}{133}{subsection.43.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {26}{\ignorespaces Classical bias-variance tradeoff: total error (MSE, solid black) is the sum of squared bias (decreasing with complexity) and variance (increasing with complexity). The optimal complexity balances these two components. Double descent extends this picture into the overparameterised regime, where error can decrease again.}}{133}{figure.26}\protected@file@percent }
+\newlabel{fig:bias-variance}{{26}{133}{Classical bias-variance tradeoff: total error (MSE, solid black) is the sum of squared bias (decreasing with complexity) and variance (increasing with complexity). The optimal complexity balances these two components. Double descent extends this picture into the overparameterised regime, where error can decrease again}{figure.26}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {27}{\ignorespaces Effect of model complexity on fit. (a) Low complexity (e.g., degree 2 polynomial): underfitting, high bias-the model cannot capture the pattern. (b) Medium complexity (e.g., degree 14): good fit-balancing bias and variance. (c) High complexity (e.g., degree 20): classical overfitting, high variance. (d) Training error decreases monotonically with complexity; test error is U-shaped in the classical regime but can exhibit double descent in the overparameterised regime.}}{134}{figure.27}\protected@file@percent }
+\newlabel{fig:model-complexity}{{27}{134}{Effect of model complexity on fit. (a) Low complexity (e.g., degree 2 polynomial): underfitting, high bias-the model cannot capture the pattern. (b) Medium complexity (e.g., degree 14): good fit-balancing bias and variance. (c) High complexity (e.g., degree 20): classical overfitting, high variance. (d) Training error decreases monotonically with complexity; test error is U-shaped in the classical regime but can exhibit double descent in the overparameterised regime}{figure.27}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {44}Bias-Variance Decomposition}{135}{section.44}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {45}Summary}{139}{section.45}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {46}The Overfitting Paradox}{140}{section.46}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {46.1}Classical Wisdom: Interpolation is Bad}{140}{subsection.46.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {46.2}Modern Observation: Deep Networks Interpolate and Generalise}{141}{subsection.46.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {47}Recap: OLS in Different Regimes}{141}{section.47}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {47.1}Low-Dimensional Regime: $p \ll n$}{142}{subsection.47.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {47.2}High-Dimensional Regime: $p \gg n$}{143}{subsection.47.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {47.3}Comparing the Two Regimes}{144}{subsection.47.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {47.4}The Regularisation Paradox}{144}{subsection.47.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {48}The Double Descent Phenomenon}{145}{section.48}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {48.1}From U-Curve to Double Descent}{145}{subsection.48.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {28}{\ignorespaces Double descent: test error peaks at the interpolation threshold ($p \approx n$), then \textbf  {decreases} as $p \gg n$. The classical U-curve captures only the left portion of this phenomenon.}}{145}{figure.28}\protected@file@percent }
+\newlabel{fig:double-descent}{{28}{145}{Double descent: test error peaks at the interpolation threshold ($p \approx n$), then \textbf {decreases} as $p \gg n$. The classical U-curve captures only the left portion of this phenomenon}{figure.28}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {48.2}What Happens at the Interpolation Threshold?}{146}{subsection.48.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {29}{\ignorespaces At $p \approx n$, the model can perfectly interpolate training data (zero training error), but does so in the worst possible way-with maximum sensitivity to noise.}}{147}{figure.29}\protected@file@percent }
+\newlabel{fig:interpolation-threshold}{{29}{147}{At $p \approx n$, the model can perfectly interpolate training data (zero training error), but does so in the worst possible way-with maximum sensitivity to noise}{figure.29}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {48.3}Why Does Error Decrease Again?}{147}{subsection.48.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {49}Minimum-Norm Interpolation}{148}{section.49}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {49.1}Definition and Motivation}{148}{subsection.49.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {49.2}Why Minimum Norm Helps Generalisation}{149}{subsection.49.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {50}SVD Perspective on Overparameterised Regression}{150}{section.50}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {50.1}SVD Basics Revisited}{150}{subsection.50.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {30}{\ignorespaces The SVD geometrically represents how a matrix transforms space: rotation, scaling along principal axes, then another rotation.}}{151}{figure.30}\protected@file@percent }
+\newlabel{fig:dot-product}{{30}{151}{The SVD geometrically represents how a matrix transforms space: rotation, scaling along principal axes, then another rotation}{figure.30}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {50.2}Minimum-Norm Solution via SVD}{152}{subsection.50.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {50.3}Signal vs Noise: The $k$-Split Perspective}{153}{subsection.50.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {31}{\ignorespaces SVD naturally orders dimensions by importance. The first $k$ singular values capture structure; the remainder behave like noise. Benign overfitting occurs when the ``noise'' dimensions are numerous and isotropic.}}{154}{figure.31}\protected@file@percent }
+\newlabel{fig:k-split}{{31}{154}{SVD naturally orders dimensions by importance. The first $k$ singular values capture structure; the remainder behave like noise. Benign overfitting occurs when the ``noise'' dimensions are numerous and isotropic}{figure.31}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {50.4}Two Perspectives on the $k$-Split}{155}{subsection.50.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {51}Benign Overfitting: Formal Conditions}{155}{section.51}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {51.1}Effective Rank: Measuring Spread}{155}{subsection.51.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {51.2}The Risk Bound}{156}{subsection.51.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {51.3}Understanding the Two Terms}{157}{subsection.51.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {51.4}Three Conditions for Benign Overfitting}{158}{subsection.51.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {32}{\ignorespaces The structure of the covariance matrix matters. Isotropic noise (left) spreads errors across many dimensions; structured noise (right) can concentrate errors and break benign overfitting.}}{159}{figure.32}\protected@file@percent }
+\newlabel{fig:covariance-issues}{{32}{159}{The structure of the covariance matrix matters. Isotropic noise (left) spreads errors across many dimensions; structured noise (right) can concentrate errors and break benign overfitting}{figure.32}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {51.5}Why SVD Makes This Automatic}{159}{subsection.51.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {52}The Manifold Hypothesis}{160}{section.52}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {33}{\ignorespaces The curse of dimensionality: as dimension increases, volume concentrates near the surface of hyperspheres and hypercubes, making the interior essentially empty. Real data avoids this by lying on low-dimensional manifolds.}}{161}{figure.33}\protected@file@percent }
+\newlabel{fig:vol-dim}{{33}{161}{The curse of dimensionality: as dimension increases, volume concentrates near the surface of hyperspheres and hypercubes, making the interior essentially empty. Real data avoids this by lying on low-dimensional manifolds}{figure.33}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {53}Connection to Deep Learning}{162}{section.53}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {53.1}Why Neural Networks Benefit from Overparameterisation}{162}{subsection.53.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {53.2}Limitations of the Linear Theory}{163}{subsection.53.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {54}Kernel Methods and Benign Overfitting}{164}{section.54}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {34}{\ignorespaces Different kernel choices correspond to different implicit feature spaces. The kernel determines the geometry of the function space and thus the implicit regularisation properties.}}{164}{figure.34}\protected@file@percent }
+\newlabel{fig:kernels}{{34}{164}{Different kernel choices correspond to different implicit feature spaces. The kernel determines the geometry of the function space and thus the implicit regularisation properties}{figure.34}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {35}{\ignorespaces Kernel manipulation: combining and transforming kernels creates new implicit feature spaces with different inductive biases.}}{165}{figure.35}\protected@file@percent }
+\newlabel{fig:kernel-manipulation}{{35}{165}{Kernel manipulation: combining and transforming kernels creates new implicit feature spaces with different inductive biases}{figure.35}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {55}Historical Context}{165}{section.55}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {55.1}Classical Statistical Wisdom}{166}{subsection.55.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {55.2}The Modern Revolution}{166}{subsection.55.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {55.3}Reconciling Old and New}{166}{subsection.55.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {56}Practical Implications}{167}{section.56}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {57}Summary}{169}{section.57}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {58}Introduction to Kernel Methods}{171}{section.58}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {58.1}A New Way to Think About Learning}{171}{subsection.58.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {58.2}The Problem: Linear Methods Meet Nonlinear Data}{171}{subsection.58.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {59}An Alternative View of Regression}{172}{section.59}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {59.1}Two Equivalent Formulations of Ridge Regression}{172}{subsection.59.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {59.2}Similarity as Dot Product}{173}{subsection.59.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {36}{\ignorespaces The dot product $x \cdot y = \|x\|\|y\|\cos \theta $ captures both magnitude and direction. When $\theta $ is small (similar directions), $\cos \theta $ is large and the dot product is large.}}{174}{figure.36}\protected@file@percent }
+\newlabel{fig:dot-product}{{36}{174}{The dot product $x \cdot y = \|x\|\|y\|\cos \theta $ captures both magnitude and direction. When $\theta $ is small (similar directions), $\cos \theta $ is large and the dot product is large}{figure.36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {59.3}Regression as Weighted Averaging}{174}{subsection.59.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {59.4}The Importance of Defining Similarity Correctly}{175}{subsection.59.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {37}{\ignorespaces All four datasets have the same correlation coefficient, but their structures differ dramatically. Linear correlation (based on Euclidean distance) cannot distinguish them. This is Anscombe's quartet.}}{176}{figure.37}\protected@file@percent }
+\newlabel{fig:covariance-issues}{{37}{176}{All four datasets have the same correlation coefficient, but their structures differ dramatically. Linear correlation (based on Euclidean distance) cannot distinguish them. This is Anscombe's quartet}{figure.37}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {60}Feature Maps and the Kernel Trick}{176}{section.60}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {60.1}Feature Expansion}{176}{subsection.60.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {60.2}The Kernel Trick}{177}{subsection.60.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {60.3}The Gram Matrix}{179}{subsection.60.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {61}What Makes a Valid Kernel?}{179}{section.61}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {61.1}Constructing Kernels}{180}{subsection.61.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {38}{\ignorespaces Rules for constructing valid kernels from simpler ones. Any combination that preserves positive semi-definiteness yields a valid kernel.}}{181}{figure.38}\protected@file@percent }
+\newlabel{fig:kernel-manipulation}{{38}{181}{Rules for constructing valid kernels from simpler ones. Any combination that preserves positive semi-definiteness yields a valid kernel}{figure.38}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {39}{\ignorespaces Combining kernels: Gaussian (local), periodic (cyclical), and mixed. Adjusting $\sigma ^2$ combines wide global structure with high-frequency local variation.}}{182}{figure.39}\protected@file@percent }
+\newlabel{fig:combining-kernels}{{39}{182}{Combining kernels: Gaussian (local), periodic (cyclical), and mixed. Adjusting $\sigma ^2$ combines wide global structure with high-frequency local variation}{figure.39}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {62}Common Kernels}{183}{section.62}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {62.1}Linear Kernel}{183}{subsection.62.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {62.2}Polynomial Kernel}{183}{subsection.62.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {62.3}Gaussian (RBF) Kernel}{185}{subsection.62.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {62.3.1}Why the RBF Kernel is Infinite-Dimensional}{185}{subsubsection.62.3.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {40}{\ignorespaces Left: Linear regression (rigid, global). Right: RBF kernel regression allows locally-weighted similarity, adapting flexibly to the data structure.}}{186}{figure.40}\protected@file@percent }
+\newlabel{fig:kernels-comparison}{{40}{186}{Left: Linear regression (rigid, global). Right: RBF kernel regression allows locally-weighted similarity, adapting flexibly to the data structure}{figure.40}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {62.4}Other Common Kernels}{187}{subsection.62.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {63}Kernel Ridge Regression}{188}{section.63}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {63.1}Derivation via the Dual}{188}{subsection.63.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {64}Support Vector Machines}{192}{section.64}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {64.1}Maximum Margin Classification}{192}{subsection.64.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {64.2}Hard-Margin SVM}{193}{subsection.64.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {64.3}Soft-Margin SVM}{195}{subsection.64.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {64.4}Kernel SVMs}{196}{subsection.64.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {65}Reproducing Kernel Hilbert Spaces}{198}{section.65}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {66}Related Methods}{200}{section.66}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {66.1}K-Nearest Neighbours}{200}{subsection.66.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {41}{\ignorespaces Kernels can capture both global structure and local variation. The kernel induces low-rank global structure (capturing overall trends) while allowing for local adaptation.}}{201}{figure.41}\protected@file@percent }
+\newlabel{fig:kernel-structure-1}{{41}{201}{Kernels can capture both global structure and local variation. The kernel induces low-rank global structure (capturing overall trends) while allowing for local adaptation}{figure.41}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {42}{\ignorespaces Different features may demand different notions of similarity. By combining or learning kernel parameters, models can discover which features (or combinations) are most indicative of similarity.}}{201}{figure.42}\protected@file@percent }
+\newlabel{fig:kernel-structure-2}{{42}{201}{Different features may demand different notions of similarity. By combining or learning kernel parameters, models can discover which features (or combinations) are most indicative of similarity}{figure.42}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {67}Practical Considerations}{202}{section.67}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {67.1}Kernel Selection}{202}{subsection.67.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {67.2}Computational Scaling}{203}{subsection.67.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {68}The Curse of Dimensionality}{204}{section.68}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {68.1}Why Distance Fails in High Dimensions}{204}{subsection.68.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {43}{\ignorespaces To capture 10\% of data as $d$ increases, $\epsilon $ must grow dramatically. In high dimensions, the neighbourhood radius approaches the boundary of the space.}}{205}{figure.43}\protected@file@percent }
+\newlabel{fig:vol-dim-table}{{43}{205}{To capture 10\% of data as $d$ increases, $\epsilon $ must grow dramatically. In high dimensions, the neighbourhood radius approaches the boundary of the space}{figure.43}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {44}{\ignorespaces Volume concentration in high dimensions: most volume lies near the boundary, and the concept of ``local neighbourhood'' becomes meaningless.}}{205}{figure.44}\protected@file@percent }
+\newlabel{fig:vol-dim-graph}{{44}{205}{Volume concentration in high dimensions: most volume lies near the boundary, and the concept of ``local neighbourhood'' becomes meaningless}{figure.44}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {68.2}Implications for Machine Learning}{206}{subsection.68.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {69}Summary}{207}{section.69}\protected@file@percent }
+\newlabel{fig:kernel-meme}{{69}{208}{Summary}{Item.273}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {70}Introduction: Why Fairness Matters}{209}{section.70}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {71}Machine Learning in Social Context}{209}{section.71}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {45}{\ignorespaces ML systems exist within broader social and institutional contexts.}}{209}{figure.45}\protected@file@percent }
+\newlabel{fig:ml-context}{{45}{209}{ML systems exist within broader social and institutional contexts}{figure.45}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {71.1}Feedback Loops}{210}{subsection.71.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {71.2}Language Models and Encoded Bias}{211}{subsection.71.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {46}{\ignorespaces Language models encode societal biases-which patterns should we replicate?}}{211}{figure.46}\protected@file@percent }
+\newlabel{fig:bias-example}{{46}{211}{Language models encode societal biases-which patterns should we replicate?}{figure.46}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {72}Sources of Bias}{211}{section.72}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {72.1}Feature Omission as a Source of Bias}{214}{subsection.72.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {73}Types of Harm}{214}{section.73}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {74}What is Fairness?}{216}{section.74}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {74.1}Legitimacy: The Prior Question}{216}{subsection.74.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {74.2}Relative Treatment: Fairness Metrics}{217}{subsection.74.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {74.3}Procedural Fairness: The Right to Reasons}{217}{subsection.74.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {74.4}Individual vs Group Fairness}{218}{subsection.74.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {75}Types of Automation}{220}{section.75}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {76}Case Studies}{222}{section.76}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {76.1}COMPAS: Recidivism Prediction}{222}{subsection.76.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {76.2}Amazon Hiring Algorithm}{223}{subsection.76.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {76.3}Healthcare Cost Prediction}{224}{subsection.76.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {76.4}Facial Recognition Disparities}{225}{subsection.76.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {77}Mitigation Strategies}{226}{section.77}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {78}Agency and Recourse}{228}{section.78}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {79}Culpability: Who Is Responsible?}{230}{section.79}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {80}Philosophical Considerations}{231}{section.80}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {80.1}What is ``Fair''?}{232}{subsection.80.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {80.2}Who Decides?}{232}{subsection.80.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {80.3}Tradeoffs}{233}{subsection.80.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {81}The Limits of Technical Solutions}{233}{section.81}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {82}Summary}{235}{section.82}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {83}Introduction: From Qualitative to Quantitative Fairness}{237}{section.83}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {84}Classification and Risk Scores}{237}{section.84}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {84.1}Risk Scores and Probability Estimation}{238}{subsection.84.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {84.2}Ideal Model versus Reality}{238}{subsection.84.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {85}Evaluating Classifiers}{239}{section.85}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {85.1}Accuracy and Its Limitations}{240}{subsection.85.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {85.2}The Confusion Matrix and Error Types}{240}{subsection.85.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {47}{\ignorespaces Confusion matrix: the cost matrix $c_{ij}$ weights different outcomes. Rows represent true labels, columns represent predictions. The diagonal contains correct predictions; off-diagonal elements are errors.}}{241}{figure.47}\protected@file@percent }
+\newlabel{fig:confusion-matrix-fairness}{{47}{241}{Confusion matrix: the cost matrix $c_{ij}$ weights different outcomes. Rows represent true labels, columns represent predictions. The diagonal contains correct predictions; off-diagonal elements are errors}{figure.47}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {85.3}Cost-Sensitive Learning}{242}{subsection.85.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {85.4}ROC Curves}{243}{subsection.85.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {48}{\ignorespaces ROC curve. Bottom-left: nothing predicted positive (very high threshold). Top-right: everything predicted positive (very low threshold). Diagonal: random classifier-no better than guessing. The curve bowing toward the top-left indicates discriminative ability. The closer to the top-left corner, the better the classifier.}}{244}{figure.48}\protected@file@percent }
+\newlabel{fig:roc-curve}{{48}{244}{ROC curve. Bottom-left: nothing predicted positive (very high threshold). Top-right: everything predicted positive (very low threshold). Diagonal: random classifier-no better than guessing. The curve bowing toward the top-left indicates discriminative ability. The closer to the top-left corner, the better the classifier}{figure.48}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {86}Discrimination in Classification}{245}{section.86}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {86.1}How Discrimination Arises}{245}{subsection.86.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {49}{\ignorespaces Accumulation of slight predictivity: Groups A and B may be similar on any single feature, making group membership hard to predict from one feature alone. But with many features, each slightly predictive of group membership, we can predict group membership extremely well. The correlation ``accumulates'' across features.}}{246}{figure.49}\protected@file@percent }
+\newlabel{fig:sensitive-features}{{49}{246}{Accumulation of slight predictivity: Groups A and B may be similar on any single feature, making group membership hard to predict from one feature alone. But with many features, each slightly predictive of group membership, we can predict group membership extremely well. The correlation ``accumulates'' across features}{figure.49}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {86.2}Redundant Encodings and the Limits of Attribute Removal}{246}{subsection.86.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {86.3}Connection to Week 6: Types of Harm and Metrics}{246}{subsection.86.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {87}Quantitative Fairness Criteria}{247}{section.87}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {87.1}Demographic Parity (Independence)}{248}{subsection.87.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {87.2}Equalised Odds (Separation)}{250}{subsection.87.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {50}{\ignorespaces Equalised odds requires operating at the same point on the ROC curve for both groups-same TPR \emph  {and} same FPR. If the groups have different ROC curves, this may require using different thresholds for each group.}}{251}{figure.50}\protected@file@percent }
+\newlabel{fig:roc-separation}{{50}{251}{Equalised odds requires operating at the same point on the ROC curve for both groups-same TPR \emph {and} same FPR. If the groups have different ROC curves, this may require using different thresholds for each group}{figure.50}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {87.3}Equal Opportunity}{251}{subsection.87.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {87.4}Calibration (Sufficiency)}{252}{subsection.87.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {51}{\ignorespaces Calibration: a model predicting 70\% probability should be correct 70\% of the time, for each group separately. A calibration curve plots predicted probabilities against observed frequencies. Perfect calibration is the diagonal line.}}{252}{figure.51}\protected@file@percent }
+\newlabel{fig:calibration}{{51}{252}{Calibration: a model predicting 70\% probability should be correct 70\% of the time, for each group separately. A calibration curve plots predicted probabilities against observed frequencies. Perfect calibration is the diagonal line}{figure.51}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {87.5}Geometric Interpretation: ROC Space}{254}{subsection.87.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {52}{\ignorespaces With different base rates, achieving equal error rates requires different thresholds per group. The two groups may have different ROC curves, and satisfying equalised odds requires finding thresholds that map to the same point.}}{254}{figure.52}\protected@file@percent }
+\newlabel{fig:separation-thresholds}{{52}{254}{With different base rates, achieving equal error rates requires different thresholds per group. The two groups may have different ROC curves, and satisfying equalised odds requires finding thresholds that map to the same point}{figure.52}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {53}{\ignorespaces Different fairness criteria lead to different operating points and potentially require different thresholds per group. The ``optimal'' point depends on which fairness criterion we choose to enforce.}}{255}{figure.53}\protected@file@percent }
+\newlabel{fig:roc-fairness}{{53}{255}{Different fairness criteria lead to different operating points and potentially require different thresholds per group. The ``optimal'' point depends on which fairness criterion we choose to enforce}{figure.53}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {88}Impossibility Theorems}{255}{section.88}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {88.1}Chouldechova's Impossibility Theorem}{256}{subsection.88.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {88.2}Kleinberg, Mullainathan, and Raghavan's Impossibility Theorem}{257}{subsection.88.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {88.3}The Independence-Separation-Sufficiency Tradeoffs}{258}{subsection.88.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {88.4}Practical Implications of Impossibility}{259}{subsection.88.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {89}Fairness-Accuracy Tradeoffs}{260}{section.89}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {89.1}Quantifying the Tradeoff}{261}{subsection.89.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {89.2}When is Fairness ``Cheap'' or ``Expensive''?}{261}{subsection.89.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {89.3}Multi-Objective Optimisation}{262}{subsection.89.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {90}Algorithmic Interventions}{263}{section.90}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {90.1}Pre-Processing: Modifying the Data}{264}{subsection.90.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {90.2}In-Processing: Modifying the Algorithm}{265}{subsection.90.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {90.3}Post-Processing: Modifying Predictions}{267}{subsection.90.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {91}Evaluation and Auditing}{268}{section.91}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {91.1}Auditing Procedure}{269}{subsection.91.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {91.2}Statistical Considerations}{270}{subsection.91.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {91.3}Multiple Metrics and Their Relationships}{271}{subsection.91.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {91.4}Intersectionality}{271}{subsection.91.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {92}Fairness is Not a Technical Problem}{272}{section.92}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {92.1}POSIWID: The Purpose of a System is What it Does}{272}{subsection.92.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {92.2}Returning to Week 6: The Full Picture}{273}{subsection.92.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {93}Summary}{274}{section.93}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {94}Decision Trees}{276}{section.94}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {94.1}Intuition: Recursive Binary Partitioning}{276}{subsection.94.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {94.2}Tree Structure and Terminology}{277}{subsection.94.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {54}{\ignorespaces Decision tree structure. Each path from root to leaf defines a region through a sequence of threshold conditions. Note the interaction effects captured along branches-for example, combinations like ``4 cylinders $\times $ continent'' or ``horsepower $\times $ low-med-high'' encode how the effect of one variable depends on the value of another.}}{278}{figure.54}\protected@file@percent }
+\newlabel{fig:decision-tree}{{54}{278}{Decision tree structure. Each path from root to leaf defines a region through a sequence of threshold conditions. Note the interaction effects captured along branches-for example, combinations like ``4 cylinders $\times $ continent'' or ``horsepower $\times $ low-med-high'' encode how the effect of one variable depends on the value of another}{figure.54}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {94.3}Prediction}{278}{subsection.94.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {94.4}Properties of Decision Trees}{279}{subsection.94.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {55}{\ignorespaces High variance: small changes in data lead to very different trees. Two bootstrap samples from the same population can yield dramatically different tree structures, even though they're estimating the same underlying relationship.}}{280}{figure.55}\protected@file@percent }
+\newlabel{fig:high-variance}{{55}{280}{High variance: small changes in data lead to very different trees. Two bootstrap samples from the same population can yield dramatically different tree structures, even though they're estimating the same underlying relationship}{figure.55}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {94.5}When to Use Trees}{281}{subsection.94.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {95}Tree Construction: Splitting Criteria}{281}{section.95}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {95.1}Splitting Continuous Features}{281}{subsection.95.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {56}{\ignorespaces Threshold split: binary partition at threshold $t$. Prediction is constant within each region, creating the characteristic ``stepped'' shape of tree predictions.}}{281}{figure.56}\protected@file@percent }
+\newlabel{fig:threshold-split}{{56}{281}{Threshold split: binary partition at threshold $t$. Prediction is constant within each region, creating the characteristic ``stepped'' shape of tree predictions}{figure.56}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {95.2}Splitting Categorical Features}{282}{subsection.95.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {57}{\ignorespaces Categorical split: one branch per unique value.}}{282}{figure.57}\protected@file@percent }
+\newlabel{fig:categorical-split}{{57}{282}{Categorical split: one branch per unique value}{figure.57}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {95.3}MSE Reduction for Regression}{283}{subsection.95.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {95.4}Gini Impurity for Classification}{284}{subsection.95.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {95.5}Entropy and Information Gain}{285}{subsection.95.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {95.6}Comparing Gini and Entropy}{286}{subsection.95.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {96}The Greedy Algorithm}{287}{section.96}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {96.1}The Non-Differentiability Challenge}{287}{subsection.96.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {96.2}Recursive Splitting Algorithm}{287}{subsection.96.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {58}{\ignorespaces Greedy recursive splitting: at each node, choose the locally best split without considering downstream consequences. This myopic approach is computationally efficient but may miss globally better tree structures.}}{288}{figure.58}\protected@file@percent }
+\newlabel{fig:greedy-splitting}{{58}{288}{Greedy recursive splitting: at each node, choose the locally best split without considering downstream consequences. This myopic approach is computationally efficient but may miss globally better tree structures}{figure.58}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {96.3}Stopping Criteria}{288}{subsection.96.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {97}Pruning}{289}{section.97}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {97.1}Why Trees Overfit}{289}{subsection.97.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {97.2}Pre-Pruning vs Post-Pruning}{290}{subsection.97.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {97.3}Cost-Complexity Pruning (CART)}{290}{subsection.97.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {59}{\ignorespaces Cost-complexity pruning: test error improves as we prune back the overfitted tree. The optimal $\alpha $ is selected by cross-validation.}}{292}{figure.59}\protected@file@percent }
+\newlabel{fig:pruning}{{59}{292}{Cost-complexity pruning: test error improves as we prune back the overfitted tree. The optimal $\alpha $ is selected by cross-validation}{figure.59}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {98}Worked Example: Building a Classification Tree}{293}{section.98}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {99}Trees as Piecewise Constant Approximations}{295}{section.99}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {99.1}The Approximation View}{295}{subsection.99.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {99.2}Comparison with Linear Methods}{296}{subsection.99.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {100}Ensemble Methods: Reducing Variance}{297}{section.100}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {100.1}The Bias-Variance Motivation}{297}{subsection.100.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {100.2}Bagging (Bootstrap Aggregating)}{298}{subsection.100.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {60}{\ignorespaces Bagging smooths out the jagged predictions of individual trees. (a) A single tree shows high variance with overfit predictions. As we aggregate more trees (b--d), the ensemble prediction smooths out, reducing variance while maintaining the ability to capture the underlying signal.}}{298}{figure.60}\protected@file@percent }
+\newlabel{fig:bagging}{{60}{298}{Bagging smooths out the jagged predictions of individual trees. (a) A single tree shows high variance with overfit predictions. As we aggregate more trees (b--d), the ensemble prediction smooths out, reducing variance while maintaining the ability to capture the underlying signal}{figure.60}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {100.2.1}Out-of-Bag (OOB) Error Estimation}{299}{subsubsection.100.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {100.2.2}Variance of Correlated Estimators}{299}{subsubsection.100.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {100.2.3}Variance Estimation with Bagging}{300}{subsubsection.100.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {100.3}Random Forests}{300}{subsection.100.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {61}{\ignorespaces Random forest: feature subsampling decorrelates trees. More trees generally improve performance (with diminishing returns). The ensemble captures complex structure that individual trees miss.}}{301}{figure.61}\protected@file@percent }
+\newlabel{fig:random-forest}{{61}{301}{Random forest: feature subsampling decorrelates trees. More trees generally improve performance (with diminishing returns). The ensemble captures complex structure that individual trees miss}{figure.61}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {100.4}Preview: Boosting}{302}{subsection.100.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {101}Summary}{303}{section.101}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {102}Review: Bagging vs Boosting}{304}{section.102}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {103}Motivation: Correlated Errors in Ensembles}{305}{section.103}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {103.1}Ensemble Prediction Function}{306}{subsection.103.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {104}The Boosting Idea}{307}{section.104}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {62}{\ignorespaces Green: prediction from a single shallow decision tree (weak learner). Red: combined prediction from all trees. Each individual tree is not particularly expressive-often just depth 1--2-but when combined, they capture complex patterns that no single shallow tree could represent. Cross-validation is used to select tree depth and number of iterations.}}{308}{figure.62}\protected@file@percent }
+\newlabel{fig:boosting}{{62}{308}{Green: prediction from a single shallow decision tree (weak learner). Red: combined prediction from all trees. Each individual tree is not particularly expressive-often just depth 1--2-but when combined, they capture complex patterns that no single shallow tree could represent. Cross-validation is used to select tree depth and number of iterations}{figure.62}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {104.1}Weak Learners and Strong Learners}{308}{subsection.104.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {104.2}Generic Boosting Loss Function}{310}{subsection.104.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {104.3}The Double Optimisation Process}{310}{subsection.104.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {105}Least Squares Boosting}{311}{section.105}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {106}AdaBoost}{312}{section.106}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {106.1}Binary Classification Encoding}{312}{subsection.106.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {106.2}The Exponential Loss Function}{313}{subsection.106.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {63}{\ignorespaces Comparison of loss functions for binary classification. Exponential loss (AdaBoost) penalises errors more aggressively than log loss (logistic regression). The 0-1 loss is discontinuous and non-convex, making it unsuitable for gradient-based optimisation. Both exponential and log loss are differentiable surrogates for 0-1 loss.}}{313}{figure.63}\protected@file@percent }
+\newlabel{fig:loss-functions}{{63}{313}{Comparison of loss functions for binary classification. Exponential loss (AdaBoost) penalises errors more aggressively than log loss (logistic regression). The 0-1 loss is discontinuous and non-convex, making it unsuitable for gradient-based optimisation. Both exponential and log loss are differentiable surrogates for 0-1 loss}{figure.63}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {106.3}Comparing Loss Functions}{314}{subsection.106.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {106.4}The AdaBoost Algorithm}{315}{subsection.106.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {106.5}Derivation: AdaBoost as Exponential Loss Minimisation}{316}{subsection.106.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {106.6}Convergence Guarantees}{317}{subsection.106.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {106.7}Worked Example: AdaBoost Step-by-Step}{318}{subsection.106.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {107}Gradient Boosting}{320}{section.107}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {107.1}Relationship to Other Methods}{320}{subsection.107.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {107.2}Gradient Descent in Function Space}{321}{subsection.107.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {107.3}The Generic Algorithm}{322}{subsection.107.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {107.4}Gradient Boosting for Regression (Squared Error)}{322}{subsection.107.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {107.5}Gradient Boosting for Classification (Log Loss)}{323}{subsection.107.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {107.6}Connection to AdaBoost}{324}{subsection.107.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {108}XGBoost and LightGBM}{324}{section.108}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {108.1}Regularised Objective}{325}{subsection.108.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {108.2}Second-Order Approximation}{325}{subsection.108.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {108.3}LightGBM Innovations}{327}{subsection.108.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {109}Hyperparameters and Tuning}{328}{section.109}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {110}Model Interpretation}{330}{section.110}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {110.1}Feature Importance}{331}{subsection.110.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {64}{\ignorespaces Feature importance for spam classification, where features are word occurrences. ``George'' is highly predictive-when the model splits on this feature, accuracy improves substantially. But importance alone does not tell us whether ``George'' indicates spam or not-spam.}}{332}{figure.64}\protected@file@percent }
+\newlabel{fig:feature-importance-spam}{{64}{332}{Feature importance for spam classification, where features are word occurrences. ``George'' is highly predictive-when the model splits on this feature, accuracy improves substantially. But importance alone does not tell us whether ``George'' indicates spam or not-spam}{figure.64}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {65}{\ignorespaces Feature importance for digit classification (3 vs 8), where features are pixel values. Intuitively, the central pixels are most useful for distinguishing these digits-the middle vertical stroke differs between 3 and 8.}}{333}{figure.65}\protected@file@percent }
+\newlabel{fig:feature-importance-digits}{{65}{333}{Feature importance for digit classification (3 vs 8), where features are pixel values. Intuitively, the central pixels are most useful for distinguishing these digits-the middle vertical stroke differs between 3 and 8}{figure.65}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {110.2}Partial Dependence Plots}{333}{subsection.110.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {66}{\ignorespaces Partial dependence plots showing how predictions change as individual features vary. Each curve shows the average prediction when that feature is set to a specific value, averaging over all other features. The shape reveals the relationship between feature and prediction.}}{334}{figure.66}\protected@file@percent }
+\newlabel{fig:partial-dependence}{{66}{334}{Partial dependence plots showing how predictions change as individual features vary. Each curve shows the average prediction when that feature is set to a specific value, averaging over all other features. The shape reveals the relationship between feature and prediction}{figure.66}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {110.3}Interpretability vs Performance Trade-off}{335}{subsection.110.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {111}Practical Considerations}{335}{section.111}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {111.1}When Boosting Overfits}{335}{subsection.111.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {111.2}Comparison with Neural Networks}{336}{subsection.111.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {112}Summary}{336}{section.112}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {113}Overview}{338}{section.113}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {113.1}Explanation vs Prediction}{339}{subsection.113.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {114}Data Leakage}{340}{section.114}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {114.1}Types of Data Leakage}{340}{subsection.114.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {114.1.1}Temporal Leakage}{341}{subsubsection.114.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {114.1.2}Target Leakage}{341}{subsubsection.114.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {114.1.3}Train-Test Contamination}{342}{subsubsection.114.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {114.1.4}Preprocessing Leakage}{342}{subsubsection.114.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {114.2}Detecting Data Leakage}{343}{subsection.114.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {114.3}Prevention Framework}{343}{subsection.114.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {115}Sampling Schemes}{344}{section.115}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {115.1}Simple Random Sampling}{345}{subsection.115.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {115.2}Stratified Sampling}{345}{subsection.115.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {115.3}Cluster Sampling}{347}{subsection.115.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {115.4}Systematic Sampling}{348}{subsection.115.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {115.5}Comparison of Sampling Schemes}{349}{subsection.115.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {116}Importance Sampling}{349}{section.116}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {116.1}The Core Idea}{349}{subsection.116.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {116.2}Variance Considerations}{351}{subsection.116.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {116.3}Application: Covariate Shift}{351}{subsection.116.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {117}Random vs Non-Random Sampling}{353}{section.117}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {117.1}Heteroskedastic Noise}{353}{subsection.117.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {117.1.1}Detecting Heteroskedasticity}{354}{subsubsection.117.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {117.1.2}Consequences for OLS}{354}{subsubsection.117.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {117.1.3}Solution 1: Weighted Least Squares}{355}{subsubsection.117.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {117.1.4}Solution 2: Robust Standard Errors}{356}{subsubsection.117.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {117.2}Implications for Sampling}{357}{subsection.117.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {118}Active Learning}{358}{section.118}\protected@file@percent }
+\newlabel{sec:active-learning}{{118}{358}{Active Learning}{section.118}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {118.1}Criteria for Selecting Data Points}{358}{subsection.118.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {118.2}Uncertainty Sampling}{359}{subsection.118.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {67}{\ignorespaces Uncertainty sampling in action: points near the decision boundary (where the model is uncertain) are selected for labelling. These are precisely the points where additional labels provide the most information for refining the boundary.}}{360}{figure.67}\protected@file@percent }
+\newlabel{fig:uncertainty-sampling}{{67}{360}{Uncertainty sampling in action: points near the decision boundary (where the model is uncertain) are selected for labelling. These are precisely the points where additional labels provide the most information for refining the boundary}{figure.67}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {118.3}Query-by-Committee}{360}{subsection.118.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {118.4}Expected Model Change}{361}{subsection.118.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {118.5}Bayesian Active Learning by Disagreement (BALD)}{362}{subsection.118.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {118.6}When Does Active Learning Help?}{364}{subsection.118.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {119}Correcting for Non-Uniform Sampling}{365}{section.119}\protected@file@percent }
+\newlabel{sec:ipw}{{119}{365}{Correcting for Non-Uniform Sampling}{section.119}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {119.1}The Problem}{365}{subsection.119.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {119.2}Inverse Probability Weighting (IPW)}{365}{subsection.119.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {120}Leverage Score Sampling}{366}{section.120}\protected@file@percent }
+\newlabel{sec:leverage}{{120}{366}{Leverage Score Sampling}{section.120}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {120.1}Leverage Scores in Linear Regression}{366}{subsection.120.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {120.2}Geometric Interpretation}{367}{subsection.120.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {120.3}Leverage Score Sampling for Large-Scale Regression}{368}{subsection.120.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {120.4}Connection to Optimal Experimental Design}{368}{subsection.120.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {121}Random Fourier Features}{369}{section.121}\protected@file@percent }
+\newlabel{sec:rff}{{121}{369}{Random Fourier Features}{section.121}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {121.1}The Computational Challenge}{369}{subsection.121.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {121.2}The Random Fourier Features Approximation}{370}{subsection.121.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {68}{\ignorespaces RFF approximation quality improves with more random features. Panel 1 shows the true RBF kernel function we aim to approximate. Subsequent panels show how the approximation improves as we increase the number of random features $R$.}}{371}{figure.68}\protected@file@percent }
+\newlabel{fig:rff}{{68}{371}{RFF approximation quality improves with more random features. Panel 1 shows the true RBF kernel function we aim to approximate. Subsequent panels show how the approximation improves as we increase the number of random features $R$}{figure.68}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {69}{\ignorespaces Regression predictions using Random Fourier Features. The approximation quality depends on choosing a sufficient number of random features $R$ relative to the complexity of the underlying function.}}{371}{figure.69}\protected@file@percent }
+\newlabel{fig:rff2}{{69}{371}{Regression predictions using Random Fourier Features. The approximation quality depends on choosing a sufficient number of random features $R$ relative to the complexity of the underlying function}{figure.69}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {122}Practical Sampling Pipelines}{372}{section.122}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {122.1}Train/Validation/Test Splits}{372}{subsection.122.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {122.2}Time Series: Forward Validation}{373}{subsection.122.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {122.3}Cross-Validation Revisited}{373}{subsection.122.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {123}Multi-Armed Bandits}{374}{section.123}\protected@file@percent }
+\newlabel{sec:bandits}{{123}{374}{Multi-Armed Bandits}{section.123}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {123.1}Exploration vs Exploitation}{375}{subsection.123.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {123.2}Solution 1: $\epsilon $-Greedy}{375}{subsection.123.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {123.3}Solution 2: Upper Confidence Bound (UCB)}{376}{subsection.123.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {123.4}Solution 3: Thompson Sampling}{378}{subsection.123.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {124}Estimating Prevalence: AIPW}{379}{section.124}\protected@file@percent }
+\newlabel{sec:aipw}{{124}{379}{Estimating Prevalence: AIPW}{section.124}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {124.1}The Problem}{379}{subsection.124.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {124.2}Targeted Sampling for Prevalence}{380}{subsection.124.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {124.3}The AIPW Estimator}{381}{subsection.124.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {70}{\ignorespaces The AIPW workflow: (1) Fit a model on gold-standard labelled data, (2) Construct pseudo-outcomes that combine model predictions with IPW corrections, (3) Use pseudo-outcomes for population inference.}}{381}{figure.70}\protected@file@percent }
+\newlabel{fig:aipw}{{70}{381}{The AIPW workflow: (1) Fit a model on gold-standard labelled data, (2) Construct pseudo-outcomes that combine model predictions with IPW corrections, (3) Use pseudo-outcomes for population inference}{figure.70}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {124.4}Step-by-Step AIPW Process}{382}{subsection.124.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {125}Summary}{384}{section.125}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {126}Chapter Overview}{386}{section.126}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {127}Why Uncertainty Matters}{386}{section.127}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {127.1}Two Fundamental Types of Uncertainty}{386}{subsection.127.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {127.2}Applications Requiring Uncertainty}{388}{subsection.127.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {127.3}What is Calibration?}{388}{subsection.127.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {128}Gaussian Processes}{389}{section.128}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {128.1}The Core Idea: Distributions Over Functions}{389}{subsection.128.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {71}{\ignorespaces A GP defines a distribution over functions. The shaded region shows pointwise uncertainty (not a confidence band for a single function, but the marginal uncertainty at each point). The solid line is the posterior mean-our best estimate-while the shaded region indicates where the true function might plausibly lie.}}{390}{figure.71}\protected@file@percent }
+\newlabel{fig:gp-overview}{{71}{390}{A GP defines a distribution over functions. The shaded region shows pointwise uncertainty (not a confidence band for a single function, but the marginal uncertainty at each point). The solid line is the posterior mean-our best estimate-while the shaded region indicates where the true function might plausibly lie}{figure.71}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {128.2}The Bayesian Perspective: Distributions Over Functions}{391}{subsection.128.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {128.3}Mean and Covariance Functions}{391}{subsection.128.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {128.4}Sampling from a GP Prior}{392}{subsection.128.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {128.5}GP Prior to Posterior: The Key Insight}{392}{subsection.128.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {72}{\ignorespaces The joint Gaussian over training and test points. Conditioning on training data transforms the prior into a posterior. The left shows the marginal (prior) distribution; the right shows the conditional (posterior) distribution after observing data.}}{394}{figure.72}\protected@file@percent }
+\newlabel{fig:marginals-conditionals}{{72}{394}{The joint Gaussian over training and test points. Conditioning on training data transforms the prior into a posterior. The left shows the marginal (prior) distribution; the right shows the conditional (posterior) distribution after observing data}{figure.72}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {128.6}Derivation of the Posterior Predictive Distribution}{394}{subsection.128.6}\protected@file@percent }
+\newlabel{eq:gp-mean}{{21}{395}{Derivation of the Posterior Predictive Distribution}{equation.21}{}}
+\newlabel{eq:gp-var}{{22}{395}{Derivation of the Posterior Predictive Distribution}{equation.22}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {128.7}Connection to Kernel Ridge Regression}{396}{subsection.128.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {128.8}Posterior of Function vs Posterior Predictive}{397}{subsection.128.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {128.9}Variance Behaviour: A Key Feature of GPs}{398}{subsection.128.9}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {73}{\ignorespaces Evolution of GP posterior as data is observed. Functions inconsistent with observations are eliminated. The shaded region represents the confidence interval; sample functions are drawn from the posterior.}}{398}{figure.73}\protected@file@percent }
+\newlabel{fig:gp-progression}{{73}{398}{Evolution of GP posterior as data is observed. Functions inconsistent with observations are eliminated. The shaded region represents the confidence interval; sample functions are drawn from the posterior}{figure.73}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {74}{\ignorespaces Effect of kernel hyperparameters on uncertainty. Crosses indicate training data. The solid line shows the mean prediction; shaded regions show confidence intervals. Larger length-scale (right) produces wider confidence bands and smoother functions, indicating that observations influence predictions over a larger range.}}{399}{figure.74}\protected@file@percent }
+\newlabel{fig:gp-variance}{{74}{399}{Effect of kernel hyperparameters on uncertainty. Crosses indicate training data. The solid line shows the mean prediction; shaded regions show confidence intervals. Larger length-scale (right) produces wider confidence bands and smoother functions, indicating that observations influence predictions over a larger range}{figure.74}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {129}GP Kernels}{400}{section.129}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {129.1}Squared Exponential (RBF) Kernel}{400}{subsection.129.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {129.2}Mat\'ern Family}{401}{subsection.129.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {129.3}Periodic Kernel}{402}{subsection.129.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {129.4}Linear Kernel}{402}{subsection.129.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {129.5}Kernel Composition}{402}{subsection.129.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {129.6}Automatic Relevance Determination (ARD)}{403}{subsection.129.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {129.7}Hyperparameter Learning}{403}{subsection.129.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {130}Computational Aspects of GPs}{405}{section.130}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {130.1}Exact GP Complexity}{405}{subsection.130.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {130.2}Sparse Gaussian Processes}{406}{subsection.130.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {130.3}When to Use GPs}{407}{subsection.130.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {131}Bayesian Optimisation}{407}{section.131}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {132}Conformal Prediction}{409}{section.132}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {132.1}The Coverage Guarantee}{409}{subsection.132.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {132.2}Split Conformal Prediction}{409}{subsection.132.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {132.3}Why Does It Work?}{411}{subsection.132.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {132.4}Choice of Nonconformity Score}{411}{subsection.132.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {132.5}Handling Heteroskedasticity}{412}{subsection.132.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {132.6}Marginal vs Conditional Coverage}{412}{subsection.132.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {132.7}Example: Non-Normal Errors}{413}{subsection.132.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {132.8}Comparison: Conformal vs Bayesian Approaches}{413}{subsection.132.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {133}Bayesian Neural Networks}{414}{section.133}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {133.1}The BNN Framework}{415}{subsection.133.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {133.2}The Challenge: Intractable Posterior}{415}{subsection.133.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {133.3}Approximation Methods}{415}{subsection.133.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {133.4}Connection to Gaussian Processes}{417}{subsection.133.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {134}Calibration}{418}{section.134}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {134.1}Reliability Diagrams}{418}{subsection.134.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {134.2}Expected Calibration Error}{419}{subsection.134.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {134.3}Temperature Scaling}{419}{subsection.134.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {134.4}Platt Scaling}{420}{subsection.134.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {134.5}Calibration in Regression}{421}{subsection.134.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {135}Practical Guidance}{421}{section.135}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {135.1}Method Selection}{422}{subsection.135.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {135.2}Computational Considerations}{422}{subsection.135.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {135.3}Validating Uncertainty Estimates}{423}{subsection.135.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {136}Summary}{424}{section.136}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {137}Overview}{425}{section.137}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {138}Biological Motivation}{426}{section.138}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {138.1}Neurons and Synapses}{426}{subsection.138.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {138.2}The McCulloch-Pitts Neuron (1943)}{426}{subsection.138.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {138.3}From Biology to Artificial Networks}{427}{subsection.138.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {139}The Perceptron}{427}{section.139}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {139.1}Architecture}{428}{subsection.139.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {139.2}Geometric Interpretation}{428}{subsection.139.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {139.3}The Perceptron Learning Algorithm}{429}{subsection.139.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {139.4}Understanding the Update Rule}{431}{subsection.139.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {75}{\ignorespaces Perceptron learning: the decision boundary (dashed line) adjusts iteratively as misclassifications are corrected.}}{431}{figure.75}\protected@file@percent }
+\newlabel{fig:perceptron}{{75}{431}{Perceptron learning: the decision boundary (dashed line) adjusts iteratively as misclassifications are corrected}{figure.75}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {139.5}The Perceptron Convergence Theorem}{432}{subsection.139.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {140}Limitations of the Perceptron}{434}{section.140}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {140.1}Linear Separability Requirement}{434}{subsection.140.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {140.2}The XOR Problem}{434}{subsection.140.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {76}{\ignorespaces XOR is not linearly separable-no single line can separate the classes.}}{435}{figure.76}\protected@file@percent }
+\newlabel{fig:xor}{{76}{435}{XOR is not linearly separable-no single line can separate the classes}{figure.76}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {140.3}No Margin Maximisation}{436}{subsection.140.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {77}{\ignorespaces Multiple valid decision boundaries exist for linearly separable data.}}{436}{figure.77}\protected@file@percent }
+\newlabel{fig:infinite-hyperplane}{{77}{436}{Multiple valid decision boundaries exist for linearly separable data}{figure.77}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {140.4}Solutions to the XOR Problem}{436}{subsection.140.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {141}Multi-Layer Perceptrons (MLPs)}{437}{section.141}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {141.1}From Fixed to Learned Features}{438}{subsection.141.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {141.2}Architecture and Notation}{438}{subsection.141.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {141.3}Why Non-Linearity is Essential}{439}{subsection.141.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {141.4}What MLPs Learn: A Geometric View}{439}{subsection.141.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {141.5}Universal Approximation Theorem}{440}{subsection.141.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {78}{\ignorespaces ReLU networks learn piecewise linear functions, partitioning input space into regions.}}{440}{figure.78}\protected@file@percent }
+\newlabel{fig:universal}{{78}{440}{ReLU networks learn piecewise linear functions, partitioning input space into regions}{figure.78}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {141.6}Why Depth Matters}{441}{subsection.141.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {142}Activation Functions}{442}{section.142}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {79}{\ignorespaces Comparison of common activation functions.}}{444}{figure.79}\protected@file@percent }
+\newlabel{fig:activations1}{{79}{444}{Comparison of common activation functions}{figure.79}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {80}{\ignorespaces Activation function derivatives-crucial for gradient flow.}}{444}{figure.80}\protected@file@percent }
+\newlabel{fig:activations2}{{80}{444}{Activation function derivatives-crucial for gradient flow}{figure.80}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {142.1}The Saturation Problem}{445}{subsection.142.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {142.2}Output Layer Activations}{445}{subsection.142.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {143}Loss Functions}{446}{section.143}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {143.1}Mean Squared Error (Regression)}{447}{subsection.143.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {143.2}Cross-Entropy (Classification)}{447}{subsection.143.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {144}Backpropagation}{449}{section.144}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {144.1}The Credit Assignment Problem}{449}{subsection.144.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {144.2}Chain Rule Review}{449}{subsection.144.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {144.3}Forward and Backward Passes}{450}{subsection.144.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {81}{\ignorespaces Backpropagation computes gradients layer by layer using the chain rule.}}{450}{figure.81}\protected@file@percent }
+\newlabel{fig:backprop}{{81}{450}{Backpropagation computes gradients layer by layer using the chain rule}{figure.81}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {82}{\ignorespaces MLP structure with alternating linear and non-linear layers.}}{451}{figure.82}\protected@file@percent }
+\newlabel{fig:mlp}{{82}{451}{MLP structure with alternating linear and non-linear layers}{figure.82}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {83}{\ignorespaces Backpropagation algorithm: gradients are computed iteratively from output to input.}}{451}{figure.83}\protected@file@percent }
+\newlabel{fig:backprop-algo}{{83}{451}{Backpropagation algorithm: gradients are computed iteratively from output to input}{figure.83}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {144.4}Worked Example: Two-Layer Network}{452}{subsection.144.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {144.5}Computational Graph Perspective}{453}{subsection.144.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {144.6}Automatic Differentiation}{453}{subsection.144.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {145}Training Neural Networks}{454}{section.145}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {145.1}Gradient Descent}{454}{subsection.145.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {145.2}Learning Rate}{455}{subsection.145.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {145.3}Optimisers}{456}{subsection.145.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {84}{\ignorespaces MLP design recipe: architecture, loss function, and optimiser.}}{457}{figure.84}\protected@file@percent }
+\newlabel{fig:mlp-recipe}{{84}{457}{MLP design recipe: architecture, loss function, and optimiser}{figure.84}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {146}Initialisation}{458}{section.146}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {146.1}Why Initialisation Matters}{458}{subsection.146.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {146.2}Xavier/Glorot Initialisation}{459}{subsection.146.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {146.3}He Initialisation}{460}{subsection.146.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {147}Vanishing and Exploding Gradients}{460}{section.147}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {147.1}Solutions}{461}{subsection.147.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {147.1.1}Non-Saturating Activations (for vanishing gradients)}{461}{subsubsection.147.1.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {85}{\ignorespaces ReLU and Leaky ReLU maintain gradient flow better than sigmoid.}}{461}{figure.85}\protected@file@percent }
+\newlabel{fig:nonsaturating}{{85}{461}{ReLU and Leaky ReLU maintain gradient flow better than sigmoid}{figure.85}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {147.1.2}Gradient Clipping (for exploding gradients)}{462}{subsubsection.147.1.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {86}{\ignorespaces Gradient clipping constrains step size while preserving direction.}}{462}{figure.86}\protected@file@percent }
+\newlabel{fig:gradient-clipping}{{86}{462}{Gradient clipping constrains step size while preserving direction}{figure.86}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {147.1.3}Batch Normalisation}{462}{subsubsection.147.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {148}Regularisation}{463}{section.148}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {148.1}Weight Decay (L2 Regularisation)}{463}{subsection.148.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {148.2}Dropout}{464}{subsection.148.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {87}{\ignorespaces Dropout randomly removes connections during training.}}{464}{figure.87}\protected@file@percent }
+\newlabel{fig:dropout}{{87}{464}{Dropout randomly removes connections during training}{figure.87}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {149}Neural Networks as Gaussian Processes}{465}{section.149}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {88}{\ignorespaces MLPs (red) as samples from a GP (blue) defined by the NTK.}}{465}{figure.88}\protected@file@percent }
+\newlabel{fig:mlp-gp}{{88}{465}{MLPs (red) as samples from a GP (blue) defined by the NTK}{figure.88}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {150}Looking Ahead: Advanced Architectures}{466}{section.150}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {151}Summary}{467}{section.151}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {152}Overview}{469}{section.152}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {153}Neural Network Design Recap}{469}{section.153}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {153.1}Architecture Components}{470}{subsection.153.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {153.2}Loss Functions}{470}{subsection.153.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {153.3}Optimisers}{471}{subsection.153.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {154}Vanishing and Exploding Gradients}{472}{section.154}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {154.1}The Problem}{473}{subsection.154.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {154.2}Gradient Clipping}{473}{subsection.154.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {89}{\ignorespaces Gradient clipping constrains update magnitude while preserving direction, preventing divergence in optimisation. Without clipping (red), large gradients cause the optimisation to overshoot and diverge. With clipping (blue), the direction is maintained but the step size is bounded.}}{474}{figure.89}\protected@file@percent }
+\newlabel{fig:gradient-clipping-advanced}{{89}{474}{Gradient clipping constrains update magnitude while preserving direction, preventing divergence in optimisation. Without clipping (red), large gradients cause the optimisation to overshoot and diverge. With clipping (blue), the direction is maintained but the step size is bounded}{figure.89}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {154.3}Vanishing Gradients and Activation Functions}{474}{subsection.154.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {90}{\ignorespaces Activation functions and their derivatives. Sigmoid saturates for large inputs, causing vanishing gradients. ReLU maintains gradient of 1 for positive inputs.}}{474}{figure.90}\protected@file@percent }
+\newlabel{fig:activation-saturation}{{90}{474}{Activation functions and their derivatives. Sigmoid saturates for large inputs, causing vanishing gradients. ReLU maintains gradient of 1 for positive inputs}{figure.90}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {91}{\ignorespaces Non-saturating activation functions like ReLU and its variants maintain gradient flow, enabling training of deeper networks.}}{476}{figure.91}\protected@file@percent }
+\newlabel{fig:nonsaturating-activations}{{91}{476}{Non-saturating activation functions like ReLU and its variants maintain gradient flow, enabling training of deeper networks}{figure.91}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {154.4}Batch Normalisation}{476}{subsection.154.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {154.5}Regularisation}{477}{subsection.154.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {154.5.1}Weight Decay (L2 Regularisation)}{477}{subsubsection.154.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {154.5.2}Dropout}{478}{subsubsection.154.5.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {92}{\ignorespaces Dropout randomly removes neurons during training, forcing redundant representations. Each forward pass uses a different random subset of neurons.}}{478}{figure.92}\protected@file@percent }
+\newlabel{fig:dropout-advanced}{{92}{478}{Dropout randomly removes neurons during training, forcing redundant representations. Each forward pass uses a different random subset of neurons}{figure.92}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {93}{\ignorespaces Effect of regularisation: without regularisation (left), the model overfits to training noise. With regularisation (right), the model learns smoother decision boundaries that generalise better.}}{479}{figure.93}\protected@file@percent }
+\newlabel{fig:regularization}{{93}{479}{Effect of regularisation: without regularisation (left), the model overfits to training noise. With regularisation (right), the model learns smoother decision boundaries that generalise better}{figure.93}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {155}Convolutional Neural Networks}{479}{section.155}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {155.1}Motivation: Why Not Fully Connected?}{479}{subsection.155.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {155.2}The Convolution Operation}{480}{subsection.155.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {94}{\ignorespaces A convolution filter sliding across an image, computing local weighted sums. The filter ``looks at'' one small region at a time, extracting local features.}}{480}{figure.94}\protected@file@percent }
+\newlabel{fig:convolution}{{94}{480}{A convolution filter sliding across an image, computing local weighted sums. The filter ``looks at'' one small region at a time, extracting local features}{figure.94}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {95}{\ignorespaces When objects span multiple regions, convolutions capture features that simple partitioning would miss. The sliding window ensures every local pattern is detected regardless of position.}}{481}{figure.95}\protected@file@percent }
+\newlabel{fig:convolution2}{{95}{481}{When objects span multiple regions, convolutions capture features that simple partitioning would miss. The sliding window ensures every local pattern is detected regardless of position}{figure.95}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {96}{\ignorespaces 1D convolution: the filter weights determine which local patterns are detected. Different weights detect different patterns (edges, gradients, flat regions).}}{481}{figure.96}\protected@file@percent }
+\newlabel{fig:convolution1d}{{96}{481}{1D convolution: the filter weights determine which local patterns are detected. Different weights detect different patterns (edges, gradients, flat regions)}{figure.96}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {97}{\ignorespaces 2D convolution for image processing, extending the same principle to spatial data.}}{481}{figure.97}\protected@file@percent }
+\newlabel{fig:convolution2d}{{97}{481}{2D convolution for image processing, extending the same principle to spatial data}{figure.97}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {98}{\ignorespaces Learned filters detect interpretable features such as horizontal and vertical edges. Early layers typically learn edge detectors; deeper layers learn more complex patterns.}}{481}{figure.98}\protected@file@percent }
+\newlabel{fig:learned-filters}{{98}{481}{Learned filters detect interpretable features such as horizontal and vertical edges. Early layers typically learn edge detectors; deeper layers learn more complex patterns}{figure.98}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {155.3}Feature Maps and Channels}{481}{subsection.155.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {155.4}Convolution as Sparse Matrix Multiplication}{482}{subsection.155.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {99}{\ignorespaces Convolution as sparse matrix multiplication: zeros correspond to pixels outside the receptive field.}}{483}{figure.99}\protected@file@percent }
+\newlabel{fig:conv-matrix}{{99}{483}{Convolution as sparse matrix multiplication: zeros correspond to pixels outside the receptive field}{figure.99}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {155.5}Parameter Sharing and Translation Equivariance}{483}{subsection.155.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {155.6}Receptive Field}{484}{subsection.155.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {155.7}Padding and Strides}{484}{subsection.155.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {155.7.1}Padding}{484}{subsubsection.155.7.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {100}{\ignorespaces Zero-padding allows the filter to process edge regions, preserving spatial dimensions.}}{484}{figure.100}\protected@file@percent }
+\newlabel{fig:padding}{{100}{484}{Zero-padding allows the filter to process edge regions, preserving spatial dimensions}{figure.100}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {155.7.2}Strides}{485}{subsubsection.155.7.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {101}{\ignorespaces Comparison of stride 1 (left) vs stride 2 (right). Larger strides downsample the feature map.}}{485}{figure.101}\protected@file@percent }
+\newlabel{fig:strides}{{101}{485}{Comparison of stride 1 (left) vs stride 2 (right). Larger strides downsample the feature map}{figure.101}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {155.8}Pooling}{485}{subsection.155.8}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {102}{\ignorespaces Max pooling selects the largest value in each region, providing translation robustness.}}{486}{figure.102}\protected@file@percent }
+\newlabel{fig:pooling}{{102}{486}{Max pooling selects the largest value in each region, providing translation robustness}{figure.102}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {155.9}CNN Architecture}{486}{subsection.155.9}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {103}{\ignorespaces CNN architecture: early layers detect edges, middle layers detect parts, deep layers detect objects.}}{487}{figure.103}\protected@file@percent }
+\newlabel{fig:cnn-hierarchy}{{103}{487}{CNN architecture: early layers detect edges, middle layers detect parts, deep layers detect objects}{figure.103}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {155.10}Classic CNN Architectures}{487}{subsection.155.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {155.11}Residual Connections}{488}{subsection.155.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {156}Recurrent Neural Networks}{490}{section.156}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {156.1}Architecture}{491}{subsection.156.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {156.2}Unrolled View and Backpropagation Through Time}{491}{subsection.156.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {156.3}Vanishing and Exploding Gradients in RNNs}{492}{subsection.156.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {156.4}Long Short-Term Memory (LSTM)}{493}{subsection.156.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {156.5}Gated Recurrent Unit (GRU)}{494}{subsection.156.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {156.6}Bidirectional RNNs}{495}{subsection.156.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {157}Attention Mechanisms}{495}{section.157}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {157.1}Motivation: The Bottleneck Problem}{496}{subsection.157.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {104}{\ignorespaces Attention mechanism: queries attend to keys, retrieving weighted combinations of values.}}{496}{figure.104}\protected@file@percent }
+\newlabel{fig:attention}{{104}{496}{Attention mechanism: queries attend to keys, retrieving weighted combinations of values}{figure.104}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {157.2}General Attention}{497}{subsection.157.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {105}{\ignorespaces Attention weights visualised: each query attends differently to the available keys.}}{498}{figure.105}\protected@file@percent }
+\newlabel{fig:attention-weights}{{105}{498}{Attention weights visualised: each query attends differently to the available keys}{figure.105}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {157.3}Scaled Dot-Product Attention}{498}{subsection.157.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {157.3.1}Why Scale by $\sqrt  {d_k}$?}{499}{subsubsection.157.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {157.3.2}Softmax}{499}{subsubsection.157.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {157.4}Multi-Head Attention}{499}{subsection.157.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {157.5}Self-Attention}{500}{subsection.157.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {106}{\ignorespaces Self-attention: each position computes attention over all positions, enabling global context.}}{500}{figure.106}\protected@file@percent }
+\newlabel{fig:self-attention}{{106}{500}{Self-attention: each position computes attention over all positions, enabling global context}{figure.106}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {158}Transformers}{501}{section.158}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {158.1}Architecture Overview}{501}{subsection.158.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {158.2}Positional Encoding}{502}{subsection.158.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {158.3}Layer Normalisation}{503}{subsection.158.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {158.4}Position-wise Feed-Forward Networks}{504}{subsection.158.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {158.5}Masked Self-Attention}{504}{subsection.158.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {158.6}Why Transformers Replaced RNNs}{505}{subsection.158.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {158.7}Pre-training and Transfer Learning}{506}{subsection.158.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {159}Practical Considerations}{507}{section.159}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {159.1}Transfer Learning in Practice}{508}{subsection.159.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {159.2}Modern Best Practices}{509}{subsection.159.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {160}Summary}{510}{section.160}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {161}Overview}{511}{section.161}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {161.1}What is Unsupervised Learning?}{511}{subsection.161.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {161.2}Why is Unsupervised Learning Hard?}{512}{subsection.161.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {162}Principal Component Analysis}{513}{section.162}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {162.1}Motivation}{513}{subsection.162.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {162.2}Two Equivalent Formulations}{513}{subsection.162.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {162.3}Solution via Eigendecomposition}{516}{subsection.162.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {162.4}The PCA Algorithm}{517}{subsection.162.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {162.5}Choosing the Number of Components}{518}{subsection.162.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {107}{\ignorespaces PCA projection: data points (blue) projected onto the first principal component (red line). The principal component direction captures maximum variance; projections minimise perpendicular distance to this line. The residuals (perpendicular distances from points to the line) represent the reconstruction error.}}{518}{figure.107}\protected@file@percent }
+\newlabel{fig:pca}{{107}{518}{PCA projection: data points (blue) projected onto the first principal component (red line). The principal component direction captures maximum variance; projections minimise perpendicular distance to this line. The residuals (perpendicular distances from points to the line) represent the reconstruction error}{figure.107}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {162.6}PCA and Singular Value Decomposition}{519}{subsection.162.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {162.7}Kernel PCA}{520}{subsection.162.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {163}Other Linear Dimensionality Reduction Methods}{522}{section.163}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {163.1}Factor Analysis}{522}{subsection.163.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {163.2}Independent Component Analysis (ICA)}{523}{subsection.163.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {164}Manifold Learning}{524}{section.164}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {164.1}The Manifold Hypothesis}{524}{subsection.164.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {164.2}Why Linear Methods Fail on Manifolds}{525}{subsection.164.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {164.3}Stochastic Neighbour Embedding (SNE)}{525}{subsection.164.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {164.4}t-Distributed SNE (t-SNE)}{526}{subsection.164.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {164.5}UMAP}{528}{subsection.164.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {108}{\ignorespaces High-dimensional data projected to 2D, with colours indicating cluster membership. The goal of manifold learning is to find an embedding that reveals this structure.}}{529}{figure.108}\protected@file@percent }
+\newlabel{fig:embedding1}{{108}{529}{High-dimensional data projected to 2D, with colours indicating cluster membership. The goal of manifold learning is to find an embedding that reveals this structure}{figure.108}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {109}{\ignorespaces UMAP constructs a $k$-nearest neighbour graph; shaded circles represent local neighbourhoods. Each point connects to its $k$ closest neighbours, capturing local structure efficiently.}}{529}{figure.109}\protected@file@percent }
+\newlabel{fig:embedding2}{{109}{529}{UMAP constructs a $k$-nearest neighbour graph; shaded circles represent local neighbourhoods. Each point connects to its $k$ closest neighbours, capturing local structure efficiently}{figure.109}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {110}{\ignorespaces The embedding preserves neighbourhood structure: connected points in high dimensions remain close in the projection.}}{529}{figure.110}\protected@file@percent }
+\newlabel{fig:embedding3}{{110}{529}{The embedding preserves neighbourhood structure: connected points in high dimensions remain close in the projection}{figure.110}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {111}{\ignorespaces UMAP adapts to varying local densities, using different distance scales in dense vs sparse regions. The varying neighbourhood sizes (shaded regions) show this adaptation.}}{530}{figure.111}\protected@file@percent }
+\newlabel{fig:embedding4}{{111}{530}{UMAP adapts to varying local densities, using different distance scales in dense vs sparse regions. The varying neighbourhood sizes (shaded regions) show this adaptation}{figure.111}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {165}Clustering}{530}{section.165}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {165.1}K-Means Clustering}{531}{subsection.165.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {165.2}Choosing $K$}{532}{subsection.165.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {165.3}Hierarchical Clustering}{533}{subsection.165.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {165.4}DBSCAN: Density-Based Clustering}{534}{subsection.165.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {165.5}Gaussian Mixture Models}{535}{subsection.165.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {166}Autoencoders}{537}{section.166}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {166.1}Architecture and Training}{537}{subsection.166.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {112}{\ignorespaces Autoencoder architecture: input is compressed through the encoder to a bottleneck layer, then reconstructed by the decoder. The bottleneck dimension $L$ is smaller than input dimension $D$, forcing compression.}}{538}{figure.112}\protected@file@percent }
+\newlabel{fig:autoencoder}{{112}{538}{Autoencoder architecture: input is compressed through the encoder to a bottleneck layer, then reconstructed by the decoder. The bottleneck dimension $L$ is smaller than input dimension $D$, forcing compression}{figure.112}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {166.2}Relationship to PCA}{539}{subsection.166.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {166.3}Bottleneck Dimension and Regularisation}{539}{subsection.166.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {166.4}Autoencoder Variants}{540}{subsection.166.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {166.5}Variational Autoencoders}{540}{subsection.166.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {167}Self-Supervised Learning}{543}{section.167}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {167.1}Pretext Tasks}{544}{subsection.167.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {167.2}Contrastive Learning}{545}{subsection.167.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {167.3}Non-Contrastive Methods}{547}{subsection.167.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {168}Summary and Connections}{548}{section.168}\protected@file@percent }
+\gdef \@abspage@last{551}

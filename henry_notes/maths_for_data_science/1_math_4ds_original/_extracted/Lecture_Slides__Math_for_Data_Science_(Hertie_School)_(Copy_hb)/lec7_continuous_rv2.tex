@@ -1,0 +1,271 @@
+ %\documentclass[xcolor=dvipsnames]{beamer}
+\documentclass[xcolor=dvipsnames,handout]{beamer}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\usepackage{etex}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epsfig}
+\usepackage[english]{babel}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{fancyvrb}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{caption}
+%\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{epsdice}
+
+\hypersetup{
+    colorlinks = true
+}
+
+\definecolor{newred}{RGB}{127,0,0}
+\let\iitemize=\itemize \let\endiitemize=\enditemize \renewenvironment{itemize}{\iitemize \vspace{1mm} \itemsep2mm}{\endiitemize}
+\let\eenumerate=\enumerate \let\endeenumerate=\endenumerate \renewenvironment{enumerate}{\eenumerate \vspace{1mm} \itemsep2mm}{\endeenumerate}
+% == theme & colors
+\mode<presentation>
+{
+
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usecolortheme{beaver}
+  \setbeamercovered{invisible} %or transparent
+  \metroset{block=fill}
+  \setbeamercolor{block title example}{fg=gray!40!black}
+  \setbeamercolor{itemize item}{fg=gray!40!black} 
+  \setbeamercolor{title}{fg=newred} 
+}
+
+      
+\setbeamercolor{background canvas}{bg=white}
+
+
+% === tikz for pictures ===
+\usepackage{tikz}
+\usepackage[latin1]{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning}
+\usetikzlibrary{decorations.pathreplacing}
+\tikzstyle{doublearr}=[latex-latex, black, line width=0.5pt]
+
+% === if you want more than one slides on one page ===
+\usepackage{pgfpages}
+
+
+
+\title{Mathematics for Data Science}
+\subtitle[]{Lecture 7: Continuous Random Variables (cont.)} 
+\author[Asya Magazinnik]{Asya Magazinnik}
+\institute{Hertie School}
+\date{\today}
+
+\renewcommand\r{\right}
+\renewcommand\l{\left}
+% \newcommand\sign{{\rm sign}}
+
+%% == change spacing for itemize
+%\let\oldframe\frame
+%\renewcommand{\frame}[1][1]{
+%\oldframe[#1]
+%\let\olditemize\itemize
+%\renewcommand\itemize{\olditemize\addtolength{\itemsep}{.25\baselineskip}}
+%}
+
+
+
+\def\insertnavigation#1{\relax}
+% \usefonttheme{serif}
+\usepackage[all]{xy}
+\usepackage{geometry,colortbl,wrapfig}
+\usepackage{tikz}  
+\usepackage{graphicx,setspace,subfigure}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\newcommand{\Ex}{\textsc{Example  }}
+\newcommand{\series}{\sum_{n=1}^{\infty}} 
+\newcommand{\ball}[1]{B( #1)} 
+\newcommand{\inner}[1]{\ensuremath{\langle #1 \rangle}}
+\newcommand{\e}{\epsilon}
+\newcommand{\grad}{\nabla}
+\newcommand{\pa}{\pause \item}
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+\newcommand{\R}{\mathbb{R}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+
+
+
+
+\newcommand{\indep}{{\bot\negthickspace\negthickspace\bot}}
+
+\begin{document}
+
+\subject{Talks}
+\AtBeginSection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection,currentsubsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+
+\frame[plain]{
+  \titlepage
+  \addtocounter{framenumber}{-1}
+}
+
+\begin{frame}{Independence of Continuous Random Variables}
+    Random variables $X$ and $Y$ are independent if and only if any of the following conditions holds:
+\begin{itemize}
+    \item Joint CDF is the product of the marginal CDFs
+    \item Joint PDF is the product of the marginal PDFs
+    \item Conditional distribution of $Y$ given $X$ is the marginal distribution of $Y$
+\end{itemize}
+Write $X \perp \!\!\! \perp Y
+$ to denote that $X$ and $Y$ are independent.
+\end{frame}
+
+\begin{frame}{Expectations of Functions of Continuous Random Variables}
+    The expectation of a function of continuous random variables can be written as follows: 
+    \[
+    E[g(X,Y)] = \int_{-\infty}^{\infty} \int_{-\infty}^{\infty} g(x,y) f_{X,Y} (x,y) dx dy 
+    \]
+    where $f_{X,Y}(x,y)$ is the joint PDF of $X$ and $Y$. 
+\end{frame}
+
+\begin{frame}{Covariance}
+    \vspace{2mm}
+    The \alert{covariance} between two random variables $X$ and $Y$ is defined as: 
+    \[ \text{Cov}(X,Y) = E((X-EX)(Y-EY)) \]
+    By the linearity of expectation, this can be written as:
+        \[ \text{Cov}(X,Y) = E(XY) - E(X)E(Y) \]
+Think of covariance as a measure of whether the two variables \alert{move together}. 
+\end{frame}
+
+\begin{frame}{Some Covariance Rules}
+    \begin{enumerate}
+        \item $\text{Cov}(X,X) = \text{Var}(X)$ \pause 
+          \item $\text{Cov}(X,Y) = \text{Cov}(Y,X)$ \pause
+         \item $\text{Cov}(X,c) = 0$ for any constant $c$ \pause   
+           \item $\text{Cov}(aX,Y) = a\text{Cov}(X,Y)$ for any constant $a$ \pause
+             \item $\text{Cov}(X+Y,Z) = \text{Cov}(X,Z) + \text{Cov}(Y,Z)$ \pause
+               \item $\text{Var}(X+Y) = \text{Var}(X) + \text{Var}(Y) + 2 \text{Cov}(X,Y)$ 
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Correlation}
+    \vspace{2mm}
+    The \alert{correlation} between two random variables is given by: 
+    \[ \text{Corr}(X,Y) = \frac{\text{Cov}(X,Y)}{\sqrt{\text{Var}(X) \text{Var} (Y)}}\]
+    This scaling puts correlation between -1 and 1 no matter the scale of $X$ and $Y$, making correlation easy to interpret. 
+\end{frame}
+
+\begin{frame}{Correlation Imposes Linearity}
+\vspace{3mm}
+    An important note: if $X$ and $Y$ are independent, then they are uncorrelated. \\ \vspace{5mm}
+    \textbf{Proof:} Cov$(X,Y) = E(XY) - E(X) E(Y)$. For independent r.v.s, $E(XY) = E(X) E(Y)$. Thus, Cov$(X,Y)$ is 0 and so is correlation.
+    \\ \vspace{5mm} \pause 
+    \alert{However}, if two variables are uncorrelated, then they might not be independent. Consider: 
+    \begin{align*}
+        X &\sim \mathcal{N}(0,1) \\
+        Y &= X^2
+    \end{align*}
+    These are perfectly dependent. But, $\text{Cov}(X,Y) = E(XY) - E(X) E(Y) = 0 - 0$. 
+\end{frame}
+
+\begin{frame}{Correlation Imposes Linearity}
+    \begin{center}
+\includegraphics[width=.8\textwidth]{images/corr.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}{The Law of Large Numbers}
+    Assume we have i.i.d. r.v.s $X_1, X_2, X_3,...$ with mean $\mu$ and variance $\sigma^2$. We take a finite sample of size $n$ and define the sample mean as: 
+    \[ \bar{X}_n = \frac{X_1 + ... + X_n}{n} \]
+    This sample mean is itself a random variable. What are its expectation and variance? 
+    \[ E(\bar{X}_n) = E \left( \frac{1}{n} (X_1 + ... + X_n) \right) = \frac{1}{n} (E(X_1) + ... + E(X_n)) = \mu  \] 
+    \[ \text{Var}(\bar{X}_n) = \frac{1}{n^2} \text{Var}(X_1 + ... + X_n) = \frac{\sigma^2}{n} \]
+\end{frame}
+
+\begin{frame}{The Law of Large Numbers}
+    The \alert{Law of Large Numbers} states that as $n \rightarrow \infty$, the sample mean $\bar{X}_n \rightarrow \mu$ with probability 1.
+\end{frame}
+
+\begin{frame}{The Law of Large Numbers}
+    \begin{center}
+        \includegraphics[width=\textwidth]{images/lln.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}{The Law of Large Numbers}
+Note: the coin is ``memoryless,'' meaning that after a long string of Heads, you are not more likely to get Tails; the probability of getting Tails is always $\frac{1}{2}$. \\
+\vspace{5mm}
+This fact does not contradict the LLN. Convergence takes place through \alert{swamping}: past tosses are ``swamped'' by the infinitely many tosses yet to come.
+\end{frame}
+
+\begin{frame}{The Law of Large Numbers}
+\vspace{2mm}
+Further note: the Law of Large Numbers has been with us all along:
+\begin{itemize}
+    \item Any time you run a simulation and increase the number of runs
+    \item Most recently, in Monte Carlo integration when we used the sample proportion for the true probability
+\end{itemize}
+    \begin{center}
+        \includegraphics[width=.4\textwidth]{images/mci.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}{The Central Limit Theorem}
+    First, let's standardize our sample mean $\bar{X}_n$, recalling that this means subtracting its expectation ($\mu$) and dividing by its standard deviation ($\sqrt{\frac{\sigma^2}{n}} = \frac{\sigma}{\sqrt{n}}$):
+    \[    \frac{\bar{X}_n - \mu }{\sigma/\sqrt{n}} = \sqrt{n} \left( \frac{\bar{X}_n - \mu}{\sigma} \right) \] \pause 
+    The Central Limit Theorem states that this quantity, the standardized sample mean, converges in distribution to the standard Normal as $n \rightarrow \infty$: 
+    \[ \sqrt{n} \left( \frac{\bar{X}_n - \mu}{\sigma} \right) \rightarrow \mathcal{N}(0,1) \text{ in distribution. } \]
+    This holds \alert{regardless of the distribution of the $X$'s} as long as the mean and variance are finite (see: the evil Cauchy).
+\end{frame}
+
+\begin{frame}{}
+\vspace{3mm}
+    \includegraphics[width=\textwidth]{images/clti.png}
+\end{frame}
+
+\begin{frame}{Further Notes on the CLT}
+\begin{itemize} \small 
+    \item     You can un-standardize the sample mean to restate the CLT as: 
+    
+    \[ \bar{X}_n \rightarrow \mathcal{N} \left( \mu , \frac{\sigma^2}{n} \right) \text{ in distribution as } n \rightarrow \infty  \]
+    \item The CLT works just as well for the sum rather than the mean:
+    \[  \sum_{i=1}^n X_i \rightarrow \mathcal{N} \left( n \mu , n \sigma^2 \right) \text{ in distribution as } n \rightarrow \infty \]
+    \item While the CLT works for any distribution with finite mean and variance, the underlying distribution matters for how large $n$ has to be before the Normal approximation starts to look accurate 
+    \item As a shortcut, you can write the CLT in approximation form:
+     \[ \bar{X}_n \approx  \mathcal{N} \left( \mu , \frac{\sigma^2}{n} \right)   \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Normal Approximation to the Binomial}
+    Recalling that the Binomial$(n,p)$ is the sum of $n$ Bernoullis with probability $p$, we can even use the Normal distribution to approximate the Binomial. Since from the previous slide,
+   \[ \sum_{i=1}^n X_i \approx  \mathcal{N} \left( n \mu , n \sigma^2 \right)   \]
+   and recalling that the mean of a Bernoulli is $p$ and its variance is $p(1-p)$, we can use the CLT to say:
+   \[\sum_{i=1}^n X_i \approx  \mathcal{N} \left(np, np(1-p) \right) \]
+\end{frame}
+\end{document}

@@ -1,0 +1,130 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize Math for Data Science: Homework 2}
+\rhead{\footnotesize Henry Baker} 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf Mid Terms Fall 2023  \\ Henry Baker}
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: Session 4\\ Calculus I}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Differentiation Rules}
+\begin{itemize}
+    \item \textbf{Rule 0: Constants}: derivative = 0 --> can take out of the any differentiation
+    \item \textbf{Rule 1: Powers}: $\frac{d}{dx}x^n = nx^{n-1}$
+    \item \textbf{Rule 2: Sum/Differences}: 
+    \[\frac{d}{dx}(\text{f}(x) \pm g(x)) = \frac{d}{dx}\text{f}(x) \pm \frac{d}{dx}g(x)\]
+    \item \textbf{Rule 3: Constant Multiples}
+    \[\frac{d}{dx} [k f(x)] = k \frac{d}{dx} f(x)\]
+    \item \textbf{Rule 4: Products} 
+    \[\frac{d}{dx} [g(x) f(x)] = g'(x) \cdot f(x) + g(x) \cdot f'(x)\]
+    \item \textbf{Rule 5: Quotients} \\
+    \[\frac{d}{dx} \left( \frac{f(x)}{g(x)} \right) = \frac{g(x) \cdot f'(x) - f(x) \cdot g'(x)}{g(x)^2}\]
+    
+    \item \textbf{Rule 6: Chain} \\
+    If $y$ is a function of $u$, and $u$ is a function of $x$, \text{ then:} \\
+    \[\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}\]
+    Steps \begin{enumerate}
+        \item Identify inner + outer
+        \item differentiate both
+        \item multiply derivatives together
+    \end{enumerate}
+    \textit{Example:}  \[ \frac{d}{dx}f(x) = \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2} x^2} \]
+    1) strip out the constant: 
+    \[ f(x) = \frac{1}{\sqrt{2\pi}} \cdot \frac{d}{dx}e^{-\frac{1}{2} x^2} \]
+    2) break it into 2:
+     \begin{align}
+        \frac{dy}{dx} &= \frac{dy}{du} \cdot \frac{du}{dx} \\
+        u &= -\frac{1}{2}x^2\\
+        y &= e^u\\
+        \frac{dy}{du} &= e^u \\
+        \frac{dy}{dx} &= -x\\
+        \frac{dy}{dx} &= e^u \cdot (-x) \\
+        \frac{dy}{dx} &= -x e^{-\frac{1}{2} x^2} \\
+     \end{align}
+        
+    \item \textbf{Rule 7: Natural Exponential} \\
+    \[y(x) = e^x \rightarrow \frac{dy}{dx} = e^x\]
+    
+    \item \textbf{Rule 8: Natural Logarithms} \\
+    \[y = \ln(x)\rightarrow \frac{dy}{dx} = \frac{1}{x}\]
+    \\
+    \item \textbf{Exponential Functions} \\
+    Power rule is for when $x$ is a \textbf{constant}. \\
+    Exponential functions take $x$ as the exponent itself.
+    \[\frac{d}{dx} a^x = \ln(a) \times a^x\]
+    \[\frac{d}{dx} a^{bx} = b \times \ln(a) \times a^{bx}\]
+
+    \underline{Example: $a^x$} \\ $10^x$ becomes $ln(10)$ $\times 10^x$:
+    \begin{align*} 
+        f(x) &= \frac{10^x}{\ln(10)} \\
+        f'(x) &= \ln(10) \times 10^x \times \frac{1}{\ln(10)} = 10^x
+    \end{align*}
+    
+    \underline{Example: $a^{bx}$} \\
+    \begin{align*}
+    f(x) &= 2^{4x} + 4x^2 \\
+    f'(x) &= 4 \ln(2) \times 2^{4x} + 8x 
+    \end{align*}
+    \\
+
+    However, when differentiating $a^u$ where $u$ is a function of $x$ not just a simple constant multiplier like in the previous rule), we have to use the chain rule:
+    \[\frac{d}{dx} a^u = u' \times \ln(a) \times a^u\]
+
+
+
+\hline
+\section{Power Series}
+\[\sum_{k=0}^{\infty} c_k x^k = c_0 + c_1 x + c_2 x^2 + c_3 x^3 + \dots\]
+Where $x$ is coefficient, $c_k$ are some constants
+\[\sum_{k=0}^{\infty} c_k (x - a)^k = c_0 + c_1(x - a) + c_2(x - a)^2 + \dots\]
+Where $a$ is some constant $\rightarrow$ “centered at $x = a$.”
+\\
+Can diverge / converge - for the following:\\
+if $x = 0.5 \rightarrow$ converges\\
+if $x = 2 \rightarrow$ diverges \\
+\[\sum_{k=0}^{\infty} x^k = 1 + x + x^2 + x^3 + x^4 \dots\]
+
+
+Intuition: tricky functions can be represented as infinite polynomials (when they converge to a approximate a function). Infinite polynomials are easy to differentiate, integrate, manipulate. \\
+\\
+We can even truncate inf polynomial for some $k$ for a good enough approx
+
+DIDN'T UNDERSTAND SOME OF THIS - P31, 32, 34
+
+\end{itemize}
+
+\end{document}

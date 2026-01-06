@@ -1,0 +1,398 @@
+% =============================================================================
+% Common Distributions
+% =============================================================================
+
+\chapter{Common Distributions}
+
+\thispagestyle{empty}
+{\large \textbf{Mid Terms Fall 2023  --  Henry Baker }}
+\par\noindent\rule{\textwidth}{0.4pt} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: \\ Distributions }
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+Bernoulli trials > Binomials > Multinomial
+
+Binomial = n choo
+
+\section*{Distribution Name: \textbf{Bernoulli}}
+
+\begin{itemize}
+
+    \item \textbf{Definition and Parameters:}
+    \begin{itemize}
+        \item Definition: Represents an experiment with exactly two possible outcomes, often referred to as "success" and "failure". It is the simplest discrete distribution.
+        \item Parameters: 
+        \begin{itemize}
+            \item \( p \): Probability of success.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Probability Mass Function (PMF):}
+    \begin{equation*}
+        P(X=k) = 
+        \begin{cases} 
+            p & \text{if } k = 1 \\
+            1-p & \text{if } k = 0 
+        \end{cases}
+    \end{equation*}
+
+    \item \textbf{Cumulative Distribution Function (CDF):}
+    \begin{equation*}
+        P(X \leq k) = 
+        \begin{cases} 
+            0 & \text{for } k < 0 \\
+            1-p & \text{for } 0 \leq k < 1 \\
+            1 & \text{for } k \geq 1 
+        \end{cases}
+    \end{equation*}
+
+    \item \textbf{Expected Value and Variance:}
+    \begin{align*}
+        E(X) &= p \\
+        \text{Var}(X) &= p(1-p)
+    \end{align*}
+
+    \item \textbf{Worked-out Example:}
+    \begin{itemize}
+        \item Problem Statement: A coin is biased with a probability \( p = 0.7 \) of landing heads. What is the probability it lands tails?
+        \item Solution: Using the Bernoulli PMF, \( P(X=0) = 1-0.7 = 0.3 \).
+    \end{itemize}
+
+    \item \textbf{Relation to Other Distributions:}
+    \begin{itemize}
+        \item A Bernoulli distribution with \( n = 1 \) trial is a special case of the binomial distribution.
+    \end{itemize}
+
+    \item \textbf{Use Cases:}
+    \begin{itemize}
+        \item Modeling the outcome of a single trial in any scenario with two possible outcomes, such as a coin toss, a yes/no question, or a pass/fail test.
+    \end{itemize}
+
+    \item \textbf{Miscellaneous Notes:}
+    \begin{itemize}
+        \item It is named after Jacob Bernoulli, a Swiss mathematician.
+        \item The Bernoulli distribution can be thought of as a single trial of a binomial experiment.
+    \end{itemize}
+
+\end{itemize}
+
+\section*{Distribution Name: \textbf{Binomial}}
+
+\begin{itemize}
+    \item \textbf{Definition and Parameters:}
+    \begin{itemize}
+        \item Definition: Represents the number of successes in \( n \) independent Bernoulli trials, each with the same probability \( p \) of success.
+        \item Parameters: 
+        \begin{itemize}
+            \item \( n \): Number of trials.
+            \item \( p \): Probability of success on a single trial.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Probability Mass Function (PMF):}
+    \begin{equation*}
+        P(X=k) = \binom{n}{k} p^k (1-p)^{n-k}
+    \end{equation*}
+
+    \item \textbf{Cumulative Distribution Function (CDF):}
+    \begin{equation*}
+        P(X \leq k) = \sum_{i=0}^{k} \binom{n}{i} p^i (1-p)^{n-i}
+    \end{equation*}
+
+    \item \textbf{Expected Value and Variance:}
+    \begin{align*}
+        E(X) &= np \\
+        \text{Var}(X) &= np(1-p)
+    \end{align*}
+
+    \item \textbf{Worked-out Example:}
+    \begin{itemize}
+        \item Problem Statement: A fair coin is tossed 5 times. What is the probability of getting exactly 3 heads?
+        \item Solution: Using the Binomial PMF, \( P(X=3) = \binom{5}{3} \times 0.5^3 \times 0.5^2 = 0.3125 \).
+    \end{itemize}
+
+    \item \textbf{Relation to Other Distributions:}
+    \begin{itemize}
+        \item A Binomial distribution with \( n = 1 \) trial reduces to a Bernoulli distribution.
+        \item As \( n \) becomes large and \( p \) is small, the Binomial distribution approaches the Poisson distribution.
+    \end{itemize}
+
+    \item \textbf{Use Cases:}
+    \begin{itemize}
+        \item Modeling the number of successes in a fixed number of independent trials, such as the number of heads in a certain number of coin tosses, or the number of defective items in a batch.
+    \end{itemize}
+
+    \item \textbf{Miscellaneous Notes:}
+    \begin{itemize}
+        \item It is one of the most widely used probability distributions in statistics.
+        \item The binomial distribution assumes that each trial is independent, and the probability of success remains constant across trials.
+    \end{itemize}
+
+\end{itemize}
+
+\section*{Distribution Name: \textbf{Multinomial}}
+
+\begin{itemize}
+
+    \item \textbf{Definition and Parameters:}
+    \begin{itemize}
+        \item Definition: An extension of the binomial distribution to experiments with more than two possible outcomes. It represents the outcomes of \( n \) independent trials, each of which can result in one of \( k \) possible categories.
+        \item Parameters: 
+        \begin{itemize}
+            \item \( n \): Total number of trials.
+            \item $k$ number of possible outcomes / categories
+            \item \( p_1, p_2, \ldots, p_k \): The probabilities of the \( k \) outcomes, where \( \sum_{i=1}^k p_i = 1 \).
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Probability Mass Function (PMF):}
+    \begin{equation*}
+        P(X_1=n_1, X_2=n_2, \ldots, X_k=n_k) = \frac{n!}{n_1! n_2! \ldots n_k!} p_1^{n_1} p_2^{n_2} \ldots p_k^{n_k}
+    \end{equation*}
+    subject to the constraints \( n_1 + n_2 + \ldots + n_k = n \) and \( 0 \leq n_i \leq n \) for all \( i \).
+
+    \item \textbf{Expected Value and Variance:}
+    \begin{align*}
+        E(X_i) &= np_i \\
+        \text{Var}(X_i) &= np_i(1-p_i)
+    \end{align*}
+
+    \item \textbf{Worked-out Example:}
+    \begin{itemize}
+        \item Problem Statement: A die is rolled 10 times. What is the probability of getting exactly 2 ones, 3 twos, and 5 threes?
+        \item Solution: Using the Multinomial PMF, the probability is calculated as 
+        \[
+        \frac{10!}{2!3!5!} \times \left(\frac{1}{6}\right)^2 \times \left(\frac{1}{6}\right)^3 \times \left(\frac{1}{6}\right)^5
+        \]
+
+    \end{itemize}
+
+    \item \textbf{Relation to Other Distributions:}
+    \begin{itemize}
+        \item If \( k = 2 \), the Multinomial distribution reduces to the Binomial distribution.
+    \end{itemize}
+
+    \item \textbf{Use Cases:}
+    \begin{itemize}
+        \item Modeling the outcomes of experiments with multiple categories, such as the number of times each face of a die appears in a series of rolls.
+        \item Used in linguistics to model the occurrence of different words or phrases in a text.
+    \end{itemize}
+
+    \item \textbf{Miscellaneous Notes:}
+    \begin{itemize}
+        \item The Multinomial distribution generalizes the Binomial distribution, allowing for more than two possible outcomes.
+    \end{itemize}
+
+\end{itemize}
+
+\section*{Distribution Name: \textbf{Geometric}}
+
+\begin{itemize}
+
+    \item \textbf{Definition and Parameters:}
+    \begin{itemize}
+        \item Definition: Describes the number of Bernoulli trials needed for a single success. It represents the probability that the first success will occur on the \( k \)th trial.
+        \item Parameters: 
+        \begin{itemize}
+            \item \( p \): Probability of success on a single trial.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Probability Mass Function (PMF):}
+    \begin{equation*}
+        P(X=k) = (1-p)^{k-1} p
+    \end{equation*}
+
+    \item \textbf{Cumulative Distribution Function (CDF):}
+    \begin{equation*}
+        P(X \leq k) = 1 - (1-p)^k
+    \end{equation*}
+
+    \item \textbf{Expected Value and Variance:}
+    \begin{align*}
+        E(X) &= \frac{1}{p} \\
+        \text{Var}(X) &= \frac{1-p}{p^2}
+    \end{align*}
+
+    \item \textbf{Worked-out Example:}
+    \begin{itemize}
+        \item Problem Statement: A fair coin is tossed repeatedly. What is the probability that the first head appears on the 3rd toss?
+        \item Solution: Using the Geometric PMF, \( P(X=3) = (1-0.5)^{3-1} \times 0.5 = 0.125 \).
+    \end{itemize}
+
+    \item \textbf{Relation to Other Distributions:}
+    \begin{itemize}
+        \item A special case of the Negative Binomial distribution when the number of successes required is 1.
+    \end{itemize}
+
+    \item \textbf{Use Cases:}
+    \begin{itemize}
+        \item Modeling the number of trials required before a success in scenarios with two possible outcomes, such as the number of coin tosses before seeing the first head.
+    \end{itemize}
+
+    \item \textbf{Miscellaneous Notes:}
+    \begin{itemize}
+        \item The Geometric distribution gives the probability distribution of the number of Bernoulli trials needed for one success, which might not necessarily be the first success.
+    \end{itemize}
+
+\end{itemize}
+
+\section*{Distribution Name: \textbf{Negative Binomial}}
+
+\begin{itemize}
+
+    \item \textbf{Definition and Parameters:}
+    \begin{itemize}
+        \item Definition: Describes the number of Bernoulli trials needed for a specified number (r) of successes. It represents the probability that the r-th success will occur on the \( k \)th trial.
+        \item Parameters: 
+        \begin{itemize}
+            \item \( r \): Number of successes.
+            \item \( p \): Probability of success on a single trial.
+            \item $k$: number of trials
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Probability Mass Function (PMF):}
+    \begin{equation*}
+        P(X=k) = \binom{k-1}{r-1} p^r (1-p)^{k-r}
+    \end{equation*}
+
+    \item \textbf{Expected Value and Variance:}
+    \begin{align*}
+        E(X) &= \frac{r}{p} \\
+        \text{Var}(X) &= \frac{r(1-p)}{p^2}
+    \end{align*}
+
+    \item \textbf{Worked-out Example:}
+    \begin{itemize}
+        \item Problem Statement: A biased coin with a probability \( p = 0.4 \) of landing heads is tossed repeatedly. What is the probability that the 5th head appears on the 8th toss?
+        \item Solution: Using the Negative Binomial PMF, \( P(X=8) = \binom{8-1}{5-1} \times 0.4^5 \times (1-0.4)^{8-5} \).
+    \end{itemize}
+
+    \item \textbf{Relation to Other Distributions:}
+    \begin{itemize}
+        \item If \( r = 1 \), the Negative Binomial distribution reduces to the Geometric distribution.
+    \end{itemize}
+
+    \item \textbf{Use Cases:}
+    \begin{itemize}
+        \item Modeling the number of trials required to observe a fixed number of successes, such as the number of patients needed to observe a fixed number of recoveries in a medical study.
+    \end{itemize}
+
+    \item \textbf{Miscellaneous Notes:}
+    \begin{itemize}
+        \item The Negative Binomial distribution can be thought of as an extension of the Geometric distribution to more than one success.
+        \item It provides the distribution of the number of successes before a specified number of failures occur.
+    \end{itemize}
+
+\end{itemize}
+
+\section*{Distribution Name: \textbf{Hypergeometric}}
+
+\begin{itemize}
+
+    \item \textbf{Definition and Parameters:}
+    \begin{itemize}
+        \item Definition: Describes the probability of obtaining a specific number of successes when drawing samples without replacement from a finite population containing a fixed number of successes.
+        \item Parameters: 
+        \begin{itemize}
+            \item \( N \): Total number of items in the population.
+            \item \( K \): Number of success items in the population.
+            \item \( n \): Number of items sampled.
+            \item $k$: Number of successes in sample.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Probability Mass Function (PMF):}
+    \begin{equation*}
+        P(X=k) = \frac{\binom{K}{k} \binom{N-K}{n-k}}{\binom{N}{n}}
+    \end{equation*}
+
+    \item \textbf{Expected Value and Variance:}
+    \begin{align*}
+        E(X) &= n\frac{K}{N} \\
+        \text{Var}(X) &= n\frac{K}{N}\frac{N-K}{N}\frac{N-n}{N-1}
+    \end{align*}
+
+    \item \textbf{Worked-out Example:}
+    \begin{itemize}
+        \item Problem Statement: From a deck of 52 cards, 5 are drawn. What is the probability that exactly 3 of them are spades?
+        \item Solution: Using the Hypergeometric PMF, \( P(X=3) = \frac{\binom{13}{3} \binom{39}{2}}{\binom{52}{5}} \).
+    \end{itemize}
+
+    \item \textbf{Relation to Other Distributions:}
+    \begin{itemize}
+        \item If items are drawn with replacement (meaning the drawn items are returned to the population before drawing again), the Hypergeometric distribution becomes the Binomial distribution.
+    \end{itemize}
+
+    \item \textbf{Use Cases:}
+    \begin{itemize}
+        \item Used in situations where sampling is done without replacement, like drawing cards from a deck, or selecting a committee from a larger group.
+        \item Common in biology and genetics studies where a subset of a population is examined.
+    \end{itemize}
+
+    \item \textbf{Miscellaneous Notes:}
+    \begin{itemize}
+        \item The Hypergeometric distribution provides exact probabilities whereas the Binomial distribution provides approximations when sampling without replacement.
+    \end{itemize}
+
+\end{itemize}
+
+\section*{Distribution Name: \textbf{Poisson}}
+
+\begin{itemize}
+
+    \item \textbf{Definition and Parameters:}
+    \begin{itemize}
+        \item Definition: Describes the probability of a given number of events happening in a fixed interval of time or space. The events are assumed to be rare and independent.
+        \item Parameters: 
+        \begin{itemize}
+            \item \( \lambda \): Average rate (mean number) of events in the given interval.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Probability Mass Function (PMF):}
+    \begin{equation*}
+        P(X=k) = \frac{\lambda^k e^{-\lambda}}{k!}
+    \end{equation*}
+
+    \item \textbf{Expected Value and Variance:}
+    \begin{align*}
+        E(X) &= \lambda \\
+        \text{Var}(X) &= \lambda
+    \end{align*}
+
+    \item \textbf{Worked-out Example:}
+    \begin{itemize}
+        \item Problem Statement: A call center receives an average of 5 calls per hour. What is the probability that exactly 7 calls are received in a given hour?
+        \item Solution: Using the Poisson PMF with \( \lambda = 5 \), \( P(X=7) = \frac{5^7 e^{-5}}{7!} \).
+    \end{itemize}
+
+    \item \textbf{Relation to Other Distributions:}
+    \begin{itemize}
+        \item The Poisson distribution can be derived as a limit of the Binomial distribution when the number of trials \( n \) is large, the probability of success \( p \) is small, and \( np \) is kept constant.
+    \end{itemize}
+
+    \item \textbf{Use Cases:}
+    \begin{itemize}
+        \item Modeling the number of events in fixed intervals of time or space, such as the number of phone calls to a call center in an hour, or the number of decay events per unit time from a radioactive source.
+    \end{itemize}
+
+    \item \textbf{Miscellaneous Notes:}
+    \begin{itemize}
+        \item Named after the French mathematician Siméon Denis Poisson.
+        \item It is particularly known for modeling rare events.
+        \item The distribution is defined for all non-negative integers but is most commonly used for small values of \( k \).
+    \end{itemize}
+
+\end{itemize}
+wh
+
+
+\section{Hypergeometric}
+double tagged / W vs B balls sampled / stags released....

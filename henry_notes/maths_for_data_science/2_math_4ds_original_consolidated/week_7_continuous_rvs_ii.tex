@@ -1,0 +1,512 @@
+% =============================================================================
+% Week 7: Continuous Random Variables II
+% =============================================================================
+
+\chapter{Continuous Random Variables II}
+\label{ch:week7}
+
+\thispagestyle{empty}
+{\large \textbf{Finals Fall 2023  --  Henry Baker}}
+\par\noindent\rule{\textwidth}{0.4pt} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Finals Revision: Session 7 \\ Calculus Meets Probability / Continuous Random Variables II}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Covariance}
+    \begin{itemize}
+        \item Covariance between two r.v.s $X$ and $Y$ is a measure of the amount they $\textit{vary together}$.
+        \item If the variables tend to show similar behavior (i.e., both increase or decrease together), the covariance is positive. If one variable tends to increase when the other decreases, the covariance is negative. If the variables do not show any consistent relationship, the covariance is close to zero.
+    \end{itemize}
+    
+\subsection{Covariance Definition} 
+\begin{tcolorbox}
+\begin{itemize}
+    \item Covariance is just how two variables move together.
+    \item Covariance is the "expectation of the product, minus the product of the expectations"
+    \item Independent r.v.s: no pattern of how they move together $\rightarrow$ covariance is 0
+\end{itemize}
+\end{tcolorbox}
+
+
+\[\text{Cov}(X, Y) = \mathbb{E}((X - \mathbb{E}X)(Y - \mathbb{E}Y))\]
+
+Break down:
+    \begin{itemize}
+        \item $\mathbb{E}(X)$ and $\mathbb{E}(Y)$ = expected values / means of the r.v.s.
+        \item $(X - \mathbb{E}X)$ and $(Y - \mathbb{E}Y)$ = deviation from the mean (how far each individual observation of the variables is from their average values.)
+        \item $(X - \mathbb{E}X)(Y - \mathbb{E}Y)$ = product of deviations (for each pairs of observations of $X$ and $Y$. IS THIS BASIS OF LEAST SQUARED ERRORS????
+        \item $ \mathbb{E}(X - \mathbb{E}X)(Y - \mathbb{E}Y)$ = expected value (or average) of these products over all pairs of observations. \textbf{Quantifies the average product of deviations, thus giving a measure of how much $X$ and $Y$ co-vary}.
+    \end{itemize}
+
+By linearity of expectation: 
+\begin{tcolorbox}
+\textbf{Covariance is the "expectation of the product, minus the product of the expectations"}
+\[\text{Cov}(X, Y) = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y]\]
+\end{tcolorbox}
+***
+NB: definition of independence from wk 3:
+\begin{itemize}
+    \item Continuous r.v.s: $P(X \leq x,Y \leq y) = P(X \leq x)P(Y \leq y)$
+    \item Discrete r.v.s: $P(X = x,Y = y) = P(X = x)P(Y = y)$
+\end{itemize}
+This is related? Here rather than probabilities, we are dealing with expectations...: \\
+
+\begin{align*}
+    \text{Independence} &: \text{Covariance} = 0 \\
+    \text{Covariance}= 0 &: \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y] = 0 \\
+    &: \mathbb{E}[XY] = \mathbb{E}[X]\mathbb{E}[Y] 
+\end{align*}
+
+\subsection{Some Covariance rules}
+\begin{enumerate}
+    \item $\text{Cov}(X, X) = \text{Var}(X)$
+    \item $\text{Cov}(X, Y) = \text{Cov}(Y, X)$
+    \item $\text{Cov}(X, c) = 0$ for any constant $c$
+    \item $\text{Cov}(aX, Y) = a \cdot \text{Cov}(X, Y)$ for any constant $a$
+    \item $\text{Cov}(X + Y, Z) = \text{Cov}(X, Z) + \text{Cov}(Y, Z)$
+    \item $\text{Var}(X + Y) = \text{Var}(X) + \text{Var}(Y) + 2 \cdot \text{Cov}(X, Y)$
+    \item \textbf{additional:} $E(EX)$: expectation of a constant is just a constant .
+\end{enumerate}
+
+\section{Correlation}
+
+\[\text{Corr}(X, Y) = \frac{\text{Cov}(X, Y)}{\sqrt{\text{Var}(X) \cdot \text{Var}(Y)}}\]
+
+This scaling puts correlation between -1:1 (for ease of interpretation) \\
+
+\subsection{Correlation Imposes Linearity}
+
+\begin{tcolorbox}
+    \begin{itemize}
+        \item Independence $\rightarrow$ uncorrelated
+        \item Uncorrelated $\rightarrow \times \rightarrow$ Independence
+        \item Non-linearity will mess you up. E.g if you're trying to fit a curve through the parabola: you'd get a straight line
+        \item if you have any non-linearity $\rightarrow$ throw some other things (other than correlation) before you conclude that they are independent
+    \end{itemize}
+\end{tcolorbox}
+
+If $X$ and $Y$ are independent $\rightarrow$ uncorrelated\\
+
+Proof:
+\begin{align*}
+    \text{Cov definition:    } Cov(X,Y) &= E(XY) - E(X)E(Y) \\
+     \text{for independent i.v.s:    } E(XY) &= E(X)E(Y) \\
+     \text{thus Cov &= 0}
+\end{align*}
+BUT\\
+If $X$ and $Y$ are uncorrelated $\rightarrow$ not necessarily independent.\\
+\begin{tcolorbox}
+Consider: 
+\begin{align*}
+    X &\sim \mathcal{N}(0,1) \\
+    Y &= X^2
+\end{align*}
+These are perfectly dependent ($Y$ is a function of $X$), but uncorrelated: \\
+\begin{align*}
+    Cov(X,Y) &= E(XY) - E(X)E(Y) \\
+    &= E(X \cdot X^2) - E(X)E(Y) \\
+    &= X^3 - E(X)E(Y) \\
+    &= 0 - 0\cdot E(Y) \\
+    &= 0
+\end{align*}
+
+\textbf{the important point is that E(X) = 0 since it is Standard Normal distribution.}\\
+\end{tcolorbox}\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_7/Screenshot 2024-01-25 at 11.18.55.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+These plots display how correlation imposes linearity (unlike dependence)
+
+\subsection{Further Explanation: Proof of Cov > Corr}
+
+Two random variables $X$ and $Y$ are said to be \textbf{independent} if the occurrence of an event related to $X$ does not affect the probability of an event related to $Y$, and vice versa. \\
+
+Mathematically, independence means that for any events $A$ and $B$: \[P(X \in A, Y \in B) = P(X \in A)P(Y \in B)\]
+
+\textbf{Uncorrelated} random variables are those for which there is no linear relationship between them. The covariance between uncorrelated variables is zero.\\
+
+\textbf{Covariance}, denoted as $\text{Cov}(X, Y)$, measures the joint variability of two random variables. It's defined as 
+\[\text{Cov}(X, Y) = E[(X - E[X])(Y - E[Y])]\] 
+which simplifies to 
+\[E(XY) - E(X)E(Y)\]
+\textbf{For independent r.v.s, the expectation of their product is the product of their expectations.} 
+\[E(XY) = E(X)E(Y)\] 
+
+Substituting this into the covariance formula: 
+\begin{align*}
+    Cov(X, Y) &= E(XY) - E(X)E(Y) \\
+    &= E(X)E(Y) - E(X)E(Y) \\
+    &= 0
+\end{align*}
+Since covariance is zero, $X$ and $Y$ are uncorrelated.\\
+
+\textbf{Implication of Zero Covariance}: 
+    Zero covariance implies that there is no linear relationship between $X$ and $Y$. In other words, knowing the value of $X$ gives no information about the value of $Y$, and vice versa, which is consistent with the definition of independence.\\
+    
+The \textbf{correlation coefficient}, often denoted as $\rho$, is a normalized measure of the strength and direction of the linear relationship between two variables.\\
+
+It's defined as \[\rho_{X,Y} = \frac{\text{Cov}(X, Y)}{\sigma_X \sigma_Y}\]
+where $\sigma_X$ and $\sigma_Y$ are the standard deviations of $X$ and $Y$, respectively.\\
+
+If $\text{Cov}(X, Y) = 0$, then $\rho_{X,Y} = 0$, indicating no linear correlation.\\
+
+In summary, if two random variables are independent, they do not affect each other, and therefore, their covariance (and thus their correlation) is zero. This means independent variables are always uncorrelated. However, the reverse is not always true; uncorrelated variables are not necessarily independent.\\
+
+Correlation is just a measure of covariance and linearity, whereas dependence measures something different.\\
+
+\subsection{Example proving independence}
+
+Suppose $X$ and $Y$ are r.v.s where $X$ can take values with 1 or 2 with equal probability, and $Y$ can take values 3 or 4 with equal probablity. Assume $X$ and $Y$ are independent.
+\begin{align*}
+E(X) &= \frac{1}{2}(1) + \frac{1}{2}(2) = 1.5 \\
+E(Y) &= \frac{1}{2}(3) + \frac{1}{2}(4) = 3.5 \\
+\end{align*}
+
+$E(XY)$ can be calculated by considering all combinations of $X$ and $Y$\\
+We have four combinations: (1, 3), (1, 4), (2, 3), and (2, 4). Each combination occurs with a probability of 1/4, since the probabilities of X and Y are each 1/2.
+
+\begin{align*}
+E(XY) &= \frac{1}{4}(1 \times 3) + \frac{1}{4}(1 \times 4) + \frac{1}{4}(2 \times 3) + \frac{1}{4}(2 \times 4) = 5.25 \\
+\text{Cov}(X, Y) &= E(XY) - E(X)E(Y) = 5.25 - (1.5 \times 3.5) = 0
+\end{align*}
+Since the covariance is 0, it suggests that $X$ and $Y$ are uncorrelated
+
+
+\section{Law of Large Numbers}
+Assume i.i.d rvs $X_1$, $X_2$, $X_3 \cdots$ with mean $\mu$ and variance $\sigma^2$. \\
+We take sample of size $n$ and define the sample mean as:
+\begin{align*}
+\bar{X}_n = \frac{X_1 + X_2 + \ldots + X_n}{n}  
+\end{align*}
+
+\begin{tcolorbox}
+Assume the daily temperatures for five consecutive days are represented by random variables $X_1, X_2, X_3, X_4,$ and $X_5$. These could be, for instance:
+
+$X_1 = 3^\circ\text{C}$ (Temperature on Day 1)
+
+$X_2 = 5^\circ\text{C}$ (Temperature on Day 2)
+
+$X_3 = 7^\circ\text{C}$ (Temperature on Day 3)
+
+$X_4 = 2^\circ\text{C}$ (Temperature on Day 4)
+
+$X_5 = 4^\circ\text{C}$ (Temperature on Day 5)
+
+The average temperature over these five days, denoted as $\bar{X}_5$, is calculated as:
+
+\[
+\bar{X}_5 = \frac{X_1 + X_2 + X_3 + X_4 + X_5}{5} = \frac{3 + 5 + 7 + 2 + 4}{5} = 4.2^\circ\text{C}
+\]
+
+\end{tcolorbox}
+
+This sample mean is itself an r.v. \\
+What are its expectation and variance? \\
+\textbf{Expectation}
+\begin{align*}
+E(\bar{X}_n) &= E\left(\frac{1}{n}(X_1 + \ldots + X_n)\right) \\
+&= \frac{1}{n}(E(X_1) + \ldots + E(X_n)) \\
+&= \frac{1}{n}(\mu_1 + \ldots + \mu_n) \\
+&= \frac{1}{n}(n\mu) \\
+&= \mu
+\end{align*}
+
+\textbf{Variance}
+\begin{align*}
+\text{Var}(\bar{X}_n) &= \frac{1}{n^2} \text{Var}(X_1 + \ldots + X_n) \\
+&= \frac{\sigma^2}{n}
+\end{align*}
+
+\begin{tcolorbox}
+    Law of Large Numbers: as $n$ grows large, the sample mean $\bar{X}$ converges to the true mean $\mu$.
+    \begin{itemize}
+        \item Sample mean (if i.i.d): $\bar{X}_n = \frac{X_1 + X_2 + \ldots + X_n}{n}  $
+        \item sample mean is itself r.v.: \begin{itemize}
+         \item Expectation = $\mu$ (i.e. the population mean - the sample mean and  the population mean converge as $n$ grows)
+        \item Variance = $(\frac{\sigma}{n})^2 = \frac{\sigma^2}{n}$
+        \item Standard Deviation $ = \sqrt{\frac{\sigma^2}{n}} = \frac{\sigma}{\sqrt{n}}$
+        \end{itemize}
+    \end{itemize}
+\end{tcolorbox}
+
+
+Law of Large Numbers: as $n$ grows large, the sample mean $\bar{X}$ converges to the true mean $\mu$.\\
+NB: LLN does not contradict a coin toss (or other r.v. being memoryless: convergence takes place through swamping: past tosses are “swamped” by the infinitely many tosses yet to come.\\
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_7/Screenshot 2024-01-25 at 11.19.54.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\section{Central Limit Theorem}
+\textbf{CLT = that the standardised sample mean (standardised $\bar{X}$) converges in distribution to the standard Normal as $n \rightarrow \infty$}
+
+i.e. given a sufficiently large sample size, the sampling distribution of the sample means will be approximately normally distributed, regardless of the shape of the population distribution\\
+
+\subsection{Calculating the Standardised Sample Mean}
+
+\begin{tcolorbox}
+Calculating the Standardised Sample Mean: \begin{enumerate}
+    \item subtract expectation  $\mu$
+    \item dividing by  standard deviation $ \frac{\sigma}{\sqrt{n}}$
+\end{enumerate}
+\textit{NB: the variance of the sampling distribution as defined above was $\frac{\sigma^2}{n}$ so the standard deviation is in turn the square root of that:  $\sqrt{\frac{\sigma^2}{n}} \rightarrow \frac{\sigma}{\sqrt{n}}$}
+
+\subsection{Convergence to Standard Normal}
+
+LLN says this quantity (the Standardised Sample Mean) converges in distribution to the Standard Normal as $\n \rightarrow \infty$:
+\begin{align*}
+\frac{\bar{X}_n - \mu}{\frac{\sigma}{\sqrt{n}}} = \sqrt{n} \left(\frac{\bar{X}_n - \mu}{\sigma}\right)
+\end{align*}
+\end{tcolorbox}
+
+\begin{align}
+    \sqrt{n}\left(\frac{\bar{X}_n - \mu}{\sigma}\right) \xrightarrow{d} \mathcal{N}(0, 1)
+\end{align}
+
+This holds regardless of distribution of $X$s
+
+\begin{figure}[H]
+      \centering
+      \includegraphics[width=1\linewidth]{images/week_7/Mathematics for Data Science - Lecture 7_ Continuous Random Variables (cont.).pdf}
+      \caption{}
+      \label{fig:enter-label}
+  \end{figure}
+
+\begin{tcolorbox}
+    This shows: \begin{itemize}
+        \item for sample size $n=1$ it is just the PDF of the underlying distribution:
+        \item practical e.g: if we were sampling number of passengers in cars which we take to be geometrically distributed, when sample size $n=1$, each sample mean is just the value of the underlying r.v. so it acts as just taking observations of the underlying r.v.
+        \item when $n > 1$ we are now starting to get sample means which will move towards the centre of the distribution (which is the true population mean $\mu$ according to Law of Large Numbers).
+        \item the distribution of these sample means approach Normal distribution as we increase $n$
+
+        \item the variance of this sample mean distribution is the squared population standard deviation divided by $n$: Variance = $\frac{\sigma^2}{n}$. This formula shows that the variance of the sample means decreases as the sample size $n$ increases. In other words, larger samples lead to a narrower spread in the sampling distribution of the mean.
+
+        \item NB: $n=30$ is the magic number: here everything starts to approach Normal.
+    \end{itemize}
+\end{tcolorbox}
+
+\subsection{Further Notes on CLT}
+
+NB: you can un-standardise the sample mean to restate the CLT as: 
+\begin{align*}
+    \bar{X}_n \xrightarrow{d} \mathcal{N}\left(\mu, \frac{\sigma^2}{n}\right) \quad \text{as} \quad n \to \infty
+\end{align*}
+
+NB: CLT works just as well for sum rather than the mean:
+\begin{align*}
+    \sum_{i=1}^{n} X_i \xrightarrow{d} \mathcal{N}(n\mu, n\sigma^2) \quad \text{as} \quad n \to \infty
+\end{align*}
+
+While CLT works for any distribution with finite mean and variance, underlying distirbution matters for how large $n$ has to be before the Normal approximation starts to look accurate. \\
+As shortcut: can write CLT in approximate form:
+\[\bar{X}_n \approx \mathcal{N}(\mu, \frac{\sigma^2}{n})\]
+
+\subsection{Example: Normal Approximation to the Binomial}
+Recalling that the Binomial $(n, p)$ is the sum of $n$ Bernoullis with
+probability $p$, we can even use the Normal distribution to
+approximate the Binomial.
+\[\sum_{i=1}^{n} X_i \approx \mathcal{N}(n\mu, n\sigma^2)\]
+
+and recalling that the mean of a Bernoulli is $p$ and its variance is
+$p(1 - p)$, we can use the CLT to say:
+\[\sum_{i=1}^{n} X_i \approx \mathcal{N}(np, np(1 - p))\]
+
+% --- Lab Section ---
+\section{Lab: EM Algorithm}
+
+\thispagestyle{empty}
+{\large \textbf{Mid Terms Fall 2023  --  Henry Baker}}
+\par\noindent\rule{\textwidth}{0.4pt} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: Lab 7 \\ EM Algorithm}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\begin{tcolorbox}
+    \textbf{High Level explanation of EM Algo}
+    \begin{enumerate}
+    \item Initialise parameters\begin{itemize}
+        \item $\mu_1, \mu_2$ = means 
+        \item $\sigma_1, \sigma_2$ = standard deviations
+        \item $\pi_1.\pi_2$ = mixing properties (the initial prob of being in one distribution)
+    \end{itemize}
+    \item E-step: Expectation - compute responsibilities of each data point (= calculate the $\gamma$ of each data point: the prob that each data point belongs to each component given current parameter values)
+    \item M-step: Maximisation - update the parameters based on the responsibilities (= MLE of each parameter given the $\gamma$ values for each data point (the parameters defined as some function involving sums of gamma-data point, so will give a single value).
+    \item Evaluate the new log-likelihood with new (i) parameter, (ii) responsibilities.
+    \item Check for convergence
+\end{enumerate}
+\end{tcolorbox}
+
+\section{Context; Set up}
+
+\begin{itemize}
+    \item Used to find Maximum Likelihood parameters of a statistical model with \textbf{latent variables}, which are hidden or unobserved characteristics of our data (i.e. where straightforward MLE cannot be applied). 
+    \item Going to model Old Faithful eruptions as a Gaussian Mixture (a mixture of 2 Normal distribution, each woth theeir own mean and variance).
+    \item Eruption can either be short type or long type, correspondinbg to a different (unobservced) geological process.
+    \item  Define $Z_1$ (first eruption) as r.v.:
+    \[Z_1 = 
+        \begin{cases} 
+        0 & \text{if eruption is long type} \\
+        1 & \text{if eruption is short type}
+        \end{cases} \]
+    $Z_2$ (second eruption):
+    \[Z_2 = 
+        \begin{cases} 
+        1 & \text{if eruption is long type} \\
+        0 & \text{if eruption is short type}
+        \end{cases} \]
+    \item Define $$\pi_1 = \text{probability eruption is short type}$$
+        $$\pi_2 = \text{probability eruption is long type}$$
+        Assume $\pi_1 + pi_2 = 1$ (i.e. there are no other types.
+    \item Define: $X$ = r.v. representing duration of eruption.
+\end{itemize}
+
+\textbf{Task is to produce an MLE estimate for the type  probabilities, and the means and variances of the two eruption types}
+
+\section{Attempting MLE}
+Using \textbf{Law Of Total Probability} to write PDF of $X$:
+\begin{align*}
+    Pr(X=x) &= Pr(Z_1 = 1) Pr(X=1|Z_1 = 1) + Pr(Z_2 = 1) Pr(X=x|Z_2 = 1)\\
+    &= \pi_1 \mathcal{N}(x | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x | \mu_2, \sigma_2)
+\end{align*}
+With this PDF, we can write down the \textbf{likelihood} of the dataset (where $n$ is number of observations in the dataset.
+$$L(x_1, \ldots, x_n; \mu_1, \mu_2, \sigma_1, \sigma_2, \pi_1, \pi_2) = \prod_{i=1}^{n} (\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2))$$
+As a \textbf{Log-Likelihood function}
+$$\ell(x_1, \ldots, x_n; \mu_1, \mu_2, \sigma_1, \sigma_2, \pi_1, \pi_2) = \sum_{i=1}^{n} \log(\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2))$$
+
+Here, each observation $x_i$ has a probability of being from either the first normal distribution ($\mathcal{N}(x_i | \mu_1, \sigma_1$) with weight $\pi_1$, or from the second normal distribution $\mathcal{N}(x_i | \mu_2, \sigma_2)$ with weight $\pi_2$.\\
+
+The weights $pi_1$ and $pi_1$ are essentially the mixing proportions (NB, as above, they should sum to 1).\\
+
+For a single observation $x_i$, the likelihood is the sum of the probabilities of $x_i$ coming from each distribution.\\
+
+When we have multiple independent observations, the total likelhood is the product of the individual likelihoods.
+
+\subsection{MLE for $mu_1$}
+Take first derivative of the log likelihood with respect to $\mu_1$. \\
+
+By the Chain Rule:$$\frac{d}{dx} \left( f(g(x)) \right) = f'(g(x)) \cdot g'(x)$$
+
+Let $f(y) = \log(y), \text{ and } g(x_i) = \pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2).$\\
+
+The derivative of $f(y)$ with respect to  $y$ is: 
+\begin{align*}
+f'(y) &= \frac{1}{y}.
+\end{align*}
+The derivative of $g(x_i)$ with respect to $\mu_1$ is: \\
+\begin{align*}
+\frac{\partial}{\partial \mu_1} g(x_i) &= \frac{\partial}{\partial \mu_1} \left( \pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) \right) + \frac{\partial}{\partial \mu_1} \left( \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2) \right).
+\end{align*}
+
+Since $\pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2) \text{ does not depend on } \mu_1,$ its derivative is 0. Thus,
+\begin{align*}
+\frac{\partial}{\partial \mu_1} g(x_i) &= \frac{\partial}{\partial \mu_1} \left( \pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) \right).
+\end{align*}
+
+Then:
+\begin{align*}
+\text{Then, } \frac{\partial \ell}{\partial \mu_1} &= \sum_{i=1}^{n} \frac{\partial}{\partial \mu_1} \log \left( g(x_i) \right) \\
+&= \sum_{i=1}^{n} \frac{1}{g(x_i)} \cdot \frac{\partial}{\partial \mu_1} g(x_i) \text{ by the chain rule} \\
+\text{Since only the first term of } g(x_i) &\text{ depends on } \mu_1\text{, its derivative is:} \\
+\frac{\partial}{\partial \mu_1} g(x_i) &= \frac{\partial}{\partial \mu_1} \left( \pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) \right) \\
+\text{Thus, } \frac{\partial \ell}{\partial \mu_1} &= \sum_{i=1}^{n} \frac{1}{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2)} \cdot \frac{\partial}{\partial \mu_1} \left( \pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) \right) \\
+\end{align*}
+
+\begin{tcolorbox}
+$$\frac{\partial \ell}{\partial \mu_1} = \sum_{i=1}^{n} \frac{1}{\pi_1 \mathcal{N}(x_i |\mu_1,\sigma_1) + \pi_2 \mathcal{N}(x_i |\mu_2,\sigma_2)} \underbrace{\frac{\partial}{\partial \mu_1} \pi_1 \mathcal{N}(x_i |\mu_1,\sigma_1)}_{\text{let's take this piece}}$$
+\end{tcolorbox}
+
+
+I SKIPPED THE REST HERE
+...\\
+set it to 1, and solve for $\mu_1$
+
+\section{Bayes rule to the Rescue}
+\subsection{Gammas}
+At this point, let#s take a moment to look at the expression we're trying to solve:
+$$0 = \sum_{i=1}^{n} \underbrace{ \frac{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1)}{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2)}}_{\textbf{what is this? We'll call this}\gamma} \cdot \left( \frac{x_i - \mu_1}{\sigma_1^2} \right)$$
+
+This is the probability that data point $i$ belongs to the first eruption time, given its eruption duration. \\
+We write down this probability and apply Bayes rule:
+\begin{align*}
+\Pr(z_{1i} = 1 | x_i) &= \frac{f(x_i | z_{1i} = 1) \Pr(z_{1i} = 1)}{f(x_i)} \\
+&= \frac{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1)}{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2)}
+\end{align*}
+
+We will call this $\gamma_{1i}$; similarly, let $\gamma_2i = Pr(z_{2i} = 1|x_i)$\\
+
+\textbf{So the gammas are the probability that a certain data point belongs to their associated distribution (given the values observed)}.
+
+\subsection{Back to the maximisation problem}
+(bracketing the $\gamma$ for a moment:\\
+
+Solving for $mu_1$, we get:
+\begin{align*}
+0 &= \sum_{i=1}^{n} \gamma_{1i} \frac{x_i - \hat{\mu}_1}{\sigma_1^2} \\
+0 &= \sum_{i=1}^{n} \gamma_{1i}(x_i - \hat{\mu}_1) \\
+0 &= \sum_{i=1}^{n} \gamma_{1i}x_i - \sum_{i=1}^{n} \gamma_{1i}\hat{\mu}_1 \\
+\sum_{i=1}^{n} \gamma_{1i}\hat{\mu}_1 &= \sum_{i=1}^{n} \gamma_{1i}x_i \\
+\hat{\mu}_1 &= \frac{\sum_{i=1}^{n} \gamma_{1i}x_i}{\sum_{i=1}^{n} \gamma_{1i}} 
+\end{align*}
+
+And for $\hat{\mu}_2$ you would get the same thing:
+\begin{align*}
+\hat{\mu}_2 &= \frac{\sum_{i=1}^{n} \gamma_{2i}x_i}{\sum_{i=1}^{n} \gamma_{2i}}
+\end{align*}
+In similar fashion, we can find the MLE for $\hat{\sigma}_1, \hat{\sigma}_2, \hat{\pi}_1, \text{ and } \hat{\pi}_2 \text{ as:}$
+
+\begin{tcolorbox}
+    
+\section{The EM Algorithm}
+\begin{enumerate}
+    \item \textbf{Initiatize your parameters} means $\mu_1, \mu_2$, standard deviations $\sigma_1, \sigma_2$ mixing properties $\pi_1, \pi_2$ to some starting points. (i.e. literally just assign them some numbers based from educated guesses based on your data. E.g. you might start with equal mixing properties ($\pi_1 = \pi_2 = 0.5)$\\
+
+    Evaluate the log likelihood under these values.
+    \item \textbf{E-Step - Expectation: (re)Compute the \textit{responsibilities} for each data point}: Evaluate $\gamma_{1i} = Pr(z_{1i} = 1|x_i)$ under the current parameter values. Also evaluate $\gamma_{2i} = Pr(z_{2i} = 1|x_i)$. You do this for each $x_i$ These are the \textbf{\textit{responsibilities}}. These are the probability that each data point belongs to each component of the mixture model.
+    \begin{align*}
+    \gamma_{1i} &= \frac{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1)}{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2)} \\
+    \gamma_{2i} &= \frac{\pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2)}{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2)}
+    \end{align*}
+
+
+    \item \textbf{M-step - Maximisation: update parameters based on \textit{responsibilities}}: Using the $\gamma_{1i}$ and $\gamma_2{i}$, update the parameters using the current responsibilities to maximise the expected log-likelihood. 
+
+    \begin{align*}
+    \hat{\mu}_1 &= \frac{\sum_{i=1}^{n} \gamma_{1i} x_i}{\sum_{i=1}^{n} \gamma_{1i}} \\
+    \hat{\mu}_2 &= \frac{\sum_{i=1}^{n} \gamma_{2i} x_i}{\sum_{i=1}^{n} \gamma_{2i}} \\
+    \hat{\sigma}_1 &= \sqrt{\frac{\sum_{i=1}^{n} \gamma_{1i} (x_i - \hat{\mu}_1)^2}{\sum_{i=1}^{n} \gamma_{1i}}} \\
+    \hat{\sigma}_2 &= \sqrt{\frac{\sum_{i=1}^{n} \gamma_{2i} (x_i - \hat{\mu}_2)^2}{\sum_{i=1}^{n} \gamma_{2i}}} \\
+    \hat{\pi}_1 &= \frac{1}{n} \sum_{i=1}^{n} \gamma_{1i} \\
+    \hat{\pi}_2 &= \frac{1}{n} \sum_{i=1}^{n} \gamma_{2i}
+    \end{align*}
+    
+    
+    These updates are done to improve the fit of the model to the data, based on the current responsibilities.\\
+    
+    \item \textbf{Evaluate the new log likelihood with your new paramaters and responsibilities}.
+    \begin{align*}
+    \text{Log-Likelihood}(\mu_1, \mu_2, \sigma_1, \sigma_2, \pi_1, \pi_2) = \sum_{i=1}^{n} \log \left( \pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2) \right)
+    \end{align*}
+    
+
+    \item Check for \textbf{convergence} - i.e when the log likelihood has not moved far from the log likelihood in the previous iteration.
+\end{enumerate}
+
+\end{tcolorbox}

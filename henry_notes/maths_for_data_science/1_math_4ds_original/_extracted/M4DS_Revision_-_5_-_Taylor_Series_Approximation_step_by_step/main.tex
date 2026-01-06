@@ -1,0 +1,163 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize M4DS Mid-term revision}
+\rhead{\footnotesize Henry Baker} 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf Mid Terms Fall 2023  \\ Henry Baker}
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: \\ Talor Series Approximation \\ A step-by-step how to}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\begin{tcolorbox}
+\textbf{Taylor Series Approximation}
+\begin{enumerate}
+    \item Find derivatives ($n$ many, depending on polynonmial degree specified)
+    \item Evaluate them (a = \{x\})
+    \item Insert each of these into the Taylor formula...
+    \item ...Simultaneously: plug in $a$ values with the given centring coordinate. This will leave various $x$ values: this your line formula.
+\end{enumerate}
+\end{tcolorbox}
+
+\section{Generic}
+To approximate a function \( f(x) \) using a Taylor polynomial of degree \( n \) centered at \( a \), follow these steps:
+
+\begin{enumerate}
+    \item Start with the function \( f(x) \).
+
+    \item For each integer \( k \) from 0 to \( n \), (with $n$ being the Polynomial degree to which you are approximating):
+    \begin{enumerate}
+        \item Differentiate \( f(x) \) \( k \) times to get the \( k \)-th derivative, denoted as \( f^{(k)}(x) \).
+        
+        \item Evaluate \( f^{(k)}(x) \) at \( x = a \) to get \( f^{(k)}(a) \).
+    \end{enumerate}
+
+    \item Construct the Taylor polynomial \( P_n(x) \) using the formula:
+    \[ P_n(x) = \sum_{k=0}^{n} \frac{f^{(k)}(a)}{k!}(x-a)^k \]
+    This sum includes terms for each derivative from 0 to \( n \), divided by the factorial of the degree of the derivative, multiplied by the power of \( (x-a) \) corresponding to the degree of the derivative.
+\end{enumerate}
+
+The resulting polynomial \( P_n(x) \) is the Taylor polynomial of degree \( n \) approximating \( f(x) \) centered at \( a \).
+
+\section{Example: Talor Polynomial construction for  $f(x) = 1 + x + x^2$, centred at $x = 1$}
+
+\subsection{Talylor Series formula}
+
+ALL THE BELOW EXAMPLES NEEED REWORKING - COME BACK TO\\
+\\
+Use the formula for the Taylor series:
+
+\[f(x) \approx f(a) + f'(a)(x-a) + \frac{f''(a)}{2!}(x-a)^2 + \frac{f'''(a)}{3!}(x-a)^3 + \dots \]
+
+We will be approximating using a quadratic ($n=2$) Taylor series:
+\[ f(a) + f'(a)(x-a) + \frac{f''(a)}{2!}(x-a)^2 \] \\
+
+\subsection{Calculate derivatives $\rightarrow$ evaluating at $x=1$}
+\begin{enumerate}
+    \item derive
+    \item plug in $a = 1$
+\end{enumerate}
+
+\textbf{F(x):}\\
+\begin{align}
+    f(x) &= 1 + x + x^2 \\
+    f(1) &= 1 + 1 + 1^2 = 3 
+    \end{align}
+
+\textbf{F'(x):}
+\begin{align}
+    f'(x) &= \frac{d}{dx}(1 + x + x^2) \\
+    &= 1 + 2x \\
+    f'(1) &= 1 + 2(1) \\
+    &= 3
+\end{align}
+
+\textbf{F''(x):}
+\begin{align}
+    f''(x) &= \frac{d^2}{dx^2}(1 + x + x^2) \\
+    & = 2 \\
+    f''(1) &= 2 
+\end{align}
+
+\subsection{Plugging these values into the Taylor series}
+In our case, the formula for a polynomial of degree two:
+
+\[ P_2(x) = 3 + 3(x-1) + \frac{2}{2}(x-1)^2 \]
+Simplifying further:
+\[ P_2(x) = 3 + 3x - 3 + x^2 - 2x + 1 \]
+So:
+\[ P_2(x) = x^2 + x + 1 \]
+
+Thus, the Taylor polynomial of degree two approximating \( f(x) = 1 + x + x^2 \) centered at \( a = 1 \) is:
+
+\[ P_2(x) = x^2 + x + 1 \]
+
+
+
+
+\section{Example: Talor Polynomial construction for  $f(x) = 1 + x + x^2$, centred at $x = 1$ DELETE}
+
+Given the function:
+\[ f(x) = 1 + x + x^2 \]
+We want to find the Taylor polynomial of degree two centered at \( a = 1 \). \\
+\begin{enumerate}
+    \item \textbf{Evaluating the function at \( a = 1 \)}:
+    \[ f(1) = 1 + 1 + 1^2 = 3 \]
+
+    \item \textbf{Differentiating \( f \) with respect to \( x \):}
+    \[ f'(x) = \frac{d}{dx}(1 + x + x^2) = 1 + 2x \]
+    Evaluating \( f' \) at \( a = 1 \):
+    \[ f'(1) = 1 + 2(1) = 3 \]
+    
+    \item \textbf{Differentiating \( f' \) to get the second derivative:}
+    \[ f''(x) = \frac{d^2}{dx^2}(1 + x + x^2) = 2 \]
+    Evaluating \( f'' \) at \( a = 1 \):
+    \[ f''(1) = 2 \]
+
+    Using the Taylor polynomial formula for degree two:
+    \[ P_2(x) = f(1) + f'(1)(x-1) + \frac{f''(1)}{2!}(x-1)^2 \]
+    \[ P_2(x) = 3 + 3(x-1) + (x-1)^2 \]
+    \[ P_2(x) = 3 + 3x - 3 + x^2 - 2x + 1 \]
+    \[ P_2(x) = x^2 + x + 1 \]
+    
+    Thus, the Taylor polynomial of degree two for \( f(x) = 1 + x + x^2 \) centered at \( a = 1 \) is:
+    \[ P_2(x) = x^2 + x + 1 \]
+\end{enumerate}
+
+\end{document}
+
+
+\end{document}

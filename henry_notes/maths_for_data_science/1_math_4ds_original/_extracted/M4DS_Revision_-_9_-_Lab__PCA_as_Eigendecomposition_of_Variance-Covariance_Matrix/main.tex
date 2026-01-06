@@ -1,0 +1,368 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+\usepackage{graphicx}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize M4DS Finals revision}
+\rhead{\footnotesize Henry Baker} 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf Mid Terms Fall 2023  \\ Henry Baker}
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Finals Revision: Session 9 \\ Linear Algebra II \\ Lab: Principle Component Analysis}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Set Up: PCA applied to image compression}
+\begin{itemize}
+    \item PCA = dimension reduction technique. Efficiently summarizes and describes large datasets.
+    \item PCA has large variety of applications in genomics, facial recognition, computervision, finance  and econ, climate science, social science, etc.
+    \item PCA foundations: \begin{itemize}
+        \item maximisation variance 
+        \item eigendecomposition
+    \end{itemize}
+\end{itemize}
+
+\section{PCA as a Variance-Maximisation Problem}
+
+\subsection{As variance in a matrix}
+
+\begin{itemize}
+    \item Take a data matrix $X$ ($n \times p$) - centered around the mean (i.e. demeaned).
+    \item Challenge: \textbf{how to convey as much info about $X$ as possible in only 1 column} of data (one $n$ lengthed vector)? What vector to choose?
+    \begin{itemize}
+        \item suppose $X$ contains one column that was pretty similar across observations (e.g. everyone's a Hertie student)
+        \item and another that was q different (e.g. country of origin). 
+        \item \textbf{we would want to keep the column with \textit{higher variance}}.
+    \end{itemize}
+    \item Now, rather than keeping one column from $X$, \textbf{we can take a column z$_1$ that is a \textit{linear combination} of all the columns of $x$.} 
+    \begin{itemize}
+        \item A linear combination is an expression constructed from a set of terms, by multiplying each term by a constant and adding the results. \textbf{It's a way of combining a set of vectors by scaling and adding them together}.
+        \item Each column/vector is multipled by a corresponding coefficient $\phi$, after which the modified columns are added together, to form a new column/vector.
+    \end{itemize}
+    Here, this means that:
+    $$\text{z}_1 = \phi_{11}x_1 + \phi_{21}x_2 + \ldots + \phi_{p1}x_p$$
+    where:
+    \begin{itemize} \begin{itemize}
+
+        \item \( x_1, x_2, \ldots, x_p \) are the columns of the matrix \( X \). \textbf{They are vectors}
+        \item \( \phi_{11}, \phi_{21}, \ldots, \phi_{p1} \) are the coefficients (the scales by which we multiply each column to be added). \textbf{They are scalar values}
+        \item The product \( \phi_{11}x_1, \phi_{21}x_2, \ldots \) scales each column of \( X \) by its respective coefficient. \textbf{They are vectors}
+        \item The sum of these products, \( \phi_{11}x_1 + \phi_{21}x_2 + \ldots + \phi_{p1}x_p \), creates the new vector \( z_1 \).  \textbf{It is a new vector \textit{- adding vectors together is performed element-wise}}  
+    \end{itemize} \\
+
+    
+        \item \textbf{z$_1$ is formed by 1) multiplying each column in $X$ by its corresponding coefficient $\phi$, then 2) each scaled column is added together}.
+        \item Another way of visualising this is :
+                \begin{align*}
+                \text{z}_{11} &= \phi_{11}x_{11} + \phi_{21}x_{12} + \ldots + \phi_{p1}x_{1p} \\
+                \text{z}_{21} &= \phi_{11}x_{21} + \phi_{21}x_{22} + \ldots + \phi_{p1}x_{2p} \\
+                &\vdots \\
+                \text{z}_{n1} &= \phi_{11}x_{n1} + \phi_{n1}x_{n2} + \ldots + \phi_{n1}x_{np} \\
+                \end{align*}
+                Where \begin{itemize}
+                    \item each $\phi$ is a constant.
+                    \item z$_i$ is just a vector containing all the $z_{ik}$ values. In this sense \textbf{it stores data from all of the individual $x_k$ elements of the original matrix $X$}
+                \end{itemize}
+                \item This generates a new vector z$_1$ because each $x_i$ is a vector, and when you multiply a vector by a scalar $\phi$ the result is a vector.
+                
+                $$\textbf{z}_1 = \begin{bmatrix}
+                    z_{11} \\
+                    z_{21} \\
+                    \vdots \\
+                    z_{n1}
+                \end{bmatrix}$$
+                Here $z{_1}$ is a column vector \textbf{where each element is a linear combination of the columns of the matrix $X$ based on the PCA loadings ($\phi$)}.
+                \item Where each element of z$_1$: $z_{i1}$  (where $i = 1, 2 \cdots n$ corresponds to the rows of the data), as: 
+                $$z_{i1} = \phi_{11}x_{i1} + \phi_{21}x_{i2} + \ldots + \phi_{p1}x_{ip}$$
+                \end{itemize}
+
+        \end{itemize}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\linewidth]{Screenshot 2024-01-26 181222.png}
+        \caption{Enter Caption}
+        \label{fig:enter-label}
+    \end{figure}
+
+\subsection{As a maximisation problem}
+    \begin{itemize}
+    \item Which linear combination would you choose? The \textbf{linear combination (ie the values of $\phi_{11}, \phi_{21}, \cdots, \phi_{p1}$) that maximises the variance of your z$_1$ vector}. 
+    \begin{itemize}
+        \item by choosing different coefficients of $\phi$, you can emphasize certain features over others
+        \item so for PCA: we are trying to find/choose coefficients $\phi$ that results in greatest variance across z$_1$ vector. 
+        \item it in effect takes a bit of each column [develop this explanation].
+        \item or, if you purpose was feature engineering, you can uncover hidden structures in the data, such that z$_1$ reveals patterns or relationships that aren't obvious in the original dataset.
+    \end{itemize}
+\end{itemize}
+
+\begin{tcolorbox}
+    
+That is, you \textbf{solve the maximisation problem:}
+\begin{align*}
+    \max_{\phi_{11}, \phi_{21}, \ldots, \phi_{p1}} \text{Var}(\text{z}_1) &= \max_{\phi_{11}, \phi_{21}, \ldots, \phi_{p1}} \frac{1}{n} \sum_{i=1}^{n} (z_{i1} - \bar{\text{z}}_1)^2 \\
+    &= \max_{\phi_{11}, \phi_{21}, \ldots, \phi_{p1}} \frac{1}{n} \sum_{i=1}^{n} z_{i1}^2
+\end{align*}
+\end{tcolorbox}
+
+Where: \begin{itemize}
+    \item first line is the definition of variance: $\bar{\text{z}}_1$ is the column mean of z$_1$.
+    \item second line follows from the fact that we demeaned our columns such that $\bar{\text{z}}_1 = 0$
+\end{itemize}
+\begin{tcolorbox}
+    So variance of z$_1$ (the PCA vector) can be calculated simply as the avg of the squared elements of  $z_{i1}$ (the elements of the PCA vector, which are themselves linear combination of the columns of the matrix $X$ based on the PCA loadings)
+\end{tcolorbox}
+
+\subsection{Resulting components}
+Principal components are new, uncorrelated variables that are linear combinations of the original variables. They are aligned with the directions of maximum variance in the dataset.\\
+
+The maximal-variance z$_1$ is called the \textbf{first principle component}.\\
+We call $\phi_1 = \begin{bmatrix}
+    \phi_{11} \\
+    \phi_{21} \\
+    \vdots \\
+    \phi_{p1}
+\end{bmatrix}$ its loadings.\\ 
+
+We \textbf{constrain the loadings so that their sum of squares is equal to one}, since allowing these elements to be arbitrarily large could result in an arbitrarily large variance: 
+\[\sum_{j=1}^{p} \phi_{j1}^2 = 1\]
+
+For constrained optimisation, see next session 10. But instead, here we will solve the same maximisation problem using eigendecomposition.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{image1.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\section{PCA as Eigendecomposition of the Variance-Covariance Matrix}
+
+\textit{NB: this equivalently solves the above maximisation problem. Unlike regression application from Wk 8 which used matrix structure and multiplication properties to effectively reengineer the same calculation, this fundamentally leverages an alternate set of properties of eigendecompositions to fundamentally approach the problem from a different angle. Namely that eigendecomposition gives you all the linearly independent vectors within/UNDERLYING? a matrix (IS THIS RIGHT? DO YOU GET P EIGEN VECTORS / LINEARLY INDEPENDENT VECTORS IF YOU HAVE A PXP MATRIX, AS EACH VECTOR HAS TO BE LINEARLY INDEPENDENT, OTHERWISE DETERMINANT COLLAPSES TO 0 AND YOU CANT DO EIGEN DECOMPOSITION??? OR IS IT JUST THAT EIGEN DECOMPOSITION EXTRACTS THE UNDERLYING LINEARLY INDEPENDENT VECTORS / TRANSFORMATIONS / MOVEMENTS OF ANY GIVEN DATA SET, WHICH JUST HAPPENS TO BE THE NATURE OF WHAT A PRINCIPLE COMPONENT IS?}\\
+
+Chat GPT: 
+\begin{itemize}
+    \item Eigenvectors associated with different eigenvalues are linearly independent. This is a fundamental property of eigenvectors. If a $p \times p$ has $p$ distinct eigenvalues, it will have $p$ linearly independent eigenvectors.
+    \item However, if some eigenvalues are repeated (i.e., not all eigenvalues are distinct), the matrix may have fewer than $p$ linearly independent eigenvectors. The matrix is then said to be "defective," and not every defective matrix has a complete basis of eigenvectors.
+\end{itemize}
+\begin{itemize}
+    \item Eigendecomposition of a matrix involves finding eigenvalues and their corresponding eigenvectors. If a \( p \times p \) matrix has \( p \) distinct eigenvalues, it will have \( p \) linearly independent eigenvectors.
+    
+    \item In PCA, eigendecomposition is used to identify principal components, which are orthogonal and linearly independent directions in the dataset that maximize variance.
+    
+    \item The determinant of a matrix being zero indicates that the matrix does not have an inverse and is not full rank. A zero determinant is related to the presence of an eigenvalue of zero, but a zero eigenvalue does not necessarily mean the absence of a full set of linearly independent eigenvectors.
+    
+    \item PCA leverages eigendecomposition to extract linearly independent directions (principal components) that capture the most variance in the data, making it powerful for dimensionality reduction and feature extraction.
+\end{itemize}
+
+
+
+\subsection{Derive a Variance-Covariance Matrix of $X$}
+\begin{tcolorbox}
+Variance-covariance matrix of centered matrix $X$, is given by:
+\begin{align*}
+    S &= \frac{1}{n} \sum_{i=1}^{n} (\mathbf{x}_i - \bar{\mathbf{x}})(\mathbf{x}_i - \bar{\mathbf{x}})^T \\
+    &= \frac{1}{n} \sum_{i=1}^{n} \mathbf{x}_i \mathbf{x}_i^T
+\end{align*}
+
+Where:
+\begin{itemize}
+    \item $x_i$ is a $p$-length vector of the data to row $i$, 
+    \item $\bar{x}$ is a $p$-length vector of the means of the data taken over $i = 1$ to $n$ (which all equal to 0 for centered data, hence second line)
+\end{itemize}
+
+Think of each column vector and a transpose vector being multiplied together to collapse into a single scalar value (the covariance between the two columns). This is a single element of the new matrix. So it contains a lot of info! Think of it as a particular form of collapsing of information...
+
+\end{tcolorbox}
+
+Basically, for each row-observation and extracts the squared differences (ie the variation) for each column-variable, by averaging those differences (between $n$ observations, across the variable) to give the variation across each vector expressed in a new matrix (since a vector and a transpose vector multiply out to a matrix, the output is a matrix). \\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Screenshot 2024-01-26 181250.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Screenshot 2024-01-26 184636.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{image.png}
+    \caption{WHAT IS THIS????}
+    \label{fig:enter-label}
+\end{figure}
+
+The \textbf{resultant matrix represents the covariance between pairs of variables} in a dataset. 
+\begin{itemize}
+    \item It expresses the variance of each column (along its diagonal)
+    \item and the off-diagonal elements represent the covariance between two variables/columns
+    \item formally: each element $s_ij$ of this matrix indicates the covariance between the $i$-th and $j$-th variable.
+    \item for a dataset with $p$ variables, this is a $p \times p$ matrix
+\end{itemize}, \\
+
+\subsection{Eigendecomposition of Variance-Covariance Matrix}
+\begin{tcolorbox}
+    We perform eigendecomposition on this $p \times p$ matrix:
+    \[S\phi_1 = \lambda_1\phi_1\]
+\end{tcolorbox}
+
+Where \begin{itemize}
+    \item $\lambda_1$ = the largest eigenvalue 
+    \item $\phi_1$ = the corresponding eigenvector - it gives the loadings of the first principal component.
+\end{itemize}
+
+You would then solve: HOW? YOU WOULD SET THE DETERMINANT TO 0 TO GIVE THE CHARACTERISTIC POLYNOMIAL??? --> GIVES YOU THE EIGENVALUES --> FROM THERE PLUG BACK IN TO GET ASSOCIATED EIGENVECTORS???\\
+
+As before, the first principal component is given by:
+\begin{align*}
+    z_1 &= \phi_{11}x_1 + \phi_{21}x_2 + \ldots + \phi_{p1}x_p \\
+    &= X\phi_1
+\end{align*}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Screenshot 2024-01-26 182019.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+Again, remember that each $x_i$ is a vector of $n$ length representing a variable-column from $X$\\
+So adding all these vectors element-wise gives us z$_1$ as a vector.\\
+ABOVE EACH X WAS A P LENGTH VECTOR, BUT HERE THEY ARE N LENGTH???z\\
+
+Similarly, multiplying a matrix $X$ by a vector $\phi_1$ will produce a vector z$_1$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{Screenshot 2024-01-26 182601.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+WHAT DOES THIS REPRESENT - IT SEEMS TO BE THAT THE PRINCIPAL COMPONENT VECTOR MULTIPLIED BY THE ASSOCIATED LOADINGS VECTOR PRODUCES AN NXP MATRIX... BUT I THOUGHT THE PRINCIPAL COMPONENT VECTOR WAS A SUM OF THE PRODUCTS OF THE LOADINGS AND VARIABLES... SO THE LOADINGS INFO IS EMBEDDED IN THE PRINCIPLE COMPONENT, WHY WOULD WE WANT TO MUTLIPLY THEM TOGHETER?\\
+IS THIS THE WAY TO 'EXPAND OUT THE PRINCIPLE COMPONENTS' IE TO MOVE BACK FROM PRINCIPLE COMPONENT VECTORS TO THE ORIGINAL DATA (OR AT LEAST REPRESENT THE HIGHEST VARIANCE VERSIONS OF IT) ?\\
+THIS WOULD MAKE SENSE: THE IF YOU HAVE THE 1) LOADINGS, 2) PRINCIPLE COMPONENT --> YOU SHOULD BE ABLE TO INFER BACK TO THE ORIGINAL DATA 
+
+
+\subsection{Beyond the First Principal Component}
+\begin{itemize}
+    \item Next, we should choose the linear combination of the columns of $X$ that has maximal variance out of all the linear combinations that are \textit{uncorrelated} with the first principal component Z$_1$.
+    \item This ensures that your next column captures the most of the remaining variance in the data without duplicating information you already have
+    \item this is the same as taking the eigenvector corresponding to the second-largest eigenvalue of the variance-covariance matrix.
+\end{itemize}
+
+\begin{align*}
+    S\phi_2 &= \lambda_2\phi_2  \rightarrow z_2 = X\phi_2 \\
+    S\phi_3 &= \lambda_3\phi_3  \rightarrow z_3 = X\phi_3 \\
+    \vdots 
+\end{align*}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{image2.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Summary steps}
+\begin{tcolorbox}
+Taking the first principle component = data matrix multiplied by eigenvector corresponding to largest eigenvalue of the variance-covariance matrix of X
+    \begin{enumerate}
+        \item ?????
+    \end{enumerate}
+\end{tcolorbox}
+
+\section{Interpretation}
+First principal component is a projection of our $n \times p$ matrix onto one dimention (i.e. into one $n$-length vector.\\
+
+This is the most efficient way to store our data matrix in one vector: we have max'd variation captured.
+
+\section{How this works}
+Eigenvectors represent directions in the data space, and eigenvalues indicate the magnitude of variance along these directions.
+
+Here $\phi$ is a vector that, when multiplied by $S$, changes only by a scalar factor $\lambda$.\\
+
+Here eigendecomposition identifies the principal components of the data (ie new, uncorrelated variables, that are linear combinations of the original variables). They are alignes with the directions of maximum variance in the dataset.\\
+
+The eigenvector associated with the largest eigenvalue points in the direction of greatest variance; i.e. z$_1$.\\
+
+The second largest eigenvector is orthogonal to the first, and points in the direction of the second greatest variance. etc.
+
+
+
+\section{Real World applications}
+
+By performing eigendecomposition, you can understand the underlying structure of the data, reduce noise, and simplify the dataset while retaining most of the important information.\\
+
+In many real-world applications, this leads to better performance in machine learning models, as it reduces overfitting and computational cost.
+
+
+
+
+
+\section{lab 10: More PCA}
+
+Reconstituting data
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{reconstitute1.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{reconstitute2.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{reconstitute3.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+
+
+
+\end{document}

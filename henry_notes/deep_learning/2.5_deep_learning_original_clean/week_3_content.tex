@@ -1,0 +1,1594 @@
+% Week 3: Deep Neural Networks II
+\chapter{Deep Neural Networks II}
+\label{ch:week3}
+
+\section{Overview}
+\begin{itemize}
+    \item Backpropagation (multi-class classification, several layers)
+    \item Mini batch gradient descent
+    \item Training process
+    \item Vanishing gradient problem
+\end{itemize}
+
+
+
+\section{Backpropagation (continued)}
+
+\subsection{Reminder: single-layered NN}
+
+\subsubsection{Architecture}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_3/single-layered NN.png}
+    \caption{single-layered NN}
+    \label{fig:w3-1}
+\end{figure}
+
+\subsubsection{Formal Expression}
+\textbf{Reminder:} The single-layer, single-output network is expressed as:
+
+\[
+f(X) = o \left( b^{[2]} + \sum_{i=1}^{H} w_i^{[2]} \sigma \left( b_i^{[1]} + \sum_{j=1}^{d} w_{ij}^{[1]} x_j \right) \right)
+\]
+
+Where:
+\begin{itemize}
+    \item $f(X)$ is the output of the network.
+    \item $o$ is the output activation function.
+    \item $b^{[2]}$ and $b_i^{[1]}$ are biases at the second and first layers.
+    \item $w_i^{[2]}$ and $w_{ij}^{[1]}$ are weights at the second and first layers.
+    \item $\sigma$ is the activation function for the hidden layer.
+    \item $x_j$ are the input features.
+\end{itemize}
+
+
+% Partial derivative for backpropagation
+\subsubsection{Partial derivative:} 
+The partial derivative with respect to the weight $w_{ij}^{[1]}$ is given by:
+\[
+\frac{\partial L(f(X), y)}{\partial w_{ij}^{[1]}} = \frac{\partial L}{\partial f} \cdot \frac{\partial f}{\partial a^{[2]}} \cdot \frac{\partial a_i^{[2]}}{\partial h_i^{[1]}} \cdot \frac{\partial h_i^{[1]}}{\partial a_i^{[1]}} \cdot \frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}}
+\]
+
+Where:
+\begin{itemize}
+    \item $L$ is the loss function.
+    \item $a^{[2]}$ is the pre-activation of the second layer.
+    \item $h_i^{[1]}$ is the output of the activation function for the hidden layer.
+    \item $a_i^{[1]}$ is the pre-activation of the hidden layer.
+\end{itemize}
+
+The weight $w_{ij}^{[1]}$ connects the $j$th input feature, to the $i$th neuron.\\
+
+This weight quantifies the strength and direction of the connection from the $j$th input feature to the $i$th node. A higher absolute value of the weight means a stronger influence (pos or neg) of that input feature on the node's output.
+
+\begin{tcolorbox}
+    
+    The change in the weight \( w_{ij}^{[1]} \), which connects the \( j \)th input feature to the \( i \)th neuron, affects the loss \( L \) in the neural network as follows:
+    
+    \[
+    \frac{\partial L(f(X), y)}{\partial w_{ij}^{[1]}} = \frac{\partial L}{\partial f} \cdot \frac{\partial f}{\partial a^{[2]}} \cdot \frac{\partial a_i^{[2]}}{\partial h_i^{[1]}} \cdot \frac{\partial h_i^{[1]}}{\partial a_i^{[1]}} \cdot \frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}}
+    \]
+    
+    \textbf{1. Change in Loss with Respect to Output}
+    \[
+    \frac{\partial L}{\partial f}
+    \]
+    This measures how the loss \( L \) changes with respect to the output \( f \) of the neural network. It tells us how sensitive the loss is to changes in the final output.\\
+    
+    \textbf{2. Change in Output with Respect to Preactivation of Second Layer}
+    \[
+    \frac{\partial f}{\partial a^{[2]}}
+    \]
+    This shows how the output \( f \) changes when we adjust the preactivation \( a^{[2]} \) of the second layer. Changes in \( a^{[2]} \) affect the final output \( f \).\\
+    
+    \textbf{3. Change in Preactivation of Second Layer with Respect to Hidden Layer Output}
+    \[
+    \frac{\partial a_i^{[2]}}{\partial h_i^{[1]}}
+    \]
+    This represents how the preactivation \( a_i^{[2]} \) of the second layer changes when we alter the output \( h_i^{[1]} \) from the \( i \)th neuron in the first hidden layer. \\
+    
+    \textbf{4. Change in Hidden Layer Output with Respect to Activation of First Layer}
+    \[
+    \frac{\partial h_i^{[1]}}{\partial a_i^{[1]}}
+    \]
+    This indicates how the output \( h_i^{[1]} \) from the \( i \)th neuron in the first hidden layer is affected by changes in its preactivation \( a_i^{[1]} \).\\
+    
+    \textbf{5. Change in Activation of First Layer with Respect to Weight}
+    \[
+    \frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}}
+    \]
+    Finally, this describes how the preactivation \( a_i^{[1]} \) of the \( i \)th neuron in the first layer changes when we tweak the weight \( w_{ij}^{[1]} \).\\
+    
+    \textbf{Putting It All Together}
+    The entire expression shows how a change in the weight \( w_{ij}^{[1]} \) influences the loss \( L \) through a chain of relationships:
+    \begin{itemize}
+        \item Starting from the loss, we see how sensitive it is to changes in the output of the network.
+        \item Next, we track how the output depends on the preactivation of the second layer.
+        \item Then, we look at how the preactivation of the second layer depends on the output of the first layer's neuron.
+        \item We continue with how the output of that neuron depends on its preactivation.
+        \item Finally, we determine how this preactivation is affected by the weight connecting the input feature to the neuron.
+    \end{itemize}
+
+\end{tcolorbox}
+
+\textit{NB: the preactivation of the second layer $a^{[2]}$ doesn't have an index in this case is because it's dealing with a single-output network. In a network with only one output neuron, the second layer contains a single preactivation value. Therefore, the preactivation $a^{[2]}$ corresponds to the input to the final activation function before generating the single output.}\\
+
+% Gradient update step
+\subsubsection{Gradient update:} 
+We update the weights using gradient descent and learning rate $\eta$:
+\[
+w_{ij}^{(r+1)} = w_{ij}^{(r)} + \eta \Delta w_{ij}^{(r)} = w_{ij}^{(r)} - \eta \left( \frac{\partial L(f(X), y)}{\partial w_{ij}} \right)^{(r)}
+\]
+
+Where:
+\begin{itemize}
+    \item $w_{ij}^{(r)}$ is the weight at the $r^{th}$ iteration.
+    \item $\eta$ is the learning rate.
+    \item $\Delta w_{ij}^{(r)}$ is the change in weight based on the gradient at the $r^{th}$ iteration. (A scalar)
+\end{itemize}
+
+\subsection{Multivariate chain rule}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_3/multivariate chaine rule.png}
+    \caption{Multivariate chain rule, where notes=variables, edges=functional dependence}
+    \label{fig:w3-2}
+\end{figure}
+
+% Function with multiple variables
+Chains of multivariate functions are common in neural networks. The chain rule is a key ingredient for backpropagation. Consider a function $f$ that depends on $u(a, b)$ and $v(a, b)$, where $a$ and $b$ themselves depend on other variables.\\
+
+\textbf{Multivariate chain rule:}
+\[
+\frac{\partial}{\partial a} f(u(a, b), v(a, b)) 
+= \frac{\partial f}{\partial u} \frac{\partial u}{\partial a} 
++ \frac{\partial f}{\partial v} \frac{\partial v}{\partial a}
+\]
+
+\begin{tcolorbox}
+    
+\textbf{Interpretation:}
+
+We want to calculate how the function \( f(u(a, b), v(a, b)) \), which depends on \( u \) and \( v \), changes when we change \( a \).
+
+\begin{itemize}
+    \item The first term, \( \frac{\partial f}{\partial u} \cdot \frac{\partial u}{\partial a} \), represents the change in \( f \) caused by changes in \( u \), which are themselves caused by changes in \( a \). 
+    \item The second term, \( \frac{\partial f}{\partial v} \cdot \frac{\partial v}{\partial a} \), represents the change in \( f \) caused by changes in \( v \), which are also caused by changes in \( a \).
+\end{itemize}
+
+\textbf{Overall Explanation:}
+
+The equation tells us that a small change in \( a \) can affect \( f \) in two ways:
+\begin{itemize}
+    \item \textbf{Through \( u \)}: A change in \( a \) causes \( u \) to change, which affects \( f \).
+    \item \textbf{Through \( v \)}: A change in \( a \) also causes \( v \) to change, which affects \( f \).
+\end{itemize}
+
+Therefore, the total change in \( f \) with respect to \( a \) is the sum of these two effects: the change in \( f \) through \( u \), and the change in \( f \) through \( v \).
+
+\end{tcolorbox}
+
+\textbf{Example: How many terms do we need to add up to compute $\frac{\partial f}{\partial z}$?}
+
+Using the multivariate chain rule, we can break down $\frac{\partial f}{\partial z}$ as follows:
+
+\[
+\frac{\partial f}{\partial z} = 
+\frac{\partial f}{\partial u} \frac{\partial u}{\partial a} \frac{\partial a}{\partial z} 
++ \frac{\partial f}{\partial v} \frac{\partial v}{\partial a} \frac{\partial a}{\partial z} 
++ \frac{\partial f}{\partial u} \frac{\partial u}{\partial b} \frac{\partial b}{\partial z} 
++ \frac{\partial f}{\partial v} \frac{\partial v}{\partial b} \frac{\partial b}{\partial z}
+\]
+
+This gives the complete derivative of $f$ with respect to $z$, accounting for all the possible paths through which $z$ influences $f$ via $a$, $b$, $u$, and $v$.
+
+
+\section{Multiple Output Nodes ($k>1$)}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_3/mutliple_output_nodes.png}
+    \caption{2 output nodes ($k=2$)}
+    \label{fig:w3-3}
+\end{figure}
+
+The function for the $k$-th output node in a single-layer neural network is defined as:
+
+\[
+f_k(\mathbf{X}) = o \left( b^{[2]}_k + \sum_{i=1}^{H} w_{ki}^{[2]} \sigma \left( b_i^{[1]} + \sum_{j=1}^{d} w_{ij}^{[1]} x_j \right) \right)_k
+\]
+
+Where:
+\begin{itemize}
+    \item $o$ is the output activation function (often softmax for classification).
+    \item $b^{[2]}_k$ is the bias for the $k$-th output node in the second layer.
+    \item $w_{ki}^{[2]}$ is the weight connecting the $i$-th node in the hidden layer to the $k$-th output node.
+    \item $\sigma$ is the activation function of the hidden layer (e.g., ReLU, Sigmoid).
+    \item $b_i^{[1]}$ is the bias of the $i$-th node in the hidden layer.
+    \item $w_{ij}^{[1]}$ is the weight connecting the $j$-th input node to the $i$-th hidden node.
+    \item $x_j$ is the input feature.
+\end{itemize}
+
+\subsection{Cross-Entropy Loss:}
+
+Measures the difference ("distance") between the predicted probability distribution output by the model and the true probability distribution represented by the labels.\\
+ 
+The cross-entropy loss for multi-class classification is defined as:
+
+\[
+L(f(\mathbf{X}), \mathbf{y}) = -\sum_{i=1}^{N} \sum_{k=1}^{K} y_{ik} \log f_k(x_i)
+\]
+
+\begin{tcolorbox}
+    $f_k(x_i)$ is the prob that the model assigns to class $k$ for example $x_i$.\\
+    
+    $y_{ik}$ is 1 if $x_i$ belongs to class $k$, and 0 otherwise
+\end{tcolorbox}
+
+Where:
+\begin{itemize}
+    \item $N$ is the number of training examples.
+    \item $K$ is the number of classes.
+    \item $y_{ik}$ is the true label (one-hot encoded) for example $i$ and class $k$.
+    \item $f_k(x_i)$ is the predicted probability of class $k$ for example $i$.
+\end{itemize}
+
+    If the model predicts a class with high confidence (e.g., 0.9) and that class is the correct one, the loss is small.\\
+    
+    If the model predicts the wrong class with high confidence (e.g., 0.9), the loss is large.\\
+    
+    If the model spreads its probabilities evenly across the classes (e.g., 0.25 for each class in a 4-class problem), it will still incur a significant loss unless the true class is one of the higher probabilities.
+
+
+\begin{tcolorbox}
+    \textbf{1. Logarithmic Penalty:}\\
+    
+    \textit{NB \textbf{only the term corresponding to the correct class contributes to the loss}}\\
+    
+    The logarithmic part in the cross-entropy loss function, \( \log f_k(x_i) \):
+    
+    \begin{itemize}
+        \item If the model predicts a \textbf{high probability} for the \textbf{correct class}, i.e., \( f_k(x_i) \approx 1 \), then \( \log f_k(x_i) \) will be close to 0. This results in a small loss because the prediction is accurate.
+        
+        \[
+        \log(1) = 0
+        \]
+        
+        \item However, if the model assigns a \textbf{low probability} to the \textbf{correct class}, i.e., \( f_k(x_i) \) is close to 0, the logarithmic value \( \log f_k(x_i) \) becomes a large negative number. This results in a large loss, reflecting the model's poor prediction.
+    
+        \[
+        \log(0.01) \approx -4.605
+        \]
+    
+        The steeper the drop in probability (approaching 0), the higher the negative value of the logarithm, and hence the larger the penalty. The logarithmic function ensures that predictions which are confidently wrong incur a significant penalty, encouraging the model to increase the probability of the correct class.
+    
+    \end{itemize}
+    
+    \textbf{2. One-Hot Encoding:}\\
+    
+    True labels \( y_{ik} \) are typically represented using one-hot encoding.
+    
+    \begin{itemize}
+        \item For each example \( i \), the true label is a vector where one entry corresponding to the correct class is set to 1, and all others are 0. In other words, if the true class for example \( i \) is class \( k \), then \( y_{ik} = 1 \) and \( y_{ij} = 0 \) for all \( j \neq k \).
+    
+        \[
+        \mathbf{y}_i = \begin{bmatrix} 0 & 0 & 1 & 0 \end{bmatrix} \quad \text{(if the correct class is the third one)}
+        \]
+    
+        \item This encoding ensures that the \textbf{loss function only considers the predicted probability for the correct class}. \\
+    
+        \textbf{Only the term corresponding to the correct class contributes to the loss} because \( y_{ik} = 1 \) for the correct class and 0 for all other classes. The cross-entropy loss is thus focused on maximizing the probability of the correct class while ignoring the others.
+    
+    \end{itemize}
+    
+    \textbf{Combined Effect:}
+    
+    The combination of the logarithmic penalty and one-hot encoding has the following effects:
+    \begin{itemize}
+        \item It strongly penalizes predictions that assign low probabilities to the correct class.
+        \item It emphasizes improving the model’s confidence in the correct class.
+        \item Predictions that are close to 1 for the correct class yield low loss, encouraging high confidence when the model is correct.
+    \end{itemize}
+
+\end{tcolorbox}
+
+\subsection{Gradient Calculation:}
+
+The gradient of the loss function with respect to the weights is given by:
+
+\[
+\nabla L(f(\mathbf{X}), \mathbf{y})
+\]
+
+The output of the neural network is:
+
+\[
+f(\mathbf{X}) = (f_1(\mathbf{X}), f_2(\mathbf{X}), \dots, f_K(\mathbf{X}))
+\]
+
+\subsubsection{Multivariate Chain Rule}
+
+\textbf{Multivariate Chain Rule (General)...}
+
+\[
+\frac{\partial}{\partial a} f(u(a, b), v(a, b)) = \frac{\partial f}{\partial u} \frac{\partial u}{\partial a} + \frac{\partial f}{\partial v} \frac{\partial v}{\partial a}
+\]
+
+\vspace{.3cm}
+\textbf{...Applying the Chain Rule to Multi-Class Classification}\\
+
+To compute the derivative of the loss function \( L(f(\mathbf{X}), \mathbf{y}) \) with respect to a weight \( w_{ij} \):
+
+\[
+\frac{\partial L(f(\mathbf{X}), \mathbf{y})}{\partial w_{ij}} = \textcolor{red}{\sum_{k=1}^{K}} \frac{\partial L}{\partial f_{\textcolor{red}{k}}} \cdot \frac{\partial f_{\textcolor{red}{k}}}{\partial a^{[2]}_{\textcolor{red}{k}}} \cdot \frac{\partial a_{\textcolor{red}{k}}^{[2]}}{\partial h_i^{[1]}} \cdot \frac{\partial h_i^{[1]}}{\partial a_i^{[1]}} \cdot \frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}}
+\]
+
+Breaking this down:
+\begin{itemize}
+    \item \( \frac{\partial L}{\partial f_k} \): Gradient of the loss with respect to the output of the \( k \)-th output node.
+    \item \( \frac{\partial f_k}{\partial a_k^{[2]}} \): Derivative of the output activation function with respect to the input to the final layer.
+    \item \( \frac{\partial a_k^{[2]}}{\partial h_i^{[1]}} \): Derivative of the final layer input with respect to the hidden layer activations.
+    \item \( \frac{\partial h_i^{[1]}}{\partial a_i^{[1]}} \): Derivative of the hidden layer activation function with respect to the pre-activation value.
+    \item \( \frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}} \): Derivative of the pre-activation value with respect to the weight connecting input \( j \) to hidden node \( i \).
+\end{itemize}
+
+
+\subsubsection{Cross-Entropy's Loss Gradient (\textcolor{red}{simplifies!})}
+
+Multi-output's Cross Entropy's Loss Gradient has a nice simplification - makes it easy to compute!
+
+\begin{tcolorbox}
+    \textit{NB - context: this is the \textbf{first link} in the multivariate chain rule!}
+\end{tcolorbox}
+
+Plugging in the cross-entropy loss formula into the multivariate chain rule...\\
+
+...gives us the gradient of the cross-entropy loss with respect to the output \( f_k \) is:
+
+\[
+\frac{\partial L(f(\mathbf{X}), \mathbf{y})}{\partial f_k} = -\frac{\partial}{\partial f_k} \sum_{i=1}^{N} \sum_{k=1}^{K} y_{ik} \log f_k(x_i)
+\]
+
+\begin{tcolorbox}
+    \textit{NB this is the loss for every single observation, across every class}
+\end{tcolorbox}
+
+This simplifies to:
+
+\[
+= -\sum_{i=1}^{N} y_{ik} \frac{1}{f_k(x_i)}
+\]
+
+Here, \( y_{ik} \) is 1 if example \( i \) belongs to class \( k \), and 0 otherwise.\\
+
+
+\textbf{Combined expression of Softmax and Cross-Entropy}\\
+
+Often, the cross-entropy loss is combined with the softmax activation function, simplifying the gradient computation to:
+
+\[
+\frac{\partial L}{\partial a_k}
+\]
+
+\begin{tcolorbox}
+
+    \textit{NB: This is because the logarithmic term from the cross-entropy and the exponential term from the softmax cancel out...}
+    $$\text{Softmax function: } f_k(\mathbf{x}) = \frac{e^{a_k}}{\sum_{j=1}^{K} e^{a_j}}$$
+    
+    $$\text{SIMPLIFIED Cross-entropy loss: } L(f(\mathbf{X}), \mathbf{y}) = -\sum_{i=1}^{N} y_{ik} \frac{1}{f_k(x_i)}$$
+
+    \textit{...leaving a clean and simple expression for the gradient (wrt to the logits $a_k$).}
+
+    $$\frac{\partial L}{\partial a_k} = f_k(x_i) - y_{ik}$$
+
+    \textit{This is a clean and easy to compute version of the \textbf{first link} in the multivariate chain} 
+\end{tcolorbox}
+
+This simplifies backpropagation as we can directly compute \( \frac{\partial L}{\partial a_k} \) without separately computing derivatives for the softmax function and cross-entropy loss.
+
+\[
+\frac{\partial L}{\partial a_k} = f_k(x_i) - y_{ik}
+\]
+\begin{itemize}
+    \item $f_k(x_i)$ is the predicted prob that the model assigns to class $k$ for input $x_i$
+    \item $y_{ik}$ is the true label for class $k$ (1 or 0)
+\end{itemize}
+
+This simplification is one of the reasons why softmax and cross-entropy are often used together for classification tasks, as it makes the backpropagation step computationally efficient and easy to implement.
+
+\begin{tcolorbox}
+    \textbf{Proof:} how the cross-entropy loss and softmax function are combined and how the derivative with respect to the logits simplifies. This process leads to an elegant expression for the gradient, which is efficient for backpropagation.\\
+
+    The cross-entropy loss for multi-class classification is given by:
+
+\[
+L(\mathbf{y}, \hat{\mathbf{y}}) = - \sum_{i=1}^{N} \sum_{k=1}^{K} y_{ik} \log f_k(x_i)
+\]
+
+\[
+f_k(x_i) = \frac{e^{a_k}}{\sum_{l=1}^{K} e^{a_l}}
+\]
+
+Here, \( a_k \) are the logits, or raw outputs, of the final layer before applying softmax.
+
+\textbf{Substituting Softmax into Cross-Entropy Loss}\\
+
+Substituting the softmax expression for \( f_k(x_i) \) into the cross-entropy loss:
+
+\[
+L(\mathbf{y}, \hat{\mathbf{y}}) = - \sum_{i=1}^{N} \sum_{k=1}^{K} y_{ik} \log \left( \frac{e^{a_k}}{\sum_{l=1}^{K} e^{a_l}} \right)
+\]
+
+Expanding this gives:
+
+\[
+L(\mathbf{y}, \hat{\mathbf{y}}) = - \sum_{i=1}^{N} \sum_{k=1}^{K} y_{ik} \left( \log e^{a_k} - \log \sum_{l=1}^{K} e^{a_l} \right)
+\]
+
+Simplifying the logarithmic terms:
+
+\[
+L(\mathbf{y}, \hat{\mathbf{y}}) = \sum_{i=1}^{N} \left( \log \sum_{l=1}^{K} e^{a_l} - \sum_{k=1}^{K} y_{ik} a_k \right)
+\]
+
+\textbf{Derivative of Loss with Respect to Logits}\\
+
+To compute the gradient of the loss with respect to the logit \( a_k \), apply the chain rule:
+
+\[
+\frac{\partial L}{\partial a_k} = \frac{\partial}{\partial a_k} \sum_{i=1}^{N} \left( \log \sum_{l=1}^{K} e^{a_l} - \sum_{k=1}^{K} y_{ik} a_k \right)
+\]
+
+This derivative splits into two parts:
+1. The derivative of the normalization term \( \log \sum_{l=1}^{K} e^{a_l} \):
+
+\[
+\frac{\partial}{\partial a_k} \log \sum_{l=1}^{K} e^{a_l} = \frac{e^{a_k}}{\sum_{l=1}^{K} e^{a_l}} = f_k(x_i)
+\]
+
+2. The derivative of the second term, involving the true labels:
+
+\[
+\frac{\partial}{\partial a_k} \left( - \sum_{k=1}^{K} y_{ik} a_k \right) = - y_{ik}
+\]
+
+\textbf{Combining the Derivatives}\\
+
+Thus, combining the two derivative terms, the gradient of the loss function with respect to the logit \( a_k \) becomes:
+
+\[
+\frac{\partial L}{\partial a_k} = f_k(x_i) - y_{ik}
+\]
+\end{tcolorbox}
+
+\begin{tcolorbox}
+    \textbf{Summary Intuition:}\\
+    
+    By combining the softmax function and cross-entropy loss, the gradient simplifies to:
+
+    \[
+    \frac{\partial L}{\partial a_k} = f_k(x_i) - y_{ik}
+    \]
+
+    \begin{itemize}
+        \item \textbf{Correct Class:} When \( y_{ik} = 1 \) (the true class for input \( x_i \)), the gradient is \( f_k(x_i) - y_{ik} \) 
+        \begin{itemize}
+            \item This tells us how far off the model's prediction \( f_k(x_i) \) is from the true value. If the predicted probability is close to 1, the gradient will be small, resulting in minor adjustments. If the probability is far from 1, the gradient will be larger, leading to a more significant update.
+        \end{itemize}
+        \item \textbf{Incorrect Classes}: When \( y_{ik} = 0 \) for incorrect classes, the gradient is \( f_k(x_i) \). 
+        \begin{itemize}
+            \item If the model assigns a high probability to an incorrect class, this will result in a large gradient, causing the model to reduce that probability during training.
+        \end{itemize}
+    \end{itemize}
+    
+    This simplification makes backpropagation efficient, as the model adjusts predictions based on how far off they are from the true labels. It avoids explicitly computing the derivative of the softmax function, making training faster and more stable.
+\end{tcolorbox}
+
+\subsection{Two hidden layer NNs (Multilayer Perceptron)}
+
+Backpropagation in 2 hidden layers:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_3/multilayer_perceptron.png}
+    \caption{Mutlilayer Perceptron (2 hidden layers)}
+    \label{fig:w3-4}
+\end{figure}
+
+The network's output for class \( k \) is computed as:
+
+\[
+f_k(\mathbf{x}) = o \left( b_k^{[3]} + \sum_{l=1}^{H^{[2]}} w_{kl}^{[3]} g \left( b_l^{[2]} + \sum_{i=1}^{H^{[1]}} w_{li}^{[2]} g \left( b_i^{[1]} + \sum_{j=1}^{d} w_{ij}^{[1]} x_j \right) \right) \right)
+\]
+
+\textbf{The General Form} of the chain rule:\\
+
+The gradient of the loss function with respect to the weights in the first layer \( w_{ij}^{[1]} \) \textbf{generically given} as:
+
+\[
+\frac{\partial L(f(\mathbf{x}), \mathbf{y})}{\partial w_{ij}^{[1]}} = \sum_{k=1}^{K} \frac{\partial L}{\partial f_k} \cdot \frac{\partial f_k}{\partial w_{ij}^{[1]}}
+\]
+
+This highlights the beginning and end of the backpropagation process.\\
+
+It gives a compact representation that shows how the loss depends on the weights in the first layer, without yet detailing the intermediate layers.
+
+\begin{tcolorbox}
+    \textit{NB: this expression is still v high level - it just provides the "start" and "finish" of the chain. This is invariant to how many hidden layers there are in the network (hence \textbf{generic})}\\
+
+    \textit{Once we know how many hidden layers there are, we will use the chain rule to expand the second term $\frac{\partial f_k}{\partial w_{ij}^{[1]}}$}. \\
+    
+    \textit{When we expand, $\frac{\partial f_k}{\partial w_{ij}^{[1]}}$, it involves a series of intermediate layers (which are/depend on the number of hidden layers).}
+\end{tcolorbox}
+
+\textbf{Full Expansion with Multivariate chain rule:}\\
+
+Expanding the Gradient of \( f_k \) with Respect to \( w_{ij}^{[1]} \)\\
+
+
+To expand the term \( \frac{\partial f_k}{\partial w_{ij}^{[1]}} \) using the multivariate chain rule, we have:
+
+\[
+\frac{\partial f_k}{\partial w_{ij}^{[1]}} = \frac{\partial f_k}{\partial a_k^{[3]}} \cdot \sum_{l=1}^{H^{[2]}} \frac{\partial a_k^{[3]}}{\partial h_l^{[2]}} \cdot \frac{\partial h_l^{[2]}}{\partial a_l^{[2]}} \cdot \sum_{i=1}^{H^{[1]}} \frac{\partial a_l^{[2]}}{\partial h_i^{[1]}} \cdot \frac{\partial h_i^{[1]}}{\partial a_i^{[1]}} \cdot \frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}}
+\]
+
+
+In this expansion:
+\begin{itemize}
+    \item The second hidden layer is accounted for by the terms:
+  \[
+  \frac{\partial a_k^{[3]}}{\partial h_l^{[2]}} \quad \text{and} \quad \frac{\partial h_l^{[2]}}{\partial a_l^{[2]}}
+  \]
+
+    \item The first hidden layer is accounted for by the term:
+  \[
+  \frac{\partial h_i^{[1]}}{\partial a_i^{[1]}}
+  \]
+\end{itemize}
+
+
+\[
+\frac{\partial L}{\partial w^{[1]}_{ij}} = \sum_{k=1}^{K} \frac{\partial L}{\partial f_k} \cdot \frac{\partial f_k}{\partial a_k^{[3]}} \cdot \sum_{l=1}^{H^{[2]}} \frac{\partial a_k^{[3]}}{\partial h_l^{[2]}} \cdot \frac{\partial h_l^{[2]}}{\partial a_l^{[2]}} \cdot \sum_{i=1}^{H^{[1]}} \frac{\partial a_l^{[2]}}{\partial h_i^{[1]}} \cdot \frac{\partial h_i^{[1]}}{\partial a_i^{[1]}} \cdot \frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}}
+\]
+
+Using the full chain rule, this captures the contributions from all intermediate layers.
+
+\section{Vectorization}
+
+\textit{Purpose: create efficiency in terms of compute.}
+
+\subsection{Basic concept}
+
+\subsubsection{Scalar Multiplications}
+
+When performing scalar multiplications, the sum of element-wise multiplications between two vectors \( \mathbf{w} \) and \( \mathbf{x} \) of length \( d \) is given by:
+
+\[
+\sum_{j=1}^{d} w_j \cdot x_j
+\]
+
+\begin{tcolorbox}
+    For the computer, this is typically implemented using a loop:
+
+    \begin{verbatim}
+    sum = 0
+    for j in range(d):
+        result = w[j] * x[j]
+        sum = sum + result
+    \end{verbatim}
+    
+    This approach involves iterating over each element, performing a multiplication, and then summing the results sequentially. This means that the computer repeatedly executes the same instructions for each element.
+\end{tcolorbox}
+
+\subsubsection{Vector Multiplications}
+
+In contrast, vector multiplication, or the dot product of two vectors, is computed as:
+
+\[
+\sum_{j=1}^{d} w_j \cdot x_j = \mathbf{w} \cdot \mathbf{x} 
+\]
+
+\begin{tcolorbox}
+    For the computer, this can be implemented efficiently using vectorized operations. In Python (using NumPy), this is written as:
+
+    \begin{verbatim}
+    sum = np.dot(w, x)
+    \end{verbatim}
+\end{tcolorbox}
+
+\subsubsection{Advantages of Vectorization (for computation)}
+
+Vectorization brings several benefits:
+\begin{itemize}
+    \item \textbf{No repetitions of instructions:} Unlike looping, vectorization doesn't require repeatedly executing the same instructions for each element.
+    \item \textbf{Parallel execution:} Vectorized operations allow the computer to execute multiple operations simultaneously, leveraging modern CPU and GPU architectures.
+\end{itemize}
+
+\subsection{Vectorizing the Neural Network}
+
+\subsubsection{Single-Layer Neural Network:}
+
+For a single-layer neural network, the output for class \( k \), \( f_k(\mathbf{X}) \), can be written as:
+
+\[
+f_k(\mathbf{X}) = o \left( b_k^{[2]} + \sum_{i=1}^{H} w_{ki}^{[2]} g \left( b_i^{[1]} + \sum_{j=1}^{d} w_{ij}^{[1]} x_j \right) \right)_k
+\]
+
+\subsubsection{Vectorized Form:}
+
+This equation can be vectorized to efficiently compute the output for all classes at once:
+
+\[
+\mathbf{f}(\mathbf{x}) = o \left( \mathbf{b}^{[2]} + \mathbf{W}^{[2]} \mathbf{h}^{[1]} \right)
+\]
+
+Where:
+\begin{itemize}
+    \item $f(x) \in \mathbb{R}^{K}$
+    \item \( \mathbf{b}^{[2]} \in \mathbb{R}^{K} \) is the bias vector for the second layer,
+    \item \( \mathbf{W}^{[2]} \in \mathbb{R}^{K \times H} \) is the matrix of weights for the second layer,
+    \item \( \mathbf{h}^{[1]} \in \mathbb{R}^{H}\) is the vectorized output of the hidden layer (\( \mathbf{h}^{[1]} = g \left( \mathbf{b}^{[1]} + \mathbf{W}^{[1]} \mathbf{x} \right) \))
+\end{itemize}
+
+For the hidden layer:
+
+\[
+\mathbf{h}^{[1]} = g \left( \mathbf{b}^{[1]} + \mathbf{W}^{[1]} \mathbf{x} \right)
+\]
+
+Where:
+\begin{itemize}
+    \item \( \mathbf{h}^{[1]} \in \mathbb{R}^{H}\)
+    \item \( \mathbf{b}^{[1]} \in \mathbb{R}^{H} \) is the bias vector for the first layer,
+    \item \( \mathbf{W}^{[1]} \in \mathbb{R}^{H \times d} \) is the matrix of weights for the first layer, 
+    \item \( \mathbf{x} \in \mathbb{R}^{d} \) is the input vector.
+\end{itemize}
+
+\begin{tcolorbox}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\linewidth]{images/week_3/vectorized.png}
+        \caption{with associated dimensions subscripted}
+        \label{fig:w3-5}
+    \end{figure}
+\end{tcolorbox}
+
+\subsubsection{More Compact Representation:}
+
+To further simplify, we can incorporate the bias terms into the weight matrices by adding an additional dimension to the input vector:
+
+\[
+f(\mathbf{x}) = o \left( \mathbf{W}^{[2]} g \left( \mathbf{W}^{[1]} \mathbf{x} \right) \right)
+\]
+
+Where the bias terms are now included in the weight matrices.\\
+
+\begin{tcolorbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_3/vectorized_2.png}
+    \label{fig:w3-6}
+\end{figure}
+    \[
+    f(\mathbf{x}) = o \left( \mathbf{W}^{[2]} g \left( \mathbf{W}^{[1]} \mathbf{x} \right) \right)
+    \]
+    
+    \[
+    \begin{aligned}
+    K \quad &\quad \mathbf{W}^{[2]} \in \mathbb{R}^{K \times (H+1)} \\
+    K \times (H+1) \quad &\quad \mathbf{W}^{[1]} \in \mathbb{R}^{(H+1) \times (d+1)} \\
+    (H+1) \times (d+1) \quad &\quad \mathbf{x} \in \mathbb{R}^{d+1}
+    \end{aligned}
+    \]
+
+\end{tcolorbox}
+
+Additionally, the input vector is extended by adding a component \( 1 \), so that:
+
+\[
+\mathbf{x} = (1, x_1, \dots, x_d) \in \mathbb{R}^{d+1}
+\]
+
+\subsubsection{Matrix Representation of the Weight Matrices:}
+
+With this compact representation, the first layer's weight matrix \( \mathbf{W}^{[1]} \) now includes the bias terms:
+
+\[
+\mathbf{W}^{[1]} = 
+\begin{bmatrix}
+b_1 & w_{11}^{[1]} & w_{12}^{[1]} & \dots & w_{1d}^{[1]} \\
+b_2 & w_{21}^{[1]} & w_{22}^{[1]} & \dots & w_{2d}^{[1]} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+b_H & w_{H1}^{[1]} & w_{H2}^{[1]} & \dots & w_{Hd}^{[1]}
+\end{bmatrix}
+\]
+
+This compact representation makes it easier to compute the outputs in matrix form, improving computational efficiency.
+
+\subsubsection{Forward Pass: 2-Hidden-Layer Neural Network}
+
+For a two-hidden-layer neural network, the forward pass can be written as:
+
+\[
+f(\mathbf{x}) = o \left( \mathbf{W}^{[3]} g \left( \mathbf{W}^{[2]} g \left( \mathbf{W}^{[1]} \mathbf{x} \right) \right) \right)
+\]
+
+\subsubsection{Forward Pass: L-Hidden-Layer Neural Network}
+
+More generally, for an L-layer neural network (MLP), the forward pass is written as:
+
+\[
+f(\mathbf{x}) = o \left( \mathbf{W}^{[L]} g \left( \mathbf{W}^{[L-1]} \dots g \left( \mathbf{W}^{[1]} \mathbf{x} \right) \right) \right)
+\]
+
+This can also be written as:
+
+\[
+f(\mathbf{x}) = o \left( \mathbf{W}^{[L]} g \left( \mathbf{W}^{[L-1]} \dots g \left( \mathbf{a}^{[1]} \right) \right) \right)
+\]
+
+Since:
+
+\[
+\mathbf{a}^{[1]} = \mathbf{W}^{[1]} \mathbf{x}
+\]
+
+So, more generally:
+
+\begin{align*}
+f(\mathbf{x}) &= o \left( \mathbf{W}^{[L]} g \left( \mathbf{W}^{[L-1]} \mathbf{h}^{[L-2]} \right) \right) \\
+&= o \left( \mathbf{a}^{[L]} \right)
+\end{align*}
+
+Note that across literature and in problem sets:
+\begin{itemize}
+    \item \( \mathbf{a}^{[l]} \) is sometimes referred to as \( \mathbf{z}^{[l]} \).
+    \item \( \mathbf{h}^{[l]} \) is sometimes referred to as \( \mathbf{a}^{[l]} \).
+\end{itemize}
+
+\subsection{Backpropagation Vectorized}
+
+Backpropagation becomes more involved when vectorized, requiring more advanced linear algebra. However, the solution can be written compactly using the error signal.
+
+\begin{tcolorbox}
+    \textbf{The Error Signal} \\
+    
+    denoted as $\delta^{[L]}$ for layer $l$ \\
+
+    is a vector that quantifies how much the output of a neural network differs from the expected outcome (the target value).\\
+
+    It plays a crucial role in the backpropagation algorithm, as it indicates the \textbf{direction} and \textbf{magnitude} of changes needed for the weights in the network to minimize the loss function.\\
+
+    \textbf{Purpose}: The error signal is used to calculate how much each weight should be adjusted during training to reduce the overall loss of the network. It helps propagate the error from the output layer back through the network to the input layer.\\
+
+    \textbf{Computation}: For the last layer (output layer), the error signal can be computed using the derivative of the loss function with respect to the output of that layer, combined with the derivative of the activation function. For example, in a softmax and cross-entropy scenario, it captures how wrong the predictions are relative to the true labels.
+
+    \begin{align*}
+        \delta^{[L]} &\equiv \nabla_{\mathbf{a}^{[L]}} L  \\
+        &\equiv \frac{\partial L}{\partial f} \cdot o' \left( \mathbf{a}^{[L]} \right) 
+    \end{align*}
+
+    The the gradient $\nabla_{\mathbf{a}^{[L]}} L$ represents how much the loss $L$ changes wrt to the preactivation values $a^{[L]}$ at the final layer. This is also referred to as the error signal $\delta^{[L]}$.
+
+    
+\end{tcolorbox}
+
+\subsubsection{Last Layer}
+
+The gradient of the loss \( L \) with respect to the activations at the final layer \( \mathbf{a}^{[L]} \) is:
+
+\[
+\nabla_{\mathbf{a}^{[L]}} L = \frac{\partial L}{\partial f} \cdot o' \left( \mathbf{a}^{[L]} \right) \equiv \delta^{[L]}
+\]
+
+describes the gradient of the loss $L$ wrt the activations at the final layer $a^{[L]}$.\\
+
+\begin{itemize}
+    \item $\frac{\partial L}{\partial f}$: represents how much the loss changes with respect to the final output of the network $f(x)$.
+    \begin{itemize}
+        \item For example, if we are using cross-entropy loss combined with softmax, this would be the difference between the predicted probability and the true label.
+    \end{itemize}
+    \item $o' \left( \mathbf{a}^{[L]} \right)$: derivative of the output activation function $o$, evaluated at the pre-activation values $a^{[L]}$ of the final layer
+  of the final layer.
+  \begin{itemize}
+      \item If $o$ is is softmax or sigmoid, this would be the derivative of those functions
+  \end{itemize}
+\end{itemize}
+
+The gradient with respect to the weights \( \mathbf{W}^{[L]} \) is:
+
+\begin{align*}
+    \nabla_{\mathbf{W}^{[L]}} L &= \frac{\partial L}{\partial f} \cdot o' \left( \mathbf{a}^{[L]} \right) \frac{d \mathbf{a}^{[L]}}{d \mathbf{W}^{[L]}} \\
+    &= \delta^{[L]} \mathbf{h}^{[L-1]}
+\end{align*}
+
+describes the gradient of the loss with respect to the weights in the final layer $W^{[L]}$.\\
+
+The new terms here:
+
+\begin{itemize}
+    \item $\frac{d \mathbf{a}^{[L]}}{d \mathbf{W}^{[L]}}$: this term is the derivative of the pre-activation values $a^{[L]}$ ((the weighted sum before applying the activation function) with respect to the weights $W^{[L]}$.
+    \begin{itemize}
+        \item since $a^{[L]} = W^{[L]} h^{[L-1]} + b^{[L]}$, the derivative $\frac{d \mathbf{a}^{[L]}}{d W^{[L]}}$ is simply $h^{[L-1]}$, the activations from the previous layer.
+    \end{itemize}
+\end{itemize}
+
+This means the gradient of the activations $a^{[L]}$ wrt to the weights $W^{[L]}$ is simply the activations from the previous layer.\\
+
+\begin{tcolorbox}
+
+\textbf{Gradient with respect to the weights in the final layer}
+
+    \begin{align*}
+    \nabla_{\mathbf{W}^{[L]}} L = \delta^{[L]} \cdot \mathbf{h}^{[L-1]}
+\end{align*}
+
+
+    This is important because it tells us how the weights in the final layer should be adjusted during backpropagation:
+    \begin{itemize}
+        \item $d^{[L]}$ is the error signal how much (the prediction differs from the true value)
+        \item $h^{[L-1]}$ is the activation from the previous layer, which is used to update the weights based on the error.
+    \end{itemize}
+
+    \textbf{Intuition:}
+    \begin{itemize}
+        \item The final output of the neural network depends on the weights of the last layer. Therefore, if the network makes a mistake (i.e., the loss is high), the gradient $\nabla_W^{[L]} L$ will guide how much the weights in the last layer $W^{[L]}$ should be updated the reduce the error.
+        \item \textbf{Error Signal component:} the larger the error signal $\delta^{[L]}$, the more significant the weight update.
+        \item \textbf{Previous Layer's activations component}: The magnitude of the update is also scaled by the activations $h^{[L-1]}$ from the previous layer
+        \begin{itemize}
+            \item The term $\mathbf{h}^{[L-1]}$ effectively scales the weight update based on how active the previous layer's neurons were. 
+            \item If the activation $\mathbf{h}^{[L-1]}$ is large, then the weight update will also be larger. I.e. the model learns more aggressively based on that input. 
+            \item Conversely, if the activations are small, the updates will be smaller, suggesting that those inputs had less influence on the final output.
+            \item \textbf{Intuition}: This makes sense because if a neuron in the previous layer was highly activated (meaning it contributed significantly to the output), its corresponding weights should be adjusted more significantly based on the error at the output. The update reflects the importance of that neuron in contributing to the error.
+        \end{itemize}
+        
+    \end{itemize}
+\end{tcolorbox}
+
+
+\subsubsection{Other Layers}
+
+For other layers, we work \textbf{recursively}:\\
+
+\begin{tcolorbox}
+    \textbf{Error signal at layer $l$}
+    \[
+    \delta^{[l]} = \left( \mathbf{W}^{[l+1]} \right)^{T} \delta^{[l+1]} \cdot g' \left( \mathbf{a}^{[l]} \right)
+    \]
+    
+    Describes how to compute the error signal $\delta^{[l]}$ for any hidden layer $l$ in the neural network.\\
+
+    Illustrates how the error signal is propagated backward through the network, allowing the error from layer \( l+1 \) to inform the current layer's error.
+\end{tcolorbox}
+
+\begin{itemize}
+    \item \(\delta^{[l+1]}\): Represents the error signal from the next layer (layer \( l+1 \)), indicating how much the output of layer \( l+1 \) contributes to the overall error.
+    \item \(\mathbf{W}^{[l+1]}\): The weight matrix for layer \( l+1 \). The transpose \((\mathbf{W}^{[l+1]})^T\) allows for the backpropagation of the error signal to layer \( l \).
+    \item \(g'(\mathbf{a}^{[l]})\): The derivative of the activation function at layer \( l \) evaluated at the pre-activation values \(\mathbf{a}^{[l]}\), scaling the error signal based on the sensitivity of the activation function.
+\end{itemize}
+
+Thus, this equation shows how the error from the next layer influences the current layer's error, adjusted by the activation function.
+
+
+\begin{tcolorbox}
+    \textbf{The gradient with respect to the weights of layer $l$} (\(\mathbf{W}^{[l]}\)) is given by:
+    
+    \[
+    \nabla_{\mathbf{W}^{[l]}} L = \delta^{[l]} \cdot \mathbf{h}^{[l-1]}
+    \]
+
+    Shows how the weights in layer \( l \) are adjusted (to minimise loss) based on the error signal and the activations of the previous layer.\\
+    
+    Emphasizes the influence of those activations in contributing to the output.
+\end{tcolorbox}
+
+\begin{itemize}
+    \item \(\nabla_{\mathbf{W}^{[l]}} L\): Denotes the gradient of the loss function \( L \) with respect to the weights \(\mathbf{W}^{[l]}\) in layer \( l \),\textbf{ indicating how to adjust the weights to minimize the loss.}
+    \item \(\delta^{[l]}\): The error signal computed for layer \( l \), showing how much the output from this layer contributes to the error in the next layer.
+    \item \(\mathbf{h}^{[l-1]}\): The activations from the previous layer \( l-1 \), scaling the weight update based on how active the neurons in that layer were.
+\end{itemize}
+
+\subsubsection{Dimensions of the Gradient}
+
+\[
+\nabla_{\mathbf{W}^{[l]}} L \in \mathbb{R}^{(H^{[l]}+1) \times (H^{[l-1]}+1)}
+\]
+\[
+\delta^{[l]} \in \mathbb{R}^{1 \times (H^{[l-1]}+1)}
+\]
+\textcolor{red}{dimensions incorrect??? should be below dims???}
+\[
+\delta^{[l]} \in \mathbb{R}^{1 \times (H^{[l]}+1)}
+\]
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_3/dim_grad}
+    \caption{Dimensions of the gradient}
+    \label{fig:w3-7}
+\end{figure}
+
+\paragraph{Gradient with Respect to Weights:}
+
+The gradient of the loss \( L \) with respect to the weights \( \mathbf{W}^{[l]} \) in layer \( l \) has dimensions given by:
+
+\[
+\nabla_{\mathbf{W}^{[l]}} L \in \mathbb{R}^{(H^{[l]}+1) \times (H^{[l-1]}+1)}
+\]
+
+\begin{itemize}
+    \item \( H^{[l]} \): The number of neurons (units) in the current layer \( l \).
+    \item \( H^{[l-1]} \): The number of neurons in the previous layer \( l-1 \).
+    \item The \( +1 \) terms account for the inclusion of bias terms in both layers. This means:
+        \begin{itemize}
+            \item Each column corresponds to a neuron in layer \( l-1 \) (including the bias unit).
+            \item Each row corresponds to a neuron in layer \( l \) (including the bias unit).
+        \end{itemize}
+\end{itemize}
+
+Thus, the gradient matrix \(\nabla_{\mathbf{W}^{[l]}} L\) represents how the weights connecting layer \( l-1 \) to layer \( l \) should be adjusted based on the error signals.
+
+\bigskip
+
+\paragraph{Error Signal:}
+
+The error signal \( \delta^{[l]} \) for layer \( l \) has dimensions given by:
+
+\[
+\delta^{[l]} \in \mathbb{R}^{1 \times (H^{[l-1]}+1)}
+\]
+
+\begin{itemize}
+    \item This dimension indicates that \( \delta^{[l]} \) is a row vector.
+    \item The dimension \( H^{[l-1]} + 1 \) accounts for the number of neurons in the previous layer (including the bias unit).
+    \item This error signal captures how much each neuron in the previous layer contributed to the error at the current layer.
+\end{itemize}
+
+The dimensions of the gradients and error signals ensure that the matrix operations during backpropagation are compatible.
+
+\section{Minibatch Stochastic Gradient Descent}
+
+\subsection{Stochastic Gradient Descent}
+
+\begin{tcolorbox}
+    \textbf{SGD} updates model parameters iteratively using a single data point per step, resulting in \textit{many updates} and \textit{noise-prone} convergence.\\
+    
+    \textbf{Batch Gradient Descent} processes the \textit{entire dataset} at once, reducing noise and requiring fewer updates. However, this approach is \textit{memory-intensive}, as it requires storing large matrices of size ($H+1)\times d$, where $H$ is the number of hidden units, and $d$ is the dimensionality of the data, potentially causing memory overflow.
+    \begin{enumerate}
+        \item \textbf{Gradient Matrices:} These contain the gradients (partial derivatives) of the loss function with respect to each parameter in the network for the entire dataset. For a neural network layer with \(H\) hidden units and \(d\)-dimensional input data, the gradient matrix for that layer has dimensions \(H \times d\). For the entire network, the storage requirements sum across layers, often resulting in matrices with dimensions \((H+1) \times d\), where \(H+1\) accounts for weights across layers plus biases.
+        
+        \item \textbf{Activation Matrices:} These matrices store the activations (outputs) from each layer of the network for all data points in the batch, especially during backpropagation, where the gradients for deeper layers depend on previous layers' activations. For a batch of \(N\) samples and a layer with \(H\) units, the activation matrix for that layer has dimensions \(N \times H\).
+        
+        \item \textbf{Parameter Matrices:} These matrices hold the network parameters (weights and biases) for each layer, which are updated based on the gradients calculated from the entire batch. Each parameter matrix’s size depends on the architecture of the layer it connects.
+    \end{enumerate}
+    
+   \textbf{ Minibatch Gradient Descent} offers a balance: it processes small, manageable subsets (minibatches) of the data, reducing memory load and computational cost while preserving a more stable convergence pattern.
+\end{tcolorbox}
+
+In stochastic gradient descent (SGD), for every weight update \( r \), the process is as follows:
+
+\[
+\mathbf{W}^{(r+1)} = \mathbf{W}^{(r)} + \eta^{(r)} \Delta \mathbf{W}^{(r)}
+\]
+
+Where:
+\begin{itemize}
+    \item \( \mathbf{W}^{(r)} \) represents the weights before the update.
+    \item \( \eta^{(r)} \) is the learning rate for the current update \( r \).
+    \item \( \Delta \mathbf{W}^{(r)} \) is the gradient computed for a single datapoint \( i \) at iteration \( r \).
+\end{itemize}
+
+\vspace{.3cm}
+
+\textbf{Key Characteristics of Stochastic Gradient Descent:} \\
+
+\textit{A for loop with one computation at a time, sequentially.}
+
+\begin{itemize}
+    \item \textbf{Single Datapoint}: In SGD, the gradient is computed for one datapoint at a time, which allows for quicker updates but introduces noise in the optimization process.
+    \item \textbf{For-loop}: The weight updates happen in a for-loop, processing one computation at a time sequentially. This can lead to slower convergence compared to batch updates.
+\end{itemize}
+
+\bigskip
+
+\subsection{Batch Gradient Descent}
+
+In contrast, batch gradient descent computes the gradient for all data points \( i, \ldots, n \) at each weight update \( r \):
+
+\[
+\mathbf{W}^{(r+1)} = \mathbf{W}^{(r)} + \eta^{(r)} \frac{1}{n} \sum_{i=1}^{n} \Delta \mathbf{W}^{(r)}_i
+\]
+
+Where:
+\begin{itemize}
+    \item The term \( \Delta \mathbf{W}^{(r)}_i \) represents the gradients calculated for each datapoint \( i \).
+    \item The gradient is averaged over all \( n \) datapoints, leading to a more stable estimate of the gradient direction.
+\end{itemize}
+
+\paragraph{Key Characteristics of Batch Gradient Descent:}
+\begin{itemize}
+    \item \textbf{Parallel Computation}: The weight updates \( \Delta \mathbf{W}^{(r)}_i \) for each datapoint per epoch can be computed in parallel, taking advantage of modern computational resources (e.g., GPUs).
+    \item\textbf{Efficiency}: Much more training data can be processed per unit of time compared to SGD, but it may also result in higher memory usage and can lead to slower convergence because updates are made less frequently.
+\end{itemize}
+
+\bigskip
+
+\subsection*{Vectorization in Batch Gradient Descent}
+
+During the forward pass over all datapoints, the computation can be expressed as:
+
+\[
+f(\mathbf{x}) = o \left( \mathbf{W}^{[2]} g \left( \mathbf{W}^{[1]} \mathbf{X} \right) \right)
+\]
+
+Where \( \mathbf{X} \) is the input matrix containing \textbf{all} training examples, making the operations \textbf{efficient} and\textbf{ leveraging matrix multiplications}.
+
+\begin{itemize}
+    \item \( \mathbf{W}^{[2]} \): Weight matrix connecting the hidden layer to the output layer.
+    \item \( \mathbf{W}^{[1]} \): Weight matrix connecting the input layer to the hidden layer.
+\end{itemize}
+
+Therefore, in batch gradient descent, we process the \textit{whole} training dataset \textit{before} we update the weights.
+
+\paragraph{Dimensions:}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_3/batch_grad_descent_forward_pass_dimensions.png}
+    \caption{batch gradient descent - forward pass dimensions}
+    \label{fig:w3-8}
+\end{figure}
+
+\bigskip
+
+\paragraph{Cautions:}
+\begin{itemize}
+    \item For large datasets, vectorizing computations may result in memory issues, particularly if the dataset cannot fit into memory.
+    \item Batch gradient descent is generally slower to converge than stochastic gradient descent (SGD) since updates are made only after a complete pass through the dataset.
+\end{itemize}
+
+\subsection{Introducing Mini-batches}
+
+Our training dataset can be represented as follows:
+
+\[
+\mathbf{X} \in \mathbb{R}^{d \times n} \quad \text{and} \quad \mathbf{Y} \in \mathbb{R}^{1 \times n}
+\]
+
+\textbf{Mini-batches} are smaller subsets of the dataset of size \( B \). They help in optimizing the training process by splitting the full dataset into manageable chunks.
+
+\subsubsection{Formation of Mini-batches}
+
+We divide the entire training dataset into \( m \) mini-batches of equal size \( B \):
+
+\[
+\mathbf{X} = [\mathbf{X}^{\{1\}}, \ldots, \mathbf{X}^{\{m\}}]
+\]
+
+Where:
+\begin{itemize}
+    \item Each mini-batch \( \mathbf{X}^{\{t\}} \) consists of \( B \) datapoints.
+    \item Minibatch \( t \) can be represented as:
+    \[
+    (\mathbf{X}^{\{t\}}, \mathbf{Y}^{\{t\}}) \quad \text{with} \quad \mathbf{X}^{\{t\}} \in \mathbb{R}^{d \times B} \quad \text{and} \quad \mathbf{Y}^{\{t\}} \in \mathbb{R}^{1 \times B}
+    \]
+\end{itemize}
+
+\paragraph{Example:}
+If we have a dataset of 600,000 datapoints and we use a minibatch size of 100, the number of mini-batches \( m \) can be calculated as:
+
+\[
+m = \frac{600,000}{100} = 6,000
+\]
+
+This means the dataset is divided into 6,000 mini-batches.
+
+\subsubsection{Mini-batch Gradient Descent Algorithm}
+
+The mini-batch gradient descent process can be summarized in the following steps for each epoch:
+
+\begin{enumerate}
+    \item For every \( t = 1, \ldots, m \):
+    \begin{enumerate}
+        \item Perform a \textbf{forward pass} to get the predictions based on the current values of the parameters.
+        \item Compute the \textbf{loss} using the predictions and the actual values from the mini-batch.
+        \item Compute the \textbf{gradient} for the current values of the weights using a \textbf{backward pass}.
+        \item \textbf{Update} the parameters using:
+        \[
+        \mathbf{W}^{(r+1)} = \mathbf{W}^{(r)} + \eta^{(r)} \cdot \frac{1}{B} \sum_{i=1}^{B} \Delta \mathbf{W}^{(r)}_i
+        \]
+    \end{enumerate}
+\end{enumerate}
+
+\begin{tcolorbox}
+    Typical mini-batch size is $B = 32, 64, 128,…$.\\
+    
+    Powers of 2 can be more easily processed by CPU/GPU
+\end{tcolorbox}
+
+\subsubsection{Advantages of Using Mini-batches}
+
+1. \textbf{Efficiency}: Mini-batches allow for a more efficient computation of gradients as they can be processed in parallel. This leads to faster convergence compared to using the entire dataset or just one datapoint.
+
+2. \textbf{Stability}: By averaging the gradients over a mini-batch, we reduce the variance of the updates, leading to more stable convergence behavior compared to stochastic gradient descent, which uses a single datapoint at a time.
+
+3. \textbf{Flexibility}: The mini-batch size \( B \) can be tuned to balance between memory efficiency and computational speed, allowing for adaptation to the resources available.
+
+4. \textbf{Regularization}: The inherent noise in the mini-batch updates can provide a regularization effect, helping to escape local minima in the loss landscape.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/week_3/Minibatch gradient descent.png}
+    \caption{Mini-batch gradient descent generally allows for quicker updates compared to batch gradient descent, which processes the entire dataset before making an update. This can lead to faster learning initially. Batch gradient descent typically provides a smoother loss curve with less variance in the updates, making it more stable but potentially slower as the entire dataset must be evaluated before updating the weights. The fluctuations in mini-batch gradient descent can be beneficial as they introduce noise that may help escape local minima, providing a form of implicit regularisation.}
+    \label{fig:w3-9}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_3/minibatch2.png}
+    \caption{Enter Caption}
+    \label{fig:w3-10}
+\end{figure}
+
+
+\section{Training Process}
+
+\subsection{Generalization in Supervised Learning}
+
+\subsection*{Supervised Learning Problem Formulation}
+In supervised learning, we often make the following assumptions:
+\begin{itemize}
+    \item The data consists of independent and identically distributed (IID) random variables drawn from a distribution \( P(X, Y) \).
+    \item We aim to develop a model that learns from this data and generalizes well to out-of-sample data that is drawn from the same distribution.
+\end{itemize}
+
+\begin{tcolorbox}
+    Sometimes, out of sample data come from a different distribution $Q(\cdot) \neq P(\cdot)$. This is distribution shifts.
+\end{tcolorbox}
+
+\subsubsection*{Training Error}
+The training error is a measure of how well the model performs on the training data and can be defined mathematically as a \textbf{direct function} fo the training data the model:
+\[
+R_{\text{train}}[X, y, f] = \frac{1}{n} \sum_{i=1}^{n} L(x_i, y_i, f(x_i))
+\]
+Where:
+\begin{itemize}
+    \item \( n \) is the number of training examples.
+    \item \( L \) is the loss function measuring the difference between predicted and actual values.
+\end{itemize}
+
+\subsubsection*{Generalization Error}
+The true generalization error is defined as the \textbf{expectation} taken with respect to the underlying distribution:
+\[
+R[P, f] = \mathbb{E}_{(x,y) \sim P}[L(x, y, f(x))] = \int \int L(x, y, f(x)) p(x,y) \, dx \, dy
+\]
+
+Since we typically do not know the true distribution \( P \), we need to \textbf{estimate} the generalization using a test set, computing it similarly to the training error.
+
+\subsection*{Training, Validation, and Test Sets}
+A typical modeling setup for training deep learning models involves dividing the data into three sets:
+\begin{itemize}
+    \item \textbf{Training Set:} Used to train the model and adjust its parameters.
+    \item \textbf{Validation Set:} Used for hyperparameter tuning and to evaluate the model during training.
+    \item \textbf{Test Set:} Remains \textbf{locked away} until the end of the experiments, used to assess the final performance of the model.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_3/train_val_test.png}
+    \caption{Enter Caption}
+    \label{fig:w3-11}
+\end{figure}
+
+\paragraph{Cross-Validation:}
+Cross-validation can also be employed for hyperparameter tuning and model selection. While cross-validation is often useful, it can be \textbf{computationally intensive in deep learning} scenarios.
+
+\subsection*{Understanding Training Error and Generalization}
+\begin{itemize}
+    \item A low training error does not guarantee that the model generalizes well. The test error must also be considered for assessing generalization.
+    \item If the training error does not decrease considerably and training and validation errors are similar, the model might be too simple (ie. is unable to learn the pattern from the data), resulting in underfitting.
+    \item If the training error is significantly lower than the validation error, it indicates overfitting to the training data.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_3/model complexity.png}
+    \caption{Enter Caption}
+    \label{fig:w3-12}
+\end{figure}
+
+Often we use \textbf{early stopping} in DL (rather than cross validation).
+\begin{enumerate}
+    \item As cross validation is too \textit{computationally intensive}.
+    \item As we are so \textit{over-parameterised from the start} in DL, we think in terms of epochs rather than complexity of a model class (it is given that we are complex; we are not about to reduce complexity).
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_3/early_stopping.png}
+    \caption{Enter Caption}
+    \label{fig:w3-13}
+\end{figure}
+
+\subsection{Performance Metrics Common in Deep Learning}
+
+\subsubsection{Binary Classification Metrics}
+
+\begin{itemize}
+    \item \textbf{Accuracy:} 
+    \[
+    \text{Accuracy} = \frac{\text{correct classifications}}{\text{all classifications}} = \frac{\sum_{k=1}^{K} TP_k + TN_k}{K}
+    \]
+\textit{Accuracy can be misleading when dealing with imbalanced datasets, where one class significantly outweighs the other.
+}
+    \item \textbf{Precision:} \textit{(thoroughness wrt model's positive predictions)}
+    \[
+    \text{Precision} = \frac{\text{correct positive classifications}}{\text{all positive classifications}} = \frac{TP}{TP + FP}
+    \]
+    Precision measures the accuracy of \textit{positive} predictions, emphasizing the relevance of the predicted positives.
+
+    \item \textbf{Recall:}  (\textit{thoroughness wrt data itself)}
+    \[
+    \text{Recall} = \frac{\text{correct positive classifications}}{\text{all true positives}} = \frac{TP}{TP + FN}
+    \]
+    Recall indicates the model's ability to identify all relevant instances, focusing on the actual positives.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\linewidth]{images/week_3/precision_recall.png}
+    \caption{}
+    \label{fig:w3-14}
+\end{figure}
+
+    \item \textbf{F-score:} 
+    To combine precision and recall into a single metric, the F-score is computed as follows:
+    \[
+    F_\beta = \frac{(\beta^2 + 1) \cdot \text{precision} \cdot \text{recall}}{\beta^2 \cdot \text{precision} + \text{recall}}
+    \]
+    Here, \( \beta > 1 \) emphasizes recall, while \( \beta = 1 \) results in the F1-score, balancing precision and recall.\\
+
+    We cab fine tune the F-score's weighting towards prevision vs recall depending on the task at hand.
+
+    \[
+    F_\beta = \frac{(\beta^2 + 1) \cdot TP}{(\beta^2 + 1) \cdot TP + FP + FN}
+    \]
+
+\end{itemize}
+
+\begin{tcolorbox}
+    \textbf{F1 Score}: where $\beta = 1$
+
+    \[
+    F_1 = \frac{2 \cdot \text{precision} \cdot \text{recall}}{\text{precision} + \text{recall}}
+    \]
+
+    \[
+    F_1 = \frac{2 \cdot TP}{2 \cdot TP + FP + FN}
+    \]
+\end{tcolorbox}
+
+\subsubsection{ROC AUC (Area Under the ROC Curve)}
+
+\textit{Particularly useful when dealing with imbalanced datasets, where traditional accuracy may not be sufficient to evaluate the model's performance.}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_3/ROC AUC.png}
+    \caption{blue line: trade off across different decision thresholds}
+    \label{fig:w3-15}
+\end{figure}
+
+\textbf{The ROC curve} \\
+
+A graphical representation of the trade off between true positive rate against the false positive rate across different thresholds.\\
+
+\textbf{True Positive Rate (TPR):} 
+    \[
+    TPR = \frac{\text{True Pos}}{\text{All Pos}} =  \frac{TP}{TP + FN}
+    \]
+
+\textbf{False Positive Rate (FPR):} 
+    \[
+    FPR = \frac{\text{False Pos}}{\text{All Neg}} = \frac{FP}{FP + TN}
+    \]
+
+As the threshold for classifying a sample as class 1 is varied (from 0 to 1), the model will generate different TPR and FPR values, which define the ROC curve.
+\begin{itemize}
+    \item Top-left corner (0, 1): Ideal performance where TPR is 1 (all positives correctly identified) and FPR is 0 (no negatives are misclassified as positives).
+    \item Diagonal line (from (0, 0) to (1, 1)): This represents the performance of a random classifier. A model whose ROC curve lies closer to the top-left corner indicates better performance.
+\end{itemize}
+
+\textbf{AUC (Area Under Curve):} \\
+
+The AUC quantifies the \textit{overall ability} of the model to discriminate between positive and negative classes, being \textit{scale-invariant} and \textit{classification-threshold invariant}.
+\begin{itemize}
+    \item \textbf{Scale-invariant}. It measures how well predictions are ranked, rather than their absolute values.
+    \item \textbf{Classification-threshold-invariant}. It allows to evaluate the model’s performance by considering all classification thresholds simultaneously. – \textbf{But} sometimes we want intuitive thresholds (e.g. 0.5)
+\end{itemize}
+
+E.g.
+\begin{itemize}
+    \item AUC = 1: Perfect classifier. The model makes no errors; it perfectly separates the positive and negative classes.
+    \item AUC = 0.5: The model performs no better than random guessing. The ROC curve lies along the diagonal line, and the classifier cannot distinguish between the positive and negative classes.
+    \item AUC < 0.5: This indicates a model that is worse than random, as it consistently misclassifies the classes.
+\end{itemize}
+
+\subsubsection{Multi-Class Classification Metrics}
+In multi-class settings, precision and recall can be extended through:
+
+\begin{itemize}
+    \item \textbf{Macro-Averaging:} 
+    \[
+    \text{Precision}_{M} = \frac{\sum_{k=1}^{K} TP_k}{\sum_{k=1}^{K} (TP_k + FP_k)} \cdot \frac{1}{K}
+    \]
+    Macro-averaging treats all classes equally...\\
+
+    
+    \item \textbf{Micro-Averaging:} 
+    \[
+    \text{Precision}_{\mu} = \frac{\sum_{k=1}^{K} TP_k}{\sum_{k=1}^{K} TP_k + FP_k}
+    \]
+
+    ...While micro-averaging favours larger classes.\\
+
+    The \textbf{average F-score} can similarly be computed:
+    \[
+    F_{\text{score}} = \frac{(\beta^2 + 1) \cdot \text{precision}_{M} \cdot \text{recall}_{M}}{\beta^2 \cdot \text{precision}_{M} + \text{recall}_{M}}
+    \]
+\end{itemize}
+
+
+\subsection{Training Tips}
+\subsubsection{Underfitting}
+\begin{itemize}
+    \item \textbf{Problem}: Training error does not decrease (we are stuck in a local optima).
+    \item \textbf{Solutions}:
+    \begin{itemize}
+        \item Increase model complexity or change the model type.
+        \item Improve optimization techniques:
+        \begin{itemize}
+            \item Use momentum in gradient descent.
+            \item Apply batch normalization.
+            \item Adjust the learning rate (increase or use adaptive learning rate).
+            \item Switch to ReLU activation to avoid vanishing gradients.
+            \item Properly initialize weights to prevent saturation of activation functions.
+        \end{itemize}
+        \item Debug your code to find potential issues.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Overfitting}
+\begin{itemize}
+    \item \textbf{Problem}: Training error is very low, but validation performance is poor.
+    \item \textbf{Solutions}:
+    \begin{itemize}
+        \item Employ regularization techniques to reduce model complexity.
+        \begin{itemize}
+            \item Use weight sharing.
+            \item Implement dropout.
+            \item Apply weight decay.
+            \item Encourage sparsity in hidden units.
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Visualizing Features (parameters)}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_3/good training.png}
+    \caption{Good training will show sparse hidden units across samples, indicating effective feature extraction.}
+    \label{fig:w3-16}
+\end{figure}
+
+\begin{figure}[H]
+     \centering
+     \includegraphics[width=0.5\linewidth]{images/week_3/poor training.png}
+     \caption{Poor training may result in hidden units exhibiting strong correlations and ignoring input, showing less structured patterns.}
+     \label{fig:w3-17}
+ \end{figure} 
+
+
+\subsubsection{Training Tips: Common Issues}
+\begin{itemize}
+    \item If the training error diverges:
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{images/week_3/train_err_diverge.png}
+        \caption{Enter Caption}
+        \label{fig:w3-18}
+    \end{figure}
+    
+    \begin{itemize}
+        \item The learning rate may be too high; consider decreasing it.
+        \item Check for bugs in the backpropagation implementation.
+    \end{itemize}
+    \item If loss is minimized but accuracy remains low, evaluate the appropriateness of the loss function for the specific task.
+\end{itemize}
+
+\section{Vanishing Gradient Problem}
+
+\subsection{Saturation}
+
+\textbf{Sigmoid Activation Function}\\
+
+In a two-layer neural network, the output function \( f_k(X) \) can be expressed as:
+\[
+f_k(X) = o\left(b_k^{[3]} + \sum_{l=1}^{H^{[2]}} w_{kl}^{[3]} \sigma\left(b_l^{[2]} + \sum_{i=1}^{H^{[1]}} w_{li}^{[2]} \sigma\left(b_i^{[1]} + \sum_{j=1}^{d} w_{ij}^{[1]} x_j\right)\right)\right)
+\]
+
+The component of the gradient with respect to the weights \( w_{ij}^{[1]} \) can be \textbf{generally} expressed as:
+\[
+\frac{\partial L(f(X), y)}{\partial w_{ij}^{[1]}} = \sum_{k=1}^{K} \frac{\partial L}{\partial f_k} \cdot \frac{\partial f_k}{\partial a_k^{[3]}} \cdot \sum_{l=1}^{H^{[2]}} \frac{\partial a_k^{[3]}}{\partial h_l^{[2]}} \cdot \frac{\partial h_l^{[2]}}{\partial a_l^{[2]}} \cdot \sum_{i=1}^{H^{[1]}} \frac{\partial a_l^{[2]}}{\partial h_i^{[1]}} \cdot \frac{\partial h_i^{[1]}}{\partial a_i^{[1]}} \cdot \frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}}
+\]
+
+It consists of a series of partial derivatives that propagate back through the layers of the network. In this form, the activations and their derivatives are not yet specified in terms of a particular activation function.\\
+
+Here we highlight the components that refer to activation function and its derivative:
+\[
+\frac{\partial L(f(X), y)}{\partial w_{ij}^{[1]}} = \sum_{k=1}^{K} \frac{\partial L}{\partial f_k} \cdot \frac{\partial f_k}{\partial a_k^{[3]}} \cdot \sum_{l=1}^{H^{[2]}} \frac{\partial a_k^{[3]}}{\partial h_l^{[2]}} \cdot \textcolor{red}{\frac{\partial h_l^{[2]}}{\partial a_l^{[2]}}} \cdot \sum_{i=1}^{H^{[1]}} \frac{\partial a_l^{[2]}}{\partial h_i^{[1]}} \cdot \textcolor{red}{\frac{\partial h_i^{[1]}}{\partial a_i^{[1]}}} \cdot \frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}}
+\]
+
+If we introduce the specific form of the \textbf{sigmoid activation function} $\sigma(a) = \frac{1}{1+e^{-a}}$, and its derivative $\sigma(a)(1-\sigma(a))$, then we get:
+
+$$= \sum_{k=1}^{K} \frac{\partial L}{\partial f_k} \cdot \frac{\partial f_k}{\partial a_k^{[3]}} \cdot \sum_{l=1}^{H^{[2]}} \frac{\partial a_k^{[3]}}{\partial h_l^{[2]}} \cdot \textcolor{red}{\sigma(a_l^{[2]})(1 - \sigma(a_l^{[2]})}) \cdot \sum_{i=1}^{H^{[1]}} \frac{\partial a_l^{[2]}}{\partial h_i^{[1]}} \cdot \textcolor{red}{\sigma(a_i^{[1]})(1 - \sigma(a_i^{[1]})}) \cdot \frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}}
+$$
+
+This use of the \textbf{sigmoid activation function leads to the vanishing gradient issue}. The \textit{derivative of the sigmoid function is small when the activation is close to 0 or 1}, which contributes to the vanishing gradient problem.\\
+
+This can be seen visually:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_3/vanishing grad.png}
+    \caption{at the extremes, the gradient becomes flat - i.e. close to 0, NB: ReLu dos not suffer this.}
+    \label{fig:w3-19}
+\end{figure}
+
+
+
+\textbf{Saturation of Sigmoid Function}\\
+
+The sigmoid activation function can saturate when its output \( \sigma(a) \) approaches either 0 or 1. In \textbf{both} these scenarios, the derivative \( \sigma(a)(1 - \sigma(a)) \) approaches 0 (it's flat). Therefore:
+\begin{itemize}
+    \item If a neuron is "firing" (i.e., \( \sigma(a) \) is close to 1), the output of the neuron becomes less sensitive to changes in the input.
+    \item If a neuron is "not activated" (i.e., \( \sigma(a) \) is close to 0), it also becomes less sensitive to input variations.
+\end{itemize}
+
+This results in very small gradients for weights during backpropagation:
+\[
+\frac{d \sigma(a)}{da} = \sigma(a)(1 - \sigma(a)) \quad \text{is very small.}
+\]
+
+Problems arise when we multiply many of the sigmoid activation functions with each other...\\
+
+\textbf{Multiplication of Small Gradients}\\
+
+In deep networks, we multiply multiple small values (gradients) during backpropagation, leading to an infinitesimal gradient for networks with many layers. \\
+
+This cumulative multiplication causes the gradients to vanish, preventing effective learning for deeper networks. \\
+
+This phenomenon is known as the \textbf{vanishing gradient problem}, where the gradient becomes so small that the weights do not change significantly during the update step, hindering the learning process.\\
+
+This saturation effect is also observed with the hyperbolic tangent (tanh) activation function, albeit to a lesser degree.
+
+
+\subsection{Overcoming the Vanishing Gradient Problem}
+
+\subsection*{Solution 1. Other activation functions}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_3/reluage.png}
+    \caption{ReLU}
+    \label{fig:w3-20}
+\end{figure}
+
+The Rectified Linear Unit (ReLU) activation function is defined as:
+
+\[
+\text{ReLU}(x) = \max(0, x)
+\]
+
+Or:
+
+\[
+g(z) = \begin{cases} 
+      0 & \text{if } z < 0 \\
+      z & \text{if } z \geq 0 
+   \end{cases}
+\]
+
+ReLU is a non-saturating activation function, meaning that it does not suffer from the vanishing gradient problem.\\
+
+ReLU overcomes this by keeping the gradient constant for positive inputs. This allows efficient backpropagation and prevents gradient decay, which accelerates convergence in deep networks.\\ 
+
+Moreover, the ReLU's computational efficiency also makes it widely adopted in deep learning. The gradient of ReLU with respect to \(x\) is given by:
+\[
+\frac{d}{dx} \, \text{ReLU}(x) =
+\begin{cases}
+1 & \text{if } x > 0 \\
+0 & \text{if } x < 0 \\
+\text{undefined} & \text{if } x = 0
+\end{cases}
+\]
+\textit{(In practice, the gradient is typically treated as 0 when \(x = 0\), with 1 for \(x > 0\) and 0 for \(x < 0\).)}\\
+
+This gradient of 1 for non-zero values makes it a very quick non-linearity to compute.
+
+\subsection*{Solution 2. Batch Normalization: Keeping Activation in Non-Saturating Regime}
+
+Batch normalization (BN) helps maintain activations \textbf{within a useful range} by normalizing the pre-activation values to have a mean of zero and a standard deviation of one over each mini-batch, before the activation function is applied. This prevents saturation of activation functions like Sigmoid and Tanh.\\
+
+The main steps of batch normalization are:
+
+\begin{itemize}
+    \item Each mini-batch is normalized using the sample mean and variance from that mini-batch.\\
+    $\rightarrow$ Normalised to zero mean and unit variance
+    \item A simplified view of BN for a fully connected layer with input \( X \) is given by:
+\end{itemize}
+
+\[
+h = g(\textcolor{red}{\text{BN}}(b + W x))
+\]
+
+
+In batch normalization, two additional learnable parameters (\textit{scale} and \textit{shift}) are introduced to allow the network to learn the optimal distribution. These are learned from the data during training.
+
+\subsection*{Solution 3. Residual Networks: Overcoming the Vanishing Gradient Problem with Skip Connections}
+
+Residual networks (ResNets) were introduced to overcome the vanishing gradient problem by introducing skip connections (also known as shortcut connections).\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_3/resnet1.png}
+    \label{fig:w3-21}
+\end{figure}
+
+These allow the gradient to bypass certain layers during backpropagation. This ensures that gradients do not become too small as they propagate through many layers.\\
+
+There are two forms of residual connections:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\linewidth]{images/week_3/resnet2.png}
+    \caption{Skipping 1 layer}
+    \label{fig:w3-22}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Skipping one layer:}
+    
+    \[
+    h^l = g(W^{[l]} \cdot h^{[l-1]}) + W^{[l-1]} \cdot h^{[l-2]}
+    \]
+    
+    \item \textbf{Skipping two layers:}
+    
+    \[
+    h^l = g(W^{[l]} \cdot h^{[l-1]}) + W^{[l-2]} \cdot h^{[l-3]}
+    \]
+    
+\end{itemize}
+
+This residual learning method helps preserve gradient flow and enables training of very deep networks, which would otherwise suffer from vanishing gradients.\\
+
+\textbf{Residual Networks: Implementation in Computer Vision Models}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_3/resnet3.png}
+    \caption{Architectural differences between a standard convolutional network (like VGG-19), a plain 34-layer network, and a 34-layer residual network.}
+    \label{fig:w3-23}
+\end{figure}
+
+
+\begin{itemize}
+    \item \textbf{VGG-19} has a straightforward architecture with no skip connections and approximately 19.6 billion FLOPs (floating-point operations per second).
+    \item \textbf{34-layer plain network} attempts to go deeper, but without residual connections, it suffers from the vanishing gradient problem, resulting in lower performance.
+    \item \textbf{34-layer residual network} with skip connections solves the gradient decay issue and is more computationally efficient at 3.6 billion FLOPs.
+\end{itemize}
+
+The residual network maintains the benefits of depth without the usual drawbacks, resulting in better performance in tasks such as image classification. The dotted lines in the diagram represent shortcut connections that increase dimensions when needed.

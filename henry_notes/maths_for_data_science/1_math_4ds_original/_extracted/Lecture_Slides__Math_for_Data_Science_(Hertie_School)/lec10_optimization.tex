@@ -1,0 +1,502 @@
+\documentclass[xcolor=dvipsnames]{beamer}
+%\documentclass[xcolor=dvipsnames,handout]{beamer}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\usepackage{etex}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epsfig}
+\usepackage[english]{babel}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{fancyvrb}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{caption}
+%\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{epsdice}
+
+\hypersetup{
+    colorlinks = true
+}
+
+\definecolor{newred}{RGB}{127,0,0}
+\let\iitemize=\itemize \let\endiitemize=\enditemize \renewenvironment{itemize}{\iitemize \vspace{1mm} \itemsep2mm}{\endiitemize}
+\let\eenumerate=\enumerate \let\endeenumerate=\endenumerate \renewenvironment{enumerate}{\eenumerate \vspace{1mm} \itemsep2mm}{\endeenumerate}
+% == theme & colors
+\mode<presentation>
+{
+
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usecolortheme{beaver}
+  \setbeamercovered{invisible} %or transparent
+  \metroset{block=fill}
+  \setbeamercolor{block title example}{fg=gray!40!black}
+  \setbeamercolor{itemize item}{fg=gray!40!black} 
+  \setbeamercolor{title}{fg=newred} 
+}
+
+      
+\setbeamercolor{background canvas}{bg=white}
+
+
+% === tikz for pictures ===
+\usepackage{tikz}
+\usepackage[latin1]{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning}
+\usetikzlibrary{decorations.pathreplacing}
+\tikzstyle{doublearr}=[latex-latex, black, line width=0.5pt]
+
+% === if you want more than one slides on one page ===
+\usepackage{pgfpages}
+
+
+
+\title{Mathematics for Data Science}
+\subtitle[]{Lecture 10: Optimization and PCA} 
+\author[Asya Magazinnik]{Asya Magazinnik}
+\institute{Hertie School}
+\date{\today}
+
+\renewcommand\r{\right}
+\renewcommand\l{\left}
+% \newcommand\sign{{\rm sign}}
+
+%% == change spacing for itemize
+%\let\oldframe\frame
+%\renewcommand{\frame}[1][1]{
+%\oldframe[#1]
+%\let\olditemize\itemize
+%\renewcommand\itemize{\olditemize\addtolength{\itemsep}{.25\baselineskip}}
+%}
+
+
+
+\def\insertnavigation#1{\relax}
+% \usefonttheme{serif}
+\usepackage[all]{xy}
+\usepackage{geometry,colortbl,wrapfig}
+\usepackage{tikz}  
+\usepackage{graphicx,setspace,subfigure}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\newcommand{\Ex}{\textsc{Example  }}
+\newcommand{\series}{\sum_{n=1}^{\infty}} 
+\newcommand{\ball}[1]{B( #1)} 
+\newcommand{\inner}[1]{\ensuremath{\langle #1 \rangle}}
+\newcommand{\e}{\epsilon}
+\newcommand{\grad}{\nabla}
+\newcommand{\pa}{\pause \item}
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+\newcommand{\R}{\mathbb{R}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+\newcommand{\matr}[1]{\bm{#1}}     % ISO complying version
+
+
+
+\newcommand{\indep}{{\bot\negthickspace\negthickspace\bot}}
+
+\begin{document}
+
+\subject{Talks}
+\AtBeginSection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection,currentsubsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+
+\frame[plain]{
+  \titlepage
+  \addtocounter{framenumber}{-1}
+}
+
+
+            \begin{frame}{Structure of the Lecture}
+                \begin{enumerate} 
+                        \item Introducing constrained optimization (the \alert{Lagrangian} and the \alert{Hessian matrix}) 
+                        \begin{itemize}
+                            \item \textbf{Example 1:} Optimization on the outside of a circle
+                            \item \textbf{Example 2:} MLE for the multinomial distribution
+                        \end{itemize}
+                        \item Constrained optimization in matrix-vector land (the \alert{gradient})  
+                        \item Principal Components Analysis (PCA)
+                        \item For further reading and study: optimization algorithms
+                \end{enumerate}
+            \end{frame}
+
+\section{Introducing Constrained Optimization}
+\begin{frame}{Constrained Optimization: Example 1}
+ \small    Suppose we want our solution to be subject to some \alert{constraint}. For instance, we want to minimize:
+    \[ \min_{x,y} x + y \]
+    and we want the solution to live on the outside of a circle, given by $x^2 + y^2 = 1$. Then, we would: 
+    \begin{itemize} \small 
+        \item Set up our constraint as a function $g(x)=0$: $x^2 + y^2 - 1 = 0$
+        \item Form the Lagrangian: 
+        \begin{align*}
+             \mathcal{L}(x,y) &=  f(x,y) + \lambda g(x,y) = x + y + \lambda(x^2 + y^2 - 1)
+        \end{align*}
+        \item Take the first derivatives $\frac{\partial \mathcal{L}}{\partial x}$, $\frac{\partial \mathcal{L}}{\partial y}$, and $\frac{\partial \mathcal{L}}{\partial \lambda}$ and set them equal to 0, forming our \alert{first order conditions} 
+        \item Solve this system of equations for $x$ and $y$ (see \href{https://www.cs.toronto.edu/~mbrubake/teaching/C11/Handouts/LagrangeMultipliers.pdf}{notes} p. 84). 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Minimum or Maximum?}
+  \vspace{2mm}  How do we know if we found a minimum or maximum? The matrix of second derivatives is called the \alert{Hessian matrix}:
+    \[
+H = \begin{bmatrix}
+  \frac{\partial^2\mathcal{L}}{\partial x^2} & \frac{\partial^2\mathcal{L}}{\partial x\partial y} & \frac{\partial^2\mathcal{L}}{\partial x\partial\lambda} \\
+  \frac{\partial^2\mathcal{L}}{\partial y\partial x} & \frac{\partial^2\mathcal{L}}{\partial y^2} & \frac{\partial^2\mathcal{L}}{\partial y\partial\lambda} \\
+  \frac{\partial^2\mathcal{L}}{\partial\lambda\partial x} & \frac{\partial^2\mathcal{L}}{\partial\lambda\partial y} & \frac{\partial^2\mathcal{L}}{\partial\lambda^2}
+\end{bmatrix}
+\] 
+\begin{itemize} \small 
+    \item If all eigenvalues of $H$ are positive, the critical point is a local minimum
+    \item If all eigenvalues of $H$ are negative, the critical point is a local maximum
+    \item If a mix, you have a \href{https://www.khanacademy.org/math/multivariable-calculus/applications-of-multivariable-derivatives/optimizing-multivariable-functions-videos/v/saddle-points}{saddle point}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Example 2: MLE for the Multinomial}
+    \begin{enumerate} \small 
+        \item Write down the likelihood:
+        \[
+        \mathcal{L} = \prod_{k=1}^K \left( \frac{N!}{N_1! N_2! ... N_K!} \right) p_k^{N_k}
+        \] \pause 
+        \item Take the log: 
+        \[
+        \ell = \sum_{k=1}^K \left( \log \left( \frac{N!}{N_1! N_2! ... N_K!} \right) + N_k \log(p_k) \right)
+        \] \pause 
+        \item And note that we have a constraint: $\sum_{k=1}^K p_k = 1$. Then, the Lagrangian is formed as follows: 
+        \[ L =\sum_{k=1}^K \left( \log \left( \frac{N!}{N_1! N_2! ... N_K!} \right) + N_k \log(p_k) \right) + \lambda \left( \sum_{k=1}^K p_k - 1 \right) \]
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Example 2: MLE for the Multinomial}
+Two helpful maneuvers: \pause 
+\begin{enumerate}
+    \item Clean it up: 
+      \[ L =\sum_{k=1}^K N_k \log(p_k) + \lambda \left( \sum_{k=1}^K p_k - 1 \right) \]
+      \pause
+    \item Rather than maximizing $L$, we will minimize $-L$:
+    \[
+    \min_{p_1, p_2, ..., p_K} - \left( \sum_{k=1}^K N_k \log(p_k) + \lambda \left( \sum_{k=1}^K p_k - 1 \right) \right) 
+    \]
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{MLE for the Multinomial}
+\small 
+Let's make it concrete with 3 categories: 
+\[ \small 
+\min_{p_1, p_2, p_3} -\left( N_1 \log p_1 + N_2 \log p_2 + N_3 \log p_3 + \lambda ( p_1 + p_2 + p_3 - 1) \right) 
+\]
+
+\pause \vspace{3mm}
+Form the first-order conditions: 
+\begin{enumerate}
+    \item $\frac{\partial L}{\partial p_1} = -\left( \frac{N_1}{p_1} + \lambda  \right) = 0 \rightarrow  \hat{p}_1 = -\frac{N_1}{\lambda}$ 
+    \item $\frac{\partial L}{\partial p_2} ... $
+    \item $\frac{\partial L}{\partial p_3} ... $
+    \item $\frac{\partial L}{\partial \lambda} = p_1 + p_2 + p_3 - 1 = 0 \rightarrow p_1 + p_2 + p_3 = 1 $
+\end{enumerate} \pause 
+\vspace{3mm}
+Solving this system with 4 equations and 4 unknowns, we get: 
+\[ \hat{p}_1 = \frac{N_1}{N_1 + N_2 + N_3}, \; \; \; \hat{p}_2 = \frac{N_2}{N_1 + N_2 + N_3}, \; \; \; \hat{p}_3 = \frac{N_3}{N_1 + N_2 + N_3} \]
+\end{frame}
+
+\section{Constrained Optimization in Matrix-Vector Form}
+\begin{frame}{Optimization in Matrix Land: Meet the Gradient}
+    Let $f$ be a function that takes some input in $\mathbb{R}^{m}$ and outputs some real value $\in \mathbb{R}$. For instance, let
+    \[ f(\matr{z}) = \matr{z}^T \matr{z} \] 
+    for some $m$-length vector $\matr{z}$. Then, we can write the \alert{gradient} of $f(\matr{z})$ as the \alert{vector of first derivatives} of $\matr{z}$ with respect to $\matr{z}$: 
+\[
+\nabla_z f(\mathbf{z}) = \begin{bmatrix}
+    \frac{\partial f}{\partial z_1} \\
+    \frac{\partial f}{\partial z_2} \\
+    \vdots \\
+    \frac{\partial f}{\partial z_m}
+\end{bmatrix}
+\]
+\textbf{Example:} Let's show that for this function, $\nabla_z f(\matr{z}) = 2 \matr{z}$. 
+\end{frame}
+
+\begin{frame}{Optimization in Matrix Land: Meet the Gradient}
+Similarly, $f$ can be a function that takes some input in $\mathbb{R}^{m \times n}$     and outputs some real value $\in \mathbb{R}$. Then, the gradient will be a matrix $\in \mathbb{R}^{m \times n}$: 
+\[
+\nabla_A f(\mathbf{A}) = \begin{bmatrix}
+    \frac{\partial f(\mathbf{A})}{\partial A_{11}} & \frac{\partial f(\mathbf{A})}{\partial A_{12}} & \cdots & \frac{\partial f(\mathbf{A})}{\partial A_{1n}} \\
+    \frac{\partial f(\mathbf{A})}{\partial A_{21}} & \frac{\partial f(\mathbf{A})}{\partial A_{22}} & \cdots & \frac{\partial f(\mathbf{A})}{\partial A_{2n}} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    \frac{\partial f(\mathbf{A})}{\partial A_{m1}} & \frac{\partial f(\mathbf{A})}{\partial A_{m2}} & \cdots & \frac{\partial f(\mathbf{A})}{\partial A_{mn}}
+\end{bmatrix}
+ \] 
+ where, generally, 
+ \[ (\nabla_A f(\matr{A}))_{ij} = \frac{\partial f(\matr{A})}{\partial A_{ij}}  \]
+\end{frame}
+
+\begin{frame}{We Can Perform Constrained Optimization Using the Gradient }
+    Just solve:
+    \[
+        \nabla \mathcal{L}(x, y, ..., \lambda) = \matr{0}
+    \]
+    \vfill 
+    \textbf{Example 1:} Write the solution to the optimization problem in slide (2) in this form \\
+    \textbf{Example 2:} Khan Academy, \href{https://www.khanacademy.org/math/multivariable-calculus/applications-of-multivariable-derivatives/lagrange-multipliers-and-constrained-optimization/v/lagrange-multiplier-example-part-1}{Budgetary constraints}. See also: 
+\begin{itemize} \small 
+        \item \href{https://www.khanacademy.org/math/multivariable-calculus/applications-of-multivariable-derivatives/constrained-optimization/a/lagrange-multipliers-examples}{Lagrange multipliers, examples}
+        \item \href{https://www.khanacademy.org/math/multivariable-calculus/applications-of-multivariable-derivatives/constrained-optimization/a/interpretation-of-lagrange-multipliers}{Interpretation of Lagrange multipliers}
+    \end{itemize}
+\end{frame}
+
+\section{Principal Components Analysis}
+\begin{frame}{Principal Components Analysis}
+    PCA is a \alert{dimension reduction technique} that allows you to represent your data in less space while preserving as much information as possible. It therefore has a variety of applications in: 
+    \begin{itemize}
+        \item File compression
+        \item Genomics
+        \item Facial recognition and computer vision
+        \item Finance and economics
+        \item Climate science
+        \item Social science...
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Principal Components Analysis}
+    \vspace{3mm}
+    This week, you will be applying PCA to represent images of my cat. \\
+    \vspace{5mm}
+    \begin{figure}
+        \centering
+        \includegraphics[height=.5\textheight]{images/laszlo.jpg}
+        \caption{My cat, Laszlo.}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Motivation}
+    Suppose I have an $n \times p$ data matrix $\mathbf{X}$. You want to save my whole matrix to take it with you, but I'm only letting you take one column.
+
+\[
+\mathbf{X} =
+\begin{bmatrix}
+x_{11} & x_{12} & \cdots & x_{1p} \\
+x_{21} & x_{22} & \cdots & x_{2p} \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{n1} & x_{n2} & \cdots & x_{np}
+\end{bmatrix}
+\]
+\end{frame}
+
+\begin{frame}{Which Column Do You Keep?}
+    \[
+\mathbf{X} =
+\begin{bmatrix}
+x_{11} & x_{12} & \cdots & x_{1p} \\
+x_{21} & x_{22} & \cdots & x_{2p} \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{n1} & x_{n2} & \cdots & x_{np}
+\end{bmatrix}
+\]
+\end{frame}
+
+\begin{frame}{Which Column Do You Keep?}
+    \[
+\mathbf{X} =
+\begin{bmatrix}
+\textbf{Student?} & \textbf{Country of Origin} & ... \\
+1 & \text{India} & \cdots & x_{1p} \\
+1 & \text{Germany} & \cdots & x_{2p} \\
+\vdots & \vdots & \ddots & \vdots \\
+1 & \text{USA} & \cdots & x_{np}
+\end{bmatrix}
+\]
+\end{frame}
+
+\begin{frame}{Can We Do Even Better?}
+    I said you can only take one column, but I didn't say it had to be a column of $\mathbf{X}$! \\
+\vspace{5mm} \pause 
+Consider instead a column that is a \alert{linear combination} of the columns of $\mathbf{X}$:
+
+\[ 
+\mathbf{z}_1 = \phi_{11} \mathbf{x}_{1}  + \phi_{21} \mathbf{x}_{2} + ... + \phi_{p1} \mathbf{x}_{p} = \mathbf{X} \phi_1 
+\]
+
+\vspace{5mm}
+\pause 
+How would you choose $\mathbf{z}_1$? 
+\end{frame}
+
+\begin{frame}{Taking Home the Most Information = Maximizing the Variance}
+A good idea is to choose the linear combination (i.e., the values of $\phi_{11}, \phi_{21}, ..., \phi_{p1}$) that \alert{maximizes the variance} of your $\mathbf{z}_1$ vector. That is, you would solve the maximization problem: 
+\begin{align*}
+\max_{\phi_{11}, \phi_{21}, ..., \phi_{p1}} \text{Var}(\mathbf{z}_1) &= \max_{\phi_{11}, \phi_{21}, ..., \phi_{p1}} \frac{1}{n} \sum_{i=1}^n (z_{i1} - \bar{\mathbf{z}}_1)^2 \\
+&= \max_{\phi_{11}, \phi_{21}, ..., \phi_{p1}} \frac{1}{n} \sum_{i=1}^n z_{i1}^2 \\
+&= \max_{\phi_{11}, \phi_{21}, ..., \phi_{p1}} \frac{1}{n} \mathbf{z}_1^T \mathbf{z}_1
+\end{align*}
+subject to: \[ \sum_{j=1}^p \phi_{j1}^2 = 1 \text{, otherwise written as } \phi_1^T \phi_1 = 1 \]
+\end{frame}
+
+\begin{frame}{Solution 1: With Matrix Calculus}
+    \vspace{2mm}
+    Form the Lagrangian: 
+    \begin{align*}
+            L &= \frac{1}{n} \mathbf{z}_1^T \mathbf{z}_1 - \lambda (\phi_1^T \phi_1 - 1) \\ 
+            &= \frac{1}{n} (\mathbf{X} \phi_1)^T \mathbf{X} \phi_1 - \lambda (\phi_1^T \phi_1 - 1) \\
+            &= \frac{1}{n} \phi_1^T \mathbf{X}^T \mathbf{X} \phi_1 - \lambda (\phi_1^T \phi_1 - 1)
+    \end{align*}
+    \pause 
+    Take the gradient and set it equal to the zero vector: 
+    \begin{align*}
+        \nabla L = 2 \left( \frac{1}{n} \right) (\mathbf{X}^T \mathbf{X}) \phi_1 - 2 \lambda \phi_1 = \mathbf{0}
+    \end{align*}
+    \pause 
+    Solve: 
+    \[
+   \frac{1}{n} \mathbf{X}^T \mathbf{X} \phi_1 = \lambda \phi_1 
+    \]
+\end{frame}
+
+
+\begin{frame}{Optimization as Eigendecomposition}
+Does this remind you of something? 
+    \[
+   \frac{1}{n} \mathbf{X}^T \mathbf{X} \phi_1 = \lambda \phi_1 
+    \]
+\pause 
+What if we called $\frac{1}{n} \mathbf{X}^T \mathbf{X}$ by a new name, $\mathbf{S}$? 
+    \[
+  \mathbf{S} \phi_1 = \lambda \phi_1 
+    \]
+    The solution to our optimization problem is an \alert{eigendecomposition} on some matrix $\mathbf{S}$. And $\mathbf{S}$ is an important matrix: it is the \alert{variance-covariance matrix} of our data matrix, $\mathbf{X}$. 
+\end{frame}
+
+\begin{frame}{The Variance-Covariance Matrix \textbf{S}}
+When the columns of $\mathbf{X}$ are all mean 0,     
+    \begin{align*} \small 
+& \mathbf{S} =        \text{Cov}(\mathbf{X}) = \frac{1}{n} \mathbf{X}^T \mathbf{X} \\
+= 
+~&\frac{1}{n}
+\begin{bmatrix}
+\sum_{i=1}^n x_{i1}^2 & \sum_{i=1}^n x_{i1}x_{i2} & \sum_{i=1}^n x_{i1}x_{i3} & \cdots & \sum_{i=1}^n x_{i1}x_{ip} \\
+\sum_{i=1}^n x_{i2}x_{i1} & \sum_{i=1}^n x_{i2}^2 & \sum_{i=1}^n x_{i2}x_{i3} & \cdots & \sum_{i=1}^n x_{i2}x_{ip} \\
+\sum_{i=1}^n x_{i3}x_{i1} & \sum_{i=1}^n x_{i3}x_{i2} & \sum_{i=1}^n x_{i3}^2 & \cdots & \sum_{i=1}^n x_{i3}x_{ip} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+\sum_{i=1}^n x_{ip}x_{i1} & \sum_{i=1}^n x_{ip}x_{i2} & \sum_{i=1}^n x_{ip}x_{i3} & \cdots & \sum_{i=1}^n x_{ip}^2
+\end{bmatrix} 
+    \end{align*}
+\end{frame}
+
+\begin{frame}{In Summary}
+    The \alert{first principal component} is the column of data you would take away if you could only take one column of $\mathbf{X}$ with you. \small 
+    \begin{itemize}
+        \item But it was formed brilliantly: as a linear combination of \alert{all the columns of $\mathbf{X}$}.
+        \item We got there by picking the values of $\phi_1$ (\alert{loadings}) that maximize the variance of the first principal component.
+        \item And one can equivalently get there by taking the variance-covariance matrix of $\mathbf{X}$, performing eigendecomposition on it, and taking the eigenvector corresponding to the largest eigenvalue.
+        \item We can interpret this first principal component as a \alert{projection} of our $n \times p$ matrix onto one dimension (i.e., into one $n$-length vector).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Laszlo's First Principal Component}
+\vspace{2mm}
+To project the first principal component $\mathbf{z}_1$ back into $p$-dimensional space, multiply: $\mathbf{z}_1 \phi_1^T$.
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.45\textwidth]{images/pca1.png} \includegraphics[width=0.45\textwidth]{images/pca2.png}
+        \caption{Reprojecting the first principal component into an $n \times p$ matrix.}
+        \label{fig:enter-label}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Forming the Second Principal Component}
+    Now suppose I let you have another column, $\mathbf{z}_2$. Which column will you choose next? 
+\begin{itemize} \small 
+    \item You should choose the linear combination of the columns of $\mathbf{X}$, $\mathbf{x}_1, ..., \mathbf{x}_p$, that has maximal variance out of all the linear combinations that are \alert{uncorrelated} with the first principal component $\mathbf{z}_1$
+    \item This amounts to the same maximization problem with a new constraint
+    \item It is also the same as taking the eigenvector corresponding to the \alert{second-largest} eigenvalue of the variance-covariance matrix
+    \item The next principal components are constructed similarly...
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Reconstructing the Image}
+\vspace{2mm}
+   $ \hat{\mathbf{X}} = \mathbf{z}_1 \phi_1^T + \mathbf{z}_2 \phi_2^T + \mathbf{z}_3 \phi_3^T ... $
+   \begin{figure}
+       \centering
+       \includegraphics[width=0.6\linewidth]{images/pca3.png}
+   \end{figure}
+\end{frame}
+
+\section{Further Learning}
+
+\begin{frame}{Further Learning: Optimization Algorithms}
+\begin{enumerate} \small 
+    \item \textbf{Gradient Descent}
+    \begin{itemize} \small 
+        \item Minimizes functions by taking repeated steps in the opposite direction of the (approximate) gradient at the current point, because this is the direction of steepest descent
+        \item Variants include Stochastic Gradient Descent (SGD), Mini-Batch Gradient Descent
+    \end{itemize}
+    \item \textbf{Newton-Raphson}
+    \begin{itemize} \small 
+    \item An iterative method for finding critical points that uses Taylor Series approximation; uses Hessian for faster convergence
+        \item Good for smooth and convex problems
+    \end{itemize}
+    \item \textbf{Quasi-Newton Methods (e.g., BFGS)}
+    \begin{itemize}
+        \item Approximates the Hessian for computational efficiency
+        \item Ideal for large-scale optimization problems
+    \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Further Learning: Optimization Algorithms}
+\begin{enumerate}
+    \item[4.] \textbf{Conjugate Gradient Method}
+    \begin{itemize}
+        \item Effective for large, sparse systems
+        \item Avoids direct computation of second derivatives
+    \end{itemize}
+    \item[5.] \textbf{Simulated Annealing}
+    \begin{itemize}
+        \item A probabilistic technique for global optimization
+        \item Helps escape local minima in non-convex problems
+    \end{itemize}
+    \item[6.] \textbf{Genetic Algorithms}
+    \begin{itemize}
+        \item Inspired by the idea of natural selection
+        \item Effective for complex, non-linear optimization tasks
+    \end{itemize}
+    \item[7.] \textbf{Adam (Adaptive Moment Estimation)}
+    \begin{itemize}
+        \item An extension of stochastic gradient descent
+        \item Widely used in training deep neural networks
+    \end{itemize}
+\end{enumerate}
+\end{frame}
+
+\end{document}
+
+\end{document}

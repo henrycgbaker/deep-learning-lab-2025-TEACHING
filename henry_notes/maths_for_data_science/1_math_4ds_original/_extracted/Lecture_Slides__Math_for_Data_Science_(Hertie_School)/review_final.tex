@@ -1,0 +1,141 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage[colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue]{hyperref}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize Math for Data Science: Final Exam Guidance}
+\rhead{\footnotesize } 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf GRAD C23: Mathematics for Data Science} \\
+Hertie School \\ Fall 2024  \\ Prof. Magazinnik \\
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf Final Exam Guidance}
+	\vspace{2mm}
+\end{center}
+
+\subsection*{Ground Rules}
+Your final exam will be conducted in person on \textbf{Friday, December 13} at \textbf{10:00 am}. 
+
+\begin{itemize}
+    \item \textbf{Open book policy}
+    \begin{itemize}
+        \item The exam will be open notes, open book, open everything. You can consult whatever course materials or online sources you wish. You may consult the labs and any code you've written in the past. 
+    \end{itemize}
+    \item \textbf{ChatGPT policy}
+    \begin{itemize}
+    \item The use of ChatGPT is also permitted. However, I don't recommend leaning on it too much. The exam will be designed in a way where you can't simply copy-paste the prompt into ChatGPT and get a good answer; you have to think through the problem yourself. That said, if it helps you produce code, typeset math, and crank out mechanical parts once you know what you're trying to do, by all means use it. The idea is for you to have all the tools you usually have at your disposal as a data analyst. 
+        \item My usual rule applies: you may use ChatGPT as a search engine, coding assistant, and helper in thinking through problems, but do not copy ChatGPT-generated text into your open-ended responses. I am not interested in teaching a computer how to think and write. \end{itemize}
+    \item \textbf{Collaboration policy}
+    \begin{itemize}
+        \item \textbf{The only prohibition is on collaboration.} That means you cannot text, email, or message anyone (your classmates or anybody else) during the exam on any platform, in any way. Do yourself a favor and silence all notifications on your computer while you're working. Any students who are found to be communicating during the exam will receive a failing grade. 
+        \item Other prohibited applications are \textbf{Google Docs} and \textbf{Overleaf}. Please download any slides or other materials you'd like to have access to from the class Overleaf page in advance. 
+        \item A proctor will be keeping an eye on your application windows to ensure that no violations of the collaboration policies are taking place. The proctor has the right to ask you to close any suspicious applications, and to leave the room (with a failing grade) for repeated offenses.
+    \end{itemize}
+    \item \textbf{Submission format}
+    \begin{itemize}
+        \item Please use the same RMarkdown template that I shared for the midterm. This is the place to put most or all of your answers: math, code, and open-ended discussion.
+        \item However, if a question requires that you do some pen-and-paper math without a coding component, please feel free to write your solution (as neatly as possible) in the provided examination booklets rather than spending time during the exam typesetting math.
+    \end{itemize}
+    
+    \item \textbf{Time}
+    \begin{itemize} 
+    	\item The exam will be designed to be completed in under 2 hours or less. However, you may stay up to 4 hours if you would like. Staying longer is absolutely not necessary, but the option is there to relieve you of time pressure and allow you to think freely. 
+    	\item However, please do not use the extra time to do more or write more than necessary, as this imposes an unmanageable burden on our already hard-working graders. A succinct and correct answer is always the best answer.
+    	\item We will impose a (generous) page limit on your submissions, which will be stated on the exam. Please pay attention to the limit and do not go over it.
+    \end{itemize}
+\end{itemize}
+\clearpage 
+
+\section*{Review}
+The remainder of this document summarizes what you should know and how to study. 
+
+
+\section{Pen and Paper/Conceptual Skills}
+
+We have come a long way since the start of the semester and are increasingly reliant on code to accomplish what we need to do. The following list represents the \textit{only} pen-and-paper skills I expect of you. These skills will be reviewed in your labs this week.
+
+\begin{enumerate}
+	\item Optimization with and without constraints, namely: 
+	\begin{itemize}
+		\item Writing down the function to optimize based on a description of the problem (e.g., maximizing a likelihood or minimizing prediction error); writing the Lagrangian when there is a constraint
+		\item Familiarity with various constraints, in particular \textbf{vector norms} ($L_1$, $L_2$)
+		\item Computing a gradient
+		\item Solving for a minimum or maximum\footnote{Algebra within reason, nothing too involved. If you require a matrix derivative, the question will guide you on where to find it.} 
+	\end{itemize}
+	\item Singular value decomposition of a matrix and relevant matrix operations, namely: 
+	\begin{itemize}
+		\item Matrix addition, multiplication, transpose, conformability
+		\item Finding the eigenvalues of a (small) matrix 
+		\item Mechanics of SVD\footnote{The example in the lab highlights exactly which parts I expect you to be able to do pen-and-paper (parts a-d) and which parts you can just carry out in code (part e).}
+	\end{itemize}
+	\item There are a few additional concepts you should \textit{always} have available theoretically/math- ematically:  
+	\begin{itemize}
+		\item Variance, covariance, mean, median 
+		\item Probability: Law of Total Probability, conditional probability, independence, and Bayes' Rule
+		\item Central limit theorem
+		\item Some background knowledge of discrete and continuous probability distributions: what's out there, what is appropriate for a particular DGP
+	\end{itemize}
+\end{enumerate}
+
+\section{Coding Skills}
+If you have facility with the following coding skills, you'll feel much more comfortable and confident in working through the exam (and in all your future work): 
+\begin{itemize}
+	\item Examining/quickly scanning your data: \texttt{head()}, \texttt{names()}, \texttt{summary()} functions
+	\item Plotting variables: density, histogram, bivariate relationship (i.e. scatter plot with a line or curve fitted through the data)
+	\item Subsetting data according to some condition 
+	\item Matrix operations: creating a matrix, checking dimensions, addition, multiplication, transpose, inverse\footnote{See lab.} 
+	\item Generating simulated data according to some model or distribution; using a loop to create a simulation distribution of some quantity of interest\footnote{You will move away from loops in \texttt{R} as you start working with bigger data because they are terribly computationally inefficient, but they are perfect for toy examples and for the purposes of this class.}
+	\item Running linear regression models (including with interactions and polynomials) and their regularized friends (lasso and ridge) 
+\end{itemize}
+
+\section{Practice Problems} 
+
+I plan to give you a few multi-part problems to work through, likely chosen from the following general areas: 
+\begin{enumerate}
+\item Supervised learning: e.g., linear regression, lasso, ridge
+\item Unsupervised learning: e.g., PCA, matrix completion, or clustering
+\item EM: e.g., a mixture of Normals or Binomials; other latent variable structures 
+\end{enumerate}
+
+You can get hands-on practice in the first two topics using the \href{https://www.statlearning.com/}{ISL book}. The list below should give you more practice materials than I expect you'll be able to cover. The bolded ones are the very best in my opinion. 
+
+\subsection{Unsupervised Learning} 
+\begin{itemize}
+	\item Chapter 12 has good coverage of PCA, matrix completion, and clustering 
+	\item Anything in Section 12.5 (Lab), Section 12.6 (Exercises): \textbf{3}, \textbf{10}, and \textbf{11}
+\end{itemize}
+
+\subsection{Supervised Learning} 
+\begin{itemize}
+	\item Linear models: Section 3.6 (Lab): 3.6.2, 3.6.3, 3.6.4, 3.6.5; Section 3.7 (Exercises): 5, 8, 9, \textbf{13}, 15
+	\item Ridge regression and the lasso: Lab 6.5.2 
+	\item Section 6.6 (Exercises): \textbf{9}, 11\footnote{For both problems, you can just focus on the parts that concern linear regression, lasso, and ridge. We did not cover subset selection and PCR so I don't expect you to know this.}
+\end{itemize}
+ \end{document}

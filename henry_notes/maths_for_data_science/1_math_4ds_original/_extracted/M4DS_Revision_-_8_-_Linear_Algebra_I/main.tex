@@ -1,0 +1,431 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+\usepackage{graphicx}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize M4DS Mid-term revision}
+\rhead{\footnotesize Henry Baker} 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf Mid Terms Fall 2023  \\ Henry Baker}
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: Session 8\\ Linear Algebra}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Data Structures}
+\subsection{Basics}
+1. Scalar: $x = 1$\\
+\\
+2. Vector: \mathbf{x} =
+\begin{bmatrix}
+x_1 \\
+x_2 \\
+\vdots \\
+x_n
+\end{bmatrix} \\
+\\
+3. Matrix: \mathbf{A} =
+\begin{bmatrix}
+a_{11} & a_{12} & \ldots & a_{1n} \\
+a_{21} & a_{22} & \ldots & a_{2n} \\
+\vdots & \vdots & \ddots & \vdots \\
+a_{m1} & a_{m2} & \ldots & a_{mn}
+\end{bmatrix}\\
+\\
+\begin{itemize}
+    \item Matrix dimensions are $m\timesn$
+    \begin{itemize}
+        \item $m$ = rows (/observations)
+        \item $n$ = columns (/variables / features)
+    \end{itemize}
+    \item A generic element of this matrix is $a_{ij}$ \\ (same as indexing in R)\\
+    \item This feels counter-intuitive: the index is [row, column] \\
+\end{itemize}
+
+
+\\
+4. Tensor: an array of matrices, with elements $a_{ijk}$
+
+\subsection{Compact Notation}
+1. Scalar: $x \in \mathbb{R^1}$\\
+2. Vector: $\mathbf{x} \in \mathbb{R^n}$\\
+3. Matrix: $\mathbf{X} \in \mathbb{R}^{m\times n}$
+
+\subsection{Transpose}
+\begin{align*}
+
+\mathbf{A} =
+\begin{bmatrix}
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23} \\
+\end{bmatrix}\\
+\\
+\mathbf{A}^T =
+\begin{bmatrix}
+a_{11} & a_{21} \\
+a_{12} & a_{22} \\
+a_{13} & a_{23} \\
+\end{bmatrix}
+\end{align*}
+
+Same with vectors; vector can be treated as matrix with 1 column; a scalar is matrix with 1 row, 1 columns).\\
+
+\begin{tcolorbox}
+Heuristic: all the row values become columns values, and all the column values become row values... so whereas the usual [r,c] indexing feels un-intuitive, it transforms to a more comfortable, [c,r] format. \\
+
+Visually: get the first column, string it out into a row, let the rest of the row fall into the associated column.
+\end{tcolorbox}
+
+\section{Basic Transformations}
+\subsection{Adding Matrices}
+\begin{bmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6 \\
+\end{bmatrix}
++
+\begin{bmatrix}
+1 & 2 & 1 \\
+1 & 1 & 0 \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+2 & 4 & 4 \\
+5 & 6 & 6 \\
+\end{bmatrix} \\
+\\
+To add two matrices, they must have the same dimensions.
+
+\subsection{Multiplying a Matrix by a Scalar}
+\begin{align*}
+A =
+\begin{bmatrix}
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23} \\
+\end{bmatrix} \\
+\\
+cA =
+\begin{bmatrix}
+c \times a_{11} & c \times a_{12} & c \times a_{13} \\
+c \times a_{21} & c \times a_{22} & c \times a_{23} \\
+\end{bmatrix} \\
+\end{align*}
+
+\section{Multiplying Vectors}
+Just a simplified form of matrix multiplication.
+\begin{align*}
+    \mathbf{a}^T \mathbf{b} = [a_1, a_2, a_3]
+\begin{bmatrix}
+b_1 \\
+b_2 \\
+b_3 \\
+\end{bmatrix}
+= a_1b_1 + a_2b_2 + a_3b_3
+\end{align*}
+
+\begin{tcolorbox}
+\textbf{Heuristic Algorithm:} 
+\begin{itemize}
+    \item tip the RHS vector over to its left
+    \item multiply each of the overlapping elements (such that each of the indexes are aligned with their equivalent)
+    \item add the products together
+    \item becomes a single scalar
+\end{itemize}
+\end{tcolorbox}
+
+\section{Multiplying Matrices}
+
+\begin{align*}
+    \begin{bmatrix}
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23} \\
+\end{bmatrix}
+\begin{bmatrix}
+b_{11} & b_{12} \\
+b_{21} & b_{22} \\
+b_{31} & b_{32} \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+a_{11}b_{11} + a_{12}b_{21} + a_{13}b_{31} & a_{11}b_{12} + a_{12}b_{22} + a_{13}b_{32} \\
+a_{21}b_{11} + a_{22}b_{21} + a_{23}b_{31} & a_{21}b_{12} + a_{22}b_{22} + a_{23}b_{32} \\
+\end{bmatrix}
+\end{align*}
+
+\begin{itemize}
+    \item To multiply matrices, they must be conformable: 
+    \begin{itemize}
+        \item $m × n$ and $n × p$ 
+        \item the inner values: $n$
+        \item LHS columns = RHS rows 
+    \end{itemize}
+    \item gives an output of $m × p$ - the outer values 
+    \item i.e. the dot product dimensions given by the otuer values
+\end{itemize}
+
+\textit{NB a matrix's dimensions are also given rows x columns}
+\\
+Thus, in matrix multiplication, order matters \\
+
+\begin{tcolorbox}
+\textbf{Small Matrix Multiplication cheat sheets:} \\
+\textbf{2x2}:
+\begin{align*}
+    AB = \begin{pmatrix} a & b \\ c & d \end{pmatrix} \times \begin{pmatrix} e & f \\ g & h \end{pmatrix} = \begin{pmatrix} ae + bg & af + bh \\ ce + dg & cf + dh \end{pmatrix}
+\end{align*}
+
+\textbf{3x3}
+\begin{align}
+    AB = \begin{pmatrix} 
+    a & b & c \\ 
+    d & e & f \\ 
+    g & h & i 
+    \end{pmatrix} \times \begin{pmatrix} 
+    j & k & l \\ 
+    m & n & o \\ 
+    p & q & r 
+    \end{pmatrix} 
+    = \begin{pmatrix} 
+    aj + bm + cp & ak + bn + cq & al + bo + cr \\ 
+    dj + em + fp & dk + en + fq & dl + eo + fr \\ 
+    gj + hm + ip & gk + hn + iq & gl + ho + ir 
+    \end{pmatrix}
+\end{align}
+
+\textbf{2x3; 3x2}
+\begin{align*}
+    AB = \begin{pmatrix} 
+    a & b & c \\ 
+    d & e & f 
+    \end{pmatrix} \times \begin{pmatrix} 
+    g & h \\ 
+    i & j \\ 
+    k & l 
+    \end{pmatrix} 
+    = \begin{pmatrix} 
+    ag + bi + ck & ah + bj + cl \\ 
+    dg + ei + fk & dh + ej + fl 
+\end{pmatrix}
+\end{align*}
+
+\textbf{3x2; 2x2}
+\begin{align*}
+    ABc = \begin{pmatrix} 
+    a & b \\ 
+    c & d \\ 
+    e & f 
+    \end{pmatrix} \times \begin{pmatrix} 
+    g & h \\ 
+    i & j 
+    \end{pmatrix} 
+    = \begin{pmatrix} 
+    ag + bi & ah + bj \\ 
+    cg + di & ch + dj \\ 
+    eg + fi & eh + fj 
+    \end{pmatrix}
+\end{align*}
+
+\end{tcolorbox}
+
+\begin{tcolorbox}
+\textbf{General Heuristic:} 
+\begin{itemize}
+    \item to be conformable: inner terms the same ($n$: RHS columns, LHS rows)
+    \item the new matrix's dimensions will be outer terms ($m \times p$)
+    \item for each element $a_{ij}$: sum of the products of the elements of the corresponding row of A and the corresponding column of B. \\
+    
+    \textbf{SHORT CUT: 
+    \begin{itemize}
+        \item identify dimensions of resultant matrix 
+        \item identify specific elements within this matrix: $\rightarrow$ identify their indexes (row, column), write out as a matrix of generic placeholder: (e.g. $a_35$; $a_71$; etc)
+        \item for row index value: take elements of equivalent row from matrix A
+        \item for column index value: take elements of equivalent column from matrix B (i.e. the vector)
+        \item write them as sum of multiples \begin{itemize}
+            \item write out the row values of Matrix A, spaced out with "(" before and "$\times$" after each
+            \item write out the column values of Matrix B in the remaining spaces, with ") $+$" after each.
+        \end{itemize}
+    \end{itemize}}
+
+    
+        \item so for item $a_12$:
+        \begin{itemize}
+             \item all the elements of row 1 from A
+             \item all the elements of column 2 from B
+             \item multiplied by each other
+             \item summed
+        \end{itemize}
+       \item for item $a_21$:
+    \begin{itemize}
+        \item all the elements of row 2 of A
+        \item all the elements of column 1 of B
+        \item multiplied by eac hother
+        \item summed
+    \end{itemize}
+       
+    \item eg for $a_{2,1}$: this is the 2nd row of the 1st column; sum of the products of all of the LHS matrix's 2nd row, RHS matrix's first column
+\end{itemize}
+\end{tcolorbox}
+\\
+\section{Mutliplying Matrices with Vectors}
+
+\begin{enumerate}
+    \item \textbf{Check conformable}: ensure number of columns = length of vector. \\
+    If matrix $m \times n$, and vector is $n \times 1$ (remember, vectors are vertical): resulting vector will be $m \times 1$ \\
+    i.e. will be a vector
+    \item \textbf{set up multiplication}: multiply elements of the row of the matrix, with corresponding element of the matrix then summing. \\
+    
+   As before:
+    \begin{itemize}
+        \item identify dimensions of resultant matrix (in this case a vector)
+        \item identify specific elements within this $\rightarrow$ identify their indexes (row, column)
+        \item for row index value: take elements of equivalent row from matrix A
+        \item for column index value: take elements of equivalent column from matrix B (i.e. the vector)
+        \item write them as sum of multiples
+    \end{itemize}
+\end{enumerate}
+
+Easier short cut:
+\begin{itemize}
+    \item visually: pick up the vector, tip it over, place it above the matrix
+    \item multiply each of the elements of matrix's columns by the associated vector element above
+    \item sum each row
+\end{itemize}
+
+\begin{align*}
+\text{Matrix A (2x3):} \quad &\begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix} \\
+\text{Vector x (3x1):} \quad &\begin{bmatrix} 7 \\ 8 \\ 9 \end{bmatrix} \\
+\text{Resulting Vector y (2x1):} \quad &\begin{bmatrix} 
+(1 \cdot 7) + (2 \cdot 8) + (3 \cdot 9) \\ 
+(4 \cdot 7) + (5 \cdot 8) + (6 \cdot 9) 
+\end{bmatrix} = \begin{bmatrix} 50 \\ 122 \end{bmatrix}
+\end{align*}
+
+\section{Transpose Facts}
+\begin{align*}
+    (A^T)^T &= A \\
+    (A + B)^T &= A^T + B^T \\
+    (AB)^T &= B^T A^T \\ 
+    a^Tb &= b^Ta
+\end{align*}
+
+\textit{NB: line 3 and 4: the order reverses!!}
+
+\section{Systems of Equation}
+
+\begin{align*}
+a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n &= b_1 \\
+a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n &= b_2 \\
+&\vdots \\
+a_{m1}x_1 + a_{m2}x_2 + \cdots + a_{mn}x_n &= b_n
+\end{align*}
+
+In matrix notation:
+
+\begin{align*}
+    Ax = b
+    \begin{bmatrix}
+    a_{11} & a_{12} & \ldots & a_{1n} \\
+    a_{21} & a_{22} & \ldots & a_{2n} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    a_{m1} & a_{m2} & \ldots & a_{mn}
+    \end{bmatrix}
+    \begin{bmatrix}
+    x_1 \\
+    x_2 \\
+    \vdots \\
+    x_n
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    b_1 \\
+    b_2 \\
+    \vdots \\
+    b_m
+    \end{bmatrix}
+\end{align*}
+
+\begin{tcolorbox}
+Where: \\
+A = matrix of data points ($m \times n$) \\
+x = vector of coefficients we are trying to estimate ($n \times 1$) \\
+b = vector of response variables ($m \times 1$)
+\end{tcolorbox}
+
+\section{Identity Matrix}
+The Identity Matrix $I_n$ is a matrix of size $n \times n$ with 1’s across the
+main diagonal and 0’s everywhere else.
+
+\begin{align*}
+    I_3 =
+    \begin{bmatrix}
+    1 & 0 & 0 \\
+    0 & 1 & 0 \\
+    0 & 0 & 1 \\
+    \end{bmatrix}
+\end{align*}
+
+\begin{tcolorbox}
+Identity Matrix useful for: 
+\begin{itemize}
+    \item takes a vector $x_n$ to itself $: I_nx_n = x_n$
+    \item takes a matrix $A_{m\times n}$ to itself: $I_mA_{m\times n}$ = $A_{m\times n}$ and $A_{m\times n}I_n = $A_{m\times n}$
+    \item it defines the inverse of a matrix: $A^{-1}A = I_n$
+\end{itemize}
+\end{tcolorbox}
+
+\section{The Inverse of a Matrix}
+\[A^{-1}A = I_n\]
+\begin{itemize}
+    \item The inverse does not always exist
+    \iten \textbf{only square matrices may have an inverse} (and sometimes they still don’t)
+    \item We have several different algorithms to find it when it does exist
+    \item However, it’s mainly a theoretical tool and doesn’t often need to be computed directly
+\end{itemize}
+
+\section{Vector Norm}
+Norm of a vector is a measure of its magnitude or distance from 0
+\begin{tcolorbox}
+\begin{align*}
+    |x|_1 &= \sum_{i} |x_i| \\
+    |x|_2 &= \sqrt{\sum_{i} x_i^2}\\
+    |x|_{\infty} &= \max_i |x_i|
+\end{align*}
+\end{tcolorbox}
+
+    \begin{itemize}
+        \item L1 Norm (Manhattan / Taxicab) = take the absolute values of the elements of the vector before summing them. 
+        \item L2 Norm (Euclidean / most common) = square root of the sum of the squares of the vector's elements (for 2D: this is the hypotenuse)
+        \item L3 Norm (less common) = cube root of the sum of the cubes of the vector's elements
+    \end{itemize}
+
+\end{document}

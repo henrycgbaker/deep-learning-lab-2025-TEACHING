@@ -1,0 +1,432 @@
+% =============================================================================
+% Week 10: Optimisation
+% =============================================================================
+
+\chapter{Optimisation}
+\label{ch:week10}
+
+\thispagestyle{empty}
+{\large \textbf{Finals Fall 2023 --  Henry Baker}}
+\par\noindent\rule{\textwidth}{0.4pt} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Finals Revision: Session 10\\ Optimization}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Second Derivative Test --- determines if we've found a min / max}
+
+\begin{itemize}
+  \item $\frac{\partial^2 f}{\partial x^2} > 0 \Rightarrow$ the rate of change of the rate of change is positive at that point $\Rightarrow$ minimum.
+  \item $\frac{\partial^2 f}{\partial x^2} < 0 \Rightarrow$ the rate of change of the rate of change is negative at that point $\Rightarrow$ maximum.
+\end{itemize}
+
+\section{Constrained Optimization (in 2-variable setting)}
+
+Suppose we want our solution to be subject to some constraint.\\
+
+E.g. 1) minimize:
+\[
+\min_{x,y} x + y
+\]
+and 2) we want the solution to live on the outside of a circle, given by
+\[
+x^2 + y^2 = 1.
+\]
+Then, we would:
+\begin{itemize}
+  \item Set up our constraint as a function \(g(x) = 0\):
+  \[
+  x^2 + y^2 --- 1 = 0
+  \]
+  \item Form the Lagrangian:
+  \begin{align*}
+     \\
+  &= x + y + \lambda(x^2 + y^2 --- 1)
+  \end{align*}
+  
+  \item Take the first derivatives \(\frac{\partial L}{\partial x}\), \(\frac{\partial L}{\partial y}\), and \(\frac{\partial L}{\partial \lambda}\) and set them equal to 0, forming our first-order conditions.
+  \item Solve this system of equations for \(x\) and \(y\).
+\end{itemize}
+
+\section{Min or Max (for all multivariate calculus?)}
+To know if min or max: Hessian Matrix
+\begin{align}
+        H =
+    \begin{bmatrix}
+    \frac{\partial^2 L}{\partial x^2} & \frac{\partial^2 L}{\partial x \partial y} & \frac{\partial^2 L}{\partial x \partial \lambda} \\
+    \frac{\partial^2 L}{\partial y \partial x} & \frac{\partial^2 L}{\partial y^2} & \frac{\partial^2 L}{\partial y \partial \lambda} \\
+    \frac{\partial^2 L}{\partial \lambda \partial x} & \frac{\partial^2 L}{\partial \lambda \partial y} & \frac{\partial^2 L}{\partial \lambda^2}
+    \end{bmatrix}
+\end{align}
+
+\begin{itemize}
+    \item All eigenvalues of $H$ are positive $\rightarrow$ critical point is a local min.
+    \item If all eigenvalues of $H$ are negative $\rightarrow$ critical point is a local max.
+    \item If a mix $\rightarrow$ saddle point.
+\end{itemize}
+
+\begin{tcolorbox}
+\textbf{Additional Context}
+    \begin{itemize}
+        \item Hessian matrix of a function $d:R^n \Rightarrow R$ is a square matrix of second-order partial derivatives of the function:
+        \begin{align*}
+        H(f) = \begin{bmatrix}
+        \frac{\partial^2 f}{\partial x_1^2} & \frac{\partial^2 f}{\partial x_2\partial x_1} & \frac{\partial^2 f}{\partial x_3\partial x_1} & \ldots & \frac{\partial^2 f}{\partial x_n\partial x_1} \\
+        \frac{\partial^2 f}{\partial x_1\partial x_2} & \frac{\partial^2 f}{\partial x_2^2} & \frac{\partial^2 f}{\partial x_3\partial x_2} & \ldots & \frac{\partial^2 f}{\partial x_n\partial x_2} \\
+        \vdots & \vdots & \vdots & \ddots & \vdots \\
+        \frac{\partial^2 f}{\partial x_1\partial x_n} & \frac{\partial^2 f}{\partial x_2\partial x_n} & \frac{\partial^2 f}{\partial x_3\partial x_n} & \ldots & \frac{\partial^2 f}{\partial x_n^2} \\
+        \end{bmatrix}
+        \end{align*}
+        \item helps us understand curvature of multivariable functions: to study local extrema of functions of several variables.
+        \item the sign of the determinant of the Hessian at a critical point of a function can indicate whether is a local max/min/saddle point:
+        \begin{itemize}
+            \item if all eigenvalues of $H$ are positive, the critical point is a minimum
+            \item if all eigenvalues of $H$ are negative, the critical point is a local maximum.
+            \item if a mix, you have a saddle point
+        \end{itemize}
+        \item for a bivariate function, the Hessian a 2x2 matrix; for a function of 3 variables it s a 3x3 matrix, etc.
+    \end{itemize}
+\end{tcolorbox}
+
+
+\section{Matrix Optimization: the Gradient}
+The gradient is a vector of first-order partial derivatives of a function.\\
+
+For a scalar function $f(\mathbf{x})$ where $\mathbf{x} = (x_1, x_2, \ldots, x_n)$, the gradient is given by:
+\[
+\nabla f = \left( \frac{\partial f}{\partial x_1}, \frac{\partial f}{\partial x_2}, \ldots, \frac{\partial f}{\partial x_n} \right) = \left( \frac{\partial}{\partial x_1}, \frac{\partial}{\partial x_2}, \ldots, \frac{\partial}{\partial x_n} \right) f
+\]
+
+The gradient points in the direction of the steepest ascent of the function at a given point. In other words, it indicates the direction in which the function increases most rapidly.\\
+
+The magnitude of the gradient gives the rate of increase of the function in that direction.
+
+\subsection{Eg $f$ takes some input in \( \mathbb{R}^{m} \text{ (a vector)} \rightarrow\) outputs some real value \( \in \mathbb{R} \) (a scalar)}
+
+The gradient of $f$at a specific point $\mathbf{x}$ (NB this point is itself a vector) is a vector that described how the scalar output of $f$ changes with respect to each component of the input vector at that particular point. \\
+
+The gradient of $f$ is a vector that helps you understand the sensitivity of the output of $f$ to changes in the input vector. Each component of the gradient vector corresponds to a partial derivative of $f$ with respect to a specific component of the input vector.\\
+
+For instance:
+
+\[ f(\mathbf{z}) = \mathbf{z}^T \mathbf{z} \] for some \( m \)-length vector \( \mathbf{z} \). \\ 
+
+We can write the gradient of \( f(\mathbf{z}) \) as the \textbf{vector of first derivatives} of \( \mathbf{z} \) with respect to \( \mathbf{z} \):
+\[
+\nabla_{\mathbf{z}} f(\mathbf{z}) =
+\begin{bmatrix}
+\frac{\partial f}{\partial z_1} \\
+\frac{\partial f}{\partial z_2} \\
+\vdots \\
+\frac{\partial f}{\partial z_m}
+\end{bmatrix}
+\]
+
+In this particular case, the gradient of $f(\mathbf{z}) = \mathbf{z}^T \mathbf{z} \] for some \( m \)-length vector \( \mathbf{z}$: \( \nabla_{\mathbf{z}} f(\mathbf{z}) = 2\mathbf{z} \). \\
+NB: 1) quite similar to how standard calculus works $x^2 \rightarrow 2x$\\
+    2) Then the gradient is still a vector, here x is a vector, so $2x$ is just a vector multiplied by a scalar (element-wise)
+
+
+\subsection{E.g. 2 \( f \) takes some input in $\mathbb{R}^{m \times n}$ (a matrix) $ \rightarrow$  outputs some real value  $\in \mathbb{R}$ (a scalar} 
+
+Then, the gradient will be a matrix \( \in \mathbb{R}^{m \times n} \) \\
+Gradients of matrices: another matrix.
+
+\[
+\nabla A f(A) =
+\begin{bmatrix}
+\frac{\partial f(A)}{\partial A_{11}} & \frac{\partial f(A)}{\partial A_{12}} & \cdots & \frac{\partial f(A)}{\partial A_{1n}} \\
+\frac{\partial f(A)}{\partial A_{21}} & \frac{\partial f(A)}{\partial A_{22}} & \cdots & \frac{\partial f(A)}{\partial A_{2n}} \\
+\vdots & \vdots & \ddots & \vdots \\
+\frac{\partial f(A)}{\partial A_{m1}} & \frac{\partial f(A)}{\partial A_{m2}} & \cdots & \frac{\partial f(A)}{\partial A_{mn}}
+\end{bmatrix}
+\]
+where, generally,
+\((\nabla A f(A))_{ij} = \frac{\partial f(A)}{\partial A_{ij}}\). \\
+
+^^^ this generic formula is just saying that the gradient of a matrix is the change of the output with respect to the change of input element.
+
+\section{Constrained Optimization Using the Gradient}
+
+Solve: 
+\[\nabla L(x, y, \ldots, \lambda) = 0\]
+
+see the Final Review on this
+
+\section{Optimization as Eigen decomposition}
+
+\begin{tcolorbox}
+    \begin{enumerate}
+        \item \textbf{Form the Lagrangian} (from the objective function and the constraints: $L(x, \lambda)$ where $x$ is the vector variable $\lambda$ represents the Lagrange multipliers associated with the constraints.
+        \item \textbf{Take the gradient} of the Lagrangian with respect to the vector variable $x$. 
+        \item \textbf{Set to 0}. This results in a system of equations to solve for the optimal values of $x$
+        \item \textbf{Solve}. When you solve the system of equations derived from the gradient of the Lagrangian, you end up with an equation of the form $Ax = \lambda x$, which is the eigenvalue-vector equation. The solutions to the eigenvalue-eigenvector equation  $Ax = \lambda x$ are the eigenvectors of matrix $A$, and the corresponding $\lambda$ values are the eigenvalues. These eigenvectors often represent the critical points or optimal solutions of the constrained optimization problem.
+    \end{enumerate}
+
+    Why? Eigenvectors indicate the directions along which the objective function is most sensitive to changes. The eigenvalues provide information about how much the objective function changes in those directions. 
+\end{tcolorbox}
+
+Consider the following, \textbf{constrained optimization} problem:
+
+\[
+\max_{x\in\mathbb{R}^n} \quad x^T Ax \quad \text{subject to} \quad \|x\|^2 = 1
+\]
+
+for a symmetric matrix \( A \in S^n \). \\
+
+\begin{itemize}
+    \item The objective function above is one where $x$ is an $n$-dimensional vector and $A$ is an $n\times n$ symmetric matrix.
+    \item The constraint specifies the Euclidean norm of $x$ must be equal to 1. I.e $x$ must lie on the unit sphere in $n$-dimensional space.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_10/lec11_1.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+Form the \textbf{Lagrangian} (an objective function that includes the equality constraints):
+
+\[
+L(x, \lambda) = x^T Ax --- \lambda(x^T x)
+\]
+
+where \( \lambda \) is called the Lagrange multiplier associated with the equality constraint. \\
+
+For \( x^* \) to be a optimal point, \textbf{gradient of the Lagrangian has to be 0} at \( x^* \) 
+
+\begin{align*}
+\nabla_x L(x, \lambda) &= \nabla_x (x^T Ax --- \lambda x^T x)  = 0\\
+&= 2A^T x --- 2\lambda x = 0
+\end{align*}
+
+NB\\ \textbf{the gradient of the Lagrangian is the Hessian}. This is because the Lagrangian it set up with respect to the vector variable $x$; so the Lagrangian is a function that maps $R^n \rightarrow R$, and so \ldots{} IS THIS RIGHT? OR SHOULD IT BE A VECTOR AS THE GRADIENT OF A VECTOR IS A VECTOR, ALSO HESSIAN IS 2ND ORDER DERIVATIVES, THIS IS FIRST ORDER?
+
+NB this is just the linear equation \( Ax = \lambda x \). \textbf{This is the eigen-value-vector equation}/ This shows that the only points which can possibly maximize (or minimize) \( x^T Ax \) assuming \( x^T x = 1 \) (i.e. the constraints) are the eigenvectors of \( A \). When we solve this equation we are essentially finding the vectors the eigenvalues-vector pairs.\\
+
+So these optimal points of the Lagrange Multipler are the eigenvectors of $A$, and the corresponding eigenvalues $\lambda$ are the max/min values of $x^T Ax$
+
+\section{Manual Constrained Optimisation using Lagrange multiplier}
+
+\begin{enumerate}
+  \item \textbf{Set up the Objective Function:}
+  \begin{itemize}
+    \item Identify your objective function, \( f(x, y) \), which you want to maximize or minimize.
+  \end{itemize}
+
+  \item \textbf{Set up the Constraint:}
+  \begin{itemize}
+    \item Identify the constraint \( g(x, y) = 0 \). This is the condition that must be satisfied by the variables \( x \) and \( y \).
+  \end{itemize}
+
+  \item \textbf{Formulate the Lagrangian:}
+  \begin{itemize}
+    \item Introduce a Lagrange multiplier \( \lambda \) and set up the Lagrangian function: \( L(x, y, \lambda) = f(x, y) --- \lambda \cdot g(x, y) \).
+  \end{itemize}
+
+  \item \textbf{Find the First Derivatives and Set Them to Zero:}
+  \begin{itemize}
+    \item Compute the partial derivatives of the Lagrangian with respect to each variable (\( x, y, \) and \( \lambda \)):
+    \[ \frac{\partial L}{\partial x} = 0, \quad \frac{\partial L}{\partial y} = 0, \quad \frac{\partial L}{\partial \lambda} = 0 \]
+    \item This step involves taking derivatives and then equating them to zero.
+  \end{itemize}
+
+  \item \textbf{Solve the System of Equations:}
+  \begin{itemize}
+    \item From the previous step, you will have a system of equations. Solve these equations simultaneously to find the values of \( x, y, \) and \( \lambda \).
+    \item This might involve solving for one variable and then substituting it into another equation, or using methods like substitution or elimination.
+  \end{itemize}
+
+  \item \textbf{Determine Maxima/Minima Using the Hessian Matrix:}
+  \begin{itemize}
+    \item To determine if the solutions are maxima, minima, or saddle points, compute the second-order partial derivatives to form the Hessian matrix. The Hessian matrix \( H \) is given by:
+    \[ H = \begin{pmatrix}
+    \frac{\partial^2 L}{\partial x^2} & \frac{\partial^2 L}{\partial x \partial y} \\
+    \frac{\partial^2 L}{\partial y \partial x} & \frac{\partial^2 L}{\partial y^2} 
+    \end{pmatrix} \]
+    \item Evaluate the Hessian matrix at the critical points found in step 5.
+    \item The nature of the critical points is determined by the eigenvalues of the Hessian: 
+      \begin{itemize}
+        \item If all eigenvalues are positive, it's a local minimum.
+        \item If all are negative, it's a local maximum.
+        \item If they have different signs, it's a saddle point.
+      \end{itemize}
+  \end{itemize}
+\end{enumerate}
+
+\subsection{Examples}
+
+\subsection{Example from Final Review}
+
+In the context of portfolio optimization, we consider two assets, Asset A and Asset B, with returns \( r_A \) and \( r_B \) respectively. We aim to choose weights \( w_A \) and \( w_B \) for these assets to maximize the expected return of the portfolio. The total investment is constrained to 100\% (i.e., \( w_A + w_B = 1 \)). Additionally, the client is risk-averse, leading to a penalty on the variance of the portfolio's returns, denoted by \( \gamma \).
+
+\subsubsection{1) Set up the Lagrangian for your Optimisation Problem}
+\subsubsubsection{Objective Function}
+The objective function for the portfolio is to maximize the expected return, adjusted for risk aversion. It is given by:
+\begin{equation}
+    \text{Maximize} \quad w_A r_A + w_B r_B + \gamma \sigma^2,
+\end{equation}
+where \( \sigma^2 \) represents the variance of the portfolio's returns, and \( \gamma \geq 0 \) is the penalty coefficient for risk aversion.
+
+\subsubsubsection{Constraint}
+The constraint for the portfolio is that the sum of the weights of Assets A and B should equal 1. Mathematically, this is expressed as:
+\begin{equation}
+    w_A + w_B = 1.
+\end{equation}
+
+\subsubsubsection{Lagrangian Formulation}
+To incorporate the constraint into the optimization problem, we use a Lagrange multiplier, denoted as \( \lambda \). The Lagrangian \( \mathcal{L} \) is formulated as:
+\begin{equation}
+    \mathcal{L}(w_A, w_B, \lambda) = w_A r_A + w_B r_B --- \gamma \sigma^2 + \lambda (w_A + w_B --- 1).
+\end{equation}
+In this formulation:
+\begin{itemize}
+    \item \( w_A r_A + w_B r_B \) represents the expected return from the portfolio.
+    \item \( -\gamma \sigma^2 \) represents the penalty for portfolio variance, reflecting risk aversion.
+    \item \( +\lambda (w_A + w_B --- 1) \) ensures that the weights of the investments sum to 1.
+\end{itemize}
+
+\subsection{2) suppose you have the following variance-covariance matrix of the returns of your 2 assets, reduce your Lagrangian as much as possible}
+
+\[
+\Sigma =
+\begin{bmatrix}
+rA & rB \\
+rA & 1 & 0.5 \\
+rB & 0.5 & 2 \\
+\end{bmatrix}
+\]
+
+This relies on formula: $Var(X + Y) = Var(X) + Var(Y) + 2 \cdot Cov(X + Y):$ 
+
+\begin{align*}
+    Var(w_A r_A + w_B, r_B) &= Var(w_A, r_A) + Var (w_B, r_B) + 2\cdot Cov(w_A r_A, w_B, r_B) \\
+
+\text{Using fact that} Var(cX) = c^2 Var(X): \\
+
+&= w_A^2 Var(r_A) = w_B^2 Var(r_B) + 2(w_A w_B Cov(r_A, r_B)\\
+
+\text{Plugging it back in:} \\
+
+\mathcal{L}(w_A, w_B, \lambda) &= w_A r_A + w_B r_B --- \gamma [w_A^2 sigma_A^2 + w_B^2 sigma_B^2 + 2w_A w_B \sigma_AB] + \lambda(w_A + w_B --- 1) \\
+
+&= w_A r_A + w_B r_B --- \gamma [w_A^2 + 2w_B^2 + w_A w_B] + \lambda(w_A + w_B --- 1) 
+\end{align*}
+
+\subsubsubsection{Compute the gradient of L, just maximise with respect to $w_A, w_B, \lambda$; hold $\gamma$ as user-provided parameter}
+
+Partial Derivative with respect to $w_A$:
+\[
+\frac{\partial L}{\partial w_A} = r_A --- 2\gamma w_A --- \gamma w_B + \lambda
+\]
+
+Partial Derivative with respect to $w_B$:
+\[
+\frac{\partial L}{\partial w_B} = r_B --- 4\gamma w_B --- \gamma w_A + \lambda
+\]
+
+Partial Derivative with respect to $\lambda$:
+\[
+\frac{\partial L}{\partial \lambda} = w_A + w_B --- 1
+\]
+
+
+
+BELOW AREN''T RIGHT!
+
+\subsection*{Example 1: Maximizing \( f(x, y) = xy \)}
+
+Objective Function: \( f(x, y) = xy \) \\
+Constraint: \( g(x, y) = x + y --- 10 = 0 \) \\
+Lagrangian: \( L(x, y, \lambda) = xy --- \lambda(x + y --- 10) \)
+
+First Derivatives:
+\begin{align*}
+  \frac{\partial L}{\partial x} &= y --- \lambda = 0 \\
+  \frac{\partial L}{\partial y} &= x --- \lambda = 0 \\
+  \frac{\partial L}{\partial \lambda} &= -(x + y --- 10) = 0
+\end{align*}
+
+Solving the system of equations:
+\begin{align*}
+\lambda &= x = y \\
+x + y &= 10 \\
+2x &= 10 \quad \Rightarrow \quad x = 5 \\
+y &= 10 --- x = 5
+\end{align*}
+
+Solution: \(x = 5, y = 5\)
+
+\subsection*{Example 2: Minimizing \( f(x, y) = x^2 + 3y^2 \)}
+
+Objective Function: \( f(x, y) = x^2 + 3y^2 \) \\
+Constraint: \( g(x, y) = x + 2y --- 5 = 0 \) \\
+Lagrangian: \( L(x, y, \lambda) = x^2 + 3y^2 --- \lambda(x + 2y --- 5) \)
+
+First Derivatives:
+\begin{align*}
+  \frac{\partial L}{\partial x} &= 2x --- \lambda = 0 \\
+  \frac{\partial L}{\partial y} &= 6y --- 2\lambda = 0 \\
+  \frac{\partial L}{\partial \lambda} &= -(x + 2y --- 5) = 0
+\end{align*}
+
+Solving the system of equations:
+\begin{align*}
+2x &= \lambda \\
+6y &= 2\lambda \\
+x + 2y &= 5 \\
+\text{From the first two equations: } x &= \frac{\lambda}{2}, \quad y = \frac{\lambda}{3} \\
+\text{Substituting into the constraint: } \frac{\lambda}{2} + 2 \cdot \frac{\lambda}{3} &= 5 \\
+\lambda &= \frac{15}{2} \\
+x &= \frac{\lambda}{2} = \frac{15}{4}, \quad y = \frac{\lambda}{3} = \frac{5}{2}
+\end{align*}
+
+\subsection*{Example 2: Minimizing \( f(x, y) = x^2 + 3y^2 \)}
+
+Objective Function: \( f(x, y) = x^2 + 3y^2 \) \\
+Constraint: \( g(x, y) = x + 2y --- 5 = 0 \) \\
+Lagrangian: \( L(x, y, \lambda) = x^2 + 3y^2 --- \lambda(x + 2y --- 5) \)
+
+First Derivatives:
+\begin{align*}
+  \frac{\partial L}{\partial x} &= 2x --- \lambda = 0 \\
+  \frac{\partial L}{\partial y} &= 6y --- 2\lambda = 0 \\
+  \frac{\partial L}{\partial \lambda} &= -(x + 2y --- 5) = 0
+\end{align*}
+
+Solving the system of equations:
+\begin{align*}
+2x &= \lambda \\
+3y &=\lambda \\
+x + 2y &= 5 \\
+\text{Substituting these expressions for $\lambda$ into equation 1 and 3: } x = \frac{\lambda}{2}, \quad y = \frac{\lambda}{3} \\
+\text{Substituting into the constraint: } \frac{\lambda}{2} + 2 \cdot \frac{\lambda}{3} &= 5 \\
+\lambda &= \frac{15}{2} \\
+x &= \frac{\lambda}{2} = \frac{15}{4}, \quad y = \frac{\lambda}{3} = \frac{5}{2}
+\end{align*}
+
+\subsection*{Example 3: Maximizing \( f(x, y) = x^2 + y^2 \)}
+
+Objective Function: \( f(x, y) = x^2 + y^2 \) \\
+Constraint: \( g(x, y) = x^2 + y^2 --- 4 = 0 \) \\
+Lagrangian: \( L(x, y, \lambda) = x^2 + y^2 --- \lambda(x^2 + y^2 --- 4) \)
+
+First Derivatives:
+\begin{align*}
+  \frac{\partial L}{\partial x} &= 2x(1 --- \lambda) = 0 \\
+  \frac{\partial L}{\partial y} &= 2y(1 --- \lambda) = 0 \\
+  \frac{\partial L}{\partial \lambda} &= -(x^2 + y^2 --- 4) = 0
+\end{align*}
+
+Solving the system of equations:
+\begin{align*}
+2x(1 --- \lambda) &= 0 \quad \Rightarrow \quad x = 0 \text{ or } \lambda = 1 \\
+2y(1 --- \lambda) &= 0 \quad \Rightarrow \quad y = 0 \text{ or } \lambda = 1 \\
+x^2 + y^2 &= 4 \\
+\text{For } \lambda = 1, x^2 + y^2 = 4 \text{ gives us the circle of radius 2.}
+\end{align*}

@@ -1,0 +1,949 @@
+% Week 7b: Tree-Based Methods
+
+\section{Decision Trees}
+
+\begin{bluebox}[Chapter Summary]
+Decision trees recursively partition the feature space using axis-aligned splits, predicting a constant value within each region. They offer \textbf{interpretability} (rules as flowcharts), \textbf{flexibility} (handle mixed feature types, nonlinear patterns), and \textbf{automatic feature selection}-but suffer from \textbf{high variance} and \textbf{suboptimal accuracy}. Key concepts: greedy recursive partitioning via \textbf{Gini impurity} or \textbf{entropy} (classification) and \textbf{MSE reduction} (regression); \textbf{cost-complexity pruning} to prevent overfitting; and \textbf{ensemble methods} (bagging, random forests) that combine many trees to reduce variance while preserving flexibility. Trees are piecewise constant approximations-simple individually but powerful when combined.
+\end{bluebox}
+
+Decision trees are fundamental building blocks for constructing prediction functions in both classification and regression settings. Unlike methods that assume a particular functional form (linear regression assumes linearity, logistic regression assumes log-odds linearity), decision trees make \emph{no assumptions} about the relationship between features and the response. Instead, they learn this relationship directly from the data by partitioning the feature space into regions and making simple predictions within each region.
+
+\subsection{Intuition: Recursive Binary Partitioning}
+
+A decision tree learns by repeatedly asking ``yes/no'' questions about features, splitting the data into progressively smaller regions until each region is sufficiently homogeneous. Consider predicting whether a customer will churn:
+
+\begin{verbatim}
+                    [All Customers]
+                          |
+              Usage < 50 mins/month?
+                    /         \
+                 Yes           No
+                  |             |
+          [High churn]    Contract < 12 months?
+                              /         \
+                           Yes           No
+                            |             |
+                    [Medium churn]   [Low churn]
+\end{verbatim}
+
+Each internal node represents a \emph{split}-a test on a single feature. Each leaf represents a \emph{region}-a subset of feature space where we make a constant prediction. The path from root to leaf defines a conjunction of conditions: customers with usage $\geq 50$ mins AND contract $\geq 12$ months fall into the ``low churn'' region.
+
+\textbf{What this structure captures}: The tree naturally encodes \emph{interaction effects}. The effect of contract length on churn depends on usage level-we only ask about contract length for customers with usage $\geq 50$ mins. This conditional structure is precisely what makes trees powerful for capturing complex, non-additive relationships that linear models would miss without explicit feature engineering.
+
+This recursive partitioning produces axis-aligned rectangular regions in feature space. For two features $(x_1, x_2)$, a tree with two splits might produce:
+
+\begin{verbatim}
+    x2
+    ^
+    |   Region 2    |    Region 3
+    |   (y = 0.2)   |    (y = 0.8)
+    |               |
+    +-----+-----> x1
+    |   Region 1    |    Region 1
+    |   (y = 0.2)   |    (y = 0.2)
+    |               |
+                    t1 (threshold on x1)
+\end{verbatim}
+
+\textbf{Key insight}: Trees are fundamentally \emph{piecewise constant} models. Within each region, the prediction is a single value-the mean (regression) or mode (classification) of training points in that region. Flexibility comes not from the complexity of the prediction function within regions, but from the number and placement of region boundaries. This is analogous to approximating a curve with a histogram: simple flat segments that collectively capture complex shapes.
+
+\subsection{Tree Structure and Terminology}
+
+Before proceeding to the mathematics, let us establish precise terminology. A decision tree is a directed acyclic graph with a specific hierarchical structure.
+
+\begin{greybox}[Tree Components]
+A decision tree $T$ consists of:
+
+\textbf{Nodes}:
+\begin{itemize}
+    \item \textbf{Root node}: Contains all training data; top of the tree
+    \item \textbf{Internal nodes}: Define splits; have exactly one parent and two children (for binary trees)
+    \item \textbf{Leaf nodes} (terminal nodes): Define regions; contain predictions
+\end{itemize}
+
+\textbf{Edges}: Connect parent to children, labelled by split outcome (e.g., $x_j \leq t$ vs $x_j > t$)
+
+\textbf{Depth}: Length of the longest path from root to any leaf
+
+\textbf{Split}: At internal node with dataset $\mathcal{D}$, a split $(j, t)$ partitions data into:
+$$\mathcal{D}_L = \{(x_i, y_i) \in \mathcal{D} : x_{ij} \leq t\}, \quad \mathcal{D}_R = \{(x_i, y_i) \in \mathcal{D} : x_{ij} > t\}$$
+where $j$ is the feature index and $t$ is the threshold.
+\end{greybox}
+
+\textbf{Unpacking the split notation}: The expression $\mathcal{D}_L = \{(x_i, y_i) \in \mathcal{D} : x_{ij} \leq t\}$ reads as ``the left child dataset $\mathcal{D}_L$ consists of all feature-response pairs $(x_i, y_i)$ from the current dataset $\mathcal{D}$ such that the $j$-th feature of $x_i$ (written $x_{ij}$) is less than or equal to threshold $t$.'' The subscript $ij$ means ``observation $i$, feature $j$.'' This notation becomes natural once you think of the data as a matrix with observations as rows and features as columns.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/tree.png}
+    \caption{Decision tree structure. Each path from root to leaf defines a region through a sequence of threshold conditions. Note the interaction effects captured along branches-for example, combinations like ``4 cylinders $\times$ continent'' or ``horsepower $\times$ low-med-high'' encode how the effect of one variable depends on the value of another.}
+    \label{fig:decision-tree}
+\end{figure}
+
+\subsection{Prediction}
+
+Once a tree is constructed, prediction is straightforward: route the test point from root to leaf by evaluating splits, then return the leaf's prediction.
+
+\begin{greybox}[Decision Tree Prediction]
+A tree with $J$ leaves partitions feature space into disjoint regions $R_1, \ldots, R_J$.
+
+For a test point $\tilde{x}$:
+$$f(\tilde{x}) = \sum_{j=1}^{J} c_j \cdot \mathbf{1}[\tilde{x} \in R_j]$$
+
+where the leaf prediction $c_j$ is:
+\begin{itemize}
+    \item \textbf{Regression}: $c_j = \bar{y}_j = \frac{1}{|R_j|}\sum_{x_i \in R_j} y_i$ (mean of training responses in region $j$)
+    \item \textbf{Classification}: $c_j = \arg\max_k \sum_{x_i \in R_j} \mathbf{1}[y_i = k]$ (majority vote among training labels in region $j$)
+\end{itemize}
+
+For probabilistic classification, we can return class proportions:
+$$\hat{p}(Y = k \mid \tilde{x} \in R_j) = \frac{1}{|R_j|}\sum_{x_i \in R_j} \mathbf{1}[y_i = k]$$
+\end{greybox}
+
+\textbf{What this formula means}: The expression $f(\tilde{x}) = \sum_{j=1}^{J} c_j \cdot \mathbf{1}[\tilde{x} \in R_j]$ looks more complex than it is. The indicator function $\mathbf{1}[\tilde{x} \in R_j]$ equals 1 if $\tilde{x}$ falls in region $R_j$ and 0 otherwise. Since the regions are disjoint (non-overlapping) and exhaustive (covering all of feature space), exactly one indicator equals 1 and all others equal 0. So the sum simply returns the prediction $c_j$ for whichever region contains $\tilde{x}$. This is just a mathematical way of saying ``look up which region your test point falls into, and return that region's prediction.''
+
+\textbf{Computational note}: Prediction requires $O(\text{depth})$ comparisons per test point-typically $O(\log n)$ for balanced trees, making trees extremely fast at test time. This is far faster than methods like $k$-nearest neighbours (which require distance computations to all training points) or kernel methods.
+
+\subsection{Properties of Decision Trees}
+
+\begin{bluebox}[Advantages]
+\begin{itemize}
+    \item \textbf{Interpretability}: Visualise as flowchart; explain predictions as rule sequences (``If tenure $< 2$ years AND usage $< 50$ mins, predict churn''). Non-technical stakeholders can understand and verify the logic.
+    \item \textbf{Flexibility}: Handle any input type (continuous, categorical, ordinal, mixed); capture nonlinear relationships and interactions automatically without explicit feature engineering
+    \item \textbf{Non-parametric}: No assumptions about functional form or error distribution-the tree learns whatever structure is present in the data
+    \item \textbf{Robust to outliers}: A single outlier only affects its own leaf's prediction; the tree's overall structure remains stable
+    \item \textbf{Handle missingness}: Can split on ``is missing?'' or use surrogate splits (alternative splits that approximate the primary split when values are missing)
+    \item \textbf{No standardisation needed}: Splits are threshold-based, so feature scales don't matter-a feature ranging from 0-1 is treated the same as one ranging from 0-1000
+    \item \textbf{Automatic feature selection}: Irrelevant features are simply never split on (though this can be unreliable for correlated features)
+    \item \textbf{Fast prediction}: $O(\text{depth})$ per test point
+\end{itemize}
+\end{bluebox}
+
+\begin{redbox}
+\textbf{Disadvantages}:
+\begin{itemize}
+    \item \textbf{Overfitting}: Unconstrained trees grow until each leaf is pure, fitting noise perfectly. A tree with $n$ leaves can achieve zero training error by memorising every observation.
+    \item \textbf{High variance}: Small changes in training data lead to very different tree structures (see Figure~\ref{fig:high-variance}). Adding, removing, or slightly modifying a few training points can cascade into completely different trees.
+    \item \textbf{Greedy optimisation}: Cannot find globally optimal tree (NP-hard problem). The greedy algorithm makes locally optimal choices that may be globally suboptimal.
+    \item \textbf{Suboptimal accuracy}: Single trees often underperform other methods. The simple hierarchical decision-making process may miss nuances in the data.
+    \item \textbf{Axis-aligned splits}: Cannot efficiently represent diagonal boundaries (requires many splits to approximate $x_1 + x_2 = c$). A linear classifier represents this with a single hyperplane; a tree needs a staircase of splits.
+    \item \textbf{Instability}: The greedy algorithm can make different early splits based on noise, cascading into completely different subtrees. Due to hierarchical dependence, small changes to features can also fundamentally alter the tree.
+\end{itemize}
+
+Decision trees are \textbf{high-variance learners}-ideal candidates for ensemble methods that average many trees to smooth out the variance.
+\end{redbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/variance learners.png}
+    \caption{High variance: small changes in data lead to very different trees. Two bootstrap samples from the same population can yield dramatically different tree structures, even though they're estimating the same underlying relationship.}
+    \label{fig:high-variance}
+\end{figure}
+
+\subsection{When to Use Trees}
+
+\begin{bluebox}[Decision Tree Use Cases]
+\textbf{Use trees when}:
+\begin{itemize}
+    \item Interpretability is paramount (medical diagnosis, loan decisions, regulatory compliance)
+    \item You have mixed feature types and don't want preprocessing
+    \item You suspect complex interactions between features
+    \item You need a quick baseline or exploratory analysis
+    \item As base learners in ensembles (random forests, gradient boosting)
+\end{itemize}
+
+\textbf{Consider alternatives when}:
+\begin{itemize}
+    \item You need smooth decision boundaries (use neural networks, RBF kernels)
+    \item The true relationship is approximately linear (use linear/logistic regression)
+    \item You need uncertainty quantification (use Bayesian methods, Gaussian processes)
+    \item Maximum predictive accuracy is required (use ensembles or neural networks)
+\end{itemize}
+\end{bluebox}
+
+\section{Tree Construction: Splitting Criteria}
+
+The core challenge in tree construction is choosing splits. At each node, we must select:
+\begin{enumerate}
+    \item Which feature $j$ to split on
+    \item What threshold $t$ (or subset of categories) to use
+\end{enumerate}
+
+We evaluate all possible $(j, t)$ pairs and choose the one that best reduces ``impurity''-a measure of how mixed the labels are within each resulting child node. The intuition is simple: we want each split to create child nodes that are more homogeneous than the parent. A ``good'' split separates the data into groups with distinct outcomes.
+
+\subsection{Splitting Continuous Features}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/thresholding.png}
+    \caption{Threshold split: binary partition at threshold $t$. Prediction is constant within each region, creating the characteristic ``stepped'' shape of tree predictions.}
+    \label{fig:threshold-split}
+\end{figure}
+
+For continuous feature $x_j$, a binary split at threshold $t$ partitions the data:
+$$\mathcal{D}_L = \{(x_i, y_i) : x_{ij} \leq t\}, \quad \mathcal{D}_R = \{(x_i, y_i) : x_{ij} > t\}$$
+
+\textbf{Candidate thresholds}: Rather than searching over all real numbers (infinitely many), we only need to consider thresholds at the midpoints between consecutive sorted values of $x_j$. If $x_j$ takes $m$ unique values, there are $m-1$ candidate thresholds. This is because any threshold between two consecutive values produces the same partition-what matters is which observations fall on each side, not the exact threshold value.
+
+\textbf{Why midpoints?} Using midpoints $(v_i + v_{i+1})/2$ is conventional but not essential. Any value strictly between $v_i$ and $v_{i+1}$ produces the same split. Midpoints are aesthetically pleasing and provide some robustness to floating-point issues.
+
+\subsection{Splitting Categorical Features}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/unique value.png}
+    \caption{Categorical split: one branch per unique value.}
+    \label{fig:categorical-split}
+\end{figure}
+
+For categorical feature $x_j$ with $k$ unique values:
+
+\textbf{Multi-way split}: Create $k$ branches, one per category. Simple but leads to overly complex trees with high-cardinality features. Each branch may contain few observations, making predictions unreliable.
+
+\textbf{Binary split}: Partition categories into two groups $S$ and $S^c$ (where $S^c$ denotes the complement-all categories not in $S$). For $k$ categories, there are $2^{k-1} - 1$ possible partitions-exponential in $k$. This quickly becomes computationally prohibitive.
+
+\begin{redbox}
+\textbf{Computational shortcut for binary classification}: When the target is binary, the optimal category partition can be found in $O(k \log k)$ by sorting categories by their class-1 proportion and searching over the $k-1$ contiguous partitions. This follows from the theorem that the optimal split respects the ordering by conditional probability.
+
+\textbf{Why this works}: Intuitively, if we want to separate classes, we should group categories with similar class distributions together. Sorting by class proportion puts ``similar'' categories adjacent, and the optimal partition is always a contiguous chunk of this sorted list.
+
+\textbf{For multi-class or regression}: No such shortcut exists; we must either use heuristics, limit to binary splits, or accept exponential search time.
+\end{redbox}
+
+\subsection{MSE Reduction for Regression}
+
+For regression trees, we seek splits that minimise squared error within each child node. The goal is to create child nodes where the responses $y_i$ are clustered tightly around their mean.
+
+\begin{greybox}[Mean Squared Error Criterion]
+For a node with dataset $\mathcal{D}$, the MSE is:
+$$\text{MSE}(\mathcal{D}) = \frac{1}{|\mathcal{D}|}\sum_{(x_i, y_i) \in \mathcal{D}} (y_i - \bar{y})^2$$
+
+where $\bar{y} = \frac{1}{|\mathcal{D}|}\sum_{(x_i, y_i) \in \mathcal{D}} y_i$ is the mean response.
+
+A split into $\mathcal{D}_L$ and $\mathcal{D}_R$ has weighted MSE:
+$$\text{MSE}_{\text{split}} = \frac{|\mathcal{D}_L|}{|\mathcal{D}|} \cdot \text{MSE}(\mathcal{D}_L) + \frac{|\mathcal{D}_R|}{|\mathcal{D}|} \cdot \text{MSE}(\mathcal{D}_R)$$
+
+Choose the split $(j, t)$ minimising $\text{MSE}_{\text{split}}$.
+
+\textbf{Equivalently}, maximise the \textbf{variance reduction}:
+$$\Delta\text{MSE} = \text{MSE}(\mathcal{D}) - \text{MSE}_{\text{split}} = \frac{|\mathcal{D}_L||\mathcal{D}_R|}{|\mathcal{D}|^2}(\bar{y}_L - \bar{y}_R)^2$$
+
+This shows that good splits separate the means of the two child nodes.
+\end{greybox}
+
+\textbf{Unpacking the weighted MSE}: The weights $\frac{|\mathcal{D}_L|}{|\mathcal{D}|}$ and $\frac{|\mathcal{D}_R|}{|\mathcal{D}|}$ account for the relative sizes of the child nodes. A split creating one tiny node and one large node is penalised appropriately-the large node's MSE dominates the weighted average. This prevents gaming the criterion by creating tiny pure nodes at the expense of leaving most data poorly fit.
+
+\textbf{The variance reduction formula}: The final expression $\frac{|\mathcal{D}_L||\mathcal{D}_R|}{|\mathcal{D}|^2}(\bar{y}_L - \bar{y}_R)^2$ reveals the geometry of good splits. The term $(\bar{y}_L - \bar{y}_R)^2$ measures how different the child means are-bigger separation is better. The term $\frac{|\mathcal{D}_L||\mathcal{D}_R|}{|\mathcal{D}|^2}$ is maximised when the split is balanced ($|\mathcal{D}_L| = |\mathcal{D}_R|$) and approaches zero for highly imbalanced splits. Together, they favour splits that create two reasonably-sized groups with different mean outcomes.
+
+\begin{greybox}[Derivation of Variance Reduction Formula]
+The derivation follows from expanding the MSE:
+\begin{align*}
+\text{MSE}(\mathcal{D}) &= \frac{1}{n}\sum_i (y_i - \bar{y})^2 = \frac{1}{n}\sum_i y_i^2 - \bar{y}^2 \\
+\text{MSE}_{\text{split}} &= \frac{n_L}{n}\left(\frac{1}{n_L}\sum_{i \in L} y_i^2 - \bar{y}_L^2\right) + \frac{n_R}{n}\left(\frac{1}{n_R}\sum_{i \in R} y_i^2 - \bar{y}_R^2\right) \\
+&= \frac{1}{n}\sum_i y_i^2 - \frac{n_L}{n}\bar{y}_L^2 - \frac{n_R}{n}\bar{y}_R^2
+\end{align*}
+
+Subtracting and using $\bar{y} = \frac{n_L}{n}\bar{y}_L + \frac{n_R}{n}\bar{y}_R$ yields the variance reduction formula.
+
+\textbf{Key step}: The $\sum_i y_i^2$ terms cancel, leaving only terms involving the squared means. After algebra using the constraint that $\bar{y}$ is a weighted average of $\bar{y}_L$ and $\bar{y}_R$:
+$$\Delta\text{MSE} = \frac{n_L}{n}\bar{y}_L^2 + \frac{n_R}{n}\bar{y}_R^2 - \bar{y}^2 = \frac{n_L n_R}{n^2}(\bar{y}_L - \bar{y}_R)^2$$
+\end{greybox}
+
+\subsection{Gini Impurity for Classification}
+
+For classification with $K$ classes, we need a measure of node ``impurity''-how mixed the class labels are. A pure node contains only one class; an impure node contains a mixture.
+
+\begin{greybox}[Gini Impurity]
+For a node with class proportions $p_1, \ldots, p_K$ (where $p_k = \frac{\#\text{class } k}{n}$), the \textbf{Gini impurity} is:
+$$G = \sum_{k=1}^{K} p_k(1 - p_k) = 1 - \sum_{k=1}^{K} p_k^2$$
+
+\textbf{Interpretation}: $G$ is the probability that a randomly chosen element, if labelled according to the class distribution, would be misclassified. Equivalently, it measures expected disagreement between two independent samples from the distribution.
+
+\textbf{Properties}:
+\begin{itemize}
+    \item $G = 0$ when node is pure (all samples from one class)
+    \item $G$ is maximised when all classes are equally likely: $G_{\max} = 1 - 1/K$
+    \item For binary classification: $G = 2p(1-p)$, maximised at $p = 0.5$ where $G = 0.5$
+\end{itemize}
+\end{greybox}
+
+\textbf{Understanding Gini impurity}: The two equivalent forms $\sum_k p_k(1-p_k)$ and $1 - \sum_k p_k^2$ give different intuitions:
+
+\begin{itemize}
+    \item $\sum_k p_k(1-p_k)$: For each class $k$, $p_k$ is the probability of selecting that class, and $(1-p_k)$ is the probability of misclassifying it (assigning any other class). Summing over classes gives the overall misclassification probability.
+
+    \item $1 - \sum_k p_k^2$: The term $\sum_k p_k^2$ is the probability that two randomly drawn samples (with replacement) belong to the same class. Subtracting from 1 gives the probability they belong to different classes-a measure of ``disagreement'' or ``diversity'' in the node.
+\end{itemize}
+
+\textbf{Why ``Gini''?} The impurity measure is related to the Gini coefficient from economics (measuring inequality), though the connection is historical rather than mathematical. Corrado Gini developed various measures of statistical dispersion in the early 20th century.
+
+\textbf{Derivation}: Consider randomly selecting two samples with replacement from a node with class proportions $(p_1, \ldots, p_K)$. The probability they have the same class is $\sum_k p_k^2$. The probability they differ is $1 - \sum_k p_k^2 = G$. Minimising Gini impurity maximises class homogeneity.
+
+\subsection{Entropy and Information Gain}
+
+An alternative to Gini impurity, rooted in information theory:
+
+\begin{greybox}[Entropy and Information Gain]
+The \textbf{entropy} of a node with class proportions $p_1, \ldots, p_K$ is:
+$$H = -\sum_{k=1}^{K} p_k \log_2 p_k$$
+
+where we take $0 \log 0 = 0$ by convention (justified by $\lim_{p \to 0^+} p \log p = 0$).
+
+\textbf{Interpretation}: $H$ measures the expected number of bits needed to encode a class label drawn from this distribution. Low entropy means the distribution is concentrated (predictable); high entropy means it's spread out (uncertain).
+
+\textbf{Properties}:
+\begin{itemize}
+    \item $H = 0$ when node is pure (no uncertainty-we know the class with certainty)
+    \item $H$ is maximised at uniform distribution: $H_{\max} = \log_2 K$
+    \item For binary classification: $H = -p\log_2 p - (1-p)\log_2(1-p)$, maximised at $p = 0.5$ where $H = 1$ bit
+\end{itemize}
+
+The \textbf{information gain} from a split is:
+$$\text{IG} = H(\mathcal{D}) - \left[\frac{|\mathcal{D}_L|}{|\mathcal{D}|}H(\mathcal{D}_L) + \frac{|\mathcal{D}_R|}{|\mathcal{D}|}H(\mathcal{D}_R)\right]$$
+
+Choose the split maximising information gain.
+\end{greybox}
+
+\textbf{The information theory perspective}: Entropy comes from Claude Shannon's foundational work on communication. If you're transmitting class labels and can design an optimal coding scheme, the expected message length is exactly $H$ bits. A pure node has $H = 0$: no message needed since the class is certain. A maximally uncertain node (uniform over $K$ classes) requires $\log_2 K$ bits on average.
+
+\textbf{Information gain as mutual information}: Information gain equals the mutual information between the split variable (which child node you fall into) and the class label, conditioned on reaching this node. In other words, knowing the split outcome gives you exactly $\text{IG}$ bits of information about the class.
+
+\textbf{Why logarithms?} The $\log_2$ makes bits the unit; using natural logarithm gives ``nats.'' The choice doesn't affect which split is optimal since $\log_a x = \log_a b \cdot \log_b x$ (just a constant factor).
+
+\subsection{Comparing Gini and Entropy}
+
+\begin{bluebox}[Gini vs Entropy]
+\begin{center}
+\begin{tabular}{lcc}
+& \textbf{Gini} & \textbf{Entropy} \\
+\hline
+Range (binary) & $[0, 0.5]$ & $[0, 1]$ \\
+At $p = 0.5$ & 0.5 & 1 \\
+Computation & Slightly faster & Requires $\log$ \\
+Sensitivity & Less sensitive to $p$ changes near 0.5 & More sensitive \\
+\end{tabular}
+\end{center}
+
+In practice, Gini and entropy produce very similar trees. The default in scikit-learn is Gini; information gain (entropy) is more common in the literature and has deeper theoretical connections to information theory and coding.
+\end{bluebox}
+
+Both are concave functions of the class proportions, ensuring that any split reducing the weighted average impurity is beneficial. The concavity is important: it guarantees that splitting always helps (or at worst doesn't hurt) in terms of weighted impurity.
+
+\begin{greybox}[Mathematical Comparison]
+For binary classification with proportion $p \in [0, 1]$:
+
+$$G(p) = 2p(1-p)$$
+$$H(p) = -p\log_2 p - (1-p)\log_2(1-p)$$
+
+Taylor expansion around $p = 0.5$:
+$$G(p) \approx 0.5 - 2(p - 0.5)^2$$
+$$H(p) \approx 1 - \frac{2}{\ln 2}(p - 0.5)^2 \approx 1 - 2.885(p - 0.5)^2$$
+
+Entropy has higher curvature at the maximum, making it slightly more aggressive at separating classes near the uniform distribution.
+\end{greybox}
+
+\textbf{Practical implications}: The higher curvature of entropy means it penalises ``almost pure'' nodes less than ``moderately impure'' nodes, relative to Gini. Near $p = 0$ or $p = 1$ (pure nodes), both measures are similarly flat. Near $p = 0.5$ (maximum impurity), entropy curves more sharply. In practice, this rarely matters-the two criteria select the same or very similar splits on most real datasets.
+
+\section{The Greedy Algorithm}
+
+\begin{redbox}
+Finding the globally optimal tree is \textbf{NP-hard}. The space of possible trees is exponential in the number of features and thresholds-there is no efficient algorithm guaranteed to find the tree minimising test error.
+
+We must use \textbf{greedy} algorithms that make locally optimal decisions at each node, accepting that the resulting tree may be globally suboptimal. The greedy approach is the foundation of CART (Classification and Regression Trees) and essentially all practical tree implementations.
+\end{redbox}
+
+\subsection{The Non-Differentiability Challenge}
+
+Unlike neural networks or linear models, decision trees cannot be optimised using gradient-based methods. The reason is fundamental: the threshold parameters $\theta = \{(j_1, t_1), (j_2, t_2), \ldots\}$ that define splits create \textbf{discontinuous} changes in predictions.
+
+When an observation moves from one side of a threshold to another, its prediction can jump discontinuously. There is no smooth gradient to follow. Consider moving threshold $t$ slightly: some observations suddenly change which leaf they fall into, causing their predictions to jump. The loss function is piecewise constant in the thresholds, with discontinuities at each training point's feature value.
+
+This rules out standard optimisation techniques like gradient descent, stochastic gradient descent, or any method relying on derivatives.
+
+\subsection{Recursive Splitting Algorithm}
+
+\begin{greybox}[CART: Classification and Regression Trees]
+\textbf{Input}: Dataset $\mathcal{D} = \{(x_i, y_i)\}_{i=1}^n$, stopping criteria
+
+\textbf{BuildTree}$(\mathcal{D})$:
+\begin{enumerate}
+    \item If stopping criterion met: return leaf with prediction $c = \bar{y}$ (regression) or $c = \text{mode}(y)$ (classification)
+    \item For each feature $j$ and threshold $t$:
+    \begin{itemize}
+        \item Compute split quality: $\text{Score}(j, t) = \text{ImpurityReduction}(\mathcal{D}, j, t)$
+    \end{itemize}
+    \item Select best split: $(j^*, t^*) = \arg\max_{j,t} \text{Score}(j, t)$
+    \item Partition: $\mathcal{D}_L = \{(x, y) : x_j^* \leq t^*\}$, $\mathcal{D}_R = \{(x, y) : x_j^* > t^*\}$
+    \item Return internal node with:
+    \begin{itemize}
+        \item Split rule: $x_{j^*} \leq t^*$
+        \item Left child: \textbf{BuildTree}$(\mathcal{D}_L)$
+        \item Right child: \textbf{BuildTree}$(\mathcal{D}_R)$
+    \end{itemize}
+\end{enumerate}
+\end{greybox}
+
+\textbf{Walking through the algorithm}: Starting with all data at the root, we exhaustively evaluate every possible split (every feature $j$, every threshold $t$) and pick the one that most reduces impurity. We then partition the data according to this split and recursively apply the same procedure to each child. The recursion terminates when a stopping condition is met (e.g., too few samples, maximum depth reached, or no split improves impurity).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/recursive greedy.png}
+    \caption{Greedy recursive splitting: at each node, choose the locally best split without considering downstream consequences. This myopic approach is computationally efficient but may miss globally better tree structures.}
+    \label{fig:greedy-splitting}
+\end{figure}
+
+\textbf{Time complexity}: For $n$ samples and $p$ features, each split requires $O(np)$ operations (evaluate all features and thresholds). A balanced tree has $O(\log n)$ levels, giving total complexity $O(np \log n)$. An unbalanced tree can have $O(n)$ levels, giving $O(n^2 p)$ worst case. Sorting features once and updating incrementally can improve constants.
+
+\subsection{Stopping Criteria}
+
+Without constraints, a tree will grow until every leaf contains a single training point (or all points in a leaf have identical features). This perfectly fits training data but badly overfits.
+
+\begin{bluebox}[Common Stopping Criteria (Pre-Pruning)]
+\begin{itemize}
+    \item \textbf{Maximum depth}: Stop when path length from root reaches limit
+    \item \textbf{Minimum samples per leaf}: Don't create leaves smaller than threshold
+    \item \textbf{Minimum samples to split}: Don't split nodes smaller than threshold
+    \item \textbf{Minimum impurity decrease}: Don't split if impurity reduction is below threshold
+    \item \textbf{Maximum leaf nodes}: Stop when tree has enough leaves
+\end{itemize}
+
+These are \textbf{hyperparameters}-tune via cross-validation.
+\end{bluebox}
+
+\begin{redbox}
+\textbf{The stopping dilemma}: Strict stopping criteria may prevent useful splits. Consider XOR: no single split on $x_1$ or $x_2$ reduces impurity, but the combination of two splits perfectly separates the classes. Early stopping would miss this.
+
+\textbf{Example}: In XOR, points at $(0,0)$ and $(1,1)$ belong to class 0; points at $(0,1)$ and $(1,0)$ belong to class 1. Splitting on $x_1$ alone gives each child a 50-50 class mix-no improvement. Same for $x_2$. But splitting on $x_1$ first, then $x_2$ within each child, achieves perfect separation.
+
+This motivates \textbf{post-pruning}: grow a full tree, then prune back.
+\end{redbox}
+
+\section{Pruning}
+
+\subsection{Why Trees Overfit}
+
+An unconstrained tree will grow until every leaf is pure (or contains identical feature vectors). This happens because:
+
+\begin{enumerate}
+    \item The greedy algorithm always finds \emph{some} split that reduces training impurity (even if by a tiny amount due to noise)
+    \item There's no penalty for adding nodes-more leaves always means equal or lower training error
+    \item Training error monotonically decreases as the tree grows
+\end{enumerate}
+
+A fully-grown tree with $n$ leaves (one per training point) achieves zero training error but captures every quirk and noise pattern in the data. This is memorisation, not learning. Test error initially decreases as the tree captures real structure, then increases as it fits noise-the classic bias-variance trade-off.
+
+\subsection{Pre-Pruning vs Post-Pruning}
+
+\begin{greybox}[Pruning Strategies]
+\textbf{Pre-pruning} (early stopping):
+\begin{itemize}
+    \item Apply stopping criteria during tree construction
+    \item Fast: never builds subtrees that would be pruned
+    \item Risk: may stop too early (XOR problem), miss beneficial deep splits
+    \item Hyperparameters: max depth, min samples per leaf, min impurity decrease
+\end{itemize}
+
+\textbf{Post-pruning} (grow then prune):
+\begin{itemize}
+    \item Grow full tree (or nearly full, with minimal stopping criteria)
+    \item Prune back nodes that don't improve validation error
+    \item More computation but often better results
+    \item Can discover beneficial deep splits that pre-pruning would miss
+\end{itemize}
+\end{greybox}
+
+\textbf{The philosophical difference}: Pre-pruning says ``don't build complexity you don't need.'' Post-pruning says ``build everything, then remove what doesn't help.'' The latter is more conservative-it won't miss useful structure-but requires more computation.
+
+\subsection{Cost-Complexity Pruning (CART)}
+
+The most principled approach to post-pruning is \textbf{cost-complexity pruning} (also called \emph{weakest link pruning}), used in CART.
+
+\begin{greybox}[Cost-Complexity Criterion]
+For a tree $T$, define the \textbf{cost-complexity} objective:
+$$R_\alpha(T) = R(T) + \alpha |T|$$
+
+where:
+\begin{itemize}
+    \item $R(T)$ = training error (misclassification rate or MSE)
+    \item $|T|$ = number of leaf nodes (tree size)
+    \item $\alpha \geq 0$ = complexity parameter (penalty per leaf)
+\end{itemize}
+
+For each $\alpha$, find the subtree $T_\alpha \subseteq T_{\max}$ minimising $R_\alpha(T)$.
+
+\textbf{Key insight}: As $\alpha$ increases, the optimal subtree shrinks (fewer leaves). There exists a nested sequence of subtrees:
+$$T_{\max} = T_0 \supseteq T_1 \supseteq T_2 \supseteq \cdots \supseteq T_K = \{\text{root}\}$$
+
+where $T_{k+1}$ is obtained by pruning the ``weakest link'' from $T_k$-the internal node whose removal increases $R(T)$ least per leaf removed.
+\end{greybox}
+
+\textbf{Understanding the cost-complexity objective}: The term $R(T)$ rewards accuracy; the term $\alpha|T|$ penalises complexity. With $\alpha = 0$, there's no penalty for complexity, so the full tree is optimal. As $\alpha$ increases, each additional leaf must ``pay for itself'' by reducing training error by at least $\alpha$. Large $\alpha$ favours small trees; small $\alpha$ favours large trees.
+
+This is directly analogous to LASSO regularisation in linear models, where the penalty term balances fit against complexity. The parameter $\alpha$ plays the same role as the regularisation parameter $\lambda$.
+
+\begin{greybox}[Weakest Link Pruning Algorithm]
+For each internal node $t$ in tree $T$, compute:
+$$g(t) = \frac{R(t) - R(T_t)}{|T_t| - 1}$$
+
+where $R(t)$ is the error if we replace subtree $T_t$ with a leaf, and $|T_t|$ is the number of leaves in subtree $T_t$.
+
+\textbf{Interpretation}: $g(t)$ is the increase in training error per leaf pruned. The node with smallest $g(t)$ is the ``weakest link''-it contributes least to accuracy per unit complexity.
+
+\textbf{Algorithm}:
+\begin{enumerate}
+    \item Start with $T_0 = T_{\max}$
+    \item Find weakest link: $t^* = \arg\min_t g(t)$
+    \item Prune: $T_{k+1} = T_k$ with subtree at $t^*$ replaced by leaf
+    \item Record $\alpha_k = g(t^*)$
+    \item Repeat until only root remains
+\end{enumerate}
+
+This produces the sequence $T_0, T_1, \ldots, T_K$ and corresponding $\alpha_0 < \alpha_1 < \cdots < \alpha_K$.
+\end{greybox}
+
+\textbf{Why ``weakest link''?} The metaphor is apt: we identify the part of the tree that contributes least to performance (relative to its complexity cost) and remove it. The node with smallest $g(t)$ is the one where pruning costs the least per leaf removed. Iteratively removing weakest links gives a sequence of trees of decreasing complexity.
+
+\textbf{Efficiency note}: The algorithm produces the entire sequence of optimally pruned trees in a single pass through the full tree. We don't need to solve a separate optimisation problem for each $\alpha$-the nested sequence covers all possible optimal trees.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/pruning.png}
+    \caption{Cost-complexity pruning: test error improves as we prune back the overfitted tree. The optimal $\alpha$ is selected by cross-validation.}
+    \label{fig:pruning}
+\end{figure}
+
+\textbf{Selecting $\alpha$}: Use cross-validation. For each fold:
+\begin{enumerate}
+    \item Grow full tree on training portion
+    \item Generate pruning sequence
+    \item Evaluate each $T_\alpha$ on validation portion
+\end{enumerate}
+Average validation errors across folds; select $\alpha$ with minimum error (or use one-standard-error rule from Week 4: choose the simplest model within one standard error of the minimum).
+
+\section{Worked Example: Building a Classification Tree}
+
+Let's construct a classification tree step-by-step on a small dataset.
+
+\begin{greybox}[Example Dataset]
+Predicting whether customers buy a product based on Age and Income:
+
+\begin{center}
+\begin{tabular}{ccc}
+\textbf{Age} & \textbf{Income (\$k)} & \textbf{Buys?} \\
+\hline
+25 & 40 & No \\
+35 & 60 & No \\
+45 & 80 & Yes \\
+20 & 25 & No \\
+35 & 120 & Yes \\
+52 & 90 & Yes \\
+23 & 35 & No \\
+40 & 100 & Yes \\
+\end{tabular}
+\end{center}
+
+Classes: 4 Yes, 4 No. Initial proportions: $p_{\text{Yes}} = 0.5$, $p_{\text{No}} = 0.5$.
+\end{greybox}
+
+\textbf{Step 1: Compute initial impurity}
+
+Gini impurity at root:
+$$G_{\text{root}} = 2 \times 0.5 \times 0.5 = 0.5$$
+
+This is the maximum possible Gini impurity for binary classification-the classes are perfectly balanced.
+
+\textbf{Step 2: Evaluate all possible splits}
+
+\textbf{Candidate thresholds for Age}: Sort unique values: 20, 23, 25, 35, 40, 45, 52. Midpoints: 21.5, 24, 30, 37.5, 42.5, 48.5 (note: 35 appears twice, so midpoint between 25 and 35 is 30).
+
+\textbf{Candidate thresholds for Income}: Sort unique values: 25, 35, 40, 60, 80, 90, 100, 120. Midpoints: 30, 37.5, 50, 70, 85, 95, 110.
+
+Let's evaluate Income $\leq 50$:
+\begin{itemize}
+    \item Left ($\leq 50$): Observations with Income $\in \{40, 25, 35\}$ plus one with 60... wait, let me recount.
+    \item Observations with Income $\leq 50$: (25, 40, No), (20, 25, No), (23, 35, No). That's 3 samples, but we need 4 in left.
+    \item Actually Income = 40 $\leq$ 50: Yes. Income = 60 $> 50$. So left has Income $\in \{40, 25, 35\}$: 3 samples.
+\end{itemize}
+
+Let me recalculate more carefully. Looking at all incomes: 40, 60, 80, 25, 120, 90, 35, 100.
+
+For threshold $t = 50$:
+\begin{itemize}
+    \item Left ($\leq 50$): Income $\in \{40, 25, 35\}$, corresponding to observations 1, 4, 7. Labels: No, No, No. That's 3 samples, all No.
+    \item Right ($> 50$): Income $\in \{60, 80, 120, 90, 100\}$, corresponding to observations 2, 3, 5, 6, 8. Labels: No, Yes, Yes, Yes, Yes. That's 5 samples: 1 No, 4 Yes.
+\end{itemize}
+
+Gini for left ($n_L = 3$): $G_L = 2 \times 1 \times 0 = 0$ (pure-all No)
+
+Gini for right ($n_R = 5$): $p_{\text{Yes}} = 4/5 = 0.8$, so $G_R = 2 \times 0.8 \times 0.2 = 0.32$
+
+Weighted Gini after split:
+$$G_{\text{split}} = \frac{3}{8} \times 0 + \frac{5}{8} \times 0.32 = 0.20$$
+
+Gini reduction: $\Delta G = 0.5 - 0.20 = 0.30$
+
+Let me try another threshold. Income $\leq 70$:
+\begin{itemize}
+    \item Left ($\leq 70$): Income $\in \{40, 60, 25, 35\}$, observations 1, 2, 4, 7. Labels: No, No, No, No. 4 samples, all No. $G_L = 0$.
+    \item Right ($> 70$): Income $\in \{80, 120, 90, 100\}$, observations 3, 5, 6, 8. Labels: Yes, Yes, Yes, Yes. 4 samples, all Yes. $G_R = 0$.
+\end{itemize}
+
+Weighted Gini:
+$$G_{\text{split}} = \frac{4}{8} \times 0 + \frac{4}{8} \times 0 = 0$$
+
+Gini reduction: $\Delta G = 0.5 - 0 = 0.5$ (maximum possible!)
+
+This split perfectly separates the classes. Let's verify by checking an Age split.
+
+\textbf{Try Age $\leq 30$}:
+\begin{itemize}
+    \item Left ($\leq 30$): Ages $\in \{25, 20, 23\}$, observations 1, 4, 7. Labels: No, No, No. 3 samples. $G_L = 0$.
+    \item Right ($> 30$): Ages $\in \{35, 45, 35, 52, 40\}$, observations 2, 3, 5, 6, 8. Labels: No, Yes, Yes, Yes, Yes. 5 samples: 1 No, 4 Yes.
+    \begin{itemize}
+        \item $p_{\text{Yes}} = 4/5 = 0.8$
+        \item $G_R = 2 \times 0.8 \times 0.2 = 0.32$
+    \end{itemize}
+\end{itemize}
+
+Weighted Gini:
+$$G_{\text{split}} = \frac{3}{8} \times 0 + \frac{5}{8} \times 0.32 = 0.20$$
+
+Gini reduction: $\Delta G = 0.5 - 0.20 = 0.20$
+
+Income $\leq 70$ is better ($\Delta G = 0.5 > 0.20$).
+
+\textbf{Step 3: Apply best split}
+
+Since Income $\leq 70$ achieves perfect separation, the tree is complete:
+
+\begin{verbatim}
+              [Root: 4 Yes, 4 No]
+                      |
+              Income <= 70?
+                /         \
+             Yes           No
+              |             |
+        [4 No]         [4 Yes]
+        Predict: No    Predict: Yes
+\end{verbatim}
+
+\begin{bluebox}[Worked Example Summary]
+Key observations:
+\begin{itemize}
+    \item A single split on Income perfectly separates the classes
+    \item We evaluated all candidate splits and chose the one maximising Gini reduction
+    \item The greedy algorithm found the optimal tree for this dataset
+    \item With noisy data, we'd likely need multiple splits and pruning
+    \item The threshold $t = 70$ (midpoint between 60 and 80) works; any value in $(60, 80)$ would produce the same split
+\end{itemize}
+\end{bluebox}
+
+\section{Trees as Piecewise Constant Approximations}
+
+\subsection{The Approximation View}
+
+A regression tree with $J$ leaves is fundamentally a \textbf{piecewise constant} function:
+
+$$f(x) = \sum_{j=1}^{J} c_j \cdot \mathbf{1}[x \in R_j]$$
+
+where $R_1, \ldots, R_J$ partition the feature space into axis-aligned rectangles.
+
+\textbf{What this means geometrically}: Imagine the feature space as a floor, and the prediction as a height. A tree creates a ``staircase'' surface where the floor is divided into rectangular tiles, and each tile is at a constant height. The surface is flat within each tile but can jump discontinuously between tiles.
+
+\begin{greybox}[Comparison with Other Approximations]
+\textbf{Linear models}: $f(x) = \beta_0 + \sum_j \beta_j x_j$
+\begin{itemize}
+    \item Single hyperplane; global assumption about relationship
+    \item Cannot capture interactions without explicit feature engineering (adding $x_1 \cdot x_2$ terms)
+    \item Extrapolates linearly beyond training data
+\end{itemize}
+
+\textbf{Polynomial models}: $f(x) = \sum_{|\alpha| \leq d} \beta_\alpha x^\alpha$
+\begin{itemize}
+    \item Smooth approximation to any function (Weierstrass theorem)
+    \item Degree $d$ controls flexibility; oscillation issues at boundaries
+    \item Can capture nonlinear relationships and interactions
+\end{itemize}
+
+\textbf{Trees (piecewise constant)}: $f(x) = \sum_j c_j \cdot \mathbf{1}[x \in R_j]$
+\begin{itemize}
+    \item Discontinuous step function
+    \item Adapts complexity locally (more splits where needed)
+    \item Axis-aligned regions; cannot efficiently represent diagonal boundaries
+\end{itemize}
+
+\textbf{Key insight}: Trees are like histograms with adaptive bin boundaries-simple within each region, complex through the number and placement of regions.
+\end{greybox}
+
+\subsection{Comparison with Linear Methods}
+
+\begin{bluebox}[Trees vs Linear Models]
+\begin{center}
+\begin{tabular}{lcc}
+& \textbf{Linear} & \textbf{Tree} \\
+\hline
+Decision boundary & Hyperplane & Axis-aligned rectangles \\
+Interactions & Must be specified & Automatic \\
+Extrapolation & Linear & Constant (last leaf) \\
+Interpretability & Coefficients & Rules \\
+Variance & Low & High \\
+Bias (if linear truth) & Low & High \\
+Bias (if complex truth) & High & Low \\
+\end{tabular}
+\end{center}
+
+\textbf{Rule of thumb}: If the true relationship is approximately linear, use linear models. If relationships are complex with interactions, trees (especially ensembles) often win.
+\end{bluebox}
+
+Consider the decision boundaries:
+
+\begin{verbatim}
+Linear classifier:              Tree classifier:
+       x2                             x2
+        ^                              ^
+        |    +   +   +                 |  -  | +  +  +
+        |  +   +   +   +               |  -  | +  +  +
+        | + + + \ - - -                +---+---> x1
+        |  + + + \- - -                |  -  | -  -  -
+        +----\---> x1          |  -  | -  -  -
+
+  (diagonal boundary)           (staircase approximation)
+\end{verbatim}
+
+A linear classifier can represent diagonal boundaries with a single hyperplane. A tree must approximate this with many axis-aligned splits, creating a ``staircase'' boundary. This is the fundamental limitation of axis-aligned splits: boundaries that don't align with the feature axes require many splits to approximate.
+
+\textbf{Quantifying the inefficiency}: To approximate a diagonal line $x_1 + x_2 = c$ with accuracy $\epsilon$ in a unit square, a tree needs $O(1/\epsilon)$ leaves. This is the ``staircase approximation'' cost of axis-aligned splits.
+
+\section{Ensemble Methods: Reducing Variance}
+
+The high variance of decision trees makes them ideal candidates for \textbf{ensemble methods}-combining many models to reduce variance while preserving flexibility.
+
+\subsection{The Bias-Variance Motivation}
+
+Recall from Week 3 that test error decomposes as:
+$$\mathbb{E}[(Y - \hat{f}(X))^2] = \underbrace{\text{Var}(\hat{f}(X))}_{\text{reducible}} + \underbrace{\text{Bias}^2(\hat{f}(X)) + \sigma^2}_{\text{irreducible}}$$
+
+Decision trees have:
+\begin{itemize}
+    \item \textbf{Low bias}: Deep trees can approximate complex functions-they're flexible enough to capture almost any pattern
+    \item \textbf{High variance}: Small data changes $\Rightarrow$ different tree structure-different training sets give very different models
+\end{itemize}
+
+If we could reduce variance without increasing bias, we'd get better predictions. Ensemble methods achieve this by averaging many high-variance, low-bias models.
+
+\begin{greybox}[Variance Reduction via Averaging]
+Consider $M$ independent estimates $\hat{f}_1, \ldots, \hat{f}_M$, each with variance $\sigma^2$ and the same bias.
+
+The averaged estimate $\bar{f} = \frac{1}{M}\sum_{m=1}^M \hat{f}_m$ has:
+\begin{itemize}
+    \item Same bias as individual estimates (averaging doesn't change expectation)
+    \item Variance $\frac{\sigma^2}{M}$ (reduced by factor $M$)
+\end{itemize}
+
+\textbf{The catch}: Our trees aren't independent-they're trained on the same data. But we can make them \emph{approximately} independent through resampling.
+\end{greybox}
+
+\textbf{The key insight}: Averaging reduces variance when the estimators have uncorrelated (or weakly correlated) errors. Even if individual trees make mistakes, they'll make \emph{different} mistakes, which cancel out when averaged. The more decorrelated the trees, the greater the variance reduction.
+
+\subsection{Bagging (Bootstrap Aggregating)}
+
+Bagging turns the instability of decision trees from a weakness into a strength. By training trees on different bootstrap samples, we create diverse models whose averaged predictions are more stable than any individual.
+
+\begin{greybox}[Bagging Algorithm]
+\begin{enumerate}
+    \item Create $M$ bootstrap samples: sample $n$ points \textbf{with replacement} from training data
+    \item Fit an unpruned decision tree to each bootstrap sample
+    \item Aggregate predictions:
+    \begin{itemize}
+        \item Regression: $\hat{f}(x) = \frac{1}{M}\sum_{m=1}^M \hat{f}_m(x)$
+        \item Classification: $\hat{y}(x) = \text{majority vote of } \hat{f}_1(x), \ldots, \hat{f}_M(x)$
+    \end{itemize}
+\end{enumerate}
+
+Each bootstrap sample contains approximately 63.2\% unique observations (on average). The remaining $\approx 36.8\%$ are \textbf{out-of-bag (OOB)}-not used to train that tree.
+\end{greybox}
+
+\textbf{Why bootstrap sampling?} We want to simulate having multiple independent training sets, but we only have one. Bootstrap sampling creates ``pseudo-datasets'' by resampling with replacement. Each bootstrap sample is like a slightly different version of reality-some observations appear multiple times, others don't appear at all. This variation is what makes the trees different.
+
+\textbf{Why 63.2\%?} The probability that observation $i$ is \emph{not} selected in any of $n$ draws with replacement is $(1 - 1/n)^n \to e^{-1} \approx 0.368$ as $n \to \infty$. So approximately $1 - 0.368 = 0.632$ or 63.2\% of observations appear at least once in each bootstrap sample.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/bagging.png}
+    \caption{Bagging smooths out the jagged predictions of individual trees. (a) A single tree shows high variance with overfit predictions. As we aggregate more trees (b--d), the ensemble prediction smooths out, reducing variance while maintaining the ability to capture the underlying signal.}
+    \label{fig:bagging}
+\end{figure}
+
+\begin{bluebox}[Why Bagging Works]
+\begin{itemize}
+    \item \textbf{Variance reduction}: Each tree sees different training data, making different splits. Averaging reduces idiosyncratic variance.
+    \item \textbf{Bias preserved}: Each tree is grown deep (low bias); average of low-bias estimators is low-bias.
+    \item \textbf{OOB error}: Use each tree's OOB samples for validation-free error estimate without holdout set!
+    \item \textbf{Parallelisable}: Trees are independent; train on separate cores/machines.
+\end{itemize}
+
+\textbf{Key insight}: Averaging many high-variance models produces a low-variance ensemble-if the models' errors are not too correlated.
+\end{bluebox}
+
+\subsubsection{Out-of-Bag (OOB) Error Estimation}
+
+The $\sim$37\% of observations not in each bootstrap sample provide ``free'' validation:
+
+\begin{greybox}[OOB Error Estimation]
+For each observation $x_i$:
+\begin{enumerate}
+    \item Identify all trees where $x_i$ was \emph{not} in the bootstrap sample (i.e., $x_i$ was OOB)
+    \item Average predictions from only those trees: $\hat{f}_{\text{OOB}}(x_i) = \frac{1}{|\mathcal{T}_i|}\sum_{m \in \mathcal{T}_i} \hat{f}_m(x_i)$
+    \item Compare to true $y_i$
+\end{enumerate}
+
+The OOB error is computed across all observations, using only trees for which each observation was held out. This provides an honest estimate of generalisation error-similar to cross-validation but without the computational cost of re-fitting.
+
+\textbf{Computational advantage}: OOB error estimation comes ``for free''-we don't need to set aside a validation set or perform cross-validation. Each observation serves as a test case for approximately $M \times 0.368$ trees.
+\end{greybox}
+
+\subsubsection{Variance of Correlated Estimators}
+
+The effectiveness of bagging depends on how correlated the trees are:
+
+\begin{greybox}[Variance of Correlated Estimators]
+If $M$ estimators have variance $\sigma^2$ and pairwise correlation $\rho$, the variance of their average is:
+$$\text{Var}\left(\frac{1}{M}\sum_{m=1}^M \hat{f}_m\right) = \frac{\sigma^2}{M} + \frac{M-1}{M}\rho\sigma^2 = \rho\sigma^2 + \frac{1-\rho}{M}\sigma^2$$
+
+As $M \to \infty$, variance approaches $\rho\sigma^2$, not zero. High correlation limits variance reduction.
+\end{greybox}
+
+\textbf{Unpacking the formula}: The variance has two terms:
+\begin{itemize}
+    \item $\frac{(1-\rho)\sigma^2}{M}$: This term shrinks as $M$ increases-the benefit of averaging
+    \item $\rho\sigma^2$: This term is a floor that doesn't decrease with $M$-the cost of correlation
+\end{itemize}
+
+If $\rho = 0$ (independent trees), variance drops to $\sigma^2/M$-perfect! If $\rho = 1$ (identical trees), variance stays at $\sigma^2$-no benefit from averaging. Real bagged trees have $0 < \rho < 1$, so we get some but not unlimited benefit from averaging.
+
+\subsubsection{Variance Estimation with Bagging}
+
+Beyond prediction, bagging provides a natural way to estimate the \textbf{uncertainty} in predictions:
+
+\begin{greybox}[Variance of Predictions]
+For a test point $x$, the variance across the $M$ tree predictions provides an estimate of prediction uncertainty:
+$$\widehat{\text{Var}}[\hat{f}(x)] = \frac{1}{M-1} \sum_{m=1}^{M} \left(\hat{f}_m(x) - \bar{f}(x)\right)^2$$
+
+where $\bar{f}(x) = \frac{1}{M}\sum_m \hat{f}_m(x)$ is the ensemble prediction.
+
+This variance estimate is \textbf{not constant} across the feature space-it tends to be higher in regions with:
+\begin{itemize}
+    \item Fewer training observations (less information)
+    \item Steeper prediction surfaces (small changes in data have larger effects)
+    \item Greater disagreement among individual trees
+\end{itemize}
+
+The \textbf{infinitesimal jackknife} and related techniques can provide more refined variance estimates by analysing how predictions change when individual observations are perturbed.
+\end{greybox}
+
+\textbf{Practical use}: This variance estimate gives confidence intervals for predictions. If trees strongly disagree on a prediction, the variance is high, signalling uncertainty. If they agree, variance is low, signalling confidence. This is valuable for decision-making under uncertainty.
+
+\subsection{Random Forests}
+
+Random forests add a second source of randomness to further decorrelate the trees.
+
+\begin{greybox}[Random Forest = Bagging + Feature Subsampling]
+At each split (not just each tree):
+\begin{enumerate}
+    \item Randomly select $m$ features from all $p$ features
+    \item Find the best split using \textbf{only those $m$ features}
+    \item Apply the split; recurse on children
+\end{enumerate}
+
+Typical choices: $m \approx \sqrt{p}$ for classification, $m \approx p/3$ for regression.
+
+This forces trees to use different features at each split, reducing correlation between trees.
+\end{greybox}
+
+\textbf{Why feature subsampling at each split?} In bagging, if one feature is overwhelmingly predictive, most trees will split on it first. This makes trees similar-they make correlated errors. By forcing trees to consider only a random subset of features at each split, we ensure trees develop different structures. Sometimes a tree won't have access to the ``best'' feature and must find an alternative, leading to diversity.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_trees/rand forest.png}
+    \caption{Random forest: feature subsampling decorrelates trees. More trees generally improve performance (with diminishing returns). The ensemble captures complex structure that individual trees miss.}
+    \label{fig:random-forest}
+\end{figure}
+
+\begin{bluebox}[Random Forest Properties]
+\begin{itemize}
+    \item \textbf{Individual trees are worse}: Feature restriction prevents always choosing the ``best'' split, increasing bias slightly
+    \item \textbf{But ensemble is better}: Lower correlation between trees means greater variance reduction from averaging
+    \item \textbf{Scales well}: More trees always help (diminishing returns after 100-500, but never hurts)
+    \item \textbf{Few hyperparameters}: Main ones are $M$ (number of trees) and $m$ (features per split)
+    \item \textbf{Remarkably robust}: Works well ``out of the box'' on many problems with minimal tuning
+\end{itemize}
+\end{bluebox}
+
+\begin{greybox}[The Decorrelation Effect]
+Without feature subsampling, if one feature is strongly predictive, most trees will split on it first. This makes trees similar-\textbf{correlated}.
+
+Correlated trees make correlated errors. When we average correlated predictions, variance reduction is limited (recall: variance approaches $\rho\sigma^2$ as $M \to \infty$).
+
+\textbf{Feature subsampling reduces $\rho$} by preventing the same features from dominating every tree. This allows greater variance reduction through averaging-the $(1-\rho)/M$ term shrinks faster when $\rho$ is smaller.
+
+\textbf{Trade-off}: Each individual tree is worse (higher bias from feature restriction), but the ensemble is better (lower variance from decorrelation). The net effect is usually positive.
+\end{greybox}
+
+Random forests are, in some sense, an \textbf{atheoretical heuristic}-there's no deep theoretical justification for why feature subsampling works so well. The variance reduction formula above provides some insight, but the precise optimal choice of $m$ is empirical. Yet random forests are remarkably effective across a wide range of problems, often achieving near-state-of-the-art performance with minimal tuning.
+
+\begin{redbox}
+\textbf{Interpretability cost}: Random forests sacrifice the interpretability of single trees. You cannot draw a simple flowchart or extract clean rules. The ``reasoning'' of the ensemble is opaque-no single path through a decision tree explains the prediction.
+
+Feature importance measures (e.g., mean decrease in impurity, permutation importance) provide some insight but are not a substitute for the transparent logic of a single tree.
+
+For interpretability, use a single tree (with pruning) or extract rules from the forest. For accuracy, use the full ensemble.
+\end{redbox}
+
+\subsection{Preview: Boosting}
+
+Bagging and random forests reduce variance by training trees independently and averaging. \textbf{Boosting} takes a different approach: train trees \textbf{sequentially}, with each tree correcting errors from the previous ensemble.
+
+\begin{bluebox}[Bagging vs Boosting Preview]
+\begin{center}
+\begin{tabular}{lcc}
+& \textbf{Bagging/RF} & \textbf{Boosting} \\
+\hline
+Training & Parallel & Sequential \\
+Trees & Independent & Corrective \\
+Primary benefit & Reduce variance & Reduce bias \\
+Tree depth & Deep (unpruned) & Shallow (``stumps'') \\
+Overfitting risk & Low & Higher (needs regularisation) \\
+\end{tabular}
+\end{center}
+
+Boosting is covered in detail in Week 8, including AdaBoost, gradient boosting, and XGBoost.
+\end{bluebox}
+
+\textbf{Intuition for why boosting is different}: Bagging asks ``what if we had different training data?'' and averages the answers. Boosting asks ``where are we still making mistakes?'' and focuses subsequent models on those mistakes. Bagging is parallel and reduces variance; boosting is sequential and reduces bias.
+
+\section{Summary}
+
+\begin{bluebox}[Key Concepts: Decision Trees and Ensembles]
+\begin{enumerate}
+    \item \textbf{Decision trees}: Recursive binary partitioning; predict constant value per region
+    \item \textbf{Splitting criteria}: Gini impurity or entropy (classification), MSE reduction (regression)
+    \item \textbf{Greedy algorithm}: Locally optimal splits; globally suboptimal tree (NP-hard problem)
+    \item \textbf{High variance}: Small data changes $\Rightarrow$ very different tree structure
+    \item \textbf{Pruning}: Cost-complexity criterion balances accuracy vs tree size; select $\alpha$ via CV
+    \item \textbf{Bagging}: Average bootstrap trees to reduce variance; OOB error for free validation
+    \item \textbf{Random forests}: Bagging + feature subsampling for tree decorrelation
+    \item \textbf{Trees as approximators}: Piecewise constant with adaptive, axis-aligned regions
+    \item \textbf{Ensemble principle}: Average high-variance, low-bias models $\Rightarrow$ low-variance ensemble
+    \item \textbf{Variance estimation}: Disagreement across trees quantifies prediction uncertainty
+\end{enumerate}
+\end{bluebox}
+
+\begin{bluebox}[Practical Recommendations]
+\begin{itemize}
+    \item \textbf{Single tree}: Use when interpretability is essential; apply cost-complexity pruning
+    \item \textbf{Random forest}: Default choice for most tabular data problems; robust out-of-box
+    \item \textbf{Number of trees}: Start with 100-500; monitor OOB error for diminishing returns
+    \item \textbf{Feature subsampling}: $m = \sqrt{p}$ (classification) or $m = p/3$ (regression)
+    \item \textbf{Hyperparameter tuning}: Focus on max depth, min samples per leaf, number of features
+    \item \textbf{Uncertainty}: Use variance across trees to estimate prediction confidence
+\end{itemize}
+\end{bluebox}

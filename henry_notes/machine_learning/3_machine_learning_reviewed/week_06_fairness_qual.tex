@@ -1,0 +1,469 @@
+% Week 6b: Qualitative Fairness
+
+\section*{Overview}
+
+This week introduces the qualitative dimensions of fairness in machine learning-the conceptual frameworks, types of harm, and sociotechnical considerations that precede any quantitative analysis. Before we can measure fairness (Week 7), we must understand what fairness \textit{means}, what kinds of harm can arise, and why technical solutions alone are insufficient.
+
+\textbf{Key themes:}
+\begin{itemize}
+    \item How ML systems amplify historical biases through feedback loops
+    \item The distinction between allocative and representational harm
+    \item Three dimensions of fairness: legitimacy, relative treatment, and procedural fairness
+    \item Different types of automation and their distinct fairness challenges
+    \item Sources of unfairness in data-driven systems
+    \item The importance of agency, recourse, and accountability
+\end{itemize}
+
+%===============================================================================
+\section{Machine Learning in Context}
+%===============================================================================
+
+ML models learn patterns from data. When that data reflects historical biases-as virtually all real-world data does-models can \textbf{amplify} those biases through automation. This is not a bug in the algorithm; it is a consequence of the fundamental premise that models learn to replicate patterns they observe.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_06_fairness_qual/context.png}
+    \caption{ML systems exist within broader social and institutional contexts. The model is just one component in a sociotechnical system that includes data collection, deployment decisions, and feedback loops.}
+    \label{fig:ml-context}
+\end{figure}
+
+The figure above illustrates a crucial point: an ML model does not operate in isolation. It sits within a broader context of:
+\begin{itemize}
+    \item \textbf{Data generation}: Who collected the data? Under what conditions? What was measured and what was omitted?
+    \item \textbf{Institutional deployment}: How is the model's output used? Who acts on its predictions?
+    \item \textbf{Feedback mechanisms}: How do predictions affect future data collection?
+    \item \textbf{Power dynamics}: Who benefits from automation? Who bears the costs of errors?
+\end{itemize}
+
+Sometimes you might not want to include data you consider biased or that is not relevant to the model's intended purpose. But identifying such data requires careful thought about what patterns we want to replicate and which we want to avoid.
+
+\subsection{Encoded Bias: Which Patterns Should We Replicate?}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_06_fairness_qual/turkish example.png}
+    \caption{Language models encode societal biases. This example from Google Translate (Turkish to English) shows how gender-neutral Turkish pronouns are translated using stereotypical gender associations-``he'' for doctor/soldier, ``she'' for nurse/teacher. Which patterns should we replicate, and which not?}
+    \label{fig:bias-example}
+\end{figure}
+
+The Turkish language example is instructive. Turkish uses a gender-neutral pronoun (``o'') for all third-person references. When translating to English, the model must choose a gendered pronoun. It chooses based on statistical patterns in its training data-patterns that reflect historical occupational gender disparities. The model is not ``wrong'' in a narrow technical sense; it is replicating the patterns it observed. But should it?
+
+This raises a fundamental question that pervades ML fairness: \textbf{what is the appropriate reference distribution?} Should the model:
+\begin{itemize}
+    \item Reflect the world as it currently is (perpetuating existing disparities)?
+    \item Reflect the world as it ``should'' be (imposing value judgements)?
+    \item Refuse to make such predictions (limiting utility)?
+\end{itemize}
+
+There is no technical answer to this question-it requires normative choices.
+
+\subsection{Feedback Loops: Predictions as Self-Fulfilling Prophecies}
+
+\begin{redbox}
+\textbf{Feedback loops}: Predictions can become self-fulfilling prophecies, creating cycles where biased predictions generate biased data that reinforces the original bias.
+
+\textbf{Example} (Lum \& Isaac 2016): Predictive policing systems trained on arrest data send more police to historically over-policed areas, generating more arrests, which reinforces the model's predictions.
+
+The model learns to predict \textit{where police go}, not \textit{where crime occurs}.
+\end{redbox}
+
+The predictive policing example deserves careful unpacking. Consider the chain of reasoning:
+
+\begin{enumerate}
+    \item Police have historically patrolled certain neighbourhoods more intensively (for various historical, political, and resource-allocation reasons)
+    \item More patrols lead to more observed crime (particularly for offences that require police presence to detect, such as drug possession)
+    \item Arrest data shows higher crime rates in these neighbourhoods
+    \item A model trained on arrest data predicts these neighbourhoods are ``high crime''
+    \item Police resources are allocated to these ``high crime'' areas
+    \item More patrols lead to more arrests, ``confirming'' the model's predictions
+    \item The cycle continues and intensifies
+\end{enumerate}
+
+\begin{greybox}[Construct Validity: What Are We Actually Measuring?]
+From a social science perspective, this is a \textbf{construct validity} problem. The model's target variable (arrests) is a proxy for the construct we actually care about (crime). But:
+
+\begin{itemize}
+    \item Arrests $\neq$ Crimes committed
+    \item Arrests = f(Crimes committed, Police presence, Prosecution decisions, $\ldots$)
+\end{itemize}
+
+The proxy (arrests) conflates the underlying construct (crime) with the measurement process (policing). When we optimise for the proxy, we may be optimising for something quite different from what we intended.
+
+This is a pervasive issue in ML: we rarely have direct access to the quantities we care about, so we train on proxies. Understanding the gap between proxy and construct is essential for evaluating whether a model is fair.
+\end{greybox}
+
+%===============================================================================
+\section{Types of Harm}
+%===============================================================================
+
+Not all harms from ML systems are alike. A foundational distinction separates two broad categories:
+
+\begin{greybox}[Allocative vs Representational Harm]
+\textbf{Allocative harm}: A system withholds a resource or opportunity based on group membership.
+\begin{itemize}
+    \item \textbf{Examples}: Loan denials, hiring decisions, benefit eligibility, bail decisions, housing applications
+    \item \textbf{Characteristics}: Direct, measurable impact on individuals; involves tangible resources or opportunities
+    \item \textbf{Detection}: Relatively easier to measure through outcome disparities
+    \item \textbf{Remediation}: Can potentially be addressed through policy, quotas, or algorithmic constraints
+\end{itemize}
+
+\textbf{Representational harm}: A system reinforces stereotypes or subordination of groups along the lines of identity.
+\begin{itemize}
+    \item \textbf{Examples}: Search result rankings, image captioning, language generation, recommendation systems, voice assistants
+    \item \textbf{Characteristics}: Shapes perceptions and reinforces social hierarchies; harder to quantify
+    \item \textbf{Detection}: Often requires qualitative analysis, user studies, or careful auditing
+    \item \textbf{Remediation}: May require changes to training data, model architecture, or post-processing
+\end{itemize}
+\end{greybox}
+
+\textbf{Why the distinction matters}: These two types of harm require different analytical frameworks and different interventions. Allocative harm is often amenable to the quantitative fairness metrics we will develop in Week 7. Representational harm is more subtle and may resist quantification-but it can be equally or more damaging in aggregate.
+
+\begin{bluebox}[Cascading Effects]
+Representational harm can lead to allocative harm through indirect channels:
+\begin{itemize}
+    \item Stereotypical image search results shape employer perceptions
+    \item Biased language models influence hiring algorithms
+    \item Underrepresentation in training data leads to worse performance for minority groups
+\end{itemize}
+
+The two categories interact: representational harm creates the conditions for allocative harm, while allocative harm generates the disparate outcomes that become training data for future representational harm.
+\end{bluebox}
+
+%===============================================================================
+\section{What is Fairness?}
+%===============================================================================
+
+``Fairness'' is not a single concept but a family of related concerns. Before measuring fairness quantitatively (Week 7), we must understand its qualitative dimensions.
+
+\begin{bluebox}[Three Dimensions of Fairness]
+\textbf{1. Legitimacy}: Should this system exist at all?
+\begin{itemize}
+    \item Precedes discussion of specific harms
+    \item Some applications may be fundamentally illegitimate regardless of how ``fair'' their implementation
+    \item E.g., predicting criminality from facial features-is there \textit{any} legitimate use case?
+\end{itemize}
+
+\textbf{2. Relative treatment}: How does the system allocate resources across groups?
+\begin{itemize}
+    \item Can be measured rigorously and quantitatively (Week 7)
+    \item Involves concepts like demographic parity, equalised odds, calibration
+    \item Different metrics capture different notions of fairness-and they conflict
+\end{itemize}
+
+\textbf{3. Procedural fairness}: Is the decision-making process transparent and rational?
+\begin{itemize}
+    \item Especially important for complex models where reasoning is opaque
+    \item Concerns: explainability, right to reasons, contestability
+    \item Even a ``fair'' outcome may be illegitimate if the process is opaque
+\end{itemize}
+\end{bluebox}
+
+\subsection{Legitimacy: The Prior Question}
+
+Legitimacy is the foundational question that must be answered before any technical analysis. Some systems should not exist at all, regardless of how carefully they are designed.
+
+\begin{redbox}
+\textbf{Questions to ask about legitimacy}:
+\begin{itemize}
+    \item Is the underlying prediction task scientifically valid? (E.g., predicting ``criminality'' from faces assumes a relationship that may not exist.)
+    \item Does the system respect human dignity? (E.g., automated emotion detection in job interviews.)
+    \item What are the power dynamics? Who benefits and who is harmed?
+    \item Is automation appropriate for this decision? Some decisions may warrant human judgement regardless of efficiency gains.
+    \item What is the opportunity cost of not building this system? (Sometimes ``do nothing'' is not a neutral option.)
+\end{itemize}
+
+Legitimacy questions cannot be resolved by technical means. They require ethical reasoning, stakeholder engagement, and democratic deliberation.
+\end{redbox}
+
+\subsection{Relative Treatment: Fairness Metrics}
+
+Once we have established that a system is legitimate, we can ask how it treats different groups. This is the domain of quantitative fairness (Week 7), where we will see that:
+
+\begin{itemize}
+    \item Multiple reasonable fairness metrics exist
+    \item These metrics generally conflict-you cannot satisfy all of them simultaneously
+    \item Choosing among metrics requires value judgements about what matters
+\end{itemize}
+
+\subsection{Procedural Fairness: The Right to Reasons}
+
+Even if a decision is ``correct'' by some outcome measure, it may be unfair if the process is opaque. Procedural fairness concerns include:
+
+\begin{greybox}[Components of Procedural Fairness]
+\begin{itemize}
+    \item \textbf{Transparency}: Can the decision-maker explain how the decision was reached?
+    \item \textbf{Consistency}: Are similar cases treated similarly?
+    \item \textbf{Contestability}: Can individuals challenge decisions and have them reviewed?
+    \item \textbf{Rationality}: Is the decision based on relevant factors?
+    \item \textbf{Voice}: Did affected parties have input into the process?
+\end{itemize}
+
+Complex models (especially deep learning) pose challenges for procedural fairness because their reasoning is often opaque even to their designers.
+\end{greybox}
+
+%===============================================================================
+\section{Types of Automation}
+%===============================================================================
+
+Different types of automation raise different fairness concerns. Understanding \textit{what} is being automated helps identify \textit{which} concerns are most salient.
+
+\begin{greybox}[Three Levels of Automation]
+\textbf{Type 1: Automating explicit rules}
+\begin{itemize}
+    \item \textbf{Examples}: Benefits eligibility checking, minimum job requirements, tax calculations
+    \item \textbf{What happens}: Rules that already existed (in policy, regulation, or practice) are encoded into software
+    \item \textbf{Fairness implication}: Automation makes rules more consistent but loses the flexibility of human discretion
+    \item \textbf{Risk}: Edge cases that would have received human consideration are now handled rigidly
+\end{itemize}
+
+\textbf{Type 2: Automating informal judgements}
+\begin{itemize}
+    \item \textbf{Examples}: Essay grading, medical diagnosis support, credit scoring
+    \item \textbf{What happens}: Model learns to mimic expert decisions that were previously made informally
+    \item \textbf{Fairness implication}: The model may learn \textit{different} reasoning than the experts intended
+    \item \textbf{Risk}: For many decisions, the \textit{process} matters as much as the outcome. A model may achieve similar outcomes through different (potentially objectionable) reasoning
+\end{itemize}
+
+\textbf{Type 3: Learning rules from data}
+\begin{itemize}
+    \item \textbf{Examples}: Loan approval, predictive policing, hiring recommendation, recidivism prediction
+    \item \textbf{What happens}: No pre-existing rules; the model discovers patterns in historical data
+    \item \textbf{Fairness implication}: Inherits all biases in the training data; may discover and exploit proxy variables
+    \item \textbf{Risk}: Feedback loops; optimising for proxies rather than true objectives; lack of transparency about what is being learned
+\end{itemize}
+\end{greybox}
+
+\begin{bluebox}[Automation Types and Fairness Concerns]
+\begin{center}
+\begin{tabular}{lp{8cm}}
+\toprule
+\textbf{Type} & \textbf{Primary Fairness Concern} \\
+\midrule
+Type 1 (Explicit rules) & Loss of discretion; rigid application to edge cases \\
+Type 2 (Informal judgements) & Process may differ from outcome; learned reasoning may be objectionable \\
+Type 3 (Learning from data) & Bias amplification; feedback loops; proxy exploitation \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{bluebox}
+
+%===============================================================================
+\section{Problems in Data-Driven Systems}
+%===============================================================================
+
+Type 3 automation-learning rules from data-is the most prevalent in modern ML and the most fraught with fairness challenges. Four major sources of unfairness arise:
+
+\begin{greybox}[Four Sources of Unfairness in Type 3 Automation]
+\textbf{1. Biased training data}
+\begin{itemize}
+    \item Historical discrimination is encoded in outcomes (who got hired, who got loans, who was arrested)
+    \item For many sensitive domains, \textit{no unbiased data exists}-the historical record is the biased record
+    \item Even ``ground truth'' labels may reflect biased decisions (e.g., performance reviews, medical diagnoses)
+    \item The model cannot learn to be fairer than its training data without explicit intervention
+\end{itemize}
+
+\textbf{2. Proxy mismatch} (construct validity)
+\begin{itemize}
+    \item The target variable does not measure what we actually care about
+    \item Data is often chosen based on convenience or what powerful actors chose to collect
+    \item \textbf{Example}: US healthcare algorithm used predicted \textit{costs} as a proxy for healthcare \textit{need}
+    \item \textbf{Result}: Systematically under-served patients who could not afford care (the most vulnerable) because their historical costs were low-not because their needs were low
+    \item The proxy (costs) conflated need with ability to pay
+\end{itemize}
+
+\textbf{3. Feature omission}
+\begin{itemize}
+    \item Failing to measure relevant differences between individuals
+    \item Model treats different people as identical because distinguishing features were not collected
+    \item What is not measured cannot influence the model's predictions
+    \item \textbf{Key insight}: Human discretion can capture information not in the input form-a human reviewer can have a conversation, observe demeanour, or consider context that was never formalised
+    \item Automation loses this ability to incorporate unmeasured information
+\end{itemize}
+
+\textbf{4. Distribution shift}
+\begin{itemize}
+    \item Training data differs systematically from deployment population
+    \item \textbf{Example}: Medical trials predominantly enrolled white, male, educated, middle-class participants
+    \item Model may not generalise to underrepresented groups
+    \item Even a model that is ``fair'' on training data may be unfair in deployment if the populations differ
+\end{itemize}
+\end{greybox}
+
+\subsection{The Healthcare Algorithm Example}
+
+The US healthcare algorithm case (Obermeyer et al., 2019) is worth examining in detail because it illustrates how proxy mismatch creates unfairness even with ``good intentions.''
+
+\begin{redbox}
+\textbf{Case Study: Healthcare Risk Prediction}
+
+\textbf{Context}: A widely-used algorithm predicted which patients would benefit from ``high-risk care management'' programmes.
+
+\textbf{Design choice}: The algorithm used \textit{predicted healthcare costs} as a proxy for \textit{healthcare need}, reasoning that high costs indicate high need.
+
+\textbf{The problem}: Costs depend not only on health status but on access to care:
+\begin{itemize}
+    \item Patients who could not afford care had low historical costs
+    \item Patients who faced barriers to access had low historical costs
+    \item These were often the patients with the greatest unmet needs
+\end{itemize}
+
+\textbf{Result}: At a given risk score, Black patients were considerably sicker than white patients with the same score. The algorithm systematically directed resources away from those who needed them most.
+
+\textbf{Lesson}: The proxy (costs) embedded structural inequalities in healthcare access. Optimising for the proxy optimised for something quite different from the intended objective (health needs).
+\end{redbox}
+
+%===============================================================================
+\section{Agency, Recourse, and Culpability}
+%===============================================================================
+
+A critical dimension of fairness concerns what individuals can \textit{do} about decisions that affect them. This involves questions of agency (can individuals change their outcomes?), recourse (can they understand and act on decisions?), and culpability (who is responsible when things go wrong?).
+
+\begin{bluebox}[Immutable vs Mutable Characteristics]
+\textbf{Models on immutable characteristics} (age, race, birthplace, genetic markers):
+\begin{itemize}
+    \item Individuals cannot change these features
+    \item Their fate is determined by factors outside their control
+    \item Raises fundamental questions of fairness and human dignity
+    \item Using such features may be legally prohibited in many contexts (but models may learn proxies)
+\end{itemize}
+
+\textbf{Models on mutable characteristics} (education, employment history, behaviour):
+\begin{itemize}
+    \item Individuals could in principle change these features
+    \item If the model uses mutable features, there is an obligation to inform individuals how to improve their outcomes
+    \item \textbf{But}: This creates opportunity to ``game'' the system
+    \item Goodhart's Law applies: ``When a measure becomes a target, it ceases to be a good measure''
+\end{itemize}
+\end{bluebox}
+
+\subsection{The Problem of Recourse}
+
+\begin{redbox}
+\textbf{Recourse}: Can individuals understand decisions and act on them?
+
+If a model denies someone a loan, they should know:
+\begin{itemize}
+    \item Why they were denied (which factors contributed negatively?)
+    \item What they could change to be approved (actionable feedback)
+    \item Whether the denial was based on legitimate factors (contestability)
+\end{itemize}
+
+Black-box models make recourse difficult or impossible. Even if you can explain \textit{what} features mattered, you may not be able to explain \textit{why} they matter or \textit{how} to change them.
+
+\textbf{Further complications}:
+\begin{itemize}
+    \item Some features that matter are not actionable (e.g., zip code, age)
+    \item Changing one feature may change model predictions in unexpected ways
+    \item Recourse advice may be technically correct but practically impossible (``increase your income by 50\%'')
+\end{itemize}
+\end{redbox}
+
+\subsection{Culpability: Who Is Responsible?}
+
+When an automated system makes a harmful decision, who is responsible?
+
+\begin{greybox}[The Culpability Question]
+Multiple parties may bear responsibility for algorithmic harms:
+\begin{itemize}
+    \item \textbf{Data collectors}: Created or curated the training data
+    \item \textbf{Model developers}: Chose the architecture, features, and objective function
+    \item \textbf{Deployers}: Decided to use the model for a particular application
+    \item \textbf{Operators}: Made individual decisions based on model outputs
+    \item \textbf{Regulators}: Failed to establish appropriate oversight
+\end{itemize}
+
+\textbf{The diffusion problem}: When responsibility is distributed across many actors, it becomes difficult to hold anyone accountable. Each party can point to others.
+
+\textbf{The opacity problem}: When a model's reasoning is opaque, it is hard to know whether the harm resulted from:
+\begin{itemize}
+    \item Bad data (data collector's fault)
+    \item Bad model design (developer's fault)
+    \item Inappropriate deployment (deployer's fault)
+    \item Misuse of outputs (operator's fault)
+\end{itemize}
+
+This diffusion and opacity can create ``accountability gaps'' where harms occur but no one is held responsible.
+\end{greybox}
+
+%===============================================================================
+\section{The Limits of Technical Solutions}
+%===============================================================================
+
+A recurring theme in fairness research is that technical solutions alone are insufficient. This is not a counsel of despair but a recognition that fairness is fundamentally a sociotechnical challenge.
+
+\begin{bluebox}[Why Technical Fixes Are Insufficient]
+\begin{enumerate}
+    \item \textbf{Fairness is contested}: Reasonable people disagree about what fairness means. No technical definition can resolve normative disagreements.
+
+    \item \textbf{Context matters}: What counts as ``fair'' depends on the application, the stakeholders, the history, and the alternatives. There is no universal technical standard.
+
+    \item \textbf{Metrics conflict}: As we will see in Week 7, reasonable fairness metrics are often mutually incompatible. Choosing among them requires value judgements.
+
+    \item \textbf{Gaming and adaptation}: People and institutions adapt to algorithmic systems. Technical fixes can be circumvented or may create new problems.
+
+    \item \textbf{Legitimacy is not technical}: Questions about whether a system should exist, who should control it, and who should benefit from it are political and ethical, not technical.
+\end{enumerate}
+\end{bluebox}
+
+This does not mean technical analysis is useless. Rather:
+
+\begin{itemize}
+    \item Technical analysis can \textit{reveal} unfairness (auditing, measurement)
+    \item Technical interventions can \textit{mitigate} some types of unfairness
+    \item Technical tools can \textit{support} human decision-making about fairness
+    \item But technical tools cannot \textit{replace} human judgement about values
+\end{itemize}
+
+%===============================================================================
+\section{Looking Ahead: Quantitative Fairness}
+%===============================================================================
+
+In Week 7, we will develop quantitative frameworks for measuring fairness. We will see:
+
+\begin{itemize}
+    \item Three major fairness criteria (independence, separation, sufficiency) and what they mean
+    \item Impossibility results showing these criteria conflict when base rates differ
+    \item How to visualise fairness tradeoffs using ROC curves
+    \item Why ``removing'' sensitive attributes does not guarantee fairness
+    \item The fundamental insight that fairness requires \textit{explicitly encoding values}
+\end{itemize}
+
+The qualitative foundations from this week-understanding types of harm, dimensions of fairness, and the limits of technical solutions-will inform how we interpret and apply those quantitative tools.
+
+%===============================================================================
+\section{Summary}
+%===============================================================================
+
+\begin{bluebox}[Key Concepts from Week 6b]
+\begin{enumerate}
+    \item \textbf{Bias amplification}: ML models learn from data that reflects historical discrimination; automation can amplify these biases rather than correcting them
+
+    \item \textbf{Feedback loops}: Predictions can become self-fulfilling prophecies, creating cycles where biased predictions generate biased data (e.g., predictive policing)
+
+    \item \textbf{Construct validity}: Proxy variables (arrests, costs) often conflate what we care about with the measurement process; optimising for proxies may optimise for the wrong thing
+
+    \item \textbf{Allocative vs representational harm}: Resource denial (loans, jobs) versus stereotype reinforcement (search results, language models)-both matter but require different analysis
+
+    \item \textbf{Three fairness dimensions}:
+    \begin{itemize}
+        \item Legitimacy: Should this system exist?
+        \item Relative treatment: How does it allocate across groups?
+        \item Procedural fairness: Is the process transparent and contestable?
+    \end{itemize}
+
+    \item \textbf{Three automation types}:
+    \begin{itemize}
+        \item Type 1 (explicit rules): Loses human discretion
+        \item Type 2 (informal judgements): May learn different reasoning
+        \item Type 3 (learning from data): Inherits all data biases
+    \end{itemize}
+
+    \item \textbf{Four data problems}: Biased training data, proxy mismatch, feature omission, distribution shift
+
+    \item \textbf{Agency and recourse}: Individuals should understand decisions and have paths to different outcomes; black-box models make this difficult
+
+    \item \textbf{Culpability}: Responsibility for algorithmic harms is diffused across data collectors, developers, deployers, and operators
+
+    \item \textbf{Limits of technical solutions}: Fairness is fundamentally a sociotechnical challenge; technical tools can support but not replace human value judgements
+\end{enumerate}
+\end{bluebox}

@@ -1,0 +1,367 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize Math for Data Science: Homework 2}
+\rhead{\footnotesize Henry Baker} 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf GRAD C23: Mathematics for Data Science} \\
+Hertie School \\ Fall 2023  \\ Prof. Magazinnik \\
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf Problem Set 2}
+	\vspace{2mm}
+	
+        % YOUR NAMES GO HERE
+{\bf Submitted by:} Henry Baker \\ 	
+ {\bf Group:} Aditya Narayan Rai, Leticia Figueiredo Collado
+		
+\end{center}  
+\vspace{0.4cm}
+
+\begin{enumerate}
+    \item % QUESTION 1
+    \begin{enumerate} 
+    
+        \item % PART 1A
+        Given that we are told that the likelihood of a flood ('flood event') in a given period (4 years) is given by a Poisson distribution with likelihood parameter $\lambda$, the probability (likelihood) of observing $k$ flood events is given by:
+        \[ P(X=k) = \frac{e^{-\lambda} \lambda^k}{k!} \]
+        where:
+        \begin{itemize}
+            \item $P(X=k)$ is the probability of observing $k$ events - in our case, the probability of observing $k$ floods.
+            \item $\lambda$ is the average rate of occurrence.
+            \item $e$ is the base of the natural log ($\approx$ 2.71828).
+        \end{itemize}
+        \vspace{0.2cm}
+        
+        Given the observed data for the first quarter of C21, we have real, observed values for $k$ in every given period of 4 years. We assume these flood events to be independent of each other, meaning the likelihood $L(\lambda)$ of the series of events for some unknown $\lambda$ is the product of the probabilities of each observation:
+
+        \begin{align*}
+            L(\lambda) &= P(X=1) \times P(X=3) \times P(X=1) \times P(X=2) \times P(X=0) 
+        \end{align*}
+
+        Plugging in these r.v. values into the Poisson distribution formulae:
+        \begin{align*}    
+            &= \frac{e^{-\lambda} \lambda^1}{1!} \times \frac{e^{-\lambda} \lambda^3}{3!} \times \frac{e^{-\lambda} \lambda^1}{1!} \times \frac{e^{-\lambda} \lambda^2}{2!} \times \frac{e^{-\lambda} \lambda^0}{0!} 
+        \end{align*}
+
+        Collecting terms together:
+        \begin{align*}  
+            &= \frac{e^{-5\lambda} 
+            \times \lambda^1 \times \lambda^3 \times \lambda^1 \times \lambda^2 \times \lambda^0}{1! \times 3! \times 1! \times 2! \times 0!}
+            \\
+            &= \frac{e^{-5\lambda} \times\lambda^7}{1! \times 3! \times 1! \times 2! \times 0!}
+            \\
+            &= \frac{e^{-5\lambda} \times \lambda^7}{12}
+        \end{align*}
+        
+        Thus, the likelihood of observing \emph{this series of floods presented in the data} for some unknown $\lambda$ is:
+        \[ L(\lambda) = \frac{e^{-5\lambda} \times \lambda^7}{12} \]
+        
+        In the following parts of this question I will be maximising this expression to find the maximum likelihood estimate of $\lambda$.
+        \vspace{0.4cm}
+
+        \item % PART 1B
+        Given the likelihood function:
+        \[ L(\lambda) = \frac{e^{-5\lambda} \times \lambda^7}{12} \]
+        
+        We want to find the log-likelihood, we denoted this by \( \ell(\lambda) \):
+        \begin{align}
+        \ell(\lambda) 
+        &= \log(L(\lambda)) 
+        \\
+        &= \log(\frac{e^{-5\lambda} \times \lambda^7}{12}) 
+        \end{align}
+        
+        Using the properties of logarithms, we can expand this expression:
+        \begin{itemize}
+            \item using \textbf{product and quotient} properties (conveniently turning products into sums; all the better to differentiate with!):
+            \[ \ell(\lambda) = \log(e^{-5\lambda}) + \log(\lambda^7) - \log(12) \] 
+            \item using the fact that the logarithm of the exponential is \textbf{the power to which it is raised} property
+            \[ \log(e^{-5\lambda}) = -5\lambda \] 
+            \item using the \textbf{power property}, where \( \log(a^b) = b \log(a) \):
+            \[ \log(\lambda^7) = 7 \log(\lambda) \]
+        \end{itemize}
+        
+        Substituting these results in, we get the log-likelihood:
+        \[ \ell(\lambda) = -5\lambda + 7 \log(\lambda) - \log(12) \]
+        
+        As before, this expression can be maximized to find the maximum likelihood estimate of \( \lambda \) in the log scale (ie the value of $\lambda$ which produces a Poisson distribution that most closely matches the observed flood events in our data; ie maximises the likelihood to observe our data). Working in logs is computationally simpler than working with the original likelihood. \\
+    
+        \item % PART 1C
+        Given the log-likelihood:
+        \[ \ell(\lambda) = -5\lambda + 7 \log(\lambda) - \log(12) \]
+        
+        To maximize this with respect to \( \lambda \), we take its derivative, which we will then set to 0:
+        \begin{itemize}
+            \item differentiating the term \textbf{\(-5\lambda\)} with respect to \( \lambda \): 
+            \[ = -5 \]
+        
+            \item differentiating the term \textbf{\(7 \log(\lambda)\)} with respect to \( \lambda \):
+            \[  = 7 \times \frac{1}{\lambda} = \frac{7}{\lambda} \]
+
+            \item differentiating the term \textbf{$\log(12)$}:
+            \[  = 0 \]
+
+            Since log(12) is a constant, its derivative is 0.
+            
+        \end{itemize}
+        \vspace{0.4cm}
+        
+        Combining these results, the derivative of the log-likelihood with respect to \( \lambda \) is:
+        \begin{align*}
+        \frac{d\ell(\lambda)}{d\lambda} &= -5 + \frac{7}{\lambda}
+        \end{align*}
+
+        Setting \(\frac{d\ell(\lambda)}{d\lambda} \) to 0:
+        \begin{align}
+            0 &= -5 + \frac{7}{\hat{\lambda}} \\
+            \hat{\lambda} &= \frac{7}{5}
+            \end{align}
+        \( \Rightarrow \hat{\lambda} = 1.4 \)
+        \\
+        
+        \item % PART 1D
+        The estimate \( \hat{\lambda} \) we found in part (c) is \( \frac{7}{5} \) or 1.4.
+        \\
+        
+        \textbf{Interpretation:}
+        Conceptually, \( \hat{\lambda} \) represents the average number of major floods in Bangladesh per five-year period during the first quarter of the 21st century. Ie based on the observed data, we would expect on average 1.4 major floods in Bangladesh every five years.
+        \\
+        
+        \textbf{Derivation from the data:}
+       We used Maximum Likelihood Estimation method to determine this value. The MLE approach maximizes the likelihood of observing our data, given the assumption that the number of floods follows a Poisson distribution. To compute the maximum likelihood estimate, we did the hard work of finding the derivative of the log-likelihood with respect to \( \lambda \) to zero. Perhaps more intuitively, in this case, the MLE for \( \lambda \) is simply the mean of the observed flood counts. In this case, summing the floods over five periods (1 + 3 + 1 + 2 + 0 = 7) and dividing by the number of periods (5), we get the average number of floods per 4 year period as \( \frac{7}{5} \) or 1.4.
+        \\
+        
+        \item % PART 1E
+        Given this additional data (and assuming the data in (a) similarly refers to 'major' floods - ie we are comparing like for like here, we have:
+    
+        \begin{enumerate}
+            \item 18 major floods over C20th  (100 years).
+            \item 7 major floods in first quarter of the C21st (25 years).  
+        \end{enumerate}
+        
+        \textbf{Comparison:}
+        \begin{enumerate}
+            \item For C20th:
+            \[ \text{Rate\textsubscript{20th}} = \frac{18 \text{ floods}}{100 \text{ years}} = 0.18 \text{ floods/year} \]
+            \item For first quarter of C21st:
+            \[ \text{Rate\textsubscript{21st}} = \frac{7 \text{ floods}}{25 \text{ years}} = 0.28 \text{ floods/year} \]
+        \end{enumerate}
+        
+        \textbf{Conclusion:}
+        
+        The frequency of major floods in Bangladesh has seen an increase from the 20th century to the first quarter of the 21st century. Specifically, the rate has gone up from 0.18 floods per year in the 20th century to 0.28 floods per year in the initial 25 years of the 21st century. We would need to a) model as proper time series, b) introduce tests of statistical significance to determine if this can be considered meaningful.\\
+        
+    \end{enumerate} % ENDING Q1
+    \vspace{0.4cm}
+
+    \item % QUESTION 2
+    \begin{enumerate}
+    
+        \item % PART 2A
+        To obtain CDF $F(x)$ from the PDF, such that $P(X \leq x)$, we integrate the PDF from negative infinity to $x$:
+        \[
+        F(x) = \int_{-\infty}^{x} f(t) \, dt
+        \]
+
+        Plugging in the Standard Normal distribution PDF, we get:
+        \[
+        F(x) = \int_{-\infty}^{x} \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2} t^2} \, dt
+        \]
+        We can attempt to integrate this by parts, however this will ultimately not work given the unique properties of the exponential term when it is raised to the power of a variable and will result in integrals containing themselves integrals...\\
+        \\
+        ...basically, computer says no. As a result, unfortunately, the standard normal CDF does not have a simple closed-form expression.\\
+        
+        \item % PART 2B
+        Ew, that was gross.\\
+        
+        
+        \item % PART 2C
+        Given function:
+        \[ f(x) = \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2} x^2} \]
+
+        \textbf{First Derivative:} \\
+        \\
+        Split into two parts to differentiate with respect to $x$:
+        \begin{enumerate}
+            \item $\frac{1}{\sqrt{2\pi}}$ - this constant multiplier doesn't change; it's rate of change is 0. 
+            \item $e^{-\frac{1}{2} x^2}$ - to differentiate this term we use the chain rule.
+        \end{enumerate}
+        The chain rule is given by:
+        \[ \text{If } y = g(u) \text{ and } u = h(x), \text{ then } \frac{dy}{dx} = g'(u) \cdot h'(x). \]
+        
+        Let:
+        \[ u(x) = -\frac{1}{2} x^2 \]
+        \[ y(u) = e^u \]
+        
+        Differentiating these with respect to \( x \) and \( u \) respectively (+ using the fact that the differential of the exponential is itself):
+        \[ \frac{du}{dx} = -x \]
+        \[ \frac{dy}{du} = e^u \]
+        
+        So:
+        \[ \frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx} \]
+        \[ \frac{dy}{dx} = e^u \cdot (-x) \]
+        
+        Plugging in \( u = -\frac{1}{2}x^2\) :
+        \[ \frac{dy}{dx} = -x e^{-\frac{1}{2} x^2} \]
+        
+        Finally, plugging this result back into our original function \( f(x) \) with its constant term, to get the full first derivative:
+        \[ f'(x) = \frac{1}{\sqrt{2\pi}} \cdot (-x e^{-\frac{1}{2} x^2}) \]
+        \[ f'(x) = -\frac{x e^{-\frac{1}{2} x^2}}{\sqrt{2\pi}} \]
+        \\
+        \textbf{Second Derivative}: \\
+        \\
+        To get the second derivative, we differentiate this once again.
+        For this we will apply first the product rule, then the chain rule (which given the nature of differentiating the exponential is the same calculation as above). As the starting point for this calculation, the above first derivative is more conveniently expressed as:
+        \[ f'(x) = -\frac{x}{\sqrt{2\pi}} \cdot e^{-\frac{1}{2} x^2} \]
+        
+        We will first apply the product rule: \\
+            \begin{equation}
+                \frac{d}{dx}[u(x) \cdot v(x)] = v(x) \cdot u'(x) + u(x) \cdot v'(x)            
+            \end{equation}
+            Where
+            \begin{align}
+                u(x) &=  -\frac{x}{\sqrt{2\pi}} \\
+                v(x) &= e^{-\frac{1}{2} x^2} \\
+                u'(x) &= -\frac{1}{\sqrt{2\pi}} \\
+                v'(x) &= -x e^{-\frac{1}{2} x^2}
+            \end{align}
+            So applying the product rule:
+            \[  f''(x) = \frac{x^2 \cdot e^{-\frac{1}{2}x^2}}{\sqrt{2\pi}} - \frac{e^{-\frac{1}{2}x^2}}{\sqrt{2\pi}} \]
+
+            Combining terms:
+            \[ f''(x) = \frac{(x^2 - 1) \cdot e^{-\frac{1}{2}x^2}}{\sqrt{2\pi}} \]
+
+            Thus, second derivative of the function is:
+            \[ \frac{{x^2 - 1}}{{\sqrt{2\pi}}} \cdot e^{-\frac{1}{2}x^2} \]
+
+        \item % PART 2D
+        Given: \\
+        1. \( f(x) = \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2} x^2} \) \\
+        2. \( f'(x) = -\frac{x}{\sqrt{2\pi}} e^{-\frac{1}{2} x^2} \) \\
+        3. \( f''(x) = \frac{{x^2 - 1}}{{\sqrt{2\pi}}} \cdot e^{-\frac{1}{2}x^2} \) \\
+        
+        So: \\
+        1. \[ f(1) = \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}} \approx 0.3989 \times 0.6065 \approx 0.242\]
+        
+        2. \[ f'(1) = -\frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}} \approx - 0.242 \]
+        
+        3. \[ f''(1) = \frac{1^2 - 1}{\sqrt{2\pi}} \cdot e^{-\frac{1}{2} \cdot 1^2} = 0 \cdot e^{-\frac{1}{2}} = 0 \]
+        
+        \item % PART 2E
+
+        The second-order Taylor polynomial for any function \(f(x)\) at point \(x = a\) is:
+        \[ P_2(x) = f(a) + f'(a)(x - a) + \frac{f''(a)}{2!}(x - a)^2 \]
+
+        \emph{NB this derives from the more general prescription, that the Talor polynimial order $n$ for a function is \(P_n(x) = f(a) + f'(a)(x - a) + \frac{f''(a)}{2!}(x - a)^2 + \cdots + \frac{f^{(n)}(a)}{n!}(x - a)^n\); in our case $n = 2$ gives us the quadratic Taylor polynomial.) } \\
+        
+
+        Centering our series at \(x = 1\) (\(a = 1\)), the polynomial becomes:
+        \[
+        P_2(x) = f(1) + f'(1)(x - 1) + \frac{f''(1)}{2}(x - 1)^2
+        \]
+
+        Plugging the above worked-out values into the Taylor polynomial, we get:
+        \begin{align}
+        P_2(x) &= \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}} - \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}}(x - 1) + 0 \\
+        &= \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}}(2 - x)
+        \end{align}       
+
+        \item % PART 2F
+        The graph below plots the PDF of the Normal Distribution alongside its quadratic Taylor series approximation, centred at $x = 1$. We can see they intersect exactly at $x = 1$ which is where we can say that the second order Taylor series approximation is a good approximation; for $x$ values outside of the nearby range the Taylor series becomes increasingly poor as an approximation.
+
+        \begin{figure} [h]
+            \centering
+            \includegraphics[width=0.75\linewidth]{Screenshot 2023-10-20 190306.png}
+            \caption{Just a cool little graph I made on Desmos}
+            \label{fig:enter-label}
+        \end{figure}
+        
+        \item % PART 2G
+
+        Given the second order / quadratic Taylor series approximation derived for the Normal Distribution PDF:
+
+        \[
+        P_2(x) = \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}} (2 - x)
+        \]
+        
+        To compute the CDF, we integrate this function from 1 to \(x\) (as the Taylor series is centered at \(x = 1\)):
+        
+        \begin{align*}
+        \int_{1}^{x} \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}} (2 - t) \, dt &= \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}} \int_{1}^{x} (2 - t) \, dt \\
+        &= \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}} \left[ 2t - \frac{t^2}{2} \right]_{1}^{x} + C
+        \end{align*}
+        Plugging in $x$ and 1 as the values of integration, and taking 0.5 as the constant term given the Normal's symmetry around the mean at 1):
+        \begin{align*}
+        &= \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}} \left(2x - \frac{x^2}{2} -2 + \frac{1^2}{2} \right) + 0.5 \\
+        &= \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}} \left( \frac{- x^2 + 4x - 3}{2} \right) + 0.5
+        \end{align*}
+
+
+
+        \emph{NB: unlike the quadratic Taylor series approximation we just integrated, we cannot take the integral of the original PDF, as it has no closed-form solution}
+        \\
+        
+        \item % PART 2H 
+        
+        The graph below shows the CDF of the Normal plotted against the integral of a quadratic Taylor series approximation of the Normal, both centred at $x = 1$. \\
+        \\
+
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.75\linewidth]{Screenshot 2023-10-20 185439.png}
+            \caption{CDF of the Normal; integral of a quadratic Taylor series approximation of the Normal, both centred at x = 1}}
+            \label{fig:enter-label}
+        \end{figure}
+        
+
+        
+        The CDF of the Normal is as we would expect, however The  integral of the Taylor series approximation is comparatively odd; first of all it is a parabola (whereas a CDF must be always increasing in value as we move along the x axis, approaching 0 and 1 at $-\infty$ and $\infty$ respectively). This is because it is the integral of a linear equation. What exactly is happening becomes clearer when we additionally plot the Taylor series approximation below.
+
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.75\linewidth]{Screenshot 2023-10-20 185406.png}
+            \caption{CDF of the Normal; integral of a quadratic Taylor series approximation of the Normal; quadratic Taylor series} 
+            \label{fig:enter-label}
+        \end{figure}
+        
+        
+        Here we can see the relationship between the orange Taylor series approximation and its integral. As the Taylor series approximation dips below the x axis at 2,0, this is  where the integral necessarily reaches is apex. A true CDF would never do this (being continuously increasing). All of this serves to underline that the approximation is just that: a rough approximation, which is only approximating around $x = 1$. We could keep computing further-order Taylor series in order to get a better approximation. \\
+        \\
+
+        
+        
+    \end{enumerate} % ENDING Q2
+    
+\end{enumerate} % ENDING ALL OF THE QUESTION LEVEL
+
+\pagebreak
+\end{document}

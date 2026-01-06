@@ -1,0 +1,1426 @@
+% Week 9: Uncertainty Quantification in Machine Learning
+
+\section{Chapter Overview}
+
+\begin{bluebox}[Section Summary: Uncertainty in ML]
+This chapter covers principled approaches to uncertainty quantification:
+\begin{itemize}
+    \item \textbf{Why uncertainty matters}: Epistemic vs aleatoric uncertainty; calibration
+    \item \textbf{Gaussian Processes}: Full Bayesian treatment of regression with calibrated uncertainty
+    \item \textbf{Conformal Prediction}: Distribution-free prediction intervals with coverage guarantees
+    \item \textbf{Bayesian Neural Networks}: Brief overview of uncertainty in deep learning
+    \item \textbf{Calibration}: Measuring and improving reliability of uncertainty estimates
+\end{itemize}
+\end{bluebox}
+
+Point predictions alone are often insufficient. A medical diagnosis system that outputs ``malignant'' without any indication of confidence is far less useful-and potentially dangerous-compared to one that says ``malignant with 95\% confidence'' or ``uncertain, recommend further tests.'' This chapter develops the mathematical machinery for principled uncertainty quantification.
+
+In machine learning, we often focus on finding the ``best'' prediction-our single best guess for the output given an input. But knowing \emph{how confident} we should be in a prediction is frequently just as important as the prediction itself. Consider a self-driving car deciding whether to brake: a prediction of ``pedestrian present'' with 99\% confidence demands immediate action, while the same prediction with 55\% confidence might warrant a more cautious response. Similarly, in medical diagnosis, a prediction of ``malignant'' with high confidence leads to different treatment decisions than one with substantial uncertainty.
+
+This week introduces multiple complementary approaches to quantifying predictive uncertainty, each with distinct strengths and trade-offs. We will see that there is no single ``best'' method-the right choice depends on your assumptions, computational resources, and what kind of uncertainty information you need.
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Why Uncertainty Matters}
+%══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Two Fundamental Types of Uncertainty}
+
+Before diving into methods, we need to understand that not all uncertainty is created equal. There are fundamentally different \emph{sources} of uncertainty, and distinguishing between them has practical implications for what we can do about it.
+
+\begin{greybox}[Epistemic vs Aleatoric Uncertainty]
+\textbf{Epistemic uncertainty} (model uncertainty): Uncertainty due to lack of knowledge. This uncertainty is \emph{reducible}-it decreases as we gather more data.
+
+Examples:
+\begin{itemize}
+    \item Uncertainty about model parameters given limited training data
+    \item Uncertainty in regions of input space with few observations
+    \item Model misspecification (wrong functional form)
+\end{itemize}
+
+\textbf{Aleatoric uncertainty} (data uncertainty): Inherent randomness in the data-generating process. This uncertainty is \emph{irreducible}-it cannot be reduced by collecting more data.
+
+Examples:
+\begin{itemize}
+    \item Measurement noise in sensors
+    \item Inherent stochasticity in the outcome (e.g., dice rolls)
+    \item Unobserved variables that affect the outcome
+\end{itemize}
+\end{greybox}
+
+\textbf{Unpacking the terminology:} The word ``epistemic'' comes from the Greek \emph{episteme} (knowledge)-epistemic uncertainty reflects gaps in our knowledge that could, in principle, be filled. ``Aleatoric'' comes from the Latin \emph{alea} (dice)-aleatoric uncertainty is the randomness inherent in the world itself.
+
+\textbf{Why the distinction matters practically:} If uncertainty is primarily epistemic, we should collect more data or improve our model. If it is aleatoric, we should communicate the inherent limits of predictability to stakeholders. Knowing which type dominates tells us whether investing in more data will help.
+
+\textbf{Mathematical formulation}: In regression with $y = f(x) + \epsilon$, where $\epsilon \sim \mathcal{N}(0, \sigma^2)$:
+\begin{itemize}
+    \item Uncertainty about $f(x)$ is epistemic (reduces with more data)
+    \item The noise variance $\sigma^2$ is aleatoric (irreducible)
+\end{itemize}
+
+Gaussian Processes naturally separate these: the posterior variance of $f(x_*)$ captures epistemic uncertainty, while $\sigma^2$ captures aleatoric uncertainty. This separation is one of the conceptual advantages of the Bayesian framework.
+
+\textbf{A concrete example:} Suppose you are predicting house prices. Epistemic uncertainty might arise because you have few examples of houses with swimming pools in your training data-if you collected more such examples, your predictions for pool-houses would become more confident. Aleatoric uncertainty arises because two identical houses in the same neighbourhood might sell for different prices due to factors you cannot observe (timing, negotiation skill, buyer preferences). No amount of additional data will eliminate this randomness.
+
+\subsection{Applications Requiring Uncertainty}
+
+\begin{bluebox}[When Uncertainty is Essential]
+\begin{enumerate}
+    \item \textbf{Safety-critical systems}: Medical diagnosis, autonomous vehicles, structural engineering-wrong predictions with high confidence are catastrophic
+    \item \textbf{Active learning}: Select which examples to label by targeting high-uncertainty regions
+    \item \textbf{Bayesian optimisation}: Balance exploration (uncertain regions) with exploitation (promising regions)
+    \item \textbf{Decision-making under risk}: Portfolio optimisation, resource allocation, treatment selection
+    \item \textbf{Outlier/anomaly detection}: Flag inputs where the model is uncertain
+    \item \textbf{Model debugging}: Identify where the model needs improvement
+\end{enumerate}
+\end{bluebox}
+
+Let us expand on a few of these:
+
+\textbf{Active learning:} When labelling data is expensive (e.g., requiring expert annotation), we want to be strategic about which examples to label next. A model that knows where it is uncertain can guide us to label the most informative examples. This is far more efficient than random sampling.
+
+\textbf{Bayesian optimisation:} When evaluating a function is expensive (e.g., training a neural network with certain hyperparameters), we want to find the optimum with as few evaluations as possible. A model with calibrated uncertainty lets us balance trying promising regions (exploitation) against exploring uncertain regions where something better might lurk (exploration).
+
+\textbf{Anomaly detection:} A model should be uncertain about inputs that are unlike anything in its training data. If a credit card fraud detector sees a transaction pattern unlike any it has seen before, high uncertainty is the appropriate response-rather than confidently (and possibly incorrectly) classifying it as normal or fraudulent.
+
+\subsection{What is Calibration?}
+
+Having uncertainty estimates is not enough-they must be \emph{reliable}. A model that always outputs 90\% confidence but is correct only 50\% of the time is dangerously miscalibrated.
+
+\begin{greybox}[Calibration Definition]
+A probabilistic predictor is \textbf{calibrated} if its predicted probabilities match empirical frequencies.
+
+For regression: if the model outputs a 95\% prediction interval, it should contain the true value approximately 95\% of the time.
+
+For classification: among all instances where the model predicts class 1 with probability 0.8, approximately 80\% should actually be class 1.
+
+Formally, for classification with predicted probability $\hat{p}$:
+$$P(Y = 1 \mid \hat{p} = p) = p \quad \text{for all } p \in [0,1]$$
+\end{greybox}
+
+\textbf{Unpacking the formal definition:} The equation $P(Y = 1 \mid \hat{p} = p) = p$ says: ``Among all the examples where I predicted probability $p$, the fraction that are actually positive should be $p$.'' If I predict 0.7 for 100 examples, approximately 70 of them should be positive.
+
+\textbf{Calibration vs accuracy:} A model can be accurate but poorly calibrated. Modern neural networks, for instance, tend to be \emph{overconfident}-they output high probabilities even when wrong. Conversely, a model could be well-calibrated but inaccurate (imagine a model that always predicts 50\% for a 50-50 task-it is perfectly calibrated but useless). Calibration is about the \emph{reliability} of uncertainty estimates, not just their existence.
+
+\textbf{Why calibration matters:} If a doctor uses a diagnostic model and it says ``95\% probability of disease,'' the doctor needs to trust that this really means 95\%. If the model is overconfident and such predictions are actually correct only 60\% of the time, the doctor's decisions will be poorly informed.
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Gaussian Processes}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary: Gaussian Processes]
+\begin{itemize}
+    \item GPs define distributions over functions, not just parameters
+    \item Fully specified by mean function $m(x)$ and kernel $k(x, x')$
+    \item Key insight: any finite collection of function values is jointly Gaussian
+    \item Posterior is available in closed form via Gaussian conditioning
+    \item Uncertainty naturally increases away from training data
+\end{itemize}
+\end{bluebox}
+
+\subsection{The Core Idea: Distributions Over Functions}
+
+Standard supervised learning finds a single function $\hat{f}$ that best fits the data. The Bayesian approach instead maintains a \emph{distribution} over all functions consistent with our prior beliefs and the observed data. This is a fundamental conceptual shift: rather than committing to one function, we maintain uncertainty about which function generated the data.
+
+\textbf{The parametric vs non-parametric distinction:} In parametric models like linear regression, we have a finite number of parameters ($\beta_0, \beta_1, \ldots, \beta_d$), and the function is determined once we know these parameters. In a Gaussian Process, we place a prior directly over the space of functions. This is ``non-parametric'' not because there are no parameters, but because the number of effective parameters grows with the data.
+
+\begin{greybox}[Gaussian Process Definition]
+A \textbf{Gaussian Process} is a collection of random variables, any finite subset of which has a joint Gaussian distribution.
+
+Equivalently: $f$ is a GP if for any finite set of inputs $x_1, \ldots, x_n$, the vector $(f(x_1), \ldots, f(x_n))^\top$ is multivariate Gaussian.
+
+A GP is fully specified by:
+\begin{itemize}
+    \item \textbf{Mean function}: $m(x) = \mathbb{E}[f(x)]$
+    \item \textbf{Covariance function (kernel)}: $k(x, x') = \mathrm{Cov}(f(x), f(x')) = \mathbb{E}[(f(x) - m(x))(f(x') - m(x'))]$
+\end{itemize}
+
+We write: $f \sim \mathcal{GP}(m, k)$
+\end{greybox}
+
+\textbf{Unpacking the definition:} The definition says that if we pick any finite collection of input points-say $x_1 = 0.5$, $x_2 = 1.7$, $x_3 = 2.3$-then the corresponding function values $(f(0.5), f(1.7), f(2.3))$ form a multivariate Gaussian random vector. The mean of this Gaussian is given by the mean function evaluated at these points, and the covariance matrix is given by the kernel evaluated at all pairs of points.
+
+\textbf{Why this is powerful:} This definition lets us work with infinite-dimensional objects (functions) using finite-dimensional Gaussian machinery. We never need to represent the entire function-only its values at the points we care about. When we want to make predictions at new points, we just extend our finite collection to include those points and use standard Gaussian conditioning.
+
+\textbf{Intuition from 3\_reviewed:} Think of a GP as a very smart, very flexible curve that we fit through data-one that does not just go straight, or curve in preset ways like polynomials. It can adopt an infinite number of shapes, guided by the properties of the data and the assumptions we encode in the kernel. Given some data points, a GP helps you predict where other points might lie, along with how certain it is about those predictions.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_09_uncertainty/GP.png}
+    \caption{A GP defines a distribution over functions. The shaded region shows pointwise uncertainty (not a confidence band for a single function, but the marginal uncertainty at each point). The solid line is the posterior mean-our best estimate-while the shaded region indicates where the true function might plausibly lie.}
+    \label{fig:gp-overview}
+\end{figure}
+
+\subsection{The Bayesian Perspective: Distributions Over Functions}
+
+\begin{bluebox}[From Parameters to Functions]
+Probability distributions, commonly applied to random variables, can also be extended to \textbf{entire functions}.
+
+\textbf{Hypothesis class} $\mathcal{H}$: the set of all functions that your algorithm can possibly learn. Instead of picking one single function as our guess, we assign a probability distribution over the entire hypothesis class-every function $f \in \mathcal{H}$ gets a probability $p(f)$ reflecting our belief in how likely it is to be the true function.
+
+This is the Bayesian approach: we update our beliefs about which functions are likely to be good explanations for the data, rather than searching for a single ``best'' function.
+\end{bluebox}
+
+\textbf{Connection to ridge regression:} Recall from Week 6 that ridge regression can be viewed as placing a Gaussian prior on the coefficients $\beta$. Coefficients near zero are considered more probable than large values, reflecting a prior belief that the true relationship is likely simple. This prior on $\beta$ induces a distribution over linear functions:
+$$p(f) = p(\beta)$$
+
+GPs generalise this idea to arbitrary (kernel-defined) function spaces. Where ridge regression places a prior over the finite-dimensional parameter space, GPs place priors directly over the infinite-dimensional space of functions. This is a natural extension of the Bayesian linear regression framework to non-linear function spaces.
+
+\subsection{Mean and Covariance Functions}
+
+\textbf{Mean function $m(x)$}: Encodes prior belief about the average function value at each point. In practice, often set to zero or a constant-the kernel provides enough flexibility, and centering the data removes the need for a complex mean function.
+
+\textbf{Why zero mean is common:} Setting $m(x) = 0$ is not an assertion that we expect the function to be zero everywhere. Rather, it is a simplification saying that, before seeing data, we do not prefer positive values over negative values at any point. Once we observe data, the posterior mean will be non-zero where the data suggests it should be. If we have strong prior knowledge (e.g., we know the function should be roughly linear with positive slope), we can encode this in the mean function.
+
+\textbf{Covariance function $k(x, x')$}: The kernel is where the real modelling power lies. It encodes our assumptions about function properties:
+\begin{itemize}
+    \item \textbf{Smoothness}: How rapidly can the function change?
+    \item \textbf{Periodicity}: Does the function repeat?
+    \item \textbf{Amplitude}: What is the typical magnitude of function values?
+    \item \textbf{Length-scale}: Over what distance do function values become uncorrelated?
+\end{itemize}
+
+\textbf{What the kernel captures intuitively:}
+\begin{itemize}
+    \item How does the output value at one point relate to the output at another point?
+    \item Do we expect smooth variations or abrupt changes?
+    \item Are there repeating patterns?
+\end{itemize}
+
+The GP uses the kernel to measure similarity between points. Points that are ``close'' according to the kernel will have similar outputs. This is the same kernel concept from Week 6 (kernel ridge regression)-the kernel determines what kinds of functions are probable before seeing data.
+
+\begin{greybox}[Kernel Requirements]
+A function $k: \mathcal{X} \times \mathcal{X} \to \mathbb{R}$ is a valid covariance function if and only if it is \textbf{positive semi-definite}: for any finite set $\{x_1, \ldots, x_n\}$, the matrix $K$ with $K_{ij} = k(x_i, x_j)$ is positive semi-definite.
+
+Equivalently, for any $n$, any $x_1, \ldots, x_n$, and any $c_1, \ldots, c_n \in \mathbb{R}$:
+$$\sum_{i=1}^{n} \sum_{j=1}^{n} c_i c_j k(x_i, x_j) \geq 0$$
+\end{greybox}
+
+\textbf{Why positive semi-definiteness?} A covariance matrix must have non-negative eigenvalues (you cannot have negative variance). The positive semi-definiteness requirement ensures that any covariance matrix we construct from the kernel will be a valid covariance matrix. This is not just a technicality-it is what makes the GP machinery work.
+
+\subsection{Sampling from a GP Prior}
+
+To understand what a GP prior ``believes'' about functions, we can draw samples. This is an excellent way to build intuition about what different kernels encode.
+
+\begin{enumerate}
+    \item Choose a finite grid of inputs $x_1, \ldots, x_n$
+    \item Compute the covariance matrix $K$ with $K_{ij} = k(x_i, x_j)$
+    \item Sample $\mathbf{f} \sim \mathcal{N}(m(\mathbf{x}), K)$
+    \item Plot the sampled function values
+\end{enumerate}
+
+Different kernels produce dramatically different sample functions-this is how the kernel ``encodes'' our prior beliefs. A smooth kernel produces smooth samples; a periodic kernel produces periodic samples. By examining prior samples, we can check whether our kernel choice matches our beliefs about the problem.
+
+\subsection{GP Prior to Posterior: The Key Insight}
+
+The magic of GPs lies in how we update from prior to posterior. The key insight is that everything remains Gaussian, so we can use standard formulas for conditioning multivariate Gaussians.
+
+\begin{greybox}[Joint Distribution of Training and Test Points]
+Given training inputs $X = (x_1, \ldots, x_n)^\top$ with noisy observations $\mathbf{y} = (y_1, \ldots, y_n)^\top$ where $y_i = f(x_i) + \epsilon_i$ and $\epsilon_i \sim \mathcal{N}(0, \sigma^2)$, and test inputs $X_* = (x_{*1}, \ldots, x_{*m})^\top$, the joint distribution is:
+$$\begin{bmatrix} \mathbf{y} \\ \mathbf{f}_* \end{bmatrix} \sim \mathcal{N}\left( \begin{bmatrix} m(X) \\ m(X_*) \end{bmatrix}, \begin{bmatrix} K_{XX} + \sigma^2 I & K_{X*} \\ K_{*X} & K_{**} \end{bmatrix} \right)$$
+
+where:
+\begin{itemize}
+    \item $K_{XX} = k(X, X)$ is $n \times n$: covariance among training points
+    \item $K_{X*} = k(X, X_*)$ is $n \times m$: covariance between training and test
+    \item $K_{*X} = K_{X*}^\top$ is $m \times n$
+    \item $K_{**} = k(X_*, X_*)$ is $m \times m$: covariance among test points
+    \item $\sigma^2 I$ accounts for observation noise (only on training points)
+\end{itemize}
+\end{greybox}
+
+\textbf{Interpreting the block structure:}
+\begin{itemize}
+    \item $K_{XX}$: How training points relate to each other according to our kernel
+    \item $K_{X*}$ and $K_{*X}$: How much the function values at training points inform us about function values at test points-this is the ``bridge'' that lets us use training data to predict at new locations
+    \item $K_{**}$: How much we expect function values at test points to covary with each other, \emph{before} seeing any training data
+    \item $\sigma^2 I$: Accounts for noise in the observed outputs-we observe $y = f(x) + \epsilon$, not $f(x)$ directly
+\end{itemize}
+
+The observation noise appears only in the top-left block because we observe $y = f(x) + \epsilon$, not $f(x)$ directly. The test points $\mathbf{f}_*$ represent the noise-free function values.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_09_uncertainty/marginals and conditionals.png}
+    \caption{The joint Gaussian over training and test points. Conditioning on training data transforms the prior into a posterior. The left shows the marginal (prior) distribution; the right shows the conditional (posterior) distribution after observing data.}
+    \label{fig:marginals-conditionals}
+\end{figure}
+
+\subsection{Derivation of the Posterior Predictive Distribution}
+
+We now derive the posterior predictive distribution using standard Gaussian conditioning. This is the central calculation in GP regression, and understanding it deeply is essential.
+
+\begin{greybox}[Gaussian Conditioning Formula]
+If $\begin{bmatrix} \mathbf{x} \\ \mathbf{y} \end{bmatrix} \sim \mathcal{N}\left( \begin{bmatrix} \boldsymbol{\mu}_x \\ \boldsymbol{\mu}_y \end{bmatrix}, \begin{bmatrix} \Sigma_{xx} & \Sigma_{xy} \\ \Sigma_{yx} & \Sigma_{yy} \end{bmatrix} \right)$, then:
+$$\mathbf{x} \mid \mathbf{y} \sim \mathcal{N}\left( \boldsymbol{\mu}_x + \Sigma_{xy} \Sigma_{yy}^{-1}(\mathbf{y} - \boldsymbol{\mu}_y), \; \Sigma_{xx} - \Sigma_{xy} \Sigma_{yy}^{-1} \Sigma_{yx} \right)$$
+\end{greybox}
+
+This formula is the workhorse of Gaussian inference. It tells us that when we condition a joint Gaussian on observing some of the variables, the conditional distribution is also Gaussian, with mean and covariance given by these formulas. The mean shifts based on how the observed values deviate from their prior mean, weighted by the correlation structure. The variance decreases (we become more certain) by an amount determined by how much the observed variables ``explain'' the unobserved ones.
+
+\begin{greybox}[Derivation of GP Posterior]
+Starting from the joint distribution and applying the conditioning formula with $\mathbf{x} = \mathbf{f}_*$ and $\mathbf{y} = \mathbf{y}$ (the observations):
+
+\textbf{Step 1}: Identify the components:
+\begin{align*}
+\boldsymbol{\mu}_x &= m(X_*), \quad \boldsymbol{\mu}_y = m(X) \\
+\Sigma_{xx} &= K_{**}, \quad \Sigma_{yy} = K_{XX} + \sigma^2 I \\
+\Sigma_{xy} &= K_{*X}, \quad \Sigma_{yx} = K_{X*}
+\end{align*}
+
+\textbf{Step 2}: Apply the conditioning formula:
+\begin{align*}
+\mathbb{E}[\mathbf{f}_* \mid X, \mathbf{y}, X_*] &= m(X_*) + K_{*X}(K_{XX} + \sigma^2 I)^{-1}(\mathbf{y} - m(X)) \\
+\mathrm{Cov}(\mathbf{f}_* \mid X, \mathbf{y}, X_*) &= K_{**} - K_{*X}(K_{XX} + \sigma^2 I)^{-1}K_{X*}
+\end{align*}
+
+\textbf{Result}:
+$$\mathbf{f}_* \mid X, \mathbf{y}, X_* \sim \mathcal{N}(\boldsymbol{\mu}_*, \Sigma_*)$$
+where:
+\begin{align}
+\boldsymbol{\mu}_* &= m(X_*) + K_{*X}(K_{XX} + \sigma^2 I)^{-1}(\mathbf{y} - m(X)) \label{eq:gp-mean}\\
+\Sigma_* &= K_{**} - K_{*X}(K_{XX} + \sigma^2 I)^{-1}K_{X*} \label{eq:gp-var}
+\end{align}
+\end{greybox}
+
+\textbf{Understanding the posterior mean $\boldsymbol{\mu}_*$ in detail:}
+
+The formula has a beautiful interpretation. Let us break it down term by term:
+
+\begin{itemize}
+    \item $m(X_*)$: Start with our prior mean at the test points-this is our baseline expectation before considering the training data.
+
+    \item $(\mathbf{y} - m(X))$: The ``residuals'' or ``surprise''-how much the observed outputs deviate from what we expected under the prior. If the observations exactly matched the prior mean, this would be zero and we would not adjust our predictions at all.
+
+    \item $K_{*X}$: Measures how similar each test point is to each training point according to our kernel. Test points similar to training points will be more influenced by the training data.
+
+    \item $(K_{XX} + \sigma^2 I)^{-1}$: The inverse of the regularised covariance matrix of training points. This acts as a precision-weighted normalisation that accounts for (a) how training points relate to each other, and (b) observation noise. The $\sigma^2 I$ term prevents overfitting to noisy observations.
+\end{itemize}
+
+\textbf{Understanding the posterior variance $\Sigma_*$ in detail:}
+
+\begin{itemize}
+    \item $K_{**}$: Start with prior variance-our initial uncertainty about function values at test points before seeing any data.
+
+    \item $K_{*X}(K_{XX} + \sigma^2 I)^{-1}K_{X*}$: The variance ``explained'' by the training data. This term measures how much our uncertainty is reduced by having observed the training points. It is always non-negative (as a quadratic form), so observing data can only reduce uncertainty, never increase it.
+\end{itemize}
+
+\begin{bluebox}[Interpreting the GP Posterior]
+\textbf{Posterior mean} $\boldsymbol{\mu}_*$:
+\begin{itemize}
+    \item Start with prior mean $m(X_*)$
+    \item Adjust based on: (1) how similar test points are to training points ($K_{*X}$), and (2) how much training observations deviate from prior ($\mathbf{y} - m(X)$)
+    \item The matrix $(K_{XX} + \sigma^2 I)^{-1}$ acts as a ``precision-weighted'' combination
+\end{itemize}
+
+\textbf{Posterior variance} $\Sigma_*$:
+\begin{itemize}
+    \item Start with prior variance $K_{**}$
+    \item Subtract variance ``explained'' by training data
+    \item The reduction is larger when test points are similar to training points (large $K_{*X}$)
+    \item Variance can only decrease from prior (observing data reduces uncertainty)
+\end{itemize}
+\end{bluebox}
+
+\subsection{Connection to Kernel Ridge Regression}
+
+This is where the relationship to Week 6 becomes precise, and where we see the added value of the Bayesian framework.
+
+\begin{redbox}
+With zero mean function, the GP posterior mean is \textbf{identical} to Kernel Ridge Regression:
+$$\boldsymbol{\mu}_* = K_{*X}(K_{XX} + \sigma^2 I)^{-1}\mathbf{y}$$
+
+The regularisation parameter $\lambda$ in KRR corresponds to the noise variance $\sigma^2$ in the GP.
+
+The critical difference: GPs also compute $\Sigma_*$, providing \textbf{calibrated uncertainty estimates} rather than just point predictions.
+\end{redbox}
+
+This connection provides two perspectives on the same computation:
+\begin{itemize}
+    \item \textbf{KRR view}: Regularised least squares in a kernel-induced feature space. The regularisation parameter $\lambda$ is a tuning parameter we choose.
+    \item \textbf{GP view}: Bayesian inference with a Gaussian prior over functions. The noise variance $\sigma^2$ has a natural interpretation as observation noise.
+\end{itemize}
+
+\textbf{What GPs add beyond KRR:}
+\begin{itemize}
+    \item The diagonal elements of $\Sigma_*$ give variances at each predicted point, representing the model's confidence
+    \item Off-diagonal elements represent covariances between predictions, indicating how uncertainties are correlated
+    \item This additional information is valuable when making decisions under uncertainty, as it provides insight into the reliability of predictions
+    \item The GP view suggests natural ways to estimate hyperparameters (via marginal likelihood) rather than cross-validation
+\end{itemize}
+
+\subsection{Posterior of Function vs Posterior Predictive}
+
+There is an important distinction between two types of uncertainty in GPs that is often confused.
+
+\begin{greybox}[Two Types of Posterior Uncertainty]
+\textbf{Posterior of the function} $f_*$ (credible intervals):
+\begin{itemize}
+    \item Uncertainty about the \emph{true function value} at test points
+    \item ``Where might the true function lie?''
+    \item Variance: $\Sigma_* = K_{**} - K_{*X}(K_{XX} + \sigma^2 I)^{-1}K_{X*}$
+    \item This is epistemic uncertainty
+\end{itemize}
+
+\textbf{Posterior predictive} for new observation $y_* = f_* + \epsilon_*$ (prediction intervals):
+\begin{itemize}
+    \item Uncertainty about a \emph{new noisy observation}
+    \item ``Where might future observations fall?''
+    \item Variance: $\Sigma_* + \sigma^2 I$
+    \item Includes both epistemic (function uncertainty) and aleatoric (noise) uncertainty
+    \item Wider than credible intervals because observations include noise
+\end{itemize}
+
+For prediction intervals, use the posterior predictive. For understanding where the model is uncertain about the underlying function, use the posterior of $f$.
+\end{greybox}
+
+\textbf{Concrete interpretation:}
+\begin{itemize}
+    \item \textbf{Credible interval}: A range of values for the function at a given point that, given the prior and observed data, are believed to contain the true function value with a certain probability. A 90\% credible interval means there is a 90\% probability that the true function value lies within that interval.
+
+    \item \textbf{Prediction interval}: A range believed to contain future observed labels with a certain probability, accounting for observation noise. A 90\% prediction interval means there is a 90\% probability that a future observation will fall within this interval.
+\end{itemize}
+
+\textbf{Practical implication}: To shift from posterior of the function to posterior predictive, add the noise variance $\sigma^2$ to the diagonal of the covariance matrix. The prediction interval is always at least as wide as the credible interval, and approaches it in the limit of zero observation noise.
+
+\subsection{Variance Behaviour: A Key Feature of GPs}
+
+One of the most attractive properties of GPs is how their uncertainty behaves-it naturally increases in regions where we have less data.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_09_uncertainty/GP_2.png}
+    \caption{Evolution of GP posterior as data is observed. Functions inconsistent with observations are eliminated. The shaded region represents the confidence interval; sample functions are drawn from the posterior.}
+    \label{fig:gp-progression}
+\end{figure}
+
+\textbf{(a) No data ($n=0$):} Prior samples show high variability-we are uncertain about the function everywhere. Functions sampled from the GP prior are highly varied, and the shaded region spans a wide range reflecting that many function shapes are plausible before seeing any data.
+
+\textbf{(b) One observation ($n=1$):} Uncertainty collapses near the observed point. Sample functions are constrained to pass near the observation (within noise tolerance). The confidence interval narrows near the observed point and widens away from it. Functions inconsistent with this observation are down-weighted.
+
+\textbf{(c) Two observations ($n=2$):} Uncertainty is low near both points, higher in between and beyond. The GP ``knows'' more where it has seen data. Sample functions vary less near data and more in regions without observations.
+
+\textbf{(d) Four observations ($n=4$):} The posterior is well-constrained where data is dense. Uncertainty remains high only in unobserved regions. Confidence intervals are significantly tighter around all observations, and the GP has learned the trend.
+
+\begin{bluebox}[GP Variance Properties]
+GP posterior variance has the desirable property that it:
+\begin{itemize}
+    \item \textbf{Decreases near training data}: We become more certain where we have observations
+    \item \textbf{Increases away from training data}: We remain uncertain where we lack information
+    \item \textbf{Returns to prior variance far from all data}: In unexplored regions, we revert to prior beliefs
+\end{itemize}
+
+This behaviour is \emph{exactly} what we want from uncertainty quantification. Many other methods (e.g., standard neural networks) do not have this property-they can be confidently wrong in extrapolation regions.
+\end{bluebox}
+
+\textbf{Contrast with other methods:}
+\begin{itemize}
+    \item Linear regression and polynomial regression provide point estimates without uncertainty measures (unless we use Bayesian versions)
+    \item Standard neural networks often become \emph{more} confident in extrapolation regions, which is dangerous
+    \item This variance property makes GPs particularly valuable for active learning (sample where uncertain) and Bayesian optimisation (balance exploration and exploitation)
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_09_uncertainty/GP variance.png}
+    \caption{Effect of kernel hyperparameters on uncertainty. Crosses indicate training data. The solid line shows the mean prediction; shaded regions show confidence intervals. Larger length-scale (right) produces wider confidence bands and smoother functions, indicating that observations influence predictions over a larger range.}
+    \label{fig:gp-variance}
+\end{figure}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{GP Kernels}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary: Kernels]
+\begin{itemize}
+    \item The kernel encodes prior assumptions about function properties
+    \item Common kernels: RBF (smooth), Mat\'ern (tunable smoothness), periodic
+    \item Kernels can be combined via addition and multiplication
+    \item Hyperparameters are typically learned by maximising marginal likelihood
+\end{itemize}
+\end{bluebox}
+
+The choice of kernel is the primary way we encode prior knowledge into a GP. Different kernels encode different assumptions about function smoothness, periodicity, and other properties. Choosing the right kernel is both an art and a science-it requires understanding what each kernel implies about the functions we believe are plausible.
+
+\subsection{Squared Exponential (RBF) Kernel}
+
+The squared exponential kernel (also called the radial basis function or RBF kernel, or Gaussian kernel) is the most commonly used kernel and a good default choice.
+
+\begin{greybox}[Squared Exponential Kernel]
+$$k_{\mathrm{SE}}(x, x') = \sigma_f^2 \exp\left( -\frac{\|x - x'\|^2}{2\ell^2} \right)$$
+
+\textbf{Hyperparameters}:
+\begin{itemize}
+    \item $\sigma_f^2$: Signal variance (vertical scale of functions)-controls the typical magnitude of deviations from the mean
+    \item $\ell$: Length-scale (horizontal scale; how quickly correlation decays with distance)-controls how ``wiggly'' the functions are
+\end{itemize}
+
+\textbf{Properties}:
+\begin{itemize}
+    \item Infinitely differentiable (very smooth functions)
+    \item Stationary: $k(x, x') = k(x - x')$ depends only on displacement
+    \item Universal approximator (can approximate any continuous function)
+\end{itemize}
+\end{greybox}
+
+\textbf{Unpacking the formula:}
+\begin{itemize}
+    \item $\|x - x'\|^2$: The squared Euclidean distance between inputs. Points that are far apart will have small covariance.
+    \item $\exp(-\cdot)$: The exponential decay means covariance decreases smoothly with distance, approaching zero for very distant points.
+    \item $\ell^2$ in the denominator: Larger $\ell$ means the decay is slower-distant points remain correlated, producing smoother functions. Smaller $\ell$ means rapid decay-only nearby points are correlated, producing wigglier functions.
+    \item $\sigma_f^2$: This multiplier controls the overall variance. Larger $\sigma_f^2$ means functions have larger amplitude.
+\end{itemize}
+
+The length-scale $\ell$ controls the ``wiggliness'' of sampled functions:
+\begin{itemize}
+    \item Small $\ell$: Functions vary rapidly; nearby points can have very different values
+    \item Large $\ell$: Functions are smooth; values change slowly with input
+\end{itemize}
+
+\begin{redbox}
+The SE kernel produces functions that are infinitely differentiable-perhaps \emph{too} smooth for many real-world phenomena. Physical processes often have finite smoothness. Consider Mat\'ern kernels for more realistic smoothness assumptions.
+\end{redbox}
+
+\subsection{Mat\'ern Family}
+
+The Mat\'ern family provides a more flexible way to control smoothness. Unlike the SE kernel, which produces infinitely smooth functions, Mat\'ern kernels produce functions with a specified degree of differentiability.
+
+\begin{greybox}[Mat\'ern Kernel]
+$$k_{\text{Mat\'ern}}(r) = \sigma_f^2 \frac{2^{1-\nu}}{\Gamma(\nu)} \left( \frac{\sqrt{2\nu} r}{\ell} \right)^\nu K_\nu\left( \frac{\sqrt{2\nu} r}{\ell} \right)$$
+
+where $r = \|x - x'\|$, $K_\nu$ is the modified Bessel function of the second kind, and $\nu > 0$ controls smoothness.
+
+\textbf{Special cases}:
+\begin{itemize}
+    \item $\nu = 1/2$: Ornstein-Uhlenbeck (continuous but not differentiable-rough, jagged functions)
+    $$k_{1/2}(r) = \sigma_f^2 \exp\left( -\frac{r}{\ell} \right)$$
+
+    \item $\nu = 3/2$: Once differentiable (smooth but can have kinks)
+    $$k_{3/2}(r) = \sigma_f^2 \left( 1 + \frac{\sqrt{3}r}{\ell} \right) \exp\left( -\frac{\sqrt{3}r}{\ell} \right)$$
+
+    \item $\nu = 5/2$: Twice differentiable (smoother, no kinks)
+    $$k_{5/2}(r) = \sigma_f^2 \left( 1 + \frac{\sqrt{5}r}{\ell} + \frac{5r^2}{3\ell^2} \right) \exp\left( -\frac{\sqrt{5}r}{\ell} \right)$$
+
+    \item $\nu \to \infty$: Squared exponential (infinitely differentiable)
+\end{itemize}
+\end{greybox}
+
+\textbf{When to use Mat\'ern:} The Mat\'ern-$5/2$ kernel is a popular default choice: smooth enough to be well-behaved, but not unrealistically smooth like the SE kernel. Many physical processes are well-modelled by Mat\'ern-$3/2$ or Mat\'ern-$5/2$ because they allow for some roughness while remaining mathematically tractable.
+
+\textbf{Interpreting $\nu$:} Functions sampled from a Mat\'ern GP are $\lceil \nu \rceil - 1$ times mean-square differentiable. So $\nu = 3/2$ gives once-differentiable functions, $\nu = 5/2$ gives twice-differentiable functions, and so on.
+
+\subsection{Periodic Kernel}
+
+When we expect the function to repeat with a known period, the periodic kernel is appropriate.
+
+\begin{greybox}[Periodic Kernel]
+$$k_{\mathrm{Per}}(x, x') = \sigma_f^2 \exp\left( -\frac{2 \sin^2(\pi |x - x'| / p)}{\ell^2} \right)$$
+
+\textbf{Hyperparameters}:
+\begin{itemize}
+    \item $p$: Period of the function
+    \item $\ell$: Length-scale (smoothness within each period)
+    \item $\sigma_f^2$: Signal variance
+\end{itemize}
+
+Functions sampled from this kernel are exactly periodic with period $p$.
+\end{greybox}
+
+\textbf{When to use:} Time series with known seasonal patterns (daily, weekly, yearly cycles), signals with known periodicity.
+
+\subsection{Linear Kernel}
+
+The linear kernel reduces the GP to Bayesian linear regression.
+
+\begin{greybox}[Linear Kernel]
+$$k_{\mathrm{Lin}}(x, x') = \sigma_b^2 + \sigma_v^2 (x - c)(x' - c)$$
+
+where $c$ is the offset, $\sigma_b^2$ is the bias variance, and $\sigma_v^2$ controls the variance of the slope.
+
+A GP with a linear kernel is equivalent to Bayesian linear regression.
+\end{greybox}
+
+\textbf{When to use:} When you believe the relationship is linear but want uncertainty quantification. This provides a nice bridge between simple linear models and the full GP framework.
+
+\subsection{Kernel Composition}
+
+One of the beautiful aspects of kernels is that they can be combined to create more expressive kernels. This lets us build complex prior beliefs from simple building blocks.
+
+Valid kernels can be combined to create new valid kernels:
+
+\begin{greybox}[Kernel Algebra]
+If $k_1$ and $k_2$ are valid kernels, so are:
+\begin{itemize}
+    \item \textbf{Sum}: $k(x, x') = k_1(x, x') + k_2(x, x')$
+    \begin{itemize}
+        \item Models functions that are sums of independent components
+        \item Example: $k_{\mathrm{SE}} + k_{\mathrm{Per}}$ for trend plus seasonality
+    \end{itemize}
+
+    \item \textbf{Product}: $k(x, x') = k_1(x, x') \cdot k_2(x, x')$
+    \begin{itemize}
+        \item Models functions where properties interact
+        \item Example: $k_{\mathrm{SE}} \cdot k_{\mathrm{Per}}$ for periodic with locally-varying amplitude
+    \end{itemize}
+
+    \item \textbf{Scalar multiplication}: $k(x, x') = c \cdot k_1(x, x')$ for $c > 0$
+\end{itemize}
+\end{greybox}
+
+\textbf{Example}: Time series with trend, seasonality, and noise:
+$$k(t, t') = k_{\mathrm{Lin}}(t, t') + k_{\mathrm{Per}}(t, t') + k_{\mathrm{SE}}(t, t') + \sigma^2 \delta_{tt'}$$
+
+This decomposes the signal into interpretable components: a linear trend, a periodic seasonal component, smooth local variations, and observation noise. Each component can be analysed separately, providing interpretable structure.
+
+\subsection{Automatic Relevance Determination (ARD)}
+
+For multi-dimensional inputs, use different length-scales per dimension. This allows the model to automatically determine which input dimensions are relevant.
+
+\begin{greybox}[ARD Kernel]
+$$k_{\mathrm{ARD}}(\mathbf{x}, \mathbf{x}') = \sigma_f^2 \exp\left( -\frac{1}{2} \sum_{d=1}^{D} \frac{(x_d - x'_d)^2}{\ell_d^2} \right)$$
+
+Each dimension $d$ has its own length-scale $\ell_d$. During hyperparameter optimisation:
+\begin{itemize}
+    \item Irrelevant dimensions: $\ell_d \to \infty$ (dimension ignored, as even large differences in $x_d$ do not affect covariance)
+    \item Relevant dimensions: $\ell_d$ stays finite
+\end{itemize}
+
+This provides automatic feature selection.
+\end{greybox}
+
+\textbf{Interpretation:} If a dimension is irrelevant for predicting the output, the optimised length-scale for that dimension will be very large. This effectively removes that dimension from consideration. The learned length-scales thus provide insight into which features matter.
+
+\subsection{Hyperparameter Learning}
+
+Kernel hyperparameters $\boldsymbol{\theta} = (\sigma_f, \ell, \sigma, \ldots)$ are typically learned by maximising the marginal likelihood. This is a principled Bayesian approach that automatically balances fit against complexity.
+
+\begin{greybox}[Marginal Likelihood]
+The log marginal likelihood is:
+$$\log p(\mathbf{y} \mid X, \boldsymbol{\theta}) = -\frac{1}{2}\mathbf{y}^\top K_y^{-1} \mathbf{y} - \frac{1}{2}\log |K_y| - \frac{n}{2}\log(2\pi)$$
+
+where $K_y = K_{XX} + \sigma^2 I$.
+
+\textbf{Three terms}:
+\begin{enumerate}
+    \item $-\frac{1}{2}\mathbf{y}^\top K_y^{-1} \mathbf{y}$: Data fit (prefers parameters that explain the data)
+    \item $-\frac{1}{2}\log |K_y|$: Complexity penalty (prefers simpler models-this term increases with the ``flexibility'' of the GP)
+    \item $-\frac{n}{2}\log(2\pi)$: Normalisation constant (does not depend on $\boldsymbol{\theta}$)
+\end{enumerate}
+
+This automatically balances fit against complexity-no separate validation set needed for hyperparameter selection.
+\end{greybox}
+
+\textbf{Unpacking the tradeoff:}
+\begin{itemize}
+    \item The first term wants the GP to fit the data well. Very flexible GPs (small length-scale) can fit any data well.
+    \item The second term penalises complexity. Very flexible GPs have large determinants $|K_y|$, so this term penalises overly wiggly fits.
+    \item The balance between these terms implements Occam's razor: among models that fit the data equally well, prefer simpler ones.
+\end{itemize}
+
+Optimisation is typically done via gradient descent. The gradients have closed forms:
+$$\frac{\partial}{\partial \theta_j} \log p(\mathbf{y} \mid X, \boldsymbol{\theta}) = \frac{1}{2} \mathbf{y}^\top K_y^{-1} \frac{\partial K_y}{\partial \theta_j} K_y^{-1} \mathbf{y} - \frac{1}{2} \mathrm{tr}\left( K_y^{-1} \frac{\partial K_y}{\partial \theta_j} \right)$$
+
+\begin{redbox}
+The marginal likelihood can have multiple local optima. In practice:
+\begin{itemize}
+    \item Use multiple random restarts
+    \item Consider placing priors on hyperparameters (fully Bayesian treatment)
+    \item Be aware that very short length-scales can lead to overfitting
+    \item Very long length-scales can lead to underfitting (function is too smooth)
+\end{itemize}
+\end{redbox}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Computational Aspects of GPs}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary: Computation]
+\begin{itemize}
+    \item Exact GP inference costs $O(n^3)$ time and $O(n^2)$ memory
+    \item Bottleneck: inverting the $n \times n$ covariance matrix
+    \item Sparse/inducing point methods reduce to $O(nm^2)$ where $m \ll n$
+    \item GPs are practical for $n \lesssim 10{,}000$; sparse methods extend to $n \sim 10^6$
+\end{itemize}
+\end{bluebox}
+
+\subsection{Exact GP Complexity}
+
+The computational cost of GPs is their main practical limitation.
+
+\begin{greybox}[Computational Cost]
+For $n$ training points and $n_*$ test points:
+
+\textbf{Training} (computing $(K_{XX} + \sigma^2 I)^{-1}$):
+\begin{itemize}
+    \item Time: $O(n^3)$ for matrix inversion (or Cholesky decomposition)
+    \item Memory: $O(n^2)$ to store the covariance matrix
+\end{itemize}
+
+\textbf{Prediction}:
+\begin{itemize}
+    \item Mean: $O(n)$ per test point (matrix-vector multiplication)
+    \item Variance: $O(n^2)$ per test point (if computing full covariance)
+\end{itemize}
+
+\textbf{Hyperparameter optimisation}: Each gradient evaluation requires $O(n^3)$, and we need many iterations.
+\end{greybox}
+
+\textbf{Why $O(n^3)$?} The dominant cost is computing the Cholesky decomposition of the $n \times n$ covariance matrix, which is $O(n^3)$. We also need to store the full $n \times n$ matrix, which requires $O(n^2)$ memory.
+
+The cubic scaling makes exact GPs impractical for large datasets:
+\begin{center}
+\begin{tabular}{rr}
+\toprule
+$n$ & Approximate time for $n^3$ operations \\
+\midrule
+1,000 & $10^9$ (seconds) \\
+10,000 & $10^{12}$ (hours) \\
+100,000 & $10^{15}$ (years) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+These are rough estimates assuming one FLOP per nanosecond, but they illustrate the severity of the scaling problem.
+
+\subsection{Sparse Gaussian Processes}
+
+The key idea: approximate the full GP using a smaller set of $m \ll n$ \textbf{inducing points}. This trades some accuracy for dramatically better scaling.
+
+\begin{greybox}[Inducing Point Methods]
+Instead of conditioning on all $n$ training points, we condition on $m$ \textbf{inducing points} $Z = (z_1, \ldots, z_m)^\top$ with corresponding function values $\mathbf{u} = (f(z_1), \ldots, f(z_m))^\top$.
+
+\textbf{Key assumption}: Given the inducing points, training and test points are conditionally independent:
+$$p(f_*, \mathbf{f} \mid \mathbf{u}) \approx p(f_* \mid \mathbf{u}) p(\mathbf{f} \mid \mathbf{u})$$
+
+\textbf{Cost reduction}:
+\begin{itemize}
+    \item Training: $O(nm^2)$ instead of $O(n^3)$
+    \item Memory: $O(nm)$ instead of $O(n^2)$
+    \item Prediction: $O(m^2)$ per test point
+\end{itemize}
+\end{greybox}
+
+\textbf{Intuition:} The inducing points act as a ``summary'' of the training data. Instead of remembering all $n$ training points, we summarise them with $m$ representative points. If $m$ is much smaller than $n$ but large enough to capture the important structure, we get a good approximation at much lower cost.
+
+\textbf{Choosing inducing points}: The locations $Z$ can be:
+\begin{itemize}
+    \item Fixed (e.g., on a grid, or a subset of training points)
+    \item Learned jointly with hyperparameters via variational inference
+\end{itemize}
+
+\begin{greybox}[Variational Sparse GPs (SVGP)]
+Treat the inducing point values $\mathbf{u}$ as variational parameters. Maximise a lower bound on the marginal likelihood:
+$$\log p(\mathbf{y}) \geq \mathbb{E}_{q(\mathbf{u})}[\log p(\mathbf{y} \mid \mathbf{u})] - \mathrm{KL}(q(\mathbf{u}) \| p(\mathbf{u}))$$
+
+where $q(\mathbf{u}) = \mathcal{N}(\mathbf{m}, \mathbf{S})$ is a variational Gaussian.
+
+This enables:
+\begin{itemize}
+    \item Stochastic optimisation (mini-batches of data)
+    \item Scaling to millions of data points
+    \item Learning inducing point locations
+\end{itemize}
+\end{greybox}
+
+\textbf{The variational approach:} Instead of computing the exact posterior, we find the best Gaussian approximation within a tractable family. The ELBO (evidence lower bound) balances fitting the data against staying close to the prior. Mini-batch optimisation makes this scalable to very large datasets.
+
+\subsection{When to Use GPs}
+
+\begin{bluebox}[GP Applicability Guidelines]
+\textbf{GPs are well-suited when}:
+\begin{itemize}
+    \item Dataset is small to medium ($n \lesssim 10{,}000$ for exact; larger with sparse methods)
+    \item Calibrated uncertainty is important
+    \item Function is expected to be smooth (or smoothness is characterisable)
+    \item Interpretable priors are valuable
+    \item Bayesian optimisation of expensive functions
+\end{itemize}
+
+\textbf{GPs may not be ideal when}:
+\begin{itemize}
+    \item Dataset is very large ($n > 10^6$) and uncertainty is not critical
+    \item Input dimension is very high ($D > 100$)-curse of dimensionality affects kernel-based methods
+    \item Function has complex structure better captured by deep networks
+\end{itemize}
+\end{bluebox}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Bayesian Optimisation}
+%══════════════════════════════════════════════════════════════════════════════
+
+GPs are the workhorse of Bayesian optimisation-the sequential design of experiments to find the optimum of expensive-to-evaluate functions. This is one of the most successful practical applications of GPs.
+
+\begin{greybox}[Bayesian Optimisation Framework]
+\textbf{Goal}: Find $x^* = \argmin_x f(x)$ where $f$ is expensive to evaluate.
+
+\textbf{Algorithm}:
+\begin{enumerate}
+    \item Fit a GP surrogate model to observed data $\{(x_i, y_i)\}_{i=1}^n$
+    \item Use an \textbf{acquisition function} $\alpha(x)$ to select the next point
+    \item Evaluate $f$ at the selected point; add to dataset
+    \item Repeat until budget exhausted
+\end{enumerate}
+
+\textbf{Acquisition functions} balance exploration (sample where uncertain) and exploitation (sample where expected to be good):
+\begin{itemize}
+    \item \textbf{Expected Improvement (EI)}: $\mathbb{E}[\max(f_{\min} - f(x), 0)]$-the expected amount by which we will improve over the current best
+    \item \textbf{Probability of Improvement (PI)}: $P(f(x) < f_{\min})$-the probability that we will improve (ignores magnitude of improvement)
+    \item \textbf{Upper Confidence Bound (UCB)}: $\mu(x) - \kappa \sigma(x)$ (for minimisation)-mean minus a multiple of standard deviation
+\end{itemize}
+\end{greybox}
+
+\textbf{Why the GP's uncertainty is crucial:} The acquisition function needs to balance exploration and exploitation. The GP's uncertainty estimate tells us where we are uncertain (should explore) versus where we are confident (can exploit). Without calibrated uncertainty, the optimisation would either over-explore (wasting evaluations in already-explored regions) or over-exploit (getting stuck in local optima and missing the global optimum).
+
+\textbf{Applications:}
+\begin{itemize}
+    \item Hyperparameter tuning for machine learning models
+    \item Experimental design in chemistry, materials science, drug discovery
+    \item Engineering optimisation where simulations are expensive
+    \item Any setting where function evaluations are costly and we want to find the optimum with minimal evaluations
+\end{itemize}
+
+\textbf{Interactive demo}: \url{http://www.infinitecuriosity.org/vizgp/}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Conformal Prediction}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary: Conformal Prediction]
+\begin{itemize}
+    \item Distribution-free method for constructing prediction sets
+    \item Provides finite-sample coverage guarantees under minimal assumptions
+    \item Works with \emph{any} predictive model (model-agnostic)
+    \item Key assumption: exchangeability (weaker than i.i.d.)
+    \item Guarantees marginal coverage, not conditional coverage
+\end{itemize}
+\end{bluebox}
+
+Conformal prediction offers a fundamentally different approach to uncertainty: instead of modelling the data-generating process (as GPs do), it uses the data directly to construct prediction sets with guaranteed coverage. The approach is remarkably general-it can ``wrap'' any predictive model and turn its point predictions into valid prediction intervals.
+
+\subsection{The Coverage Guarantee}
+
+\begin{greybox}[Conformal Prediction Guarantee]
+Given exchangeable data $(X_1, Y_1), \ldots, (X_n, Y_n), (X_{n+1}, Y_{n+1})$, conformal prediction constructs a prediction set $\mathcal{C}(X_{n+1})$ such that:
+$$P(Y_{n+1} \in \mathcal{C}(X_{n+1})) \geq 1 - \alpha$$
+
+This is a \textbf{finite-sample} guarantee-it holds for any $n$, not just asymptotically.
+
+\textbf{Exchangeability}: A sequence is exchangeable if its joint distribution is invariant to permutations. This is weaker than i.i.d. (i.i.d. implies exchangeable, but not vice versa).
+\end{greybox}
+
+\textbf{The remarkable fact}: This guarantee holds regardless of the underlying distribution, the model used, or the dimensionality of the problem. No Gaussian assumptions, no asymptotic arguments. If you say ``95\% coverage,'' you get 95\% coverage.
+
+\textbf{Exchangeability explained}: A sequence $(Z_1, Z_2, \ldots, Z_n)$ is exchangeable if swapping any elements does not change the joint distribution. For example, $(Z_1, Z_2, Z_3)$ has the same distribution as $(Z_2, Z_1, Z_3)$ or $(Z_3, Z_1, Z_2)$. The key insight is that i.i.d. samples are exchangeable (since each is drawn from the same distribution independently), but exchangeability is a weaker condition that accommodates some dependencies.
+
+\textbf{What is a prediction set?} For regression, it is typically an interval $[l, u]$. For classification, it is a subset of class labels. The guarantee says the true value will be in this set with probability at least $1 - \alpha$.
+
+\subsection{Split Conformal Prediction}
+
+The simplest and most practical variant is \textbf{split conformal prediction}. It trades some statistical efficiency (using part of the data for calibration rather than training) for computational simplicity and clean theory.
+
+\begin{greybox}[Split Conformal Algorithm]
+\textbf{Input}: Data $\{(x_i, y_i)\}_{i=1}^n$, model class, coverage level $1 - \alpha$
+
+\textbf{Step 1: Split data}
+\begin{itemize}
+    \item Training set: $\mathcal{D}_{\mathrm{train}}$ (fit the model)
+    \item Calibration set: $\mathcal{D}_{\mathrm{cal}} = \{(x_i, y_i)\}_{i=1}^{n_{\mathrm{cal}}}$ (construct intervals)
+\end{itemize}
+
+\textbf{Step 2: Fit model} on $\mathcal{D}_{\mathrm{train}}$ to get $\hat{f}$
+
+\textbf{Step 3: Define nonconformity score} $s(x, y)$ measuring how ``unusual'' $y$ is for input $x$
+\begin{itemize}
+    \item Regression: $s(x, y) = |y - \hat{f}(x)|$ (absolute residual)
+    \item Classification: $s(x, y) = 1 - \hat{f}(x)_y$ (one minus predicted probability of true class)
+\end{itemize}
+
+\textbf{Step 4: Compute calibration scores}
+$$s_i = s(x_i, y_i) \quad \text{for } (x_i, y_i) \in \mathcal{D}_{\mathrm{cal}}$$
+
+\textbf{Step 5: Find quantile}
+$$\hat{q} = \text{Quantile}_{(1-\alpha)(1 + 1/n_{\mathrm{cal}})}(s_1, \ldots, s_{n_{\mathrm{cal}}})$$
+(the $\lceil (n_{\mathrm{cal}} + 1)(1 - \alpha) \rceil$-th smallest value)
+
+\textbf{Step 6: Construct prediction set}
+$$\mathcal{C}(x_{\mathrm{new}}) = \{y : s(x_{\mathrm{new}}, y) \leq \hat{q}\}$$
+\end{greybox}
+
+For regression with absolute residual scores, this simplifies beautifully:
+$$\mathcal{C}(x_{\mathrm{new}}) = [\hat{f}(x_{\mathrm{new}}) - \hat{q}, \; \hat{f}(x_{\mathrm{new}}) + \hat{q}]$$
+
+The prediction interval is simply the point prediction plus or minus the calibrated threshold.
+
+\textbf{Step-by-step intuition:}
+\begin{enumerate}
+    \item We fit our favourite model on part of the data.
+    \item On held-out calibration data, we see how badly the model's predictions can be wrong (the distribution of residuals).
+    \item We find a threshold such that most ($(1-\alpha)$ fraction) of residuals are smaller than this threshold.
+    \item For new predictions, we use this threshold to construct intervals that will contain the true value with the desired probability.
+\end{enumerate}
+
+\subsection{Why Does It Work?}
+
+\begin{greybox}[Proof Sketch of Coverage Guarantee]
+Under exchangeability, the calibration scores $s_1, \ldots, s_{n_{\mathrm{cal}}}$ and the new score $s_{n_{\mathrm{cal}}+1} = s(x_{\mathrm{new}}, y_{\mathrm{new}})$ are exchangeable.
+
+By symmetry, the rank of $s_{n_{\mathrm{cal}}+1}$ among all $n_{\mathrm{cal}} + 1$ scores is uniformly distributed over $\{1, \ldots, n_{\mathrm{cal}} + 1\}$.
+
+Therefore:
+$$P(s_{n_{\mathrm{cal}}+1} \leq \hat{q}) = P(\text{rank}(s_{n_{\mathrm{cal}}+1}) \leq \lceil (n_{\mathrm{cal}} + 1)(1 - \alpha) \rceil) \geq 1 - \alpha$$
+
+Since $y_{\mathrm{new}} \in \mathcal{C}(x_{\mathrm{new}})$ iff $s(x_{\mathrm{new}}, y_{\mathrm{new}}) \leq \hat{q}$, we have coverage.
+\end{greybox}
+
+\textbf{The elegance of this proof}: It relies purely on the symmetry of exchangeable random variables, not on any distributional assumptions. If we have $n+1$ exchangeable scores, the new score is equally likely to be in any rank position from 1 to $n+1$. The probability that it is among the smallest $\lceil (n+1)(1-\alpha) \rceil$ is at least $1 - \alpha$ by construction.
+
+\textbf{Why the $(1 + 1/n_{\mathrm{cal}})$ factor?} This finite-sample correction accounts for the fact that we are using a finite calibration set. As $n_{\mathrm{cal}} \to \infty$, this correction becomes negligible.
+
+\subsection{Choice of Nonconformity Score}
+
+The score function $s(x, y)$ determines the shape and efficiency of prediction sets. The coverage guarantee holds for \emph{any} score function, but the choice affects how tight the intervals are.
+
+\begin{greybox}[Common Score Functions]
+\textbf{Regression}:
+\begin{itemize}
+    \item Absolute residual: $s(x, y) = |y - \hat{f}(x)|$
+    \begin{itemize}
+        \item Simple, gives symmetric intervals
+        \item Width is constant across all $x$
+    \end{itemize}
+    \item Normalised residual: $s(x, y) = \frac{|y - \hat{f}(x)|}{\hat{\sigma}(x)}$
+    \begin{itemize}
+        \item Requires a model $\hat{\sigma}(x)$ of local variance
+        \item Gives adaptive interval widths (tighter where variance is low)
+    \end{itemize}
+    \item Quantile-based: use quantile regression to estimate conditional quantiles
+\end{itemize}
+
+\textbf{Classification}:
+\begin{itemize}
+    \item $s(x, y) = 1 - \hat{p}_y(x)$: one minus predicted probability of class $y$
+    \item Prediction set includes all classes with $\hat{p}_y(x) \geq 1 - \hat{q}$
+\end{itemize}
+\end{greybox}
+
+\textbf{The key insight}: The coverage guarantee is \emph{valid} regardless of the score function, but smart score functions produce \emph{tighter} intervals. The score function is where you can incorporate domain knowledge and model-specific information.
+
+\subsection{Handling Heteroskedasticity}
+
+When variance varies with $x$ (heteroskedasticity), the absolute residual score produces intervals of constant width, which is inefficient. The normalised score produces \textbf{adaptive prediction intervals}.
+
+\begin{enumerate}
+    \item Train a model $\hat{f}(x)$ for the conditional mean
+    \item Train a model $\hat{\sigma}(x)$ for the conditional standard deviation (e.g., by fitting to absolute residuals from step 1)
+    \item Use normalised scores: $s(x, y) = |y - \hat{f}(x)| / \hat{\sigma}(x)$
+    \item Find quantile $\hat{q}$ of normalised calibration scores
+    \item Prediction interval: $\hat{f}(x_{\mathrm{new}}) \pm \hat{q} \cdot \hat{\sigma}(x_{\mathrm{new}})$
+\end{enumerate}
+
+The interval width adapts to the local variance while maintaining the coverage guarantee. Where $\hat{\sigma}(x)$ is small, intervals are tight; where it is large, intervals are wide. This is exactly what we want: tighter intervals where we can be more precise, wider intervals where there is more inherent variability.
+
+\subsection{Marginal vs Conditional Coverage}
+
+\begin{redbox}
+Conformal prediction guarantees \textbf{marginal coverage}:
+$$P(Y_{\mathrm{new}} \in \mathcal{C}(X_{\mathrm{new}})) \geq 1 - \alpha$$
+
+averaged over the joint distribution of $(X_{\mathrm{new}}, Y_{\mathrm{new}})$.
+
+It does \emph{not} guarantee \textbf{conditional coverage}:
+$$P(Y_{\mathrm{new}} \in \mathcal{C}(X_{\mathrm{new}}) \mid X_{\mathrm{new}} = x) \geq 1 - \alpha \quad \text{for all } x$$
+
+This is a fundamental limitation. Without distributional assumptions, conditional coverage is generally impossible to achieve.
+\end{redbox}
+
+\textbf{Example of the distinction}: The 90\% marginal coverage guarantee can be achieved by over-covering in some regions and under-covering in others:
+
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+Region of $X$ & Proportion of data & Coverage in region & Contribution to marginal \\
+\midrule
+$X \in A$ & 60\% & 98\% & 58.8\% \\
+$X \in B$ & 40\% & 78\% & 31.2\% \\
+\midrule
+\multicolumn{3}{r}{Marginal coverage:} & 90\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For a point in region $B$, the nominal 90\% guarantee does not hold-actual coverage is only 78\%. The marginal guarantee is satisfied, but conditional coverage in region $B$ is violated.
+
+\textbf{Why this matters}: If your application requires coverage guarantees for specific subgroups or regions of the input space, marginal coverage may not be sufficient. A patient from a minority group might experience lower coverage than the nominal rate.
+
+\textbf{Approaches for better conditional coverage} (active research area):
+\begin{itemize}
+    \item Locally-weighted conformal prediction
+    \item Conformalized quantile regression
+    \item Mondrian conformal prediction (coverage within predefined groups)
+\end{itemize}
+
+\subsection{Example: Non-Normal Errors}
+
+Consider a data generating process $y = \beta X + \epsilon$, where $\epsilon$ has a highly non-normal distribution (e.g., heavy tails, skewness). Standard regression assumes normal errors, so classical confidence intervals would be invalid.
+
+Even though standard regression assumes normal errors, we can ``conformalise'' our predictions to get a valid prediction interval:
+
+\begin{enumerate}
+    \item \textbf{Fit your model}: Fit a linear model $\hat{y} = \hat{\beta}X$ to the training data
+    \item \textbf{Compute residuals}: Calculate $|y - \hat{y}|$ for each point in the calibration set
+    \item \textbf{Find quantile}: Determine the 95th percentile of these residuals
+    \item \textbf{Form interval}: Prediction interval is $\hat{y} \pm$ (95th percentile)
+\end{enumerate}
+
+The interval is \textbf{valid} (95\% coverage) regardless of $\epsilon$'s distribution. It may not be \emph{tight} (optimal width), but it is valid. This is the power of distribution-free methods.
+
+\subsection{Comparison: Conformal vs Bayesian Approaches}
+
+\begin{bluebox}[Conformal vs Gaussian Processes]
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+& \textbf{Gaussian Processes} & \textbf{Conformal Prediction} \\
+\midrule
+Assumptions & Gaussian, kernel choice & Exchangeability only \\
+Output & Full posterior distribution & Prediction sets/intervals \\
+Calibration & Built-in (if model correct) & Requires calibration data \\
+Computational cost & $O(n^3)$ & $O(n \log n)$ (sorting) \\
+Model-agnostic & No & Yes \\
+Coverage type & Conditional (if well-specified) & Marginal \\
+Uncertainty type & Epistemic + aleatoric & Combined (implicit) \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{bluebox}
+
+Neither approach dominates. GPs provide richer information (full distributions, separation of uncertainty types) but require stronger assumptions and are computationally expensive. Conformal prediction is more robust (works with any model, any distribution) but provides less detailed information (just intervals, not distributions) and only guarantees marginal coverage.
+
+\textbf{When to use GPs:}
+\begin{itemize}
+    \item Smaller datasets where modelling detailed uncertainties is crucial
+    \item When you need the full posterior distribution, not just intervals
+    \item For Bayesian optimisation and active learning
+    \item When kernel choice can encode meaningful prior knowledge
+\end{itemize}
+
+\textbf{When to use conformal inference:}
+\begin{itemize}
+    \item Large datasets where GP computation is prohibitive
+    \item When you want model-agnostic prediction intervals
+    \item When distribution-free guarantees are important
+    \item As a ``wrapper'' around any existing predictive model
+\end{itemize}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Bayesian Neural Networks}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary: Bayesian Neural Networks]
+\begin{itemize}
+    \item Place distributions over neural network weights instead of point estimates
+    \item Theoretically principled but computationally challenging
+    \item Exact posterior is intractable; approximations are necessary
+    \item MC Dropout: simple approximation using dropout at test time
+    \item Deep ensembles: train multiple networks, use disagreement as uncertainty
+\end{itemize}
+\end{bluebox}
+
+Standard neural networks produce point predictions without principled uncertainty estimates. Bayesian neural networks (BNNs) address this by maintaining distributions over weights. However, the intractability of the posterior makes this challenging in practice.
+
+\subsection{The BNN Framework}
+
+\begin{greybox}[Bayesian Neural Network]
+\textbf{Prior}: Place a prior $p(\mathbf{w})$ over network weights $\mathbf{w}$
+
+\textbf{Likelihood}: $p(\mathcal{D} \mid \mathbf{w}) = \prod_{i=1}^n p(y_i \mid x_i, \mathbf{w})$
+
+\textbf{Posterior}: Apply Bayes' rule:
+$$p(\mathbf{w} \mid \mathcal{D}) = \frac{p(\mathcal{D} \mid \mathbf{w}) p(\mathbf{w})}{p(\mathcal{D})}$$
+
+\textbf{Prediction}: Marginalise over the posterior:
+$$p(y_* \mid x_*, \mathcal{D}) = \int p(y_* \mid x_*, \mathbf{w}) p(\mathbf{w} \mid \mathcal{D}) \, d\mathbf{w}$$
+
+The predictive distribution captures both epistemic uncertainty (posterior width-uncertainty about which weights are correct) and aleatoric uncertainty (inherent noise in the output given a fixed function).
+\end{greybox}
+
+\textbf{Conceptual comparison with GPs}: Both GPs and BNNs place distributions over functions. In GPs, we work directly with function values. In BNNs, we work with distributions over weights, which induce distributions over functions. The GP approach is analytically tractable for the Gaussian case; the BNN approach requires approximations but can leverage the representational power of neural network architectures.
+
+\subsection{The Challenge: Intractable Posterior}
+
+\begin{redbox}
+The posterior $p(\mathbf{w} \mid \mathcal{D})$ is \textbf{intractable} for neural networks:
+\begin{itemize}
+    \item The normalising constant $p(\mathcal{D}) = \int p(\mathcal{D} \mid \mathbf{w}) p(\mathbf{w}) \, d\mathbf{w}$ cannot be computed (the integral is over millions of dimensions)
+    \item The posterior is highly non-Gaussian and multimodal
+    \item Modern networks have millions of parameters
+\end{itemize}
+
+All practical BNN methods use \textbf{approximations} to the true posterior.
+\end{redbox}
+
+\textbf{Why is this hard?} The posterior over neural network weights lives in a space of millions of dimensions. The posterior landscape is highly complex, with many local modes corresponding to different equivalent networks (due to symmetries in the weight space). Computing the normalising constant would require integrating over all possible weight configurations-intractable by any method.
+
+\subsection{Approximation Methods}
+
+\textbf{Variational Inference}: Approximate $p(\mathbf{w} \mid \mathcal{D})$ with a tractable family $q_\phi(\mathbf{w})$ (e.g., factorised Gaussian). Optimise $\phi$ to minimise $\mathrm{KL}(q_\phi \| p(\cdot \mid \mathcal{D}))$.
+
+\textbf{MC Dropout}: A simple and widely-used approximation that requires minimal changes to standard neural network training.
+
+\begin{greybox}[MC Dropout]
+\textbf{Insight} (Gal \& Ghahramani, 2016): Dropout applied at test time approximates Bayesian inference.
+
+\textbf{Algorithm}:
+\begin{enumerate}
+    \item Train network with dropout as usual
+    \item At test time, keep dropout enabled (normally it is disabled)
+    \item Run $T$ forward passes with different dropout masks
+    \item Predictive mean: $\hat{\mu}(x) = \frac{1}{T} \sum_{t=1}^T f_{\mathbf{w}_t}(x)$
+    \item Predictive variance: $\hat{\sigma}^2(x) = \frac{1}{T} \sum_{t=1}^T (f_{\mathbf{w}_t}(x) - \hat{\mu}(x))^2$
+\end{enumerate}
+
+The variance across forward passes estimates epistemic uncertainty.
+\end{greybox}
+
+\textbf{Intuition}: Each dropout mask corresponds to a different ``thinned'' network. By running multiple forward passes with different masks, we are effectively sampling from an implicit distribution over networks. The variability in predictions reflects uncertainty about which network is correct.
+
+\textbf{Advantages}: No change to training; easy to implement; works with existing networks.
+
+\textbf{Limitations}: The approximation quality depends on dropout rate and architecture; may underestimate uncertainty.
+
+\textbf{Deep Ensembles}: Train $M$ networks with different random initialisations. Use the ensemble mean for prediction and ensemble variance for uncertainty.
+
+\begin{greybox}[Deep Ensembles]
+\textbf{Algorithm}:
+\begin{enumerate}
+    \item Train $M$ networks independently (different random seeds)
+    \item Each network $m$ outputs mean $\mu_m(x)$ and variance $\sigma_m^2(x)$
+    \item Ensemble prediction:
+    $$\mu_*(x) = \frac{1}{M} \sum_{m=1}^M \mu_m(x)$$
+    $$\sigma_*^2(x) = \underbrace{\frac{1}{M} \sum_{m=1}^M \sigma_m^2(x)}_{\text{aleatoric}} + \underbrace{\frac{1}{M} \sum_{m=1}^M (\mu_m(x) - \mu_*(x))^2}_{\text{epistemic}}$$
+\end{enumerate}
+
+Disagreement among ensemble members indicates epistemic uncertainty.
+\end{greybox}
+
+\textbf{Why this works}: Different random initialisations lead networks to converge to different local minima. The variability in their predictions reflects genuine uncertainty about which solution is ``correct.'' Regions where all networks agree are likely well-determined by the data; regions where they disagree indicate uncertainty.
+
+\textbf{Decomposition of uncertainty}: The formula elegantly separates:
+\begin{itemize}
+    \item \textbf{Aleatoric uncertainty}: The average of individual network variances. This is the ``inherent noise'' that each network predicts, which cannot be reduced by training more networks.
+    \item \textbf{Epistemic uncertainty}: The variance of the network means. This measures disagreement between networks, which would decrease if we had more training data.
+\end{itemize}
+
+Deep ensembles often outperform other BNN approximations in practice, despite being theoretically less principled than variational methods.
+
+\subsection{Connection to Gaussian Processes}
+
+There is a beautiful theoretical connection between neural networks and GPs.
+
+\begin{greybox}[Neural Network-GP Correspondence]
+\textbf{Theorem} (Neal, 1996; Lee et al., 2018): A single-hidden-layer neural network with:
+\begin{itemize}
+    \item Random weights drawn from $\mathcal{N}(0, \sigma_w^2/n_{\mathrm{hidden}})$
+    \item Random biases drawn from $\mathcal{N}(0, \sigma_b^2)$
+    \item Fixed nonlinearity $\phi$
+\end{itemize}
+converges to a Gaussian process as the hidden layer width $n_{\mathrm{hidden}} \to \infty$.
+
+The kernel of the limiting GP is determined by the nonlinearity:
+$$k(x, x') = \sigma_b^2 + \sigma_w^2 \, \mathbb{E}_{z \sim \mathcal{N}(0, \Sigma)}[\phi(z_1)\phi(z_2)]$$
+where $\Sigma$ is determined by $x$ and $x'$.
+\end{greybox}
+
+\textbf{Implications of this connection}:
+\begin{itemize}
+    \item Provides theoretical grounding for neural network priors
+    \item Suggests that very wide networks may be well-approximated by GPs
+    \item Has led to the ``Neural Tangent Kernel'' theory for understanding training dynamics
+    \item Gives insight into what implicit prior assumptions neural networks make
+\end{itemize}
+
+\textbf{Practical relevance}: While real networks are finite-width, this theory helps us understand the function spaces that neural networks naturally inhabit and provides tools for analysing their behaviour.
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Calibration}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary: Calibration]
+\begin{itemize}
+    \item Calibration measures whether predicted probabilities match actual frequencies
+    \item Reliability diagrams visualise calibration
+    \item Expected Calibration Error (ECE) quantifies miscalibration
+    \item Post-hoc methods (temperature scaling, Platt scaling) can improve calibration
+    \item Modern neural networks are typically overconfident
+\end{itemize}
+\end{bluebox}
+
+Having uncertainty estimates is not enough-they must be \emph{reliable}. A model that always outputs 90\% confidence but is correct only 50\% of the time is dangerously miscalibrated. This section covers how to measure and improve calibration.
+
+\subsection{Reliability Diagrams}
+
+Reliability diagrams are the primary visual tool for assessing calibration.
+
+\begin{greybox}[Reliability Diagram Construction]
+For a classifier with predicted probabilities:
+\begin{enumerate}
+    \item Bin predictions by confidence level (e.g., 10 bins: [0, 0.1), [0.1, 0.2), \ldots)
+    \item For each bin, compute:
+    \begin{itemize}
+        \item Average predicted confidence
+        \item Actual accuracy (fraction of correct predictions)
+    \end{itemize}
+    \item Plot average confidence vs actual accuracy
+    \item Perfect calibration: points lie on the diagonal
+\end{enumerate}
+\end{greybox}
+
+\textbf{Interpretation}:
+\begin{itemize}
+    \item Points above diagonal: model is \textbf{underconfident} (predictions are better than claimed)
+    \item Points below diagonal: model is \textbf{overconfident} (predictions are worse than claimed)
+\end{itemize}
+
+Modern deep networks typically show overconfidence-points below the diagonal, especially at high confidence levels. A model might predict ``99\% confident'' but actually be correct only 80\% of the time in such cases.
+
+\subsection{Expected Calibration Error}
+
+\begin{greybox}[Expected Calibration Error (ECE)]
+$$\mathrm{ECE} = \sum_{b=1}^{B} \frac{|B_b|}{n} \left| \mathrm{acc}(B_b) - \mathrm{conf}(B_b) \right|$$
+
+where:
+\begin{itemize}
+    \item $B_b$ is the set of samples in bin $b$
+    \item $\mathrm{acc}(B_b)$ is the accuracy in bin $b$
+    \item $\mathrm{conf}(B_b)$ is the average confidence in bin $b$
+    \item $|B_b|/n$ weights by bin size
+\end{itemize}
+
+ECE is the weighted average gap between confidence and accuracy.
+
+Lower ECE indicates better calibration. ECE = 0 means perfect calibration.
+\end{greybox}
+
+\textbf{Interpretation}: ECE measures, on average, how far the predicted confidence is from the actual accuracy. If a model predicts 80\% confidence for a bin of examples and 85\% of them are correct, that bin contributes $|85\% - 80\%| = 5\%$ to the ECE, weighted by the proportion of examples in that bin.
+
+\begin{redbox}
+ECE has limitations:
+\begin{itemize}
+    \item Sensitive to binning scheme (number of bins, equal-width vs equal-mass)
+    \item Does not penalise all forms of miscalibration equally
+    \item Can be low even with poor calibration in certain regions
+\end{itemize}
+
+Use reliability diagrams alongside ECE for a complete picture.
+\end{redbox}
+
+\subsection{Temperature Scaling}
+
+The simplest and often most effective post-hoc calibration method. It requires learning only a single parameter.
+
+\begin{greybox}[Temperature Scaling]
+For a classifier with logits $\mathbf{z}(x)$, the softmax output is:
+$$\hat{p}_i(x) = \frac{\exp(z_i(x))}{\sum_j \exp(z_j(x))}$$
+
+\textbf{Temperature scaling} introduces a single parameter $T > 0$:
+$$\hat{p}_i^{(T)}(x) = \frac{\exp(z_i(x)/T)}{\sum_j \exp(z_j(x)/T)}$$
+
+\textbf{Effect of $T$}:
+\begin{itemize}
+    \item $T > 1$: Softens probabilities (less confident)-dividing by $T > 1$ makes logit differences smaller, so probabilities become more uniform
+    \item $T < 1$: Sharpens probabilities (more confident)-probabilities become more concentrated on the highest logit
+    \item $T = 1$: Original probabilities
+\end{itemize}
+
+\textbf{Fitting}: Find $T$ that minimises negative log-likelihood on a held-out calibration set.
+
+Temperature scaling does not change predictions (same $\argmax$), only confidence levels.
+\end{greybox}
+
+\textbf{Why it works}: Modern neural networks are typically overconfident. Temperature scaling with $T > 1$ ``cools'' the distribution, spreading probability mass more evenly and reducing overconfidence. The single parameter is learned to match predicted confidence to actual accuracy.
+
+\textbf{Why only one parameter?} Remarkably, a single scalar parameter often suffices. This is because neural networks tend to be miscalibrated in a systematic way (uniformly overconfident), which can be corrected by a uniform rescaling of logits.
+
+\subsection{Platt Scaling}
+
+A more flexible calibration method, originally developed for SVMs.
+
+\begin{greybox}[Platt Scaling]
+For binary classification, transform the model output $f(x)$ (e.g., SVM score or logit) to a probability:
+$$\hat{p}(y=1 \mid x) = \sigma(Af(x) + B) = \frac{1}{1 + \exp(-(Af(x) + B))}$$
+
+Parameters $A$ and $B$ are fit by maximum likelihood on a calibration set.
+
+\textbf{Generalisation to multiclass}: Fit a logistic regression on the logit vector.
+\end{greybox}
+
+\textbf{Comparison with temperature scaling}:
+\begin{itemize}
+    \item Temperature scaling: one parameter, only rescales logits
+    \item Platt scaling: two parameters (for binary), can also shift the decision boundary
+    \item Platt scaling is more flexible but risks overfitting on small calibration sets
+\end{itemize}
+
+\subsection{Calibration in Regression}
+
+For regression, calibration means prediction intervals achieve nominal coverage.
+
+\begin{greybox}[Regression Calibration]
+A regression model is calibrated if its $p$\% prediction intervals contain the true value approximately $p$\% of the time, for all $p$.
+
+\textbf{Checking calibration}:
+\begin{enumerate}
+    \item For each test point, compute the predicted CDF value of the true outcome: $F_x(y)$ where $F_x$ is the predicted CDF at input $x$
+    \item If calibrated, these values should be uniform on $[0, 1]$
+    \item Plot the empirical CDF of these values against the diagonal (probability integral transform)
+\end{enumerate}
+
+\textbf{Recalibration}: If prediction intervals are too narrow/wide, scale the predicted variance.
+\end{greybox}
+
+\textbf{Intuition}: If I predict $Y \sim \mathcal{N}(\mu, \sigma^2)$, I am claiming that $Y$ has a 50\% chance of being below $\mu$ and a 95\% chance of being within $\mu \pm 1.96\sigma$. If I am calibrated, these should be true empirically. The probability integral transform checks this by mapping each outcome to its predicted percentile-if calibrated, these percentiles should be uniform.
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Practical Guidance}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary: When to Use What]
+\begin{itemize}
+    \item \textbf{GPs}: Small-medium data, need interpretable uncertainty, Bayesian optimisation
+    \item \textbf{Conformal}: Any model, need coverage guarantees, distribution-free setting
+    \item \textbf{Deep ensembles}: Large data, neural networks, practical and effective
+    \item \textbf{Always}: Check calibration; recalibrate if necessary
+\end{itemize}
+\end{bluebox}
+
+\subsection{Method Selection}
+
+\begin{greybox}[Decision Framework]
+\textbf{Dataset size}:
+\begin{itemize}
+    \item $n < 1{,}000$: GPs are ideal; exact inference is tractable
+    \item $1{,}000 < n < 100{,}000$: Sparse GPs, or conformal on any model
+    \item $n > 100{,}000$: Deep ensembles, MC Dropout, or conformal prediction
+\end{itemize}
+
+\textbf{Input dimension}:
+\begin{itemize}
+    \item Low ($D < 20$): GPs work well
+    \item Medium ($20 < D < 100$): GPs possible with ARD, but consider neural methods
+    \item High ($D > 100$): Neural networks typically outperform GPs
+\end{itemize}
+
+\textbf{Uncertainty requirements}:
+\begin{itemize}
+    \item Need full posterior: GPs or variational BNNs
+    \item Need prediction intervals: Conformal prediction or GPs
+    \item Need point estimate + rough uncertainty: Deep ensembles or MC Dropout
+\end{itemize}
+
+\textbf{Distributional assumptions}:
+\begin{itemize}
+    \item Can assume Gaussian: GPs provide stronger guarantees
+    \item Distribution-free needed: Conformal prediction
+\end{itemize}
+\end{greybox}
+
+\subsection{Computational Considerations}
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Method & Training & Prediction & Memory \\
+\midrule
+Exact GP & $O(n^3)$ & $O(n^2)$ per point & $O(n^2)$ \\
+Sparse GP & $O(nm^2)$ & $O(m^2)$ per point & $O(nm)$ \\
+Conformal & Model training + $O(n)$ & Model + $O(1)$ & $O(n)$ scores \\
+Deep ensemble & $M \times$ model training & $M \times$ forward pass & $M \times$ model \\
+MC Dropout & Model training & $T \times$ forward pass & Model \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Validating Uncertainty Estimates}
+
+\begin{greybox}[Uncertainty Validation Checklist]
+\begin{enumerate}
+    \item \textbf{Check calibration}: Plot reliability diagrams, compute ECE
+    \item \textbf{Check coverage}: Do prediction intervals achieve nominal coverage?
+    \item \textbf{Check sharpness}: Among calibrated methods, prefer tighter intervals
+    \item \textbf{Check out-of-distribution behaviour}: Does uncertainty increase for unusual inputs?
+    \item \textbf{Stratify by subgroups}: Is coverage consistent across different regions of input space?
+\end{enumerate}
+\end{greybox}
+
+\textbf{Sharpness vs calibration tradeoff}: A trivially calibrated predictor could give very wide intervals that always achieve coverage. We want intervals that are both calibrated \emph{and} as tight as possible. Among calibrated methods, prefer the one with narrower intervals.
+
+\textbf{Out-of-distribution behaviour}: A key test for uncertainty methods is whether they appropriately increase uncertainty for inputs unlike the training data. A good uncertainty method should say ``I don't know'' when presented with genuinely novel inputs.
+
+\begin{redbox}
+Common pitfalls:
+\begin{itemize}
+    \item Assuming model uncertainty is calibrated without checking
+    \item Conflating marginal and conditional coverage
+    \item Using calibration set that overlaps with test set
+    \item Ignoring that recalibration can harm out-of-distribution detection
+\end{itemize}
+\end{redbox}
+
+\textbf{On the last point}: If you recalibrate a model to have good coverage on in-distribution data, you might inadvertently reduce its ability to flag out-of-distribution inputs as uncertain. The model might become ``confidently wrong'' on unusual inputs. Always validate both in-distribution calibration and out-of-distribution uncertainty behaviour.
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Summary}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Key Concepts from Week 9]
+\begin{enumerate}
+    \item \textbf{Types of uncertainty}: Epistemic (reducible with data) vs aleatoric (irreducible noise)
+
+    \item \textbf{Gaussian Processes}:
+    \begin{itemize}
+        \item Distributions over functions, specified by mean and kernel
+        \item Any finite set of function values is jointly Gaussian
+        \item Posterior mean = KRR prediction; posterior variance provides calibrated uncertainty
+        \item Variance increases away from training data (desirable property)
+        \item $O(n^3)$ exact inference; sparse methods scale to larger $n$
+    \end{itemize}
+
+    \item \textbf{Kernels}:
+    \begin{itemize}
+        \item Encode prior assumptions (smoothness, periodicity, length-scale)
+        \item RBF (infinitely smooth), Mat\'ern (tunable smoothness), periodic
+        \item Combine via sum (independent components) or product (interactions)
+        \item Hyperparameters learned via marginal likelihood
+    \end{itemize}
+
+    \item \textbf{Conformal prediction}:
+    \begin{itemize}
+        \item Distribution-free prediction sets with coverage guarantees
+        \item Works with any model; requires only exchangeability
+        \item Split conformal: train, calibrate, construct sets using quantile of scores
+        \item Provides marginal, not conditional, coverage
+    \end{itemize}
+
+    \item \textbf{Bayesian Neural Networks}:
+    \begin{itemize}
+        \item Distributions over weights; exact posterior intractable
+        \item MC Dropout: dropout at test time approximates Bayesian inference
+        \item Deep ensembles: often work better than more principled approximations
+    \end{itemize}
+
+    \item \textbf{Calibration}:
+    \begin{itemize}
+        \item Predicted probabilities should match empirical frequencies
+        \item Reliability diagrams and ECE for evaluation
+        \item Temperature scaling: simple, effective post-hoc recalibration
+    \end{itemize}
+\end{enumerate}
+\end{bluebox}
+
+\begin{bluebox}[Practical Summary]
+\textbf{Small data, need uncertainty}: Use GPs
+
+\textbf{Any model, need coverage guarantee}: Use conformal prediction
+
+\textbf{Large data, neural networks}: Use deep ensembles or MC Dropout
+
+\textbf{Always}: Validate calibration on held-out data; recalibrate if necessary
+\end{bluebox}

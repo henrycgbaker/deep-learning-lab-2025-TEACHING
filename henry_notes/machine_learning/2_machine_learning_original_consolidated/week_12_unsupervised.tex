@@ -1,0 +1,381 @@
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf ML Lecture Notes 2024 \\ Henry Baker}
+\hline 
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf ML Lecture Notes: Wk 11 \\ Neural Networks II: Electric Boogaloo}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Overview}
+
+Core concepts of unsupervised learning
+
+\begin{itemize}
+    \item PCA
+    \item Kernel PCA
+    \item Autoencoders
+\end{itemize}
+
+\section{PCA: Dimension Reduction}
+
+$$\hat{\theta} = \arg\min_{\theta} \mathcal{L}(\theta) $$
+
+\begin{enumerate}
+    \item \textbf{Point Estimate ($\hat{\theta}$):} (a matrix!)
+    
+    This represents the parameters or the latent variables that we're trying to estimate. In the context of dimension reduction, $\theta$ could be the low-dimensional representation of your data.
+    
+    \item \textbf{Loss Function ($\mathcal{L}(\theta)$):}
+    
+    The loss function measures the error or the difference between the original high-dimensional data and the reconstructed data from the lower-dimensional representation. The goal is to minimize this loss to ensure that the low-dimensional representation captures as much information as possible from the original data.
+    
+    \item \textbf{Optimization Objective ($\min_{\theta}$):}
+    
+    The objective is to find the point estimate ($\theta$) that minimizes the loss function $\mathcal{L}(\theta)$. This process is typically done through optimization techniques, such as gradient descent, where you iteratively adjust $\theta$ to reduce the loss.
+    
+    \item \textbf{A Matrix:}
+    
+    In the context of dimension reduction techniques like Principal Component Analysis (PCA), the data is often represented as a matrix, where rows correspond to samples and columns correspond to features. The goal is to find a low-dimensional representation (also in matrix form) that approximates the original data matrix.
+    
+    \item \textbf{Optimization Expression ($\arg\min_{\theta} \mathcal{L}(\theta)$):}
+    
+    The term ``argmin'' denotes the value of $\theta$ that minimizes the loss function $\mathcal{L}(\theta)$. Essentially, it is the solution to the optimization problem.
+\end{enumerate}
+
+\subsection{Example in PCA}
+\begin{itemize}
+    \item the $\theta$ might represent the principal components (the directions in which the data varies the most). 
+    \item The loss function $\mathcal{L}(\theta)$ could be the sum of the squared differences between the original data and its projection onto the principal components. 
+    \item The optimization problem is to find the principal components that minimize this loss, effectively reducing the dimensionality of the data while preserving as much variance as possible.
+\end{itemize}
+
+\subsection{PCA = supervised learning in a trenchcoat!}
+
+While the approach is technically unsupervised (since there's no labelled output), the method resembles supervised learning. The optimization problem is formulated similarly to supervised learning tasks, where the objective is to minimize a loss function, but instead of predicting labels, the goal is to reconstruct the input data.
+
+\begin{itemize}
+    \item \textbf{Central Learning Objective:}
+    \[
+    \hat{\theta} = \arg\min_{\theta} \mathcal{L}(\theta)
+    \]
+    
+    ...becomes...
+    \item \textbf{Optimization:} 
+    
+    \[
+    \hat{\theta} = \arg\min_{\theta} \frac{1}{n} \sum_{i=1}^{n} \left\| x_i - \text{decode}(\text{encode}(x_i, \theta), \theta) \right\|^2
+    \]
+    Here, the process involves 
+    \begin{itemize}
+        \item encoding the original data $x_i$ into a lower-dimensional space using the function $\text{encode}$, 
+        \item and then decoding it back to the original space using $\text{decode}$. 
+        \item The loss function measures the reconstruction error, and minimizing this error helps in finding the best low-dimensional representation.
+    \end{itemize}
+= effectively an "auto-supervised" learning set up.
+\end{itemize}
+
+\subsection{Low-Dimensional Representation}
+
+\subsubsection{PCA Goal:} represent each vector $x_i \in \mathbb{R}^D$ using a low-dimensional representation.\\
+
+Formally: the original vector $x_i$ can be approximated as:
+    \[
+    \textcolor{blue}{x_i} \approx \sum_{l=1}^{L} \textcolor{red}{z_{il}} \textcolor{green}{w_l}
+    \]
+
+    
+    where:
+    \begin{itemize}
+        \item \textcolor{blue}{$x_i$ is the original dimension vector} 
+        \item \textcolor{red}{$z_i \in \mathbb{R}^L$ is the \textbf{latent representation} (the coordinates of $x_i$ in the reduced $k$-dimensional space).}
+        \item \textcolor{green}{$w_l \in \mathbb{R}^D$ are the \textbf{weights over each dimension} (the principal components, which are the directions in the original space that capture the most variance).}
+    \end{itemize}
+
+\subsubsection{Error Measurement:}
+    
+The error of this approximation is measured by the following loss function:
+
+\begin{align*}
+    \mathcal{L}(W, Z) &= \frac{1}{n} \left\| X - WZ^\top \right\|^2 \\
+    & = \frac{1}{n} \sum_{i=1}^{n} \left\| x_i - Wz_i \right\| 2
+\end{align*}
+    Where, 
+    \begin{itemize}
+        \item $X$ represents the original data matrix, 
+        \item $W$ is the matrix of principal components, and 
+        \item $Z$ is the matrix of latent representations.
+    \end{itemize}
+
+\subsubsection{Intuition:}
+    
+We want to capture as much variance in $X$ as possible with each dimension of our embedding (reduced representation).* \\
+
+This involves finding a new set of axes (principal components) that best represent the directions of maximum variance in the data.\\
+
+The principal components can be thought of as the new basis vectors in this reduced space, and the coordinates (embeddings) of the data in this new space are the projections onto these basis vectors.
+
+\begin{tcolorbox}
+    *An embedding in the context of machine learning, particularly in dimensionality reduction, refers to a mapping of high-dimensional data into a lower-dimensional space.\\
+
+    Embeddings are used across various domains, such as natural language processing (word embeddings like Word2Vec), graph embeddings, and more, to reduce the dimensionality while preserving meaningful relationships between the data points.
+\end{tcolorbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8.5\linewidth]{figures/week_12_unsupervised/PCA.png}
+    \caption{data points (blue) in a high-dimensional space projected onto a lower-dimensional space. The lines represent how each data point is projected onto a principal component (the line in the middle of the plot). The line with arrows (in red)  indicate the direction of maximum variance}
+    \label{fig:enter-label}
+\end{figure}
+
+\textcolor{red}{SKIPPED SLIDES 11 - 15, FURTHER PCA DETAIL}
+
+\section{Embeddings}
+
+\subsection{Stochastic Neighbor Embeddings (SNE):}
+
+\begin{itemize}
+    \item \textbf{Idea:}
+    
+    The goal is to visualize high-dimensional data in a low-dimensional space. The challenge is to preserve some of the structure that exists in the high-dimensional space when mapping it to a lower dimension.
+
+    \item \textbf{Approach:}
+    
+    \begin{enumerate}
+        \item \textbf{Convert High-Dimensional Distances into Conditional Probabilities:}
+        
+        The high-dimensional distance between points $x_i$ and $x_j$ is converted into a conditional probability:
+        \[
+        p_{j|i} = \frac{\exp\left(-\frac{1}{2\sigma_i^2} \|x_i - x_j\|^2\right)}{\sum_{k \neq i} \exp\left(-\frac{1}{2\sigma_i^2} \|x_i - x_k\|^2\right)}
+        \]
+        where $p_{j|i}$ represents the probability that point $x_j$ would be selected as a neighbor of point $x_i$, given the distances in the high-dimensional space.
+
+        \item \textbf{Construct a Low-Dimensional Approximation $Z$:}
+        
+        Similarly, in the low-dimensional space, we calculate:
+        \[
+        q_{j|i} = \frac{\exp\left(-\frac{1}{2\sigma_i^2} \|z_i - z_j\|^2\right)}{\sum_{k \neq i} \exp\left(-\frac{1}{2\sigma_i^2} \|z_i - z_k\|^2\right)}
+        \]
+        where $q_{j|i}$ represents the analogous probability in the low-dimensional space.
+
+        \item \textbf{Optimization:}
+        
+        The goal is to find the low-dimensional representations $Z$ that minimize the difference between the high-dimensional probabilities $P$ and the low-dimensional probabilities $Q$. This is done by minimizing the Kullback-Leibler divergence (a measure of how one probability distribution diverges from a second, expected probability distribution):
+        \begin{align*}
+            \mathcal{L} &= \sum_{i} D_{KL}(P_i \| Q_i) \\
+            & = \sum_{i} \sum_{j} p_{j|i} \log \frac{p_{j|i}}{q_{j|i}}
+        \end{align*}
+    \end{enumerate}
+\end{itemize}
+
+\subsection{t-distributed Stochastic Neighbor Embeddings (t-SNE):}
+
+\textbf{Issues with Basic SNE:}
+    
+    \begin{itemize}
+        \item \textbf{Pulling Distant Points Together:}
+        
+        The basic SNE algorithm tends to pull distant points closer together rather than pushing nearby points apart. This behavior arises partly due to the use of the normal (Gaussian) distribution for measuring distances.
+
+        \item \textbf{Normal Distribution:}
+        
+        The normal distribution has a light tail, which means that it doesn't strongly penalize distant points being placed close together in the low-dimensional space.
+    \end{itemize}
+
+\textbf{Idea Behind t-SNE:}
+    
+    To address the issues with basic SNE, t-SNE introduces the idea of using a \textit{heavier-tailed distribution}, specifically the Student's t-distribution. This distribution allows distant points to exert less influence, making it easier to separate clusters in the low-dimensional space.
+
+\textbf{t-SNE Probability Calculation:}
+    
+    The probability in the low-dimensional space is calculated using the Student's t-distribution:
+    \[
+    q_{j|i} = \frac{\left(1 + \|z_i - z_j\|^2\right)^{-1}}{\sum_{k \neq i} \left(1 + \|z_i - z_k\|^2\right)^{-1}}
+    \]
+    This change helps to better separate clusters and spread out points that are distant in the high-dimensional space.
+
+    \item \textbf{KL Divergence Objective:}
+    
+    Despite the change in distribution, t-SNE uses the same Kullback-Leibler (KL) divergence objective function as SNE:
+        \begin{align*}
+            \mathcal{L} &= \sum_{i} D_{KL}(P_i \| Q_i) \\
+            & = \sum_{i} \sum_{j} p_{j|i} \log \frac{p_{j|i}}{q_{j|i}}
+        \end{align*}
+    The optimization seeks to minimize this divergence, ensuring that the low-dimensional representation captures the structure of the data as effectively as possible.
+
+\subsection{t-SNE to UMAP (Uniform Manifold Approximation and Projection):}
+
+\subsubsection{Limitations of t-SNE = Slow Computation}
+    
+    \begin{itemize}
+        \item t-SNE is computationally intensive, with a complexity of $O(N^2)$ or more. This makes it impractical for very large datasets.
+        
+        \item \textbf{High-Dimensional Gravitational Problem:} The t-SNE algorithm can be thought of as solving a high-dimensional gravitational problem, where every point exerts an attractive or repulsive force on every other point. This complexity further contributes to its inefficiency on large datasets.
+    \end{itemize}
+  
+    To address these limitations, UMAP (Uniform Manifold Approximation and Projection) is introduced as a more efficient alternative to t-SNE.
+
+\subsubsection{UMAP}
+\begin{itemize}
+    \item \textbf{k-Nearest Neighbor Graph:}
+    
+    UMAP begins by constructing a k-nearest neighbor graph. This graph represents the local relationships between points in the high-dimensional space.
+    
+    \item \textbf{Preserving Distances:}
+    
+    The algorithm then seeks to find a low-dimensional representation that preserves the distances over this graph as much as possible. This approach allows UMAP to maintain both global and local structure in the data, and it does so with much greater efficiency compared to t-SNE.
+\end{itemize}
+
+\subsection{Visual Intuition}
+
+UMAP starts with a k-nearest neighbor graph to capture local relationships and then seeks to maintain these relationships in the low-dimensional space, ensuring that the manifold's geometry is preserved.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_12_unsupervised/embeddings1.png}
+    \caption{shows the original high-dimensional data projected onto a 2D plane, where different colors represent different clusters or structures within the data.}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_12_unsupervised/embeddings2.png}
+    \caption{show how UMAP begins by constructing a k-nearest neighbor graph, where each point is connected to its closest neighbors. The shaded circles represent local neighborhoods.}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_12_unsupervised/embeddings3.png}
+    \caption{The connected lines between points represent how UMAP preserves the structure of the data as it reduces its dimensionality, ensuring that points that are close in high-dimensional space remain close in the lower-dimensional projection.}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsubsection{Locally Varying Geometry}
+
+data can exhibit different local structures in high-dimensional space. When using dimensionality reduction techniques like UMAP, it's crucial to maintain these local structures in the lower-dimensional projection.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_12_unsupervised/embeddings4.png}
+    \caption{the shaded regions (possibly varying in intensity) show the influence or neighborhood of each point. The varying size and spread of these shaded areas suggest that UMAP can adapt to different local densities in the data, preserving the structure of both dense and sparse regions. (?)}
+    \label{fig:enter-label}
+\end{figure}
+
+UMAP handles varying local geometries effectively, preserving the structure of both dense and sparse regions.
+
+\begin{tcolorbox}
+    tSNE / UMAP Demo https://pair-code.github.io/understanding-umap/
+\end{tcolorbox}
+
+\section{Auto-encoders}
+
+The basic idea behind autoencoders is to \textbf{predict the input features using the input features themselves}. This is achieved by compressing the input into a lower-dimensional representation (encoding) and then reconstructing it back to the original dimensions (decoding).\\
+
+\textbf{Simplest Version:} The simplest form of an autoencoder consists of just one hidden layer between the input and output layers. This hidden layer acts as a "bottleneck," forcing the model to learn a compact, lower-dimensional representation of the input data.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_12_unsupervised/autoencoder.png}
+    \caption{An Autoencoder}
+    \label{fig:enter-label}
+\end{figure}
+
+\textbf{"Bottleneck" Autoencoder:}
+    \begin{itemize}
+        \item \textbf{Hidden Nodes Less Than D:}
+        
+        If the number of hidden nodes (i.e., the dimensionality of the bottleneck layer) is less than the input dimension $D$, the autoencoder will learn a low-rank representation of the data. This compressed representation captures the most important features of the input.
+
+        \item \textbf{Hidden Nodes More Than D:}
+        
+        If the number of hidden nodes is greater than the input dimension $D$, the autoencoder has the capacity to learn trivial representations (like simply copying the input). To prevent this, additional restrictions or regularization techniques must be applied to ensure meaningful learning.
+
+\subsection{Equivalence to PCA:}
+    
+    An autoencoder can be equivalent to Principal Component Analysis (PCA) under the following conditions:
+    \begin{itemize}
+        \item The autoencoder has only one hidden layer.
+        \item There are no nonlinear activation functions (i.e., the network is linear).
+        \item The loss function used is the mean-squared error.
+    \end{itemize}
+    In this scenario, the autoencoder learns to project the data onto a linear subspace that captures the maximum variance, just as PCA does.
+\end{itemize}
+
+
+\subsection{Using Neural Networks for Autoencoders:}
+
+\begin{itemize}
+    \item \textbf{Central Learning Objective:}
+
+    \[
+    \hat{\theta} = \arg\min_{\theta} \frac{1}{n} \sum_{i=1}^{n} \left\| x_i - \textcolor{blue}{\text{decode}(\textcolor{red}{\text{encode}(x_i, \theta)}, \theta)} \right\|^2
+    \]
+    
+    The primary goal when using neural networks for autoencoders is to learn an efficient representation (or encoding) of the input data, such that this representation can be used to accurately reconstruct the original data.
+
+    \item \textcolor{red}{\textbf{Encoder Network:}}
+    
+    The encoder network is the part of the autoencoder that compresses the input data $x_i$ into a lower-dimensional latent representation $z_i$. This network consists of several layers of neurons that progressively reduce the dimensionality of the input.
+
+    \item \textcolor{blue}{\textbf{Decoder Network:}}
+    
+    The decoder network is responsible for reconstructing the original data from the compressed latent representation. It essentially reverses the encoding process, expanding the low-dimensional representation back to the original data dimensions.
+
+    \item \textbf{Backpropagation:}
+    
+    The error (or loss) between the original input and the reconstructed output is computed, and this error is backpropagated through both the encoder and decoder networks. By adjusting the network parameters during training, the model learns to minimize this reconstruction error.
+
+    \item \textbf{Optimization Objective:}
+    
+    The optimization objective can be expressed as:
+    \[
+    \hat{\theta} = \arg\min_{\theta} \frac{1}{n} \sum_{i=1}^{n} \left\| x_i - \text{decode}(\text{encode}(x_i, \theta), \theta) \right\|^2
+    \]
+    where:
+    \begin{itemize}
+        \item $x_i$ is the original input data.
+        \item $\text{encode}(x_i, \theta)$ is the function representing the encoder network.
+        \item $\text{decode}(\text{encode}(x_i, \theta), \theta)$ is the function representing the decoder network that reconstructs the input.
+        \item $\theta$ represents the parameters of both the encoder and decoder networks.
+    \end{itemize}
+    The goal is to find the parameters $\theta$ that minimize the average reconstruction error over all training examples.
+\end{itemize}
+
+\subsection{Other Types of Autoencoders:}
+
+\begin{itemize}
+    \item \textbf{Denoising Autoencoders:}
+    
+    \begin{itemize}
+        \item The key idea behind denoising autoencoders is to improve the robustness of the learned representations by introducing noise into the input data.
+        \item During training, random noise is added to the input data, and the network is trained to predict the original, un-noised version of the input.
+        \item The objective is to learn a representation that is resilient to small perturbations in the input, which can improve the model's generalization ability.
+    \end{itemize}
+
+    \item \textbf{Sparse Autoencoders:}
+    
+    \begin{itemize}
+        \item Sparse autoencoders introduce a sparsity constraint on the activations of the hidden layers. This means that only a small number of neurons are active (i.e., have non-zero outputs) at any given time.
+        \item The sparsity constraint is typically enforced using a regularization term, such as the L1 penalty, similar to Lasso regression.
+        \item This sparsity encourages the network to learn more efficient and interpretable representations of the data, as only the most relevant features are activated.
+    \end{itemize}
+
+    \item \textbf{Variational Autoencoders (VAEs):}
+    
+    \begin{itemize}
+        \item Variational autoencoders introduce a probabilistic approach to the bottleneck layer, where the latent representation is modeled as a distribution rather than a single point.
+        \item Instead of encoding the input into a fixed vector, the encoder produces parameters (mean and variance) of a Gaussian distribution from which the latent vector is sampled.
+        \item The decoder then reconstructs the input from this sampled latent vector.
+        \item This probabilistic nature allows VAEs to generate new data samples by sampling from the latent space, making them useful for tasks such as data generation and anomaly detection.
+    \end{itemize}
+\end{itemize}
+
+

@@ -1,0 +1,573 @@
+% Week 9: Uncertainty
+
+\section{Overview}
+
+In machine learning, we often focus on point predictions-our best guess for the output given an input. But knowing \textit{how confident} we should be in a prediction is frequently just as important as the prediction itself. Consider a medical diagnosis system: a prediction of ``malignant'' with 99\% confidence demands different action than the same prediction with 55\% confidence.
+
+This week introduces two complementary approaches to quantifying predictive uncertainty, each with distinct strengths and trade-offs.
+
+\begin{bluebox}[Two Approaches to Uncertainty]
+\begin{enumerate}
+    \item \textbf{Gaussian Processes}: Assume a probabilistic model; get full posterior distributions with calibrated uncertainty. Rich uncertainty quantification, but computationally expensive.
+    \item \textbf{Conformal Inference}: Model-agnostic; get prediction intervals with coverage guarantees. Distribution-free and scalable, but only marginal (not conditional) coverage.
+\end{enumerate}
+\end{bluebox}
+
+\subsection{Why Uncertainty Matters}
+
+\begin{bluebox}[Motivations for Uncertainty Quantification]
+\begin{itemize}
+    \item \textbf{Decision-making}: Know when to trust predictions; quantify risk before acting
+    \item \textbf{Active learning}: Sample where uncertainty is high to maximise information gain
+    \item \textbf{Bayesian optimisation}: Balance exploration (uncertain regions) and exploitation (promising regions)
+    \item \textbf{Outlier detection}: Flag predictions with unusually high uncertainty
+    \item \textbf{Model selection}: Prefer models with well-calibrated uncertainty estimates
+\end{itemize}
+\end{bluebox}
+
+\section{Gaussian Processes}
+
+A Gaussian Process (GP) is a distribution over functions, not just parameters. This is a powerful conceptual shift: instead of finding a single ``best'' function $\hat{f}$, we maintain a \textbf{distribution over all possible functions} consistent with our data and prior beliefs.
+
+\begin{greybox}[Gaussian Process Definition]
+A \textbf{Gaussian Process} is a collection of random variables, any finite subset of which has a joint Gaussian distribution.
+
+A GP is fully specified by:
+\begin{itemize}
+    \item \textbf{Mean function}: $m(x) = \mathbb{E}[f(x)]$ (often set to 0 for simplicity)
+    \item \textbf{Covariance function (kernel)}: $k(x, x') = \mathbb{E}[(f(x) - m(x))(f(x') - m(x'))]$
+\end{itemize}
+
+We write: $f \sim \mathcal{GP}(m, k)$
+\end{greybox}
+
+\textbf{Intuition}: Given some data points, a GP helps you predict where other points might lie, along with how certain it is about those predictions. Think of it as a very smart, very flexible curve that we fit through data-one that doesn't just go straight, or curve in preset ways like polynomials. It can adopt an infinite number of shapes, guided by the properties of the data and the assumptions we encode in the kernel.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_09_uncertainty/GP.png}
+    \caption{A GP defines a distribution over functions, with the shaded region showing uncertainty. The mean function (solid line) is our best estimate, while the shaded region indicates where the true function might plausibly lie.}
+    \label{fig:gp-overview}
+\end{figure}
+
+\subsection{The Bayesian Perspective: Distributions Over Functions}
+
+\begin{bluebox}[From Parameters to Functions]
+Probability distributions, commonly applied to random variables, can also be extended to \textbf{entire functions}.
+
+\textbf{Hypothesis class} $\mathcal{H}$: the set of all functions that your algorithm can possibly learn. Instead of picking one single function as our guess, we assign a probability distribution over the entire hypothesis class-every function $f \in \mathcal{H}$ gets a probability $p(f)$ reflecting our belief in how likely it is to be the true function.
+
+This is the Bayesian approach: we update our beliefs about which functions are likely to be good explanations for the data, rather than searching for a single ``best'' function.
+\end{bluebox}
+
+\textbf{Ridge regression as an example}: Recall from Week 6 that ridge regression can be viewed as placing a Gaussian prior on the coefficients $\beta$. Coefficients near zero are considered more probable than large values, reflecting a prior belief that the true relationship is likely simple. This prior on $\beta$ induces a distribution over linear functions:
+$$p(f) = p(\beta)$$
+
+GPs generalise this idea to arbitrary (kernel-defined) function spaces. Where ridge regression places a prior over the finite-dimensional parameter space, GPs place priors directly over the infinite-dimensional space of functions.
+
+\subsection{Components of a Gaussian Process}
+
+\subsubsection{Mean Function $m(x)$}
+
+The mean function describes the average value of the function we are trying to predict at point $x$. It represents our \textbf{prior expectation}-what we believe about the function before seeing any data.
+
+\begin{itemize}
+    \item Commonly set to zero, since the kernel provides enough flexibility to model the data
+    \item Setting $m(x) = 0$ is a simplification saying that, before seeing data, we don't prefer one function value over another
+    \item For some applications, we might use a parametric mean function (e.g., linear) to encode prior knowledge
+\end{itemize}
+
+\subsubsection{Kernel (Covariance Function) $k(x, x')$}
+
+The kernel embodies our assumptions about the function we want to learn. It defines the covariance between function values at any two points $x$ and $x'$.
+
+\textbf{What the kernel captures:}
+\begin{itemize}
+    \item How does the output value at one point relate to the output at another point?
+    \item Do we expect smooth variations or abrupt changes?
+    \item Are there repeating patterns?
+\end{itemize}
+
+The GP uses the kernel to measure similarity between points. Points that are ``close'' according to the kernel will have similar outputs. This is the same kernel concept from Week 6-the kernel determines what kinds of functions are probable before seeing data.
+
+\begin{bluebox}[Common Kernel Choices]
+\begin{itemize}
+    \item \textbf{Squared Exponential (RBF)}: Assumes very smooth functions. Nearby points have similar values; similarity decays exponentially with distance.
+    \item \textbf{Periodic}: Assumes the function repeats itself over time. Useful for seasonal data.
+    \item \textbf{Linear}: Assumes a linear relationship. Using a linear kernel in a GP reduces to Bayesian linear regression.
+\end{itemize}
+
+The choice of kernel is critical and heavily influences model performance. It determines the shape and smoothness of the functions in our ``function space.''
+\end{bluebox}
+
+\subsection{Properties of Gaussian Processes}
+
+\begin{bluebox}[GP Properties]
+\begin{itemize}
+    \item \textbf{Non-parametric}: No fixed functional form; defines a distribution over all possible functions in the hypothesis class
+    \item \textbf{Prior knowledge incorporation}: Kernel choice encodes assumptions (smoothness, periodicity, etc.)
+    \item \textbf{Uncertainty quantification}: Built-in confidence intervals that widen where data is sparse
+    \item \textbf{Data-efficient}: Strong priors enable good performance with small datasets
+    \item \textbf{Flexibility}: Works well when you believe the data has rich structure, even with limited observations
+\end{itemize}
+\end{bluebox}
+
+\begin{redbox}
+\textbf{The Main Downside: Computational Cost}
+
+GP inference requires inverting an $n \times n$ matrix, which is $O(n^3)$. For large datasets, this becomes prohibitive. Scaling GPs to large datasets is an active research area, with approaches including sparse GPs, inducing points, and stochastic variational inference.
+\end{redbox}
+
+\subsection{GP Inference: From Prior to Posterior}
+
+\subsubsection{The Process}
+
+\begin{enumerate}
+    \item \textbf{Prior distribution over functions}: The GP prior encapsulates our beliefs about functions \textit{before} observing any data. This is determined by our choice of mean function and kernel.
+
+    \item \textbf{Condition on observed data}: We update our beliefs based on data. If we observe $y = f(x) + \epsilon$ where $\epsilon \sim \mathcal{N}(0, \sigma^2)$ (Gaussian noise), we can compute the posterior analytically.
+
+    \item \textbf{Posterior predictive distribution}: For any new test points, we obtain not just point predictions but a full probability distribution over possible outputs.
+\end{enumerate}
+
+\begin{greybox}[Conditional Normality Assumption]
+The fundamental assumption in GPs is that all points are \textbf{conditionally normal}: for any set of inputs, the corresponding outputs follow a multivariate normal distribution. This is what makes GP inference tractable-we can use standard results for conditioning multivariate Gaussians.
+\end{greybox}
+
+\subsubsection{Joint Distribution}
+
+\begin{greybox}[Joint Distribution of Training and Test Points]
+Given training data $(X, y)$ and test inputs $X_*$, the joint distribution of observed and predicted values is:
+$$\begin{bmatrix} y \\ f_* \end{bmatrix} \sim \mathcal{N}\left( \begin{bmatrix} m(X) \\ m(X_*) \end{bmatrix}, \begin{bmatrix} K_{XX} + \sigma^2 I & K_{X*} \\ K_{*X} & K_{**} \end{bmatrix} \right)$$
+
+where:
+\begin{itemize}
+    \item $y$: observed training labels
+    \item $f_*$: function values at test points (what we want to predict)
+    \item $K_{XX} = k(X, X)$: covariance matrix among training points
+    \item $K_{X*} = k(X, X_*)$: covariance between training and test points
+    \item $K_{*X} = k(X_*, X) = K_{X*}^\top$: covariance between test and training points
+    \item $K_{**} = k(X_*, X_*)$: covariance among test points
+    \item $\sigma^2 I$: observation noise added to training points
+\end{itemize}
+\end{greybox}
+
+\textbf{Interpreting the covariance blocks:}
+\begin{itemize}
+    \item $K_{XX}$: How training points relate to each other
+    \item $K_{X*}$ and $K_{*X}$: How much the function values at training points inform us about function values at test points
+    \item $K_{**}$: How much we expect function values at test points to covary with each other, \textit{before} seeing any training data
+    \item $\sigma^2 I$: Accounts for noise in the observed outputs
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_09_uncertainty/marginals and conditionals.png}
+    \caption{Conditioning on observed data transforms the prior into a posterior. The left shows the marginal (prior) distribution; the right shows the conditional (posterior) distribution after observing data.}
+    \label{fig:marginals-conditionals}
+\end{figure}
+
+\subsection{Predictive Distribution}
+
+Conditioning on observed data gives the posterior predictive distribution. This is where the power of GPs becomes apparent: we get both a point prediction \textit{and} a measure of uncertainty.
+
+\begin{greybox}[GP Posterior Predictive]
+$$f_* | X_*, X, y \sim \mathcal{N}(\mu_*, \Sigma_*)$$
+
+\textbf{Mean} (point prediction):
+$$\mu_* = m(X_*) + K_{*X}(K_{XX} + \sigma^2 I)^{-1}(y - m(X))$$
+
+\textbf{Variance} (uncertainty):
+$$\Sigma_* = K_{**} - K_{*X}(K_{XX} + \sigma^2 I)^{-1}K_{X*}$$
+\end{greybox}
+
+\subsubsection{Understanding the Mean $\mu_*$}
+
+The posterior mean has an intuitive interpretation. We start with our prior mean $m(X_*)$, then adjust based on how the observed data deviates from prior expectations:
+
+\begin{itemize}
+    \item $m(X_*)$: Prior mean at test points-our baseline expectation before considering training data
+
+    \item $K_{*X}$: Covariance between test and training inputs. Measures how similar each test point is to each training point (according to the kernel). Points more similar to the test point will have greater influence.
+
+    \item $(K_{XX} + \sigma^2 I)^{-1}$: Inverse covariance matrix of training points (regularised by noise). Acts as a normalisation factor that weights the influence of each training point based on its relationship to other training points.
+
+    \item $(y - m(X))$: Residuals-how the observed outputs deviate from the prior mean. This is the ``surprise'' in the training data.
+\end{itemize}
+
+\begin{bluebox}[Interpreting the Mean Formula]
+The posterior mean adjusts the prior mean based on:
+\begin{enumerate}
+    \item How similar test points are to training points ($K_{*X}$)
+    \item How training observations deviate from prior expectations ($y - m(X)$)
+\end{enumerate}
+
+The prediction is informed by both prior knowledge (encoded in $m$) and observed data, weighted by similarity between input points.
+\end{bluebox}
+
+\subsubsection{Understanding the Variance $\Sigma_*$}
+
+The posterior variance captures our remaining uncertainty after observing the training data:
+
+\begin{itemize}
+    \item $K_{**}$: Prior covariance among test points-our initial uncertainty before seeing data
+
+    \item $K_{*X}(K_{XX} + \sigma^2 I)^{-1}K_{X*}$: Variance ``explained'' by the training data. This term measures how much our uncertainty is reduced by having observed the training points.
+\end{itemize}
+
+\begin{bluebox}[Intuitive Step-by-Step for Variance]
+\begin{enumerate}
+    \item \textbf{Start with prior uncertainty}: Begin with $K_{**}$, our initial uncertainty about function values at test points
+    \item \textbf{Subtract explained variance}: Remove the part that can be explained by the relationship with training data
+    \item \textbf{Account for noise}: The term $(K_{XX} + \sigma^2 I)^{-1}$ prevents overconfidence when observations are noisy
+    \item \textbf{Result}: $\Sigma_*$ is a matrix giving variances (diagonal) and covariances (off-diagonal) of predictions
+\end{enumerate}
+
+The diagonal elements give the variance at each test point-higher variance means greater uncertainty. Off-diagonal elements show how uncertainties at different test points are correlated.
+\end{bluebox}
+
+\subsection{Connection to Kernel Ridge Regression}
+
+This is where the relationship to Week 6 becomes precise. Recall that kernel ridge regression gives predictions:
+$$\hat{y} = K_{*X}(K_{XX} + \lambda I)^{-1}y$$
+
+\begin{redbox}
+With a zero mean function, the GP posterior mean is \textbf{identical} to Kernel Ridge Regression:
+$$\mu_* = K_{*X}(K_{XX} + \sigma^2 I)^{-1}y$$
+
+The regularisation parameter $\lambda$ in KRR corresponds to the noise variance $\sigma^2$ in the GP.
+
+\textbf{The key difference}: GPs also compute $\Sigma_*$, providing \textbf{calibrated uncertainty estimates} rather than just point predictions. In KRR, you get point estimates based on a deterministic function. GPs give you a full probabilistic model.
+\end{redbox}
+
+\textbf{What GPs add beyond KRR:}
+\begin{itemize}
+    \item The diagonal elements of $\Sigma_*$ give variances at each predicted point, representing the model's confidence
+    \item Off-diagonal elements represent covariances between predictions, indicating how uncertainties are correlated
+    \item This additional information is valuable when making decisions under uncertainty, as it provides insight into the reliability of predictions
+\end{itemize}
+
+\subsection{Visualising GP Behaviour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_09_uncertainty/GP_2.png}
+    \caption{Progression of a GP as data is observed: functions inconsistent with observations are down-weighted. The shaded region represents the confidence interval; sample functions are drawn from the posterior.}
+    \label{fig:gp-progression}
+\end{figure}
+
+\textbf{(a) No data ($N=0$):} Functions sampled from the GP prior are highly varied-high uncertainty about the true function form. The shaded region spans a wide range, reflecting that before seeing any data, many function shapes are plausible.
+
+\textbf{(b) One point ($N=1$):} The confidence interval narrows near the observed point and widens away from it. All sample functions pass through (or near) the observation. Functions inconsistent with this observation are down-weighted.
+
+\textbf{(c) Two points ($N=2$):} Intervals tighten around both observations. Sample functions vary less near data and more in regions without observations. The GP ``knows'' more where it has seen data.
+
+\textbf{(d) Four points ($N=4$):} Confidence intervals are significantly tighter around all observations. The GP has learned the trend and has much less uncertainty where data is dense.
+
+This illustrates the GP's capability to both interpolate (between data points) and extrapolate (beyond data points), providing a probabilistic framework that naturally incorporates uncertainty.
+
+\subsection{Variance Properties: Why GPs Excel at Uncertainty}
+
+\begin{bluebox}[Good Variance Behaviour]
+GP variance increases as test points move away from training data:
+\begin{itemize}
+    \item \textbf{Near training data}: Low variance (confident predictions)
+    \item \textbf{Far from training data}: High variance (uncertain predictions)
+    \item \textbf{Rate of increase}: Depends on kernel choice (e.g., length-scale parameter)
+\end{itemize}
+
+This is \textbf{exactly what we want}: admit uncertainty where we lack information.
+\end{bluebox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_09_uncertainty/GP variance.png}
+    \caption{Two GPs with different kernel hyperparameters. Crosses indicate training data. The solid line shows the mean prediction; shaded regions show confidence intervals. Right panel: larger length-scale gives wider confidence bands, indicating that observations influence predictions over a larger range.}
+    \label{fig:gp-variance}
+\end{figure}
+
+\textbf{Contrast with other methods:}
+\begin{itemize}
+    \item Linear regression and polynomial regression provide point estimates without uncertainty measures
+    \item Even some Bayesian methods don't always show increased variance with distance from training data
+    \item This variance property makes GPs particularly valuable for active learning (sample where uncertain) and Bayesian optimisation (balance exploration and exploitation)
+\end{itemize}
+
+\subsection{Posterior vs Posterior Predictive}
+
+There is an important distinction between two types of uncertainty in GPs:
+
+\begin{greybox}[Two Types of Uncertainty]
+\textbf{Posterior of the function} (credible intervals):
+\begin{itemize}
+    \item Uncertainty about the true underlying function $f$
+    \item ``Where might the true function lie?''
+    \item Computed using $\Sigma_*$ as derived above
+\end{itemize}
+
+\textbf{Posterior predictive} (prediction intervals):
+\begin{itemize}
+    \item Uncertainty about future observations $y = f(x) + \epsilon$
+    \item Includes observation noise: add $\sigma^2$ to diagonal of $\Sigma_*$
+    \item ``Where might future observations fall?''
+    \item Wider than credible intervals because observations include noise
+\end{itemize}
+\end{greybox}
+
+\textbf{Credible interval}: A range of values for the function at a given point that, given the prior and observed data, are believed to contain the true function value with a certain probability. A 90\% credible interval means there is a 90\% probability that the true function value lies within that interval.
+
+\textbf{Prediction interval}: A range believed to contain future observed labels with a certain probability, accounting for observation noise. A 90\% prediction interval means there is a 90\% probability that a future observation will fall within this interval.
+
+\textbf{Kernel implication}: To shift from posterior of the function to posterior predictive, add the noise variance $\sigma^2$ to the diagonal of the kernel covariance matrix $K_{**}$. This accounts for additional uncertainty from noisy observations when predicting future labels.
+
+\subsection{Bayesian Optimisation}
+
+GPs enable \textbf{Bayesian optimisation}-an approach for optimising expensive-to-evaluate functions:
+
+\begin{enumerate}
+    \item Model the objective function with a GP
+    \item Use an \textbf{acquisition function} (e.g., Expected Improvement) to balance exploration and exploitation
+    \item Sample at the point maximising the acquisition function
+    \item Update the GP with the new observation; repeat
+\end{enumerate}
+
+The GP's uncertainty guides where to sample next:
+\begin{itemize}
+    \item \textbf{Exploitation}: Sample where predicted values are high (promising regions)
+    \item \textbf{Exploration}: Sample where uncertainty is high (regions where we might discover something better)
+\end{itemize}
+
+This is particularly valuable when function evaluations are expensive (e.g., training a neural network, running a physical experiment), as we want to find the optimum with as few evaluations as possible.
+
+\textbf{Interactive demo}: \url{http://www.infinitecuriosity.org/vizgp/}
+
+\subsection{GP Summary}
+
+\begin{bluebox}[Gaussian Process Takeaways]
+GPs are:
+\begin{enumerate}
+    \item A probability distribution over functions
+    \item Updated by conditioning on data to form a posterior
+    \item Equipped with good variance properties (uncertainty increases away from data)
+\end{enumerate}
+
+GPs provide flexible models with extremely well-behaved uncertainty estimates. They are commonly used in Bayesian optimisation and active learning where uncertainty quantification is critical.
+
+\textbf{Limitations}: Scaling to large datasets is challenging ($O(n^3)$ complexity) and remains an active research area.
+\end{bluebox}
+
+\section{Conformal Inference}
+
+Conformal inference takes a completely different approach to uncertainty: rather than assuming a probabilistic model, it provides \textbf{distribution-free} prediction intervals with guaranteed coverage.
+
+\begin{greybox}[Conformal Inference Goal]
+Construct prediction intervals $(l, u)$ such that:
+$$P(l \leq y_{\text{new}} \leq u) \geq 1 - \alpha$$
+
+for \textbf{any} underlying distribution, using \textbf{any} predictive model.
+\end{greybox}
+
+The key insight: we don't need to assume anything about the data distribution or the model's correctness. We only need the data to be \textbf{exchangeable} (a weaker condition than i.i.d.).
+
+\subsection{A Primer on Conformal Inference}
+
+Conformal inference creates rigorous prediction intervals that are valid under a specified confidence level, regardless of the underlying distribution of the data. It is based on the idea of \textbf{nonconformity measures}-functions that assess how well new observations conform to past observations.
+
+\textbf{Key properties:}
+\begin{itemize}
+    \item \textbf{Distribution-free}: No assumptions about the underlying distribution of the data
+    \item \textbf{Model-agnostic}: Can be applied to any predictive model
+    \item \textbf{Provably valid}: If you say you're 95\% confident the true value lies within the interval, it will indeed lie within the interval 95\% of the time in the long run
+\end{itemize}
+
+\subsection{The Algorithm: Split Conformal Prediction}
+
+\begin{greybox}[Split Conformal Prediction]
+\begin{enumerate}
+    \item \textbf{Split data}: Divide into training set and calibration set
+    \item \textbf{Fit model} on training set to get $\hat{f}$
+    \item \textbf{Define score function} $s(x, y)$ measuring ``nonconformity''
+    \begin{itemize}
+        \item Common choice: $s(x, y) = |y - \hat{f}(x)|$ (absolute residual)
+        \item Larger scores indicate worse fit (more ``nonconforming'')
+    \end{itemize}
+    \item \textbf{Compute scores} on calibration set: $s_1, \ldots, s_n$
+    \item \textbf{Find quantile}: $\hat{q} = $ the $\lceil(n+1)(1-\alpha)\rceil / n$ quantile of scores
+    \item \textbf{Prediction set}: $\mathcal{C}(x_{\text{new}}) = \{y : s(x_{\text{new}}, y) \leq \hat{q}\}$
+\end{enumerate}
+\end{greybox}
+
+For regression with absolute residual scores, the prediction set simplifies to an interval:
+$$\mathcal{C}(x_{\text{new}}) = \hat{f}(x_{\text{new}}) \pm \hat{q}$$
+
+\subsection{Why Conformal Inference Works}
+
+\begin{bluebox}[Why It Works]
+Under exchangeability (weaker than i.i.d.), the calibration scores and the new point's score are exchangeable.
+
+The new score has probability $\leq \alpha$ of exceeding the $(1-\alpha)$ quantile of the calibration scores.
+
+\textbf{No assumptions} about the model or data distribution-only exchangeability.
+\end{bluebox}
+
+The validity guarantee comes from a simple counting argument: if all $n+1$ scores (calibration plus new) are exchangeable, then the new score is equally likely to be in any rank position. The probability it exceeds the $(1-\alpha)$ quantile is at most $\alpha$.
+
+\subsection{Step-by-Step Process}
+
+\textbf{Set target coverage probability}:
+\begin{itemize}
+    \item Choose significance level $\alpha$ (e.g., $\alpha = 0.05$ for 95\% coverage)
+    \item Goal: prediction interval $(l, u)$ such that $P(l \leq y_{\text{new}} \leq u) \geq 1 - \alpha$
+\end{itemize}
+
+\textbf{Calculate prediction interval}:
+\begin{enumerate}
+    \item \textbf{Define heuristic notion of uncertainty}: Identify a measure reflecting confidence in predictions
+
+    \item \textbf{Formalise as score function} $s(x, y)$: Assigns a numerical value indicating how far the predicted value $\hat{f}(x)$ is from the true value $y$
+    \begin{itemize}
+        \item $s(x, y) = |y - \hat{f}(x)|$ is a common choice
+        \item Larger score = worse prediction
+    \end{itemize}
+
+    \item \textbf{Compute quantile} $\hat{q}$: Calculate the $\lceil(n+1)(1-\alpha)\rceil / n$ quantile of scores on calibration data
+    \begin{itemize}
+        \item This quantile represents the threshold that a certain proportion of scores fall below
+    \end{itemize}
+
+    \item \textbf{Form prediction set} $\mathcal{C}(X_{\text{test}})$: Include any value $y$ where $s(X_{\text{test}}, y) \leq \hat{q}$
+\end{enumerate}
+
+\subsection{Example: Non-Normal Errors}
+
+Consider a data generating process $y = \beta X + \epsilon$, where $\epsilon$ has a highly non-normal distribution (e.g., heavy tails, skewness).
+
+Even though standard regression assumes normal errors, we can ``conformalise'' our predictions to get a valid prediction interval:
+
+\begin{enumerate}
+    \item \textbf{Fit your model}: Fit a linear model $\hat{y} = \hat{\beta}X$ to the training data
+    \item \textbf{Compute residuals}: Calculate $|y - \hat{y}|$ for each point in the calibration set
+    \item \textbf{Find quantile}: Determine the 95th percentile of these residuals
+    \item \textbf{Form interval}: Prediction interval is $\hat{y} \pm$ (95th percentile)
+\end{enumerate}
+
+The interval is \textbf{valid} (95\% coverage) regardless of $\epsilon$'s distribution. It may not be \textit{tight} (optimal width), but it is valid.
+
+\subsection{Handling Heteroskedasticity}
+
+If variance changes with $X$ (heteroskedasticity), use a \textbf{normalised} score:
+$$s(x, y) = \frac{|y - \hat{f}(x)|}{\hat{\sigma}(x)}$$
+
+where $\hat{\sigma}(x)$ is a model of the residual standard deviation at $x$.
+
+\textbf{Implementation:}
+\begin{enumerate}
+    \item Train a model to predict $\hat{f}(x)$
+    \item Train a separate model to predict $\hat{\sigma}(x)$ (e.g., using absolute residuals from the first model)
+    \item Use normalised scores for calibration and prediction
+\end{enumerate}
+
+This gives tighter intervals where variance is low and wider intervals where variance is high, while maintaining the coverage guarantee.
+
+\subsection{Marginal vs Conditional Coverage}
+
+\begin{redbox}
+Conformal inference guarantees \textbf{marginal coverage}:
+$$P(y_{\text{new}} \in \mathcal{C}(x_{\text{new}})) \geq 1 - \alpha$$
+
+averaged over all $x$. It does \textbf{not} guarantee \textbf{conditional coverage}:
+$$P(y_{\text{new}} \in \mathcal{C}(x_{\text{new}}) | x_{\text{new}} = x) \geq 1 - \alpha \quad \forall x$$
+\end{redbox}
+
+\textbf{Marginal coverage example}: The coverage guarantee is averaged over all points:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+$X$ & Prediction & Interval & Coverage \\
+\hline
+1 & 0.1 & $(0, 0.2)$ & 99\% \\
+2 & 0.2 & $(0.1, 0.3)$ & 90\% \\
+3 & 0.3 & $(0.2, 0.4)$ & 81\% \\
+\hline
+\multicolumn{3}{|c|}{Overall (marginal):} & 90\% \\
+\hline
+\end{tabular}
+\end{center}
+
+Even though individual $X$ values have different coverage rates (some much higher, some lower than 90\%), the overall coverage meets the target.
+
+\textbf{Conditional coverage}: This would require the coverage guarantee to hold \textbf{within each value of $X$}:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+$X$ & Prediction & Interval & Coverage \\
+\hline
+1 & 0.1 & $(0.02, 0.18)$ & 90\% \\
+2 & 0.2 & $(0.1, 0.3)$ & 90\% \\
+3 & 0.3 & $(0.18, 0.42)$ & 90\% \\
+\hline
+\multicolumn{3}{|c|}{Overall:} & 90\% \\
+\hline
+\end{tabular}
+\end{center}
+
+\textbf{The challenge}: Achieving conditional coverage requires intervals that adapt to the distribution of $y$ at each $x$ value, accounting for all potential variations. There isn't a straightforward method to achieve exact conditional coverage in all cases-this remains an active research area.
+
+\section{Comparison: GPs vs Conformal Inference}
+
+\begin{bluebox}[GPs vs Conformal Inference]
+\begin{center}
+\begin{tabular}{lcc}
+& \textbf{Gaussian Processes} & \textbf{Conformal Inference} \\
+\hline
+Assumptions & Gaussian, kernel choice & Exchangeability only \\
+Output & Full posterior distribution & Prediction intervals \\
+Calibration & Automatic (Bayesian) & Requires calibration set \\
+Scalability & $O(n^3)$ & $O(n)$ \\
+Model-agnostic & No (GP-specific) & Yes (any model) \\
+Coverage guarantee & Conditional (if model correct) & Marginal \\
+Uncertainty type & Mean + variance & Interval only \\
+\end{tabular}
+\end{center}
+\end{bluebox}
+
+\textbf{When to use GPs:}
+\begin{itemize}
+    \item Smaller datasets where modelling detailed uncertainties is crucial
+    \item When you need the full posterior distribution, not just intervals
+    \item For Bayesian optimisation and active learning
+    \item When kernel choice can encode meaningful prior knowledge
+\end{itemize}
+
+\textbf{When to use conformal inference:}
+\begin{itemize}
+    \item Large datasets where GP computation is prohibitive
+    \item When you want model-agnostic prediction intervals
+    \item When distribution-free guarantees are important
+    \item As a ``wrapper'' around any existing predictive model
+\end{itemize}
+
+\section{Summary}
+
+\begin{bluebox}[Key Concepts from Week 9]
+\begin{enumerate}
+    \item \textbf{Gaussian Processes}: Distributions over functions; posterior mean equals KRR, but also provides calibrated variance
+
+    \item \textbf{GP inference}: Condition a joint Gaussian on observed data; variance increases away from training points
+
+    \item \textbf{GP-KRR connection}: With zero mean function, GP posterior mean is identical to kernel ridge regression; GPs extend this by also computing uncertainty
+
+    \item \textbf{Posterior vs predictive}: Function uncertainty (credible intervals) vs observation uncertainty (prediction intervals, which include noise)
+
+    \item \textbf{Conformal inference}: Distribution-free prediction intervals with marginal coverage guarantees
+
+    \item \textbf{Score function}: Defines what ``nonconformity'' means; quantile of scores gives interval width
+
+    \item \textbf{Marginal vs conditional}: Conformal gives marginal coverage (averaged over $X$), not conditional (for each $X$)
+
+    \item \textbf{Tradeoff}: GPs give richer uncertainty but scale poorly ($O(n^3)$); conformal is scalable ($O(n)$) but only provides marginal coverage
+\end{enumerate}
+\end{bluebox}
+

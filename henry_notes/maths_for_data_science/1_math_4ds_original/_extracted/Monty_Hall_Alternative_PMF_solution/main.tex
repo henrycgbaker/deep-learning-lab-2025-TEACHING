@@ -1,0 +1,146 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{enumitem}
+
+\begin{document}
+
+To solve this variant of the Monty Hall problem, we need to calculate the unconditional probability that the contestant wins a car by following the given strategy: always choosing door 1 initially and then switching to the other unopened door after Monty reveals a door.
+
+\textbf{Understanding the Game Mechanics:}
+
+\begin{itemize}
+    \item \textbf{Prize Distribution:} Each door independently has a car with probability \( p \) and a goat with probability \( q = 1 - p \).
+    \item \textbf{Contestant's Strategy:} Choose door 1 and always switch after Monty opens a door.
+    \item \textbf{Monty's Behavior:}
+    \begin{itemize}
+        \item If Monty can reveal a goat, he will.
+        \item If both remaining doors have the same prize (both cars or both goats), he chooses randomly between them.
+    \end{itemize}
+\end{itemize}
+
+\textbf{Possible Scenarios:}
+
+Let's enumerate all possible combinations of what's behind the doors and determine the outcome for the contestant in each case.
+
+There are \( 2^3 = 8 \) possible combinations of cars (C) and goats (G) behind the three doors:
+
+\begin{enumerate}
+    \item \textbf{(C1, C2, C3) = (C, C, C)}
+    \begin{itemize}
+        \item \textbf{Probability:} \( p^3 \)
+        \item \textbf{Monty's Action:} Both remaining doors (2 and 3) have cars. Monty randomly opens door 2 or 3.
+        \item \textbf{Contestant's Switch:} Switches to the other car. \textbf{Wins a car.}
+    \end{itemize}
+
+    \item \textbf{(C, C, G)}
+    \begin{itemize}
+        \item \textbf{Probability:} \( p^2 q \)
+        \item \textbf{Monty's Action:} Monty reveals door 3 (goat).
+        \item \textbf{Contestant's Switch:} Switches to door 2 (car). \textbf{Wins a car.}
+    \end{itemize}
+
+    \item \textbf{(C, G, C)}
+    \begin{itemize}
+        \item \textbf{Probability:} \( p^2 q \)
+        \item \textbf{Monty's Action:} Monty reveals door 2 (goat).
+        \item \textbf{Contestant's Switch:} Switches to door 3 (car). \textbf{Wins a car.}
+    \end{itemize}
+
+    \item \textbf{(C, G, G)}
+    \begin{itemize}
+        \item \textbf{Probability:} \( p q^2 \)
+        \item \textbf{Monty's Action:} Both remaining doors have goats. Monty randomly opens door 2 or 3.
+        \item \textbf{Contestant's Switch:} Switches to a goat. \textbf{Does not win a car.}
+    \end{itemize}
+
+    \item \textbf{(G, C, C)}
+    \begin{itemize}
+        \item \textbf{Probability:} \( p^2 q \)
+        \item \textbf{Monty's Action:} Both remaining doors have cars. Monty randomly opens door 2 or 3.
+        \item \textbf{Contestant's Switch:} Switches to the other car. \textbf{Wins a car.}
+    \end{itemize}
+
+    \item \textbf{(G, C, G)}
+    \begin{itemize}
+        \item \textbf{Probability:} \( p q^2 \)
+        \item \textbf{Monty's Action:} Monty reveals door 3 (goat).
+        \item \textbf{Contestant's Switch:} Switches to door 2 (car). \textbf{Wins a car.}
+    \end{itemize}
+
+    \item \textbf{(G, G, C)}
+    \begin{itemize}
+        \item \textbf{Probability:} \( p q^2 \)
+        \item \textbf{Monty's Action:} Monty reveals door 2 (goat).
+        \item \textbf{Contestant's Switch:} Switches to door 3 (car). \textbf{Wins a car.}
+    \end{itemize}
+
+    \item \textbf{(G, G, G)}
+    \begin{itemize}
+        \item \textbf{Probability:} \( q^3 \)
+        \item \textbf{Monty's Action:} Both remaining doors have goats. Monty randomly opens door 2 or 3.
+        \item \textbf{Contestant's Switch:} Switches to a goat. \textbf{Does not win a car.}
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Calculating the Total Probability of Winning:}
+
+Add up the probabilities of the scenarios where the contestant wins a car:
+
+\begin{itemize}
+    \item \textbf{Scenarios where the contestant wins:} Cases 1, 2, 3, 5, 6, 7.
+    \item \textbf{Total Winning Probability:}
+    \[
+    P(\text{win}) = p^3 + 3(p^2 q) + 2(p q^2)
+    \]
+\end{itemize}
+
+Let's simplify this expression:
+
+1. \textbf{Compute \( p^2 q \) terms:}
+   \[
+   3(p^2 q) = 3 p^2 (1 - p)
+   \]
+
+2. \textbf{Compute \( p q^2 \) terms:}
+   \[
+   2(p q^2) = 2 p (1 - p)^2
+   \]
+
+3. \textbf{Expand and simplify:}
+   \[
+   P(\text{win}) = p^3 + 3 p^2 (1 - p) + 2 p (1 - p)^2
+   \]
+   \[
+   = p^3 + 3 p^2 - 3 p^3 + 2 p - 4 p^2 + 2 p^3
+   \]
+   \[
+   = (p^3 - 3 p^3 + 2 p^3) + (3 p^2 - 4 p^2) + 2 p
+   \]
+   \[
+   = (0 p^3) + (- p^2) + 2 p
+   \]
+   \[
+   = -p^2 + 2p
+   \]
+
+\textbf{Final Answer:}
+
+\[
+P(\text{win}) = 2p - p^2
+\]
+
+\textbf{Conclusion:}
+
+The unconditional probability that the contestant will get a car by following the strategy of always switching is:
+
+\[
+\boxed{2p - p^2}
+\]
+
+\textbf{Explanation:}
+
+- The contestant benefits from switching because it allows them to take advantage of the increased probability that a car is behind one of the other doors, especially when Monty's action provides additional information.
+- The term \( 2p \) represents the initial probability of there being cars behind the other two doors.
+- The subtraction of \( p^2 \) accounts for the overlap where both doors have cars, adjusting for cases where Monty's choice is random due to identical prizes behind the remaining doors.
+
+\end{document}

@@ -1,0 +1,1719 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.12.30)  5 JAN 2026 15:52
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**main.tex
+(./main.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+(./preamble.tex (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/base/size11.clo
+File: size11.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count275
+\c@section=\count276
+\c@subsection=\count277
+\c@subsubsection=\count278
+\c@paragraph=\count279
+\c@subparagraph=\count280
+\c@figure=\count281
+\c@table=\count282
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen148
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks17
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/iftex/ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+))
+\Gm@cnth=\count283
+\Gm@cntv=\count284
+\c@Gm@tempcnt=\count285
+\Gm@bindingoffset=\dimen149
+\Gm@wd@mp=\dimen150
+\Gm@odd@mp=\dimen151
+\Gm@even@mp=\dimen152
+\Gm@layoutwidth=\dimen153
+\Gm@layoutheight=\dimen154
+\Gm@layouthoffset=\dimen155
+\Gm@layoutvoffset=\dimen156
+\Gm@dimlist=\toks18
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/base/inputenc.sty
+Package: inputenc 2024/02/08 v1.3d Input encoding file
+\inpenc@prehook=\toks19
+\inpenc@posthook=\toks20
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/multirow/multirow.sty
+Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
+\multirow@colwidth=\skip51
+\multirow@cntb=\count286
+\multirow@dima=\skip52
+\bigstrutjot=\dimen157
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/booktabs/booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen158
+\lightrulewidth=\dimen159
+\cmidrulewidth=\dimen160
+\belowrulesep=\dimen161
+\belowbottomsep=\dimen162
+\aboverulesep=\dimen163
+\abovetopsep=\dimen164
+\cmidrulesep=\dimen165
+\cmidrulekern=\dimen166
+\defaultaddspace=\dimen167
+\@cmidla=\count287
+\@cmidlb=\count288
+\@aboverulesep=\dimen168
+\@belowrulesep=\dimen169
+\@thisruleclass=\count289
+\@lastruleclass=\count290
+\@thisrulewidth=\dimen170
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 106.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen171
+\Gin@req@width=\dimen172
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/setspace/setspace.sty
+Package: setspace 2022/12/04 v6.7b set line spacing
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/tools/enumerate.sty
+Package: enumerate 2023/07/04 v3.00 enumerate extensions (DPC)
+\@enLab=\toks21
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count291
+\float@exts=\toks22
+\float@box=\box53
+\@float@everytoks=\toks23
+\@floatcapt=\box54
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
+Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
+\f@nch@headwidth=\skip53
+\f@nch@offset@elh=\skip54
+\f@nch@offset@erh=\skip55
+\f@nch@offset@olh=\skip56
+\f@nch@offset@orh=\skip57
+\f@nch@offset@elf=\skip58
+\f@nch@offset@erf=\skip59
+\f@nch@offset@olf=\skip60
+\f@nch@offset@orf=\skip61
+\f@nch@height=\skip62
+\f@nch@footalignment=\skip63
+\f@nch@widthL=\skip64
+\f@nch@widthC=\skip65
+\f@nch@widthR=\skip66
+\@temptokenb=\toks24
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2025/07/09 v2.17z AMS math features
+\@mathmargin=\skip67
+
+For additional information on amsmath, use the `?' option.
+(/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2024/11/17 v2.01 AMS text
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks25
+\ex@=\dimen173
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen174
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count292
+LaTeX Info: Redefining \frac on input line 233.
+\uproot@=\count293
+\leftroot@=\count294
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count295
+\DOTSCASE@=\count296
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+LaTeX Info: Redefining \cdots on input line 619.
+\Mathstrutbox@=\box55
+\strutbox@=\box56
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen175
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count297
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+LaTeX Info: Redefining \relbar on input line 969.
+LaTeX Info: Redefining \Relbar on input line 970.
+\c@MaxMatrixCols=\count298
+\dotsspace@=\muskip17
+\c@parentequation=\count299
+\dspbrk@lvl=\count300
+\tag@help=\toks26
+\row@=\count301
+\column@=\count302
+\maxfields@=\count303
+\andhelp@=\toks27
+\eqnshift@=\dimen176
+\alignsep@=\dimen177
+\tagshift@=\dimen178
+\tagwidth@=\dimen179
+\totwidth@=\dimen180
+\lineht@=\dimen181
+\@envbody=\toks28
+\multlinegap=\skip68
+\multlinetaggap=\skip69
+\mathdisplay@stack=\toks29
+LaTeX Info: Redefining \[ on input line 2950.
+LaTeX Info: Redefining \] on input line 2951.
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/tcolorbox/tcolorbox.sty
+Package: tcolorbox 2025/11/28 version 6.9.0 text color boxes
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex
+\pgfutil@everybye=\toks30
+\pgfutil@tempdima=\dimen182
+\pgfutil@tempdimb=\dimen183
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def
+\pgfutil@abb=\box57
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfrcs.code.tex (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/pgf.revision.tex)
+Package: pgfrcs 2025-08-29 v3.1.11a (3.1.11a)
+))
+Package: pgf 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/basiclayer/pgfcore.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
+Package: pgfsys 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
+\pgfkeys@pathtoks=\toks31
+\pgfkeys@temptoks=\toks32
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeyslibraryfiltered.code.tex
+\pgfkeys@tmptoks=\toks33
+))
+\pgf@x=\dimen184
+\pgf@y=\dimen185
+\pgf@xa=\dimen186
+\pgf@ya=\dimen187
+\pgf@xb=\dimen188
+\pgf@yb=\dimen189
+\pgf@xc=\dimen190
+\pgf@yc=\dimen191
+\pgf@xd=\dimen192
+\pgf@yd=\dimen193
+\w@pgf@writea=\write3
+\r@pgf@reada=\read2
+\c@pgf@counta=\count304
+\c@pgf@countb=\count305
+\c@pgf@countc=\count306
+\c@pgf@countd=\count307
+\t@pgf@toka=\toks34
+\t@pgf@tokb=\toks35
+\t@pgf@tokc=\toks36
+\pgf@sys@id@count=\count308
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
+File: pgf.cfg 2025-08-29 v3.1.11a (3.1.11a)
+)
+Driver file for pgf: pgfsys-pdftex.def
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-pdftex.def
+File: pgfsys-pdftex.def 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-common-pdf.def
+File: pgfsys-common-pdf.def 2025-08-29 v3.1.11a (3.1.11a)
+))) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.tex
+File: pgfsyssoftpath.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfsyssoftpath@smallbuffer@items=\count309
+\pgfsyssoftpath@bigbuffer@items=\count310
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.code.tex
+File: pgfsysprotocol.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 274.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
+Package: pgfcore 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex
+\pgfmath@dimen=\dimen194
+\pgfmath@count=\count311
+\pgfmath@box=\box58
+\pgfmath@toks=\toks37
+\pgfmath@stack@operand=\toks38
+\pgfmath@stack@operation=\toks39
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.trigonometric.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.random.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.comparison.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.base.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.round.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.misc.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integerarithmetics.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathcalc.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex
+\c@pgfmathroundto@lastzeros=\count312
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfint.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.code.tex
+File: pgfcorepoints.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@picminx=\dimen195
+\pgf@picmaxx=\dimen196
+\pgf@picminy=\dimen197
+\pgf@picmaxy=\dimen198
+\pgf@pathminx=\dimen199
+\pgf@pathmaxx=\dimen256
+\pgf@pathminy=\dimen257
+\pgf@pathmaxy=\dimen258
+\pgf@xx=\dimen259
+\pgf@xy=\dimen260
+\pgf@yx=\dimen261
+\pgf@yy=\dimen262
+\pgf@zx=\dimen263
+\pgf@zy=\dimen264
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathconstruct.code.tex
+File: pgfcorepathconstruct.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@path@lastx=\dimen265
+\pgf@path@lasty=\dimen266
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathusage.code.tex
+File: pgfcorepathusage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@shorten@end@additional=\dimen267
+\pgf@shorten@start@additional=\dimen268
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorescopes.code.tex
+File: pgfcorescopes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfpic=\box59
+\pgf@hbox=\box60
+\pgf@layerbox@main=\box61
+\pgf@picture@serial@count=\count313
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.code.tex
+File: pgfcoregraphicstate.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgflinewidth=\dimen269
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransformations.code.tex
+File: pgfcoretransformations.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@pt@x=\dimen270
+\pgf@pt@y=\dimen271
+\pgf@pt@temp=\dimen272
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorequick.code.tex
+File: pgfcorequick.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreobjects.code.tex
+File: pgfcoreobjects.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathprocessing.code.tex
+File: pgfcorepathprocessing.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorearrows.code.tex
+File: pgfcorearrows.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfarrowsep=\dimen273
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
+File: pgfcoreshade.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@max=\dimen274
+\pgf@sys@shading@range@num=\count314
+\pgf@shadingcount=\count315
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
+File: pgfcoreimage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.tex
+File: pgfcoreexternal.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfexternal@startupbox=\box62
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.code.tex
+File: pgfcorelayers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransparency.code.tex
+File: pgfcoretransparency.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.tex
+File: pgfcorepatterns.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex
+File: pgfcorerdf.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+))) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
+File: pgfmoduleshapes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfnodeparttextbox=\box63
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+File: pgfmoduleplot.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65.sty
+Package: pgfcomp-version-0-65 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@nodesepstart=\dimen275
+\pgf@nodesepend=\dimen276
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18.sty
+Package: pgfcomp-version-1-18 2025-08-29 v3.1.11a (3.1.11a)
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgffor.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/math/pgfmath.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex
+Package: pgffor 2025-08-29 v3.1.11a (3.1.11a)
+\pgffor@iter=\dimen277
+\pgffor@skip=\dimen278
+\pgffor@stack=\toks40
+\pgffor@toks=\toks41
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+Package: tikz 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers.code.tex
+File: pgflibraryplothandlers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@plot@mark@count=\count316
+\pgfplotmarksize=\dimen279
+)
+\tikz@lastx=\dimen280
+\tikz@lasty=\dimen281
+\tikz@lastxsaved=\dimen282
+\tikz@lastysaved=\dimen283
+\tikz@lastmovetox=\dimen284
+\tikz@lastmovetoy=\dimen285
+\tikzleveldistance=\dimen286
+\tikzsiblingdistance=\dimen287
+\tikz@figbox=\box64
+\tikz@figbox@bg=\box65
+\tikz@tempbox=\box66
+\tikz@tempbox@bg=\box67
+\tikztreelevel=\count317
+\tikznumberofchildren=\count318
+\tikznumberofcurrentchild=\count319
+\tikz@fig@count=\count320
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+File: pgfmodulematrix.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfmatrixcurrentrow=\count321
+\pgfmatrixcurrentcolumn=\count322
+\pgf@matrix@numberofcolumns=\count323
+)
+\tikz@expandcount=\count324
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarytopaths.code.tex
+File: tikzlibrarytopaths.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+))) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/tools/verbatim.sty
+Package: verbatim 2024-01-22 v1.5x LaTeX2e package for verbatim enhancements
+\every@verbatim=\toks42
+\verbatim@line=\toks43
+\verbatim@in@stream=\read3
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/environ/environ.sty
+Package: environ 2014/05/04 v0.3 A new way to define environments
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/trimspaces/trimspaces.sty
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count325
+)
+\tcb@titlebox=\box68
+\tcb@upperbox=\box69
+\tcb@lowerbox=\box70
+\tcb@phantombox=\box71
+\c@tcbbreakpart=\count326
+\c@tcblayer=\count327
+\c@tcolorbox@number=\count328
+\l__tcobox_tmpa_box=\box72
+\l__tcobox_tmpa_dim=\dimen288
+\tcb@temp=\box73
+\tcb@temp=\box74
+\tcb@temp=\box75
+\tcb@temp=\box76
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty
+Package: hyperref 2025-07-12 v7.01o Hypertext links for LaTeX
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/infwarerr/infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/hycolor/hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/hyperref/nameref.sty
+Package: nameref 2025-06-21 v2.57 Cross-referencing by name of section
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/refcount/refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/kvoptions/kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+))
+\c@section@level=\count329
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/stringenc/stringenc.sty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO)
+)
+\@linkdim=\dimen289
+\Hy@linkcounter=\count330
+\Hy@pagecounter=\count331
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/hyperref/pd1enc.def
+File: pd1enc.def 2025-07-12 v7.01o Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/intcalc/intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+\Hy@SavedSpaceFactor=\count332
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/hyperref/puenc.def
+File: puenc.def 2025-07-12 v7.01o Hyperref: PDF Unicode definition (HO)
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
+)
+Package hyperref Info: Hyper figures OFF on input line 4195.
+Package hyperref Info: Link nesting OFF on input line 4200.
+Package hyperref Info: Hyper index ON on input line 4203.
+Package hyperref Info: Plain pages OFF on input line 4210.
+Package hyperref Info: Backreferencing OFF on input line 4215.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4462.
+\c@Hy@tempcnt=\count333
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/url/url.sty
+\Urlmuskip=\muskip18
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 4801.
+\XeTeXLinkMargin=\dimen290
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/bitset/bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
+))
+\Fld@menulength=\count334
+\Field@Width=\dimen291
+\Fld@charsize=\dimen292
+Package hyperref Info: Hyper figures OFF on input line 6078.
+Package hyperref Info: Link nesting OFF on input line 6083.
+Package hyperref Info: Hyper index ON on input line 6086.
+Package hyperref Info: backreferencing OFF on input line 6093.
+Package hyperref Info: Link coloring OFF on input line 6098.
+Package hyperref Info: Link coloring with OCG OFF on input line 6103.
+Package hyperref Info: PDF/A mode OFF on input line 6108.
+\Hy@abspage=\count335
+\c@Item=\count336
+\c@Hfootnote=\count337
+)
+Package hyperref Info: Driver (autodetected): hpdftex.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hpdftex.def
+File: hpdftex.def 2025-07-12 v7.01o Hyperref driver for pdfTeX
+\Fld@listcount=\count338
+\c@bookmark@seq@number=\count339
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 284.
+)
+\Hy@SectionHShift=\skip70
+)
+Package hyperref Info: Option `colorlinks' set `true' on input line 30.
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count340
+) (./main.aux
+
+LaTeX Warning: Label `fig:confusion-matrix' multiply defined.
+
+
+LaTeX Warning: Label `fig:confusion-matrix' multiply defined.
+
+
+LaTeX Warning: Label `fig:gradient-clipping' multiply defined.
+
+
+LaTeX Warning: Label `fig:dropout' multiply defined.
+
+)
+\openout1 = `main.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(71.13188pt, 455.24411pt, 71.13188pt)
+* v-part:(T,H,B)=(71.13188pt, 702.78308pt, 71.13188pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=455.24411pt
+* \textheight=702.78308pt
+* \oddsidemargin=-1.1381pt
+* \evensidemargin=-1.1381pt
+* \topmargin=-38.1381pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=11.0pt
+* \footskip=30.0pt
+* \marginparwidth=50.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+(/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
+))
+Package hyperref Info: Link coloring ON on input line 11.
+ (./main.out) (./main.out)
+\@outlinefile=\write4
+\openout4 = `main.out'.
+
+LaTeX Font Info:    Trying to load font information for U+msa on input line 29.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 29.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) [1
+
+{/Users/henrybaker/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+No file main.toc.
+\tf@toc=\write5
+\openout5 = `main.toc'.
+
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.39 \newpage
+              [1] (./week_01_history.tex
+! Undefined control sequence.
+l.3 \chapter
+            {Week 1: Intellectual History of AI and Machine Learning}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+Overfull \hbox (3.20038pt too wide) in paragraph at lines 5--5
+[]\T1/cmr/bx/n/14.4 Philosophical Foun-da-tions: The Com-pu-ta-tional The-ory of Mind 
+ []
+
+[2] [3] [4] [5] [6] [7] [8]
+Overfull \hbox (2.74173pt too wide) in paragraph at lines 273--274
+[]\T1/cmr/bx/n/10.95 Maintenance night-mare\T1/cmr/m/n/10.95 : Knowl-edge bases be-came un-wieldy and hard to up-date. Adding
+ []
+
+[9] [10] [11] [12]
+Overfull \hbox (27.97849pt too wide) in paragraph at lines 383--384
+\T1/cmr/m/n/10.95 know-ing tran-si-tion prob-a-bil-i-ties. Learns the Q-function $\OML/cmm/m/it/10.95 Q\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 s; a\OT1/cmr/m/n/10.95 ) = \OML/cmm/m/it/10.95 R\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 s; a\OT1/cmr/m/n/10.95 ) + \OML/cmm/m/it/10.95 ^^M [][] P\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 s[]\OMS/cmsy/m/n/10.95 j\OML/cmm/m/it/10.95 s; a\OT1/cmr/m/n/10.95 )\OML/cmm/m/it/10.95 V[]\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 s[]\OT1/cmr/m/n/10.95 )$\T1/cmr/m/n/10.95 . 
+ []
+
+[13] [14] [15] [16] [17]) [18] (./week_02_training.tex
+! Missing } inserted.
+<inserted text> 
+                }
+l.5 {\large \bf ML Lecture Notes 2024 \\ H
+                                          enry Baker}
+I've put in what seems to be necessary to fix
+the current column of the current alignment.
+Try to go on, since this might almost work.
+
+! Misplaced \noalign.
+\hline ->\noalign 
+                  {\ifnum 0=`}\fi \hrule \@height \arrayrulewidth \futurelet...
+l.6 \hline
+          
+I expect to see \noalign only after the \cr of
+an alignment. Proceed, and I'll ignore this case.
+
+! You can't use `\hrule' here except with leaders.
+\hline ->\noalign {\ifnum 0=`}\fi \hrule 
+                                         \@height \arrayrulewidth \futurelet...
+l.6 \hline
+          
+To put a horizontal rule in an hbox or an alignment,
+you should use \leaders or \hrulefill (see The TeXbook).
+
+! Missing number, treated as zero.
+<to be read again> 
+                   \futurelet 
+l.6 \hline
+          
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   \futurelet 
+l.6 \hline
+          
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, nd, nc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+! Missing { inserted.
+<inserted text> 
+                {
+l.8 \end
+        {tabular}
+I've put in what seems to be necessary to fix
+the current column of the current alignment.
+Try to go on, since this might almost work.
+
+
+Overfull \hbox (30.74321pt too wide) in paragraph at lines 4--9
+[][] 
+ []
+
+! Undefined control sequence.
+l.44 $$\hat{\theta}_{\text{MLE}} = \argmax
+                                          _{\theta} p(\mathcal{D}|\theta) = ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.44 ...x_{\theta} p(\mathcal{D}|\theta) = \argmax
+                                                  _{\theta} \prod_{i=1}^{n} ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+[19
+
+] [20]
+! Undefined control sequence.
+l.88 $$\hat{\theta}_{\text{MLE}} = \argmax
+                                          _{\theta} p(\mathcal{D}|\theta) = ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+[21] [22] [23] [24] [25] [26] [27]
+<figures/week_02_training/image.png, id=1858, 542.025pt x 188.20313pt>
+File: figures/week_02_training/image.png Graphic file (type png)
+<use figures/week_02_training/image.png>
+Package pdftex.def Info: figures/week_02_training/image.png  used on input line 373.
+(pdftex.def)             Requested size: 341.43307pt x 118.5571pt.
+ [28 <./figures/week_02_training/image.png>]
+! Undefined control sequence.
+l.413 $$\hat{\theta}_{\text{MAP}} = \argmax
+                                           _\theta p(\theta | \mathcal{D}) =...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.413 ..._\theta p(\theta | \mathcal{D}) = \argmax
+                                                  _\theta \frac{p(\mathcal{D...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.416 $$\hat{\theta}_{\text{MAP}} = \argmax
+                                           _\theta \left[ p(\mathcal{D}|\the...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.419 $$\hat{\theta}_{\text{MAP}} = \argmax
+                                           _\theta \left[ \log p(\mathcal{D}...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+[29] [30]
+<figures/week_02_training/image_1.png, id=1881, 552.56438pt x 416.30531pt>
+File: figures/week_02_training/image_1.png Graphic file (type png)
+<use figures/week_02_training/image_1.png>
+Package pdftex.def Info: figures/week_02_training/image_1.png  used on input line 511.
+(pdftex.def)             Requested size: 341.43307pt x 257.23636pt.
+ [31]
+<figures/week_02_training/image_2.png, id=1887, 264.99pt x 194.97844pt>
+File: figures/week_02_training/image_2.png Graphic file (type png)
+<use figures/week_02_training/image_2.png>
+Package pdftex.def Info: figures/week_02_training/image_2.png  used on input line 545.
+(pdftex.def)             Requested size: 227.62206pt x 167.48479pt.
+ [32 <./figures/week_02_training/image_1.png>]
+<figures/week_02_training/image_3.png, id=1898, 694.84593pt x 231.86626pt>
+File: figures/week_02_training/image_3.png Graphic file (type png)
+<use figures/week_02_training/image_3.png>
+Package pdftex.def Info: figures/week_02_training/image_3.png  used on input line 575.
+(pdftex.def)             Requested size: 341.43307pt x 113.93387pt.
+ [33 <./figures/week_02_training/image_2.png>] [34 <./figures/week_02_training/image_3.png>]
+<figures/week_02_training/image_4.png, id=1911, 913.16156pt x 342.5297pt>
+File: figures/week_02_training/image_4.png Graphic file (type png)
+<use figures/week_02_training/image_4.png>
+Package pdftex.def Info: figures/week_02_training/image_4.png  used on input line 639.
+(pdftex.def)             Requested size: 341.43307pt x 128.072pt.
+ [35 <./figures/week_02_training/image_4.png>] [36] [37]) [38] (./week_03_highdim.tex
+! Missing } inserted.
+<inserted text> 
+                }
+l.5 {\large \bf ML Lecture Notes 2024 \\ H
+                                          enry Baker}
+I've put in what seems to be necessary to fix
+the current column of the current alignment.
+Try to go on, since this might almost work.
+
+! Misplaced \noalign.
+\hline ->\noalign 
+                  {\ifnum 0=`}\fi \hrule \@height \arrayrulewidth \futurelet...
+l.6 \hline
+          
+I expect to see \noalign only after the \cr of
+an alignment. Proceed, and I'll ignore this case.
+
+! You can't use `\hrule' here except with leaders.
+\hline ->\noalign {\ifnum 0=`}\fi \hrule 
+                                         \@height \arrayrulewidth \futurelet...
+l.6 \hline
+          
+To put a horizontal rule in an hbox or an alignment,
+you should use \leaders or \hrulefill (see The TeXbook).
+
+! Missing number, treated as zero.
+<to be read again> 
+                   \futurelet 
+l.6 \hline
+          
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   \futurelet 
+l.6 \hline
+          
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, nd, nc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+! Missing { inserted.
+<inserted text> 
+                {
+l.8 \end
+        {tabular}
+I've put in what seems to be necessary to fix
+the current column of the current alignment.
+Try to go on, since this might almost work.
+
+
+Overfull \hbox (30.74321pt too wide) in paragraph at lines 4--9
+[][] 
+ []
+
+<figures/week_03_highdim/reg-class.png, id=1944, 496.85625pt x 237.13594pt>
+File: figures/week_03_highdim/reg-class.png Graphic file (type png)
+<use figures/week_03_highdim/reg-class.png>
+Package pdftex.def Info: figures/week_03_highdim/reg-class.png  used on input line 33.
+(pdftex.def)             Requested size: 341.43307pt x 162.95818pt.
+
+Underfull \hbox (badness 2495) in paragraph at lines 59--60
+[]\T1/cmr/m/n/10.95 This is still \T1/cmr/bx/n/10.95 lin-ear in pa-ram-e-ters $\OML/cmm/m/it/10.95 ^^L$\T1/cmr/m/n/10.95 -we are just us-ing trans-formed fea-tures
+ []
+
+[39
+
+ <./figures/week_03_highdim/reg-class.png>]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 71.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 71.
+
+<figures/week_03_highdim/choosing M.png, id=1951, 469.755pt x 366.61969pt>
+File: figures/week_03_highdim/choosing M.png Graphic file (type png)
+<use figures/week_03_highdim/choosing M.png>
+Package pdftex.def Info: figures/week_03_highdim/choosing M.png  used on input line 82.
+(pdftex.def)             Requested size: 227.62206pt x 177.6481pt.
+[40 <./figures/week_03_highdim/choosing M.png>]
+<figures/week_03_highdim/numerical_instability.png, id=1959, 356.0803pt x 368.1253pt>
+File: figures/week_03_highdim/numerical_instability.png Graphic file (type png)
+<use figures/week_03_highdim/numerical_instability.png>
+Package pdftex.def Info: figures/week_03_highdim/numerical_instability.png  used on input line 127.
+(pdftex.def)             Requested size: 227.62206pt x 235.31853pt.
+ [41] [42 <./figures/week_03_highdim/numerical_instability.png>]
+<figures/week_03_highdim/bias_variance_MSE.png, id=1976, 581.92406pt x 346.29375pt>
+File: figures/week_03_highdim/bias_variance_MSE.png Graphic file (type png)
+<use figures/week_03_highdim/bias_variance_MSE.png>
+Package pdftex.def Info: figures/week_03_highdim/bias_variance_MSE.png  used on input line 182.
+(pdftex.def)             Requested size: 341.43307pt x 203.18604pt.
+ [43 <./figures/week_03_highdim/bias_variance_MSE.png>]
+<figures/week_03_highdim/image_2.png, id=1983, 264.99pt x 194.97844pt>
+File: figures/week_03_highdim/image_2.png Graphic file (type png)
+<use figures/week_03_highdim/image_2.png>
+Package pdftex.def Info: figures/week_03_highdim/image_2.png  used on input line 221.
+(pdftex.def)             Requested size: 159.33821pt x 117.24084pt.
+ [44 <./figures/week_03_highdim/image_2.png>] [45] [46] [47] [48] [49] [50] [51] [52] [53]
+<figures/week_03_highdim/image.png, id=2045, 542.025pt x 188.20313pt>
+File: figures/week_03_highdim/image.png Graphic file (type png)
+<use figures/week_03_highdim/image.png>
+Package pdftex.def Info: figures/week_03_highdim/image.png  used on input line 633.
+(pdftex.def)             Requested size: 227.62206pt x 79.03615pt.
+ [54 <./figures/week_03_highdim/image.png>] [55] [56]
+<figures/week_03_highdim/kplot.pdf, id=2066, 505.89pt x 505.89pt>
+File: figures/week_03_highdim/kplot.pdf Graphic file (type pdf)
+<use figures/week_03_highdim/kplot.pdf>
+Package pdftex.def Info: figures/week_03_highdim/kplot.pdf  used on input line 741.
+(pdftex.def)             Requested size: 227.62206pt x 227.62523pt.
+ [57 <./figures/week_03_highdim/kplot.pdf>]
+<figures/week_03_highdim/regularised_polynomial.png, id=2086, 1079.53313pt x 416.30531pt>
+File: figures/week_03_highdim/regularised_polynomial.png Graphic file (type png)
+<use figures/week_03_highdim/regularised_polynomial.png>
+Package pdftex.def Info: figures/week_03_highdim/regularised_polynomial.png  used on input line 777.
+(pdftex.def)             Requested size: 455.24411pt x 175.55849pt.
+
+Underfull \hbox (badness 1478) in paragraph at lines 797--798
+[]\T1/cmr/bx/n/10.95 Multiple per-spec-tives\T1/cmr/m/n/10.95 : Reg-u-lar-i-sa-tion as ne-ces-sity, bias-variance trade-off,
+ []
+
+[58 <./figures/week_03_highdim/regularised_polynomial.png>]) [59] (./week_04_generalization.tex [60
+
+]
+<figures/week_04_generalization/LOOCV.png, id=2118, 443.40656pt x 285.31593pt>
+File: figures/week_04_generalization/LOOCV.png Graphic file (type png)
+<use figures/week_04_generalization/LOOCV.png>
+Package pdftex.def Info: figures/week_04_generalization/LOOCV.png  used on input line 53.
+(pdftex.def)             Requested size: 227.62206pt x 146.47133pt.
+ [61 <./figures/week_04_generalization/LOOCV.png>] [62] [63]
+<figures/week_04_generalization/CV grouping.png, id=2148, 895.09406pt x 249.18094pt>
+File: figures/week_04_generalization/CV grouping.png Graphic file (type png)
+<use figures/week_04_generalization/CV grouping.png>
+Package pdftex.def Info: figures/week_04_generalization/CV grouping.png  used on input line 170.
+(pdftex.def)             Requested size: 455.24411pt x 126.73459pt.
+ [64 <./figures/week_04_generalization/CV grouping.png>] [65] [66] [67] [68]
+<figures/week_04_generalization/venn diags.png, id=2181, 753.5653pt x 214.55156pt>
+File: figures/week_04_generalization/venn diags.png Graphic file (type png)
+<use figures/week_04_generalization/venn diags.png>
+Package pdftex.def Info: figures/week_04_generalization/venn diags.png  used on input line 344.
+(pdftex.def)             Requested size: 341.43307pt x 97.2086pt.
+ [69 <./figures/week_04_generalization/venn diags.png>] [70] [71]
+<figures/week_04_generalization/shattering.png, id=2207, 569.87906pt x 286.82156pt>
+File: figures/week_04_generalization/shattering.png Graphic file (type png)
+<use figures/week_04_generalization/shattering.png>
+Package pdftex.def Info: figures/week_04_generalization/shattering.png  used on input line 470.
+(pdftex.def)             Requested size: 227.62206pt x 114.56027pt.
+<figures/week_04_generalization/shattering 2.png, id=2208, 614.295pt x 275.52937pt>
+File: figures/week_04_generalization/shattering 2.png Graphic file (type png)
+<use figures/week_04_generalization/shattering 2.png>
+Package pdftex.def Info: figures/week_04_generalization/shattering 2.png  used on input line 477.
+(pdftex.def)             Requested size: 227.62206pt x 102.09561pt.
+<figures/week_04_generalization/shattering 3.png, id=2209, 489.32813pt x 272.51813pt>
+File: figures/week_04_generalization/shattering 3.png Graphic file (type png)
+<use figures/week_04_generalization/shattering 3.png>
+Package pdftex.def Info: figures/week_04_generalization/shattering 3.png  used on input line 487.
+(pdftex.def)             Requested size: 211.97308pt x 118.05374pt.
+ [72 <./figures/week_04_generalization/shattering.png> <./figures/week_04_generalization/shattering 2.png>] [73 <./figures/week_04_generalization/shattering 3.png>] [74]
+<figures/week_04_generalization/SVD1.png, id=2234, 451.6875pt x 174.6525pt>
+File: figures/week_04_generalization/SVD1.png Graphic file (type png)
+<use figures/week_04_generalization/SVD1.png>
+Package pdftex.def Info: figures/week_04_generalization/SVD1.png  used on input line 584.
+(pdftex.def)             Requested size: 227.62206pt x 88.01625pt.
+<figures/week_04_generalization/SVD2.png, id=2235, 402.75468pt x 361.35pt>
+File: figures/week_04_generalization/SVD2.png Graphic file (type png)
+<use figures/week_04_generalization/SVD2.png>
+Package pdftex.def Info: figures/week_04_generalization/SVD2.png  used on input line 591.
+(pdftex.def)             Requested size: 227.62206pt x 204.21826pt.
+ [75 <./figures/week_04_generalization/SVD1.png> <./figures/week_04_generalization/SVD2.png>]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 615.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\ll' on input line 615.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 615.
+
+<figures/week_04_generalization/low dim.png, id=2245, 970.3753pt x 514.92375pt>
+File: figures/week_04_generalization/low dim.png Graphic file (type png)
+<use figures/week_04_generalization/low dim.png>
+Package pdftex.def Info: figures/week_04_generalization/low dim.png  used on input line 630.
+(pdftex.def)             Requested size: 455.24411pt x 241.57419pt.
+[76]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 643.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 643.
+
+<figures/week_04_generalization/high dim.png, id=2251, 1037.37563pt x 532.99126pt>
+File: figures/week_04_generalization/high dim.png Graphic file (type png)
+<use figures/week_04_generalization/high dim.png>
+Package pdftex.def Info: figures/week_04_generalization/high dim.png  used on input line 656.
+(pdftex.def)             Requested size: 341.43307pt x 175.42409pt.
+[77 <./figures/week_04_generalization/low dim.png>]
+<figures/week_04_generalization/bias_variance_MSE.png, id=2259, 581.92406pt x 346.29375pt>
+File: figures/week_04_generalization/bias_variance_MSE.png Graphic file (type png)
+<use figures/week_04_generalization/bias_variance_MSE.png>
+Package pdftex.def Info: figures/week_04_generalization/bias_variance_MSE.png  used on input line 699.
+(pdftex.def)             Requested size: 364.19667pt x 216.72896pt.
+ [78 <./figures/week_04_generalization/high dim.png>] [79 <./figures/week_04_generalization/bias_variance_MSE.png>]
+<figures/week_04_generalization/choosing M.png, id=2276, 469.755pt x 366.61969pt>
+File: figures/week_04_generalization/choosing M.png Graphic file (type png)
+<use figures/week_04_generalization/choosing M.png>
+Package pdftex.def Info: figures/week_04_generalization/choosing M.png  used on input line 753.
+(pdftex.def)             Requested size: 318.66948pt x 248.70511pt.
+ [80 <./figures/week_04_generalization/choosing M.png>]) [81] [82] (./week_05_overfitting.tex
+
+! Package pgfkeys Error: I do not know the key '/tcb/Loss' and I am going to ignore it. Perhaps you misspelled it.
+
+See the pgfkeys package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.22 ...ip Between Risk, Loss, and Bias-Variance}]
+                                                  
+This error message was generated by an \errmessage
+command, so I can't give any explicit help.
+Pretend that you're Hercule Poirot: Examine all clues,
+and deduce the truth by order and method.
+
+
+! Package pgfkeys Error: I do not know the key '/tcb/and Bias-Variance' and I am going to ignore it. Perhaps you misspelled it.
+
+See the pgfkeys package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.22 ...ip Between Risk, Loss, and Bias-Variance}]
+                                                  
+(That was another \errmessage.)
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 32.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\ll' on input line 32.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 32.
+
+[83
+
+]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 57.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\gg' on input line 57.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 57.
+
+[84]
+
+! Package pgfkeys Error: I do not know the key '/tcb/Sample Size Does Not Help Much' and I am going to ignore it. Perhaps you misspelled it.
+
+See the pgfkeys package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.93 ...e Margin, Sample Size Does Not Help Much}]
+                                                  
+(That was another \errmessage.)
+
+[85]
+<figures/week_05_overfitting/double descent.png, id=2314, 1179.65718pt x 269.50688pt>
+File: figures/week_05_overfitting/double descent.png Graphic file (type png)
+<use figures/week_05_overfitting/double descent.png>
+Package pdftex.def Info: figures/week_05_overfitting/double descent.png  used on input line 144.
+(pdftex.def)             Requested size: 455.24411pt x 104.00514pt.
+ [86 <./figures/week_05_overfitting/double descent.png>] [87]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 201.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 201.
+
+<figures/week_05_overfitting/interpolation_threshold.png, id=2328, 622.57594pt x 282.30469pt>
+File: figures/week_05_overfitting/interpolation_threshold.png Graphic file (type png)
+<use figures/week_05_overfitting/interpolation_threshold.png>
+Package pdftex.def Info: figures/week_05_overfitting/interpolation_threshold.png  used on input line 210.
+(pdftex.def)             Requested size: 341.43307pt x 154.82436pt.
+[88 <./figures/week_05_overfitting/interpolation_threshold.png>]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 249.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 249.
+
+<figures/week_05_overfitting/ksplit.png, id=2335, 1104.37593pt x 609.02531pt>
+File: figures/week_05_overfitting/ksplit.png Graphic file (type png)
+<use figures/week_05_overfitting/ksplit.png>
+Package pdftex.def Info: figures/week_05_overfitting/ksplit.png  used on input line 274.
+(pdftex.def)             Requested size: 455.24411pt x 251.04947pt.
+[89] [90 <./figures/week_05_overfitting/ksplit.png>] [91] [92] [93] [94] [95]) [96] [97] (./week_06_kernels.tex [98
+
+]
+<figures/week_06_kernels/dot product.png, id=2410, 550.055pt x 184.69pt>
+File: figures/week_06_kernels/dot product.png Graphic file (type png)
+<use figures/week_06_kernels/dot product.png>
+Package pdftex.def Info: figures/week_06_kernels/dot product.png  used on input line 77.
+(pdftex.def)             Requested size: 341.43307pt x 114.64468pt.
+ [99 <./figures/week_06_kernels/dot product.png>] [100]
+<figures/week_06_kernels/covariance issues.png, id=2424, 500.62032pt x 350.81062pt>
+File: figures/week_06_kernels/covariance issues.png Graphic file (type png)
+<use figures/week_06_kernels/covariance issues.png>
+Package pdftex.def Info: figures/week_06_kernels/covariance issues.png  used on input line 133.
+(pdftex.def)             Requested size: 227.62206pt x 159.50667pt.
+ [101 <./figures/week_06_kernels/covariance issues.png>] [102] [103] [104]
+<figures/week_06_kernels/kernels.png, id=2448, 618.05907pt x 447.92343pt>
+File: figures/week_06_kernels/kernels.png Graphic file (type png)
+<use figures/week_06_kernels/kernels.png>
+Package pdftex.def Info: figures/week_06_kernels/kernels.png  used on input line 298.
+(pdftex.def)             Requested size: 227.62206pt x 164.96358pt.
+ [105]
+<figures/week_06_kernels/manifpulating_kernels.png, id=2453, 1190.19656pt x 627.09282pt>
+File: figures/week_06_kernels/manifpulating_kernels.png Graphic file (type png)
+<use figures/week_06_kernels/manifpulating_kernels.png>
+Package pdftex.def Info: figures/week_06_kernels/manifpulating_kernels.png  used on input line 321.
+(pdftex.def)             Requested size: 455.24411pt x 239.85744pt.
+ [106 <./figures/week_06_kernels/kernels.png>]
+<figures/week_06_kernels/combining kernels.png, id=2460, 1284.8pt x 354.32375pt>
+File: figures/week_06_kernels/combining kernels.png Graphic file (type png)
+<use figures/week_06_kernels/combining kernels.png>
+Package pdftex.def Info: figures/week_06_kernels/combining kernels.png  used on input line 352.
+(pdftex.def)             Requested size: 455.24411pt x 125.54521pt.
+ [107 <./figures/week_06_kernels/manifpulating_kernels.png>] [108 <./figures/week_06_kernels/combining kernels.png>]
+<figures/week_06_kernels/kernel_1.png, id=2474, 1255.69125pt x 302.12875pt>
+File: figures/week_06_kernels/kernel_1.png Graphic file (type png)
+<use figures/week_06_kernels/kernel_1.png>
+Package pdftex.def Info: figures/week_06_kernels/kernel_1.png  used on input line 431.
+(pdftex.def)             Requested size: 455.24411pt x 109.53154pt.
+ [109]
+<figures/week_06_kernels/kernel_2.png, id=2479, 937.5025pt x 269.005pt>
+File: figures/week_06_kernels/kernel_2.png Graphic file (type png)
+<use figures/week_06_kernels/kernel_2.png>
+Package pdftex.def Info: figures/week_06_kernels/kernel_2.png  used on input line 438.
+(pdftex.def)             Requested size: 455.24411pt x 130.62323pt.
+ [110 <./figures/week_06_kernels/kernel_1.png> <./figures/week_06_kernels/kernel_2.png>]
+<figures/week_06_kernels/vol_dim_table.png, id=2491, 629.35126pt x 377.15906pt>
+File: figures/week_06_kernels/vol_dim_table.png Graphic file (type png)
+<use figures/week_06_kernels/vol_dim_table.png>
+Package pdftex.def Info: figures/week_06_kernels/vol_dim_table.png  used on input line 480.
+(pdftex.def)             Requested size: 227.62206pt x 136.4102pt.
+<figures/week_06_kernels/vol_dim_graph.png, id=2492, 491.58656pt x 370.38374pt>
+File: figures/week_06_kernels/vol_dim_graph.png Graphic file (type png)
+<use figures/week_06_kernels/vol_dim_graph.png>
+Package pdftex.def Info: figures/week_06_kernels/vol_dim_graph.png  used on input line 487.
+(pdftex.def)             Requested size: 227.62206pt x 171.50325pt.
+ [111 <./figures/week_06_kernels/vol_dim_table.png>] [112 <./figures/week_06_kernels/vol_dim_graph.png>]
+<figures/week_06_kernels/meme.png, id=2508, 694.84593pt x 575.14874pt>
+File: figures/week_06_kernels/meme.png Graphic file (type png)
+<use figures/week_06_kernels/meme.png>
+Package pdftex.def Info: figures/week_06_kernels/meme.png  used on input line 540.
+(pdftex.def)             Requested size: 182.09486pt x 150.71991pt.
+) [113 <./figures/week_06_kernels/meme.png>] (./week_06_fairness_qual.tex
+<figures/week_06_fairness_qual/context.png, id=2520, 713.66624pt x 225.84375pt>
+File: figures/week_06_fairness_qual/context.png Graphic file (type png)
+<use figures/week_06_fairness_qual/context.png>
+Package pdftex.def Info: figures/week_06_fairness_qual/context.png  used on input line 25.
+(pdftex.def)             Requested size: 227.62206pt x 72.03024pt.
+<figures/week_06_fairness_qual/turkish example.png, id=2521, 1134.2375pt x 604.2575pt>
+File: figures/week_06_fairness_qual/turkish example.png Graphic file (type png)
+<use figures/week_06_fairness_qual/turkish example.png>
+Package pdftex.def Info: figures/week_06_fairness_qual/turkish example.png  used on input line 44.
+(pdftex.def)             Requested size: 227.62206pt x 121.25505pt.
+ [114
+
+ <./figures/week_06_fairness_qual/context.png>] [115 <./figures/week_06_fairness_qual/turkish example.png>] [116] [117] [118] [119] [120] [121] [122] [123] [124] [125]) [126] [127] (./week_07_fairness_quant.tex [128
+
+]
+<figures/week_07_fairness_quant/confmatrix.png, id=2616, 228.10219pt x 224.33812pt>
+File: figures/week_07_fairness_quant/confmatrix.png Graphic file (type png)
+<use figures/week_07_fairness_quant/confmatrix.png>
+Package pdftex.def Info: figures/week_07_fairness_quant/confmatrix.png  used on input line 77.
+(pdftex.def)             Requested size: 136.57462pt x 134.32321pt.
+ [129 <./figures/week_07_fairness_quant/confmatrix.png>]
+<figures/week_07_fairness_quant/ROC curve.png, id=2623, 501.875pt x 486.81876pt>
+File: figures/week_07_fairness_quant/ROC curve.png Graphic file (type png)
+<use figures/week_07_fairness_quant/ROC curve.png>
+Package pdftex.def Info: figures/week_07_fairness_quant/ROC curve.png  used on input line 119.
+(pdftex.def)             Requested size: 227.62206pt x 220.7972pt.
+ [130] [131 <./figures/week_07_fairness_quant/ROC curve.png>]
+<figures/week_07_fairness_quant/sensitive features.png, id=2638, 1106.1325pt x 515.9275pt>
+File: figures/week_07_fairness_quant/sensitive features.png Graphic file (type png)
+<use figures/week_07_fairness_quant/sensitive features.png>
+Package pdftex.def Info: figures/week_07_fairness_quant/sensitive features.png  used on input line 177.
+(pdftex.def)             Requested size: 341.43307pt x 159.25096pt.
+ [132] [133 <./figures/week_07_fairness_quant/sensitive features.png>] [134]
+<figures/week_07_fairness_quant/roc1.png, id=2661, 568.1225pt x 536.0025pt>
+File: figures/week_07_fairness_quant/roc1.png Graphic file (type png)
+<use figures/week_07_fairness_quant/roc1.png>
+Package pdftex.def Info: figures/week_07_fairness_quant/roc1.png  used on input line 281.
+(pdftex.def)             Requested size: 227.62206pt x 214.75706pt.
+ [135]
+<figures/week_07_fairness_quant/image.png, id=2672, 576.1525pt x 548.0475pt>
+File: figures/week_07_fairness_quant/image.png Graphic file (type png)
+<use figures/week_07_fairness_quant/image.png>
+Package pdftex.def Info: figures/week_07_fairness_quant/image.png  used on input line 288.
+(pdftex.def)             Requested size: 227.62206pt x 216.52238pt.
+ [136 <./figures/week_07_fairness_quant/roc1.png> <./figures/week_07_fairness_quant/image.png>]
+<figures/week_07_fairness_quant/calibration.png, id=2681, 613.54219pt x 249.93375pt>
+File: figures/week_07_fairness_quant/calibration.png Graphic file (type png)
+<use figures/week_07_fairness_quant/calibration.png>
+Package pdftex.def Info: figures/week_07_fairness_quant/calibration.png  used on input line 312.
+(pdftex.def)             Requested size: 341.43307pt x 139.08861pt.
+ [137 <./figures/week_07_fairness_quant/calibration.png>]
+<figures/week_07_fairness_quant/ROC curves for fairness.png, id=2690, 547.2947pt x 404.26031pt>
+File: figures/week_07_fairness_quant/ROC curves for fairness.png Graphic file (type png)
+<use figures/week_07_fairness_quant/ROC curves for fairness.png>
+Package pdftex.def Info: figures/week_07_fairness_quant/ROC curves for fairness.png  used on input line 376.
+(pdftex.def)             Requested size: 227.62206pt x 168.13501pt.
+ [138] [139 <./figures/week_07_fairness_quant/ROC curves for fairness.png>]) [140] (./week_07_trees.tex
+<figures/week_07_trees/tree.png, id=2714, 995.72pt x 576.1525pt>
+File: figures/week_07_trees/tree.png Graphic file (type png)
+<use figures/week_07_trees/tree.png>
+Package pdftex.def Info: figures/week_07_trees/tree.png  used on input line 23.
+(pdftex.def)             Requested size: 273.14923pt x 158.05121pt.
+ [141
+
+ <./figures/week_07_trees/tree.png>] [142] [143]
+<figures/week_07_trees/variance learners.png, id=2735, 1278.7775pt x 981.6675pt>
+File: figures/week_07_trees/variance learners.png Graphic file (type png)
+<use figures/week_07_trees/variance learners.png>
+Package pdftex.def Info: figures/week_07_trees/variance learners.png  used on input line 109.
+(pdftex.def)             Requested size: 250.38564pt x 192.21078pt.
+<figures/week_07_trees/unique value.png, id=2736, 290.58563pt x 272.51813pt>
+File: figures/week_07_trees/unique value.png Graphic file (type png)
+<use figures/week_07_trees/unique value.png>
+Package pdftex.def Info: figures/week_07_trees/unique value.png  used on input line 127.
+(pdftex.def)             Requested size: 227.62206pt x 213.47394pt.
+ [144 <./figures/week_07_trees/variance learners.png>]
+<figures/week_07_trees/thresholding.png, id=2745, 557.08125pt x 215.30438pt>
+File: figures/week_07_trees/thresholding.png Graphic file (type png)
+<use figures/week_07_trees/thresholding.png>
+Package pdftex.def Info: figures/week_07_trees/thresholding.png  used on input line 146.
+(pdftex.def)             Requested size: 250.38564pt x 96.76779pt.
+ [145 <./figures/week_07_trees/unique value.png>] [146 <./figures/week_07_trees/thresholding.png>]
+<figures/week_07_trees/recursive greedy.png, id=2758, 1359.0775pt x 889.3225pt>
+File: figures/week_07_trees/recursive greedy.png Graphic file (type png)
+<use figures/week_07_trees/recursive greedy.png>
+Package pdftex.def Info: figures/week_07_trees/recursive greedy.png  used on input line 214.
+(pdftex.def)             Requested size: 250.38564pt x 163.83002pt.
+ [147] [148 <./figures/week_07_trees/recursive greedy.png>] [149]
+<figures/week_07_trees/pruning.png, id=2783, 1174.3875pt x 907.39pt>
+File: figures/week_07_trees/pruning.png Graphic file (type png)
+<use figures/week_07_trees/pruning.png>
+Package pdftex.def Info: figures/week_07_trees/pruning.png  used on input line 294.
+(pdftex.def)             Requested size: 250.38564pt x 193.45126pt.
+ [150 <./figures/week_07_trees/pruning.png>] [151]
+<figures/week_07_trees/bagging.png, id=2802, 1114.1625pt x 748.7975pt>
+File: figures/week_07_trees/bagging.png Graphic file (type png)
+<use figures/week_07_trees/bagging.png>
+Package pdftex.def Info: figures/week_07_trees/bagging.png  used on input line 364.
+(pdftex.def)             Requested size: 273.14923pt x 183.56554pt.
+ [152 <./figures/week_07_trees/bagging.png>]
+<figures/week_07_trees/rand forest.png, id=2812, 718.685pt x 447.6725pt>
+File: figures/week_07_trees/rand forest.png Graphic file (type png)
+<use figures/week_07_trees/rand forest.png>
+Package pdftex.def Info: figures/week_07_trees/rand forest.png  used on input line 423.
+(pdftex.def)             Requested size: 250.38564pt x 155.96364pt.
+ [153] [154 <./figures/week_07_trees/rand forest.png>]) [155] (./week_08_boosting.tex [156
+
+] [157]
+<figures/week_08_boosting/boosting.png, id=2854, 879.285pt x 853.1875pt>
+File: figures/week_08_boosting/boosting.png Graphic file (type png)
+<use figures/week_08_boosting/boosting.png>
+Package pdftex.def Info: figures/week_08_boosting/boosting.png  used on input line 85.
+(pdftex.def)             Requested size: 386.96027pt x 375.46875pt.
+ [158 <./figures/week_08_boosting/boosting.png>] [159] [160]
+<figures/week_08_boosting/loss functions.png, id=2878, 511.9125pt x 407.5225pt>
+File: figures/week_08_boosting/loss functions.png Graphic file (type png)
+<use figures/week_08_boosting/loss functions.png>
+Package pdftex.def Info: figures/week_08_boosting/loss functions.png  used on input line 234.
+(pdftex.def)             Requested size: 250.38564pt x 199.3271pt.
+ [161] [162 <./figures/week_08_boosting/loss functions.png>] [163] [164] [165] [166] [167]
+<figures/week_08_boosting/spam.png, id=2916, 666.49pt x 859.21pt>
+File: figures/week_08_boosting/spam.png Graphic file (type png)
+<use figures/week_08_boosting/spam.png>
+Package pdftex.def Info: figures/week_08_boosting/spam.png  used on input line 518.
+(pdftex.def)             Requested size: 227.62206pt x 293.43858pt.
+ [168]
+<figures/week_08_boosting/number id.png, id=2922, 626.34pt x 443.6575pt>
+File: figures/week_08_boosting/number id.png Graphic file (type png)
+<use figures/week_08_boosting/number id.png>
+Package pdftex.def Info: figures/week_08_boosting/number id.png  used on input line 531.
+(pdftex.def)             Requested size: 227.62206pt x 161.23297pt.
+ [169 <./figures/week_08_boosting/spam.png> <./figures/week_08_boosting/number id.png>]
+<figures/week_08_boosting/partial dependency.png, id=2931, 1306.8825pt x 491.8375pt>
+File: figures/week_08_boosting/partial dependency.png Graphic file (type png)
+<use figures/week_08_boosting/partial dependency.png>
+Package pdftex.def Info: figures/week_08_boosting/partial dependency.png  used on input line 565.
+(pdftex.def)             Requested size: 341.43307pt x 128.49013pt.
+ [170 <./figures/week_08_boosting/partial dependency.png>] [171]) [172] (./week_08_sampling.tex [173
+
+] [174] [175] [176] [177]
+<figures/week_08_sampling/uncertaintysampling.png, id=2989, 1296.845pt x 572.1375pt>
+File: figures/week_08_sampling/uncertaintysampling.png Graphic file (type png)
+<use figures/week_08_sampling/uncertaintysampling.png>
+Package pdftex.def Info: figures/week_08_sampling/uncertaintysampling.png  used on input line 203.
+(pdftex.def)             Requested size: 455.24411pt x 200.84476pt.
+ [178 <./figures/week_08_sampling/uncertaintysampling.png>] [179] [180] [181] [182]
+<figures/week_08_sampling/Rff.png, id=3013, 1445.4pt x 367.3725pt>
+File: figures/week_08_sampling/Rff.png Graphic file (type png)
+<use figures/week_08_sampling/Rff.png>
+Package pdftex.def Info: figures/week_08_sampling/Rff.png  used on input line 396.
+(pdftex.def)             Requested size: 455.24411pt x 115.70612pt.
+<figures/week_08_sampling/rff2.png, id=3014, 337.26pt x 484.05844pt>
+File: figures/week_08_sampling/rff2.png Graphic file (type png)
+<use figures/week_08_sampling/rff2.png>
+Package pdftex.def Info: figures/week_08_sampling/rff2.png  used on input line 403.
+(pdftex.def)             Requested size: 273.14923pt x 392.04825pt.
+ [183 <./figures/week_08_sampling/Rff.png>] [184 <./figures/week_08_sampling/rff2.png>] [185]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 479.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\epsilon' on input line 479.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 479.
+
+[186] [187] [188] [189] [190]
+<figures/week_08_sampling/AIPW.png, id=3065, 1035.87pt x 361.35pt>
+File: figures/week_08_sampling/AIPW.png Graphic file (type png)
+<use figures/week_08_sampling/AIPW.png>
+Package pdftex.def Info: figures/week_08_sampling/AIPW.png  used on input line 690.
+(pdftex.def)             Requested size: 341.43307pt x 119.10251pt.
+ [191 <./figures/week_08_sampling/AIPW.png>] [192]) [193] (./week_09_uncertainty.tex [194
+
+]
+<figures/week_09_uncertainty/GP.png, id=3089, 833.1125pt x 694.595pt>
+File: figures/week_09_uncertainty/GP.png Graphic file (type png)
+<use figures/week_09_uncertainty/GP.png>
+Package pdftex.def Info: figures/week_09_uncertainty/GP.png  used on input line 48.
+(pdftex.def)             Requested size: 227.62206pt x 189.76888pt.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 70.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 70.
+
+[195 <./figures/week_09_uncertainty/GP.png>]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 80.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 80.
+
+[196] [197]
+<figures/week_09_uncertainty/marginals and conditionals.png, id=3107, 1023.825pt x 1011.78pt>
+File: figures/week_09_uncertainty/marginals and conditionals.png Graphic file (type png)
+<use figures/week_09_uncertainty/marginals and conditionals.png>
+Package pdftex.def Info: figures/week_09_uncertainty/marginals and conditionals.png  used on input line 165.
+(pdftex.def)             Requested size: 227.62206pt x 224.93893pt.
+ [198]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 184.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\mu' on input line 184.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 184.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 184.
+
+[199 <./figures/week_09_uncertainty/marginals and conditionals.png>]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 208.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\Sigma' on input line 208.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 208.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 208.
+
+[200]
+<figures/week_09_uncertainty/GP_2.png, id=3129, 1148.29pt x 843.15pt>
+File: figures/week_09_uncertainty/GP_2.png Graphic file (type png)
+<use figures/week_09_uncertainty/GP_2.png>
+Package pdftex.def Info: figures/week_09_uncertainty/GP_2.png  used on input line 254.
+(pdftex.def)             Requested size: 341.43307pt x 250.6955pt.
+ [201 <./figures/week_09_uncertainty/GP_2.png>]
+<figures/week_09_uncertainty/GP variance.png, id=3136, 1312.905pt x 437.635pt>
+File: figures/week_09_uncertainty/GP variance.png Graphic file (type png)
+<use figures/week_09_uncertainty/GP variance.png>
+Package pdftex.def Info: figures/week_09_uncertainty/GP variance.png  used on input line 284.
+(pdftex.def)             Requested size: 341.43307pt x 113.80913pt.
+ [202 <./figures/week_09_uncertainty/GP variance.png>] [203] [204] [205] [206] [207]) [208] (./week_10_neural_nets.tex [209
+
+]
+<figures/week_10_neural_nets/peceptron.png, id=3211, 1765.59625pt x 2258.4375pt>
+File: figures/week_10_neural_nets/peceptron.png Graphic file (type png)
+<use figures/week_10_neural_nets/peceptron.png>
+Package pdftex.def Info: figures/week_10_neural_nets/peceptron.png  used on input line 66.
+(pdftex.def)             Requested size: 227.62206pt x 291.16046pt.
+ [210 <./figures/week_10_neural_nets/peceptron.png>]
+<figures/week_10_neural_nets/XOR.png, id=3223, 517.935pt x 349.305pt>
+File: figures/week_10_neural_nets/XOR.png Graphic file (type png)
+<use figures/week_10_neural_nets/XOR.png>
+Package pdftex.def Info: figures/week_10_neural_nets/XOR.png  used on input line 118.
+(pdftex.def)             Requested size: 227.62206pt x 153.51344pt.
+ [211]
+<figures/week_10_neural_nets/infinite hyperplane.png, id=3230, 1260.71pt x 946.53625pt>
+File: figures/week_10_neural_nets/infinite hyperplane.png Graphic file (type png)
+<use figures/week_10_neural_nets/infinite hyperplane.png>
+Package pdftex.def Info: figures/week_10_neural_nets/infinite hyperplane.png  used on input line 131.
+(pdftex.def)             Requested size: 227.62206pt x 170.88911pt.
+ [212 <./figures/week_10_neural_nets/XOR.png> <./figures/week_10_neural_nets/infinite hyperplane.png>] [213] [214]
+<figures/week_10_neural_nets/activation functions1.png, id=3254, 624.3325pt x 399.4925pt>
+File: figures/week_10_neural_nets/activation functions1.png Graphic file (type png)
+<use figures/week_10_neural_nets/activation functions1.png>
+Package pdftex.def Info: figures/week_10_neural_nets/activation functions1.png  used on input line 279.
+(pdftex.def)             Requested size: 341.43307pt x 218.47801pt.
+ [215]
+<figures/week_10_neural_nets/activation function 2.png, id=3266, 618.31pt x 407.5225pt>
+File: figures/week_10_neural_nets/activation function 2.png Graphic file (type png)
+<use figures/week_10_neural_nets/activation function 2.png>
+Package pdftex.def Info: figures/week_10_neural_nets/activation function 2.png  used on input line 286.
+(pdftex.def)             Requested size: 341.43307pt x 225.03972pt.
+ [216 <./figures/week_10_neural_nets/activation functions1.png> <./figures/week_10_neural_nets/activation function 2.png>] [217]
+<figures/week_10_neural_nets/Back propagation.png, id=3282, 1507.6325pt x 337.26pt>
+File: figures/week_10_neural_nets/Back propagation.png Graphic file (type png)
+<use figures/week_10_neural_nets/Back propagation.png>
+Package pdftex.def Info: figures/week_10_neural_nets/Back propagation.png  used on input line 367.
+(pdftex.def)             Requested size: 341.43307pt x 76.37425pt.
+ [218 <./figures/week_10_neural_nets/Back propagation.png>]
+<figures/week_10_neural_nets/MLP.png, id=3292, 1507.6325pt x 337.26pt>
+File: figures/week_10_neural_nets/MLP.png Graphic file (type png)
+<use figures/week_10_neural_nets/MLP.png>
+Package pdftex.def Info: figures/week_10_neural_nets/MLP.png  used on input line 406.
+(pdftex.def)             Requested size: 341.43307pt x 76.37425pt.
+ [219 <./figures/week_10_neural_nets/MLP.png>]
+<figures/week_10_neural_nets/backpror algo.png, id=3306, 1254.18562pt x 579.66562pt>
+File: figures/week_10_neural_nets/backpror algo.png Graphic file (type png)
+<use figures/week_10_neural_nets/backpror algo.png>
+Package pdftex.def Info: figures/week_10_neural_nets/backpror algo.png  used on input line 434.
+(pdftex.def)             Requested size: 341.43307pt x 157.80316pt.
+ [220 <./figures/week_10_neural_nets/backpror algo.png>]
+Underfull \hbox (badness 5388) in paragraph at lines 492--493
+\T1/cmr/m/n/10.95 JAX pro-vides au-tod-iff through \T1/cmtt/m/n/10.95 jax.grad \T1/cmr/m/n/10.95 and re-lated func-tions, trans-form-ing
+ []
+
+<figures/week_10_neural_nets/MLP Recipe.png, id=3317, 1127.71312pt x 595.47469pt>
+File: figures/week_10_neural_nets/MLP Recipe.png Graphic file (type png)
+<use figures/week_10_neural_nets/MLP Recipe.png>
+Package pdftex.def Info: figures/week_10_neural_nets/MLP Recipe.png  used on input line 501.
+(pdftex.def)             Requested size: 432.48051pt x 228.36346pt.
+[221] [222 <./figures/week_10_neural_nets/MLP Recipe.png>] [223] [224]
+<figures/week_10_neural_nets/univerasal expression.png, id=3352, 1264.725pt x 405.515pt>
+File: figures/week_10_neural_nets/univerasal expression.png Graphic file (type png)
+<use figures/week_10_neural_nets/univerasal expression.png>
+Package pdftex.def Info: figures/week_10_neural_nets/univerasal expression.png  used on input line 670.
+(pdftex.def)             Requested size: 432.48051pt x 138.66528pt.
+ [225] [226 <./figures/week_10_neural_nets/univerasal expression.png>]
+<figures/week_10_neural_nets/MLP is a GP.png, id=3364, 1318.9275pt x 977.6525pt>
+File: figures/week_10_neural_nets/MLP is a GP.png Graphic file (type png)
+<use figures/week_10_neural_nets/MLP is a GP.png>
+Package pdftex.def Info: figures/week_10_neural_nets/MLP is a GP.png  used on input line 715.
+(pdftex.def)             Requested size: 227.62206pt x 168.71982pt.
+ [227 <./figures/week_10_neural_nets/MLP is a GP.png>] [228]
+<figures/week_10_neural_nets/gradient clipping.png, id=3383, 907.39pt x 222.8325pt>
+File: figures/week_10_neural_nets/gradient clipping.png Graphic file (type png)
+<use figures/week_10_neural_nets/gradient clipping.png>
+Package pdftex.def Info: figures/week_10_neural_nets/gradient clipping.png  used on input line 803.
+(pdftex.def)             Requested size: 341.43307pt x 83.8476pt.
+ [229 <./figures/week_10_neural_nets/gradient clipping.png>]
+<figures/week_10_neural_nets/nonsaturating activation functions.png, id=3391, 610.28pt x 407.5225pt>
+File: figures/week_10_neural_nets/nonsaturating activation functions.png Graphic file (type png)
+<use figures/week_10_neural_nets/nonsaturating activation functions.png>
+Package pdftex.def Info: figures/week_10_neural_nets/nonsaturating activation functions.png  used on input line 834.
+(pdftex.def)             Requested size: 227.62206pt x 151.99974pt.
+ [230 <./figures/week_10_neural_nets/nonsaturating activation functions.png>] [231] [232]
+<figures/week_10_neural_nets/regularization.png, id=3419, 1160.335pt x 515.9275pt>
+File: figures/week_10_neural_nets/regularization.png Graphic file (type png)
+<use figures/week_10_neural_nets/regularization.png>
+Package pdftex.def Info: figures/week_10_neural_nets/regularization.png  used on input line 970.
+(pdftex.def)             Requested size: 227.62206pt x 101.20769pt.
+ [233]) [234 <./figures/week_10_neural_nets/regularization.png>] [235] (./week_11_neural_nets_ii.tex [236
+
+] [237] [238]
+<figures/week_11_neural_nets_ii/gradient_clipping_2.png, id=3471, 795.97375pt x 190.7125pt>
+File: figures/week_11_neural_nets_ii/gradient_clipping_2.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/gradient_clipping_2.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/gradient_clipping_2.png  used on input line 144.
+(pdftex.def)             Requested size: 341.43307pt x 81.80397pt.
+<figures/week_11_neural_nets_ii/activation function.png, id=3472, 610.28pt x 407.5225pt>
+File: figures/week_11_neural_nets_ii/activation function.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/activation function.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/activation function.png  used on input line 155.
+(pdftex.def)             Requested size: 341.43307pt x 228.00583pt.
+ [239 <./figures/week_11_neural_nets_ii/gradient_clipping_2.png> <./figures/week_11_neural_nets_ii/activation function.png>] [240] [241]
+<figures/week_11_neural_nets_ii/dropout.png, id=3490, 310.15875pt x 123.46124pt>
+File: figures/week_11_neural_nets_ii/dropout.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/dropout.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/dropout.png  used on input line 284.
+(pdftex.def)             Requested size: 227.62206pt x 90.60632pt.
+ [242 <./figures/week_11_neural_nets_ii/dropout.png>] [243]
+<figures/week_11_neural_nets_ii/convolution.png, id=3501, 942.52126pt x 288.07625pt>
+File: figures/week_11_neural_nets_ii/convolution.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/convolution.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/convolution.png  used on input line 359.
+(pdftex.def)             Requested size: 227.62206pt x 69.57048pt.
+<figures/week_11_neural_nets_ii/convolution 2.png, id=3502, 525.965pt x 284.06125pt>
+File: figures/week_11_neural_nets_ii/convolution 2.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/convolution 2.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/convolution 2.png  used on input line 368.
+(pdftex.def)             Requested size: 227.62206pt x 122.9328pt.
+ [244 <./figures/week_11_neural_nets_ii/convolution.png>]
+<figures/week_11_neural_nets_ii/convolution 4.png, id=3509, 597.23125pt x 77.28876pt>
+File: figures/week_11_neural_nets_ii/convolution 4.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/convolution 4.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/convolution 4.png  used on input line 377.
+(pdftex.def)             Requested size: 227.62206pt x 29.45729pt.
+<figures/week_11_neural_nets_ii/convolution 5.png, id=3510, 419.5675pt x 43.16125pt>
+File: figures/week_11_neural_nets_ii/convolution 5.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/convolution 5.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/convolution 5.png  used on input line 384.
+(pdftex.def)             Requested size: 227.62206pt x 23.41537pt.
+<figures/week_11_neural_nets_ii/convolution 6.png, id=3511, 801.99625pt x 244.915pt>
+File: figures/week_11_neural_nets_ii/convolution 6.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/convolution 6.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/convolution 6.png  used on input line 393.
+(pdftex.def)             Requested size: 227.62206pt x 69.51pt.
+ [245 <./figures/week_11_neural_nets_ii/convolution 2.png> <./figures/week_11_neural_nets_ii/convolution 4.png> <./figures/week_11_neural_nets_ii/convolution 5.png> <./figures/week_11_neural_nets_ii/convolution 6.png>]
+<figures/week_11_neural_nets_ii/Screenshot 2024-08-28 at 14.50.46.png, id=3524, 668.4975pt x 246.9225pt>
+File: figures/week_11_neural_nets_ii/Screenshot 2024-08-28 at 14.50.46.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/Screenshot 2024-08-28 at 14.50.46.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/Screenshot 2024-08-28 at 14.50.46.png  used on input line 421.
+(pdftex.def)             Requested size: 227.62206pt x 84.07686pt.
+<figures/week_11_neural_nets_ii/padding.png, id=3525, 362.35374pt x 238.8925pt>
+File: figures/week_11_neural_nets_ii/padding.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/padding.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/padding.png  used on input line 440.
+(pdftex.def)             Requested size: 227.62206pt x 150.06927pt.
+ [246 <./figures/week_11_neural_nets_ii/Screenshot 2024-08-28 at 14.50.46.png>]
+<figures/week_11_neural_nets_ii/padding 2.png, id=3535, 519.9425pt x 172.645pt>
+File: figures/week_11_neural_nets_ii/padding 2.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/padding 2.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/padding 2.png  used on input line 466.
+(pdftex.def)             Requested size: 227.62206pt x 75.5794pt.
+ [247 <./figures/week_11_neural_nets_ii/padding.png> <./figures/week_11_neural_nets_ii/padding 2.png>]
+<figures/week_11_neural_nets_ii/pooling.png, id=3544, 436.63126pt x 189.70876pt>
+File: figures/week_11_neural_nets_ii/pooling.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/pooling.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/pooling.png  used on input line 489.
+(pdftex.def)             Requested size: 227.62206pt x 98.89806pt.
+<figures/week_11_neural_nets_ii/CNN hierarchy.png, id=3545, 1467.4825pt x 525.965pt>
+File: figures/week_11_neural_nets_ii/CNN hierarchy.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/CNN hierarchy.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/CNN hierarchy.png  used on input line 508.
+(pdftex.def)             Requested size: 341.43307pt x 122.37387pt.
+ [248 <./figures/week_11_neural_nets_ii/pooling.png>] [249 <./figures/week_11_neural_nets_ii/CNN hierarchy.png>] [250] [251]
+<figures/week_11_neural_nets_ii/attention.png, id=3571, 1426.32875pt x 1503.6175pt>
+File: figures/week_11_neural_nets_ii/attention.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/attention.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/attention.png  used on input line 626.
+(pdftex.def)             Requested size: 227.62206pt x 239.9413pt.
+ [252] [253 <./figures/week_11_neural_nets_ii/attention.png>]
+<figures/week_11_neural_nets_ii/attention 2.png, id=3583, 969.6225pt x 544.0325pt>
+File: figures/week_11_neural_nets_ii/attention 2.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/attention 2.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/attention 2.png  used on input line 666.
+(pdftex.def)             Requested size: 341.43307pt x 191.5681pt.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 692.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\@ifnextchar' on input line 692.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 692.
+
+[254 <./figures/week_11_neural_nets_ii/attention 2.png>] [255]
+<figures/week_11_neural_nets_ii/self-attention.png, id=3599, 2136.98375pt x 909.3975pt>
+File: figures/week_11_neural_nets_ii/self-attention.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/self-attention.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/self-attention.png  used on input line 757.
+(pdftex.def)             Requested size: 341.43307pt x 145.28455pt.
+ [256 <./figures/week_11_neural_nets_ii/self-attention.png>] [257]) [258] (./week_12_unsupervised.tex [259
+
+] [260]
+<figures/week_12_unsupervised/PCA.png, id=3638, 1003.75pt x 401.5pt>
+File: figures/week_12_unsupervised/PCA.png Graphic file (type png)
+<use figures/week_12_unsupervised/PCA.png>
+Package pdftex.def Info: figures/week_12_unsupervised/PCA.png  used on input line 89.
+(pdftex.def)             Requested size: 341.43307pt x 136.57558pt.
+ [261] [262 <./figures/week_12_unsupervised/PCA.png>] [263] [264] [265] [266]
+<figures/week_12_unsupervised/embeddings1.png, id=3670, 685.56125pt x 393.47pt>
+File: figures/week_12_unsupervised/embeddings1.png Graphic file (type png)
+<use figures/week_12_unsupervised/embeddings1.png>
+Package pdftex.def Info: figures/week_12_unsupervised/embeddings1.png  used on input line 265.
+(pdftex.def)             Requested size: 227.62206pt x 130.638pt.
+<figures/week_12_unsupervised/embeddings2.png, id=3671, 685.56125pt x 393.47pt>
+File: figures/week_12_unsupervised/embeddings2.png Graphic file (type png)
+<use figures/week_12_unsupervised/embeddings2.png>
+Package pdftex.def Info: figures/week_12_unsupervised/embeddings2.png  used on input line 272.
+(pdftex.def)             Requested size: 227.62206pt x 130.638pt.
+<figures/week_12_unsupervised/embeddings3.png, id=3672, 685.56125pt x 393.47pt>
+File: figures/week_12_unsupervised/embeddings3.png Graphic file (type png)
+<use figures/week_12_unsupervised/embeddings3.png>
+Package pdftex.def Info: figures/week_12_unsupervised/embeddings3.png  used on input line 279.
+(pdftex.def)             Requested size: 227.62206pt x 130.638pt.
+ [267 <./figures/week_12_unsupervised/embeddings1.png> <./figures/week_12_unsupervised/embeddings2.png> <./figures/week_12_unsupervised/embeddings3.png>]
+<figures/week_12_unsupervised/embeddings4.png, id=3683, 685.56125pt x 393.47pt>
+File: figures/week_12_unsupervised/embeddings4.png Graphic file (type png)
+<use figures/week_12_unsupervised/embeddings4.png>
+Package pdftex.def Info: figures/week_12_unsupervised/embeddings4.png  used on input line 290.
+(pdftex.def)             Requested size: 227.62206pt x 130.638pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 309--309
+[]\T1/cmr/bx/n/10.95 Structure Pre-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 311--312
+[]\T1/cmr/m/n/10.95 Pre-processing, in-ter-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 311--312
+\T1/cmr/m/n/10.95 pretable axes, when
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 312--313
+[]\T1/cmr/m/n/10.95 Visualisation (small--
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 313--314
+[]\T1/cmr/m/n/10.95 Visualisation (large
+ []
+
+
+Underfull \hbox (badness 2205) in paragraph at lines 313--314
+\T1/cmr/m/n/10.95 data), pre-serves more
+ []
+
+[268 <./figures/week_12_unsupervised/embeddings4.png>] [269]
+<figures/week_12_unsupervised/autoencoder.png, id=3694, 574.145pt x 533.995pt>
+File: figures/week_12_unsupervised/autoencoder.png Graphic file (type png)
+<use figures/week_12_unsupervised/autoencoder.png>
+Package pdftex.def Info: figures/week_12_unsupervised/autoencoder.png  used on input line 368.
+(pdftex.def)             Requested size: 273.14923pt x 254.04951pt.
+ [270 <./figures/week_12_unsupervised/autoencoder.png>] [271] [272] [273]) [274] (./main.aux)
+ ***********
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+ ***********
+
+
+LaTeX Warning: There were multiply-defined labels.
+
+Package rerunfilecheck Info: File `main.out' has not changed.
+(rerunfilecheck)             Checksum: 9086D3900A7526CFCEA6BFC7C9122113;82623.
+ ) 
+Here is how much of TeX's memory you used:
+ 26534 strings out of 469519
+ 519433 string characters out of 5469078
+ 855323 words of memory out of 5000000
+ 53416 multiletter control sequences out of 15000+600000
+ 654207 words of font info for 110 fonts, out of 8000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 103i,18n,121p,660b,643s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm0600.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm0800.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1200.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecti1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1440.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm0900.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecti1000.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbi1000.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1200.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1440.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1728.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx2488.600pk></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on main.pdf (275 pages, 16865457 bytes).
+PDF statistics:
+ 4732 PDF objects out of 5155 (max. 8388607)
+ 3590 compressed objects within 36 object streams
+ 1334 named destinations out of 1440 (max. 500000)
+ 3853 words of extra memory for PDF output out of 10000 (max. 10000000)
+

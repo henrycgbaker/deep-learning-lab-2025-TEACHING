@@ -1,0 +1,588 @@
+%\documentclass[xcolor=dvipsnames]{beamer}
+\documentclass[xcolor=dvipsnames,handout]{beamer}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\usepackage{etex}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epsfig}
+\usepackage[english]{babel}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{fancyvrb}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{epsdice}
+
+\hypersetup{
+    colorlinks = true
+}
+
+\definecolor{newred}{RGB}{127,0,0}
+\let\iitemize=\itemize \let\endiitemize=\enditemize \renewenvironment{itemize}{\iitemize \vspace{1mm} \itemsep2mm}{\endiitemize}
+\let\eenumerate=\enumerate \let\endeenumerate=\endenumerate \renewenvironment{enumerate}{\eenumerate \vspace{1mm} \itemsep2mm}{\endeenumerate}
+% == theme & colors
+\mode<presentation>
+{
+
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usecolortheme{beaver}
+  \setbeamercovered{invisible} %or transparent
+  \metroset{block=fill}
+  \setbeamercolor{block title example}{fg=gray!40!black}
+  \setbeamercolor{itemize item}{fg=gray!40!black} 
+  \setbeamercolor{title}{fg=newred} 
+}
+
+      
+
+
+% === tikz for pictures ===
+\usepackage{tikz}
+\usepackage[latin1]{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning}
+\usetikzlibrary{decorations.pathreplacing}
+\tikzstyle{doublearr}=[latex-latex, black, line width=0.5pt]
+
+% === if you want more than one slides on one page ===
+\usepackage{pgfpages}
+
+
+
+\title{Mathematics for Data Science}
+\subtitle[]{Lecture 2: Probability Continued; Random Variables and Their Distributions}
+\author[Asya Magazinnik]{Asya Magazinnik}
+\institute{Hertie School}
+\date{September 16, 2024}
+
+\renewcommand\r{\right}
+\renewcommand\l{\left}
+% \newcommand\sign{{\rm sign}}
+
+%% == change spacing for itemize
+%\let\oldframe\frame
+%\renewcommand{\frame}[1][1]{
+%\oldframe[#1]
+%\let\olditemize\itemize
+%\renewcommand\itemize{\olditemize\addtolength{\itemsep}{.25\baselineskip}}
+%}
+
+
+
+\def\insertnavigation#1{\relax}
+% \usefonttheme{serif}
+\usepackage[all]{xy}
+\usepackage{geometry,colortbl,wrapfig}
+\usepackage{tikz}  
+\usepackage{graphicx,setspace,subfigure}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\newcommand{\Ex}{\textsc{Example  }}
+\newcommand{\series}{\sum_{n=1}^{\infty}} 
+\newcommand{\ball}[1]{B( #1)} 
+\newcommand{\inner}[1]{\ensuremath{\langle #1 \rangle}}
+\newcommand{\e}{\epsilon}
+\newcommand{\grad}{\nabla}
+\newcommand{\pa}{\pause \item}
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+\newcommand{\R}{\mathbb{R}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+
+
+
+
+\newcommand{\indep}{{\bot\negthickspace\negthickspace\bot}}
+
+\begin{document}
+
+\subject{Talks}
+\AtBeginSection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection,currentsubsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+
+\frame[plain]{
+  \titlepage
+  \addtocounter{framenumber}{-1}
+}
+
+
+
+\section{Road Map}
+
+\begin{frame}{Where are we?}
+\vspace{2mm}
+    We are developing probability theory as a language for expressing uncertainty about events.
+\begin{itemize} \small 
+    \item Recall that this is also a theory about the process by which our data is generated. 
+\end{itemize} \pause 
+Last time, we learned all about random \alert{events}: concepts included experiments, sampling, combinations, and permutations. \\
+\vspace{5mm} \pause 
+Today, we will: 
+\begin{itemize} \small 
+    \item Add one more important concept to that list: \alert{conditional probability}.
+    \item Build a bridge from \alert{events} to \alert{random variables}, the building blocks of data.
+\end{itemize}
+\end{frame}
+
+\section{Probability Theory Continued }
+
+{
+\setbeamercolor{background canvas}{bg=white}
+\begin{frame}{Conditional Probability}
+    \textbf{Definition:} The probability of an event \textit{given} that another event has already happened. 
+    \pause 
+    \begin{itemize} \small 
+        \item In a Bayesian sense, all probabilities are conditional. Why? 
+    \end{itemize}
+\pause \vspace{5mm}
+\includegraphics[width=\textwidth]{images/pebble_cond.png}
+\end{frame}
+}
+
+\begin{frame}{Conditional Probability}
+    Formally, if $A$ and $B$ are events with $P(B)>0$, then the \alert{conditional probability} of $A$ given $B$ is defined as:
+\begin{equation*}
+    P(A|B) = \frac{P(A \cap B)}{P(B)}
+\end{equation*} \vspace{-5mm}
+\begin{itemize} \small 
+    \item where $A$ is the event we want to update,
+    \item $B$ is the evidence we want to \alert{condition on},
+    \item $P(A)$ is the \alert{prior probability},
+    \item and $P(A|B)$ is the \alert{posterior probability}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Example: Drawing Cards}
+    \textbf{Example 2.2.2} (p. 46): Two cards are drawn randomly from a standard deck, one at a time without replacement. 
+    \begin{itemize} \small 
+        \item Let $A$ be the event that the first card is a heart.
+        \item Let $B$ be the event that the second card is red.
+    \end{itemize}
+What is $P(B|A)$? \pause We can just reason about this one.
+\begin{itemize} \small 
+        \item Note that there are 52 cards in a deck, 13 of each suit (hearts, diamonds, clubs, and spades), and hearts and diamonds are red.
+    \item After a heart is drawn, $13+12=25$ red cards remain
+    \item $52-1=51$ total cards remain in the deck
+    \item So $P(B|A)$ is 25/51.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Example: Drawing Cards}
+    We can compute $P(B|A)$ using the formal definition and reach the same answer: 
+   \[ P(B|A) = \frac{P(B \cap A)}{P(A)} \]
+   \\
+  \pause \vspace{3mm}
+  By the multiplication rule and the naive definition of probability, $P(B \cap A) 
+ = \frac{13 \cdot 25}{52 \cdot 51} = \frac{25}{204}$ \pause \\ \vspace{5mm}
+ $P(A) = \frac{1}{4}$ (13 hearts in a deck of 52) \\
+ \vspace{5mm} \pause
+ Then,
+ \[P(B|A) = \cfrac{\frac{25}{204}}{\frac{1}{4}} = \frac{25}{51} \]
+\end{frame}
+
+
+\begin{frame}{Example: Drawing Cards}
+     \vspace{3mm} What about $P(A|B)$? 
+    \begin{itemize} \small
+        \item That is, the event that the first card is a heart given the second card is red
+        \item \textbf{Note:} Even though we are going ``back in time,'' this is an entirely sensible and computable quantity. \pause 
+    \end{itemize}
+    \[ P(A|B) = \frac{P(A \cap B)}{P(B)} = \cfrac{\frac{25}{204}}{\frac{1}{2}} = \frac{25}{102} \]
+\begin{itemize} \small 
+    \item \textbf{Note:} $P(A \cap B) = P(B \cap A)$, so $\frac{25}{204}$ from before
+    \item $P(B) = \frac{1}{2}$
+    \begin{itemize}
+        \item This is a little tricky. But think of it from the vantage point of \textit{before} having run the experiment.
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{A Few Notes}
+    \begin{itemize}
+        \item $P(A|B) \neq P(B|A)$ in general
+        \item Both $P(A|B)$ and $P(B|A)$ make sense, even if $A$ occurs before $B$. Conditional probability is about what \textit{information} one event gives us about the other, not whether one caused the other.
+        \item To develop more intuition about conditional probability, read \textbf{Examples 2.2.5, 2.2.6, and 2.2.7} in the text.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Bayes' Rule}
+\includegraphics[width=\textwidth]{images/bayes_rule.png}
+\end{frame}
+
+\begin{frame}{Bayes' Rule}
+    Recall the definition of conditional probability:
+    \[ P(A|B) = \frac{P(A \cap B)}{P(B)}\] \pause 
+    \[ P(B|A) = \frac{P(B \cap A)}{P(A)}\] \pause 
+    Rearranging, we get that:
+    \[ P(A \cap B) = P(A|B) P(B) = P(B|A) P(A) \]
+    since $P(A \cap B) = P(B \cap A)$. \pause And from the last two terms, we get: 
+    \[ P(A|B) = \frac{P(B|A) P(A)}{P(B)} \text{ \alert{$\leftarrow$ This is Bayes' Rule.}} \]
+\end{frame}
+
+\begin{frame}{Law of Total Probability}
+Let $A_1, ..., A_n$ be a \alert{partition} of the sample space $S$, meaning that the $A_i$'s are disjoint events and their union is $S$, with $P(A_i)>0$ for all $i$. Then,
+\begin{align*}
+P(B) &= \sum_{i=1}^n P(B | A_i) P(A_i)  \\
+&= P(B | A_1) P(A_1) + P(B | A_2) P(A_2) + ... + P(B | A_n) P(A_n)
+\end{align*}
+\end{frame}
+
+{
+\setbeamercolor{background canvas}{bg=white}
+\begin{frame}{Law of Total Probability (LOTP)}
+\vspace{2mm}    This is easiest to see with a picture; see complete proof under \textbf{Theorem 2.3.6}. \\ \vspace{3mm}
+\includegraphics[width=.9\textwidth]{images/pic_ltp.png}
+\end{frame}
+}
+
+\begin{frame}{Law of Total Probability (LOTP)}
+For more intuition, work through:
+\begin{itemize}
+    \item Proof of Theorem 2.3.6
+    \item Example 2.3.7
+    \item Example 2.3.8
+    \item Example 2.3.9
+    \item Example 2.3.10
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Example: Testing for Diseases}
+    We often use \textbf{Bayes' Rule} and the \textbf{LOTP} together. For instance, consider disease testing.
+    \begin{itemize} \small 
+        \item Let $D$ be the event that you have a disease, and suppose 1\% of the population has it at this moment
+        \item Let $T$ be the event that you test positive
+        \item Suppose the test is 95\% accurate, by which we mean:
+        \begin{align*}
+        P(T|D) &= 0.95 \text{ (\alert{sensitivity}/true positive rate)}\\
+        P(T^c | D^c) &= 0.95 \text{ (\alert{specificity}/true negative rate)}
+        \end{align*}
+    \end{itemize}
+    Suppose you test positive for the disease. What is the probability you really are infected, given the positive test result?
+\end{frame}
+
+
+\begin{frame}{Example: Testing for Diseases}
+Applying Bayes' Rule and the LOTP, we have:
+\begin{align*}
+P(D|T) &= \frac{P(T|D) P(D)}{P(T)} \\
+&= \frac{P(T|D) P(D)} {P(T|D) P(D) + P(T|D^c) P(D^c)} \\
+&= \frac{0.95 \cdot 0.01}{0.95 \cdot 0.01 + 0.05 \cdot 0.99} \\
+&= 0.16
+\end{align*}
+So there's only a 16\% probability of having the disease, even though you tested positive on a seemingly reliable test! Why so low? What is the intuition? 
+\end{frame}
+
+{
+\setbeamercolor{background canvas}{bg=white}
+\begin{frame}{Example: Testing for Diseases}
+\vspace{5mm}
+    \includegraphics[width=\textwidth]{images/bubbles_disease.png}
+\end{frame}
+}
+
+{
+\setbeamercolor{background canvas}{bg=white}
+\begin{frame}{Do Doctors Understand This?}
+\begin{center}
+    \includegraphics[width=.8\textwidth]{images/doctors.png}
+\end{center}
+\url{https://www.bbc.com/news/magazine-28166019}
+\end{frame}
+}
+
+\begin{frame}{Extra Conditioning}
+\vspace{2mm}
+Everything holds if we condition on further events. \\
+\vspace{5mm}
+\textbf{Bayes' Rule:} Provided that $P(A \cap E) >0$ and $P(B \cap E)>0$,
+\[
+P(A|B,E) = \frac{P(B|A,E)P(A|E)}{P(B|E)}
+\] \pause 
+\textbf{LOTP:} Let $A_1, ..., A_n$ be a partition of $S$. Provided that $P(A_i \cap E)>0$ for all $i$, we have:
+\[
+P(B|E) = \sum_{i=1}^n P(B|A_i, E) P(A_i|E)
+\]
+This follows from the simple fact that conditional probabilities are probabilities. 
+\end{frame}
+
+\begin{frame}{Extra Conditioning}
+For further intuition, see: 
+\begin{itemize}
+    \item Example 2.4.4
+    \item Example 2.4.5
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Independence of Events}
+    Events $A$ and $B$ are \alert{independent} if
+    \[ P(A \cap B) = P(A) \cdot P(B) \]
+    \pause
+    If $P(A)>0$ and $P(B)>0$, then this is equivalent to 
+    \[ P(A|B) = P(A) \]
+    In other words, learning that $B$ happened gives you no information whatsoever about whether $A$ happened.
+    \\ \vspace{3mm} \pause 
+    Independence is symmetric: if $A$ is independent of $B$, then $B$ is independent of $A$.
+\end{frame}
+
+\begin{frame}{Some Notes About Independence}
+    \begin{enumerate}
+        \item Independence is completely different from being disjoint
+        \begin{itemize} \small 
+            \item Independence means $A$ gives you no information about $B$
+            \item Disjoint means $P(A \cap B)=0$. Thus, knowing $A$ occurred tells you that $B$ definitely did not occur, which is information.
+            \item Disjoint events can only be independent if $P(A)=0$ or $P(B)=0$
+            \item See \textbf{2.5.2} for further detail.
+        \end{itemize}
+        \pause 
+        \item If $A$ and $B$ are independent, then $A$ and $B^c$ are independent, $A^c$ and $B$ are independent, and $A^c$ and $B^c$ are independent
+        \begin{itemize} \small
+            \item \textbf{Proof:} To show that $A$ and $B^c$ are independent, $P(B^c|A) = 1 - P(B|A) = 1 - P(B) = P(B^c)$
+            \item See \textbf{Proposition 2.5.3} for further detail.
+        \end{itemize}
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Independence of Three Events}
+Independence of three events $A$, $B$, and $C$ is satisfied if \alert{all of the following conditions hold}:
+    \begin{align} \small 
+    P(A \cap B) &= P(A) P(B) \\
+    P(A \cap C) &= P(A) P(C) \\
+    P(B \cap C) &= P(B) P(C) \\
+    P(A \cap B \cap C) &= P(A) P(B) P(C)
+    \end{align}
+    The first three conditions are called \alert{pairwise independence}. Pairwise independence alone (conditions 1-3) does \textit{not} imply independence; the fourth condition must also be satisfied.
+\end{frame}
+
+\begin{frame}{Independence of Three Events}
+    \textbf{Example 2.2.5} Consider two fair, independent coin tosses and let: 
+    \begin{itemize} \small 
+        \item     $A$ be the event that the first toss is Heads
+        \item $B$ be the event that the second toss is Heads
+        \item $C$ be the event that both tosses have the same result
+    \end{itemize}
+    Are $A$ and $B$ pairwise independent? \pause Are $A$ and $C$ pairwise independent? \pause Are $B$ and $C$ pairwise independent? \pause  Are $A$, $B$, and $C$ independent?
+\end{frame}
+
+\begin{frame}{Independence of Many Events}
+    For $n$ events $A_1$, $A_2$, ..., $A_n$ to be independent, we require:
+    \begin{itemize} \small 
+        \item Any pair to satisfy $P(A_i \cap A_j) = P(A_i) P(A_j)$ for $i \neq j$
+        \item Any triplet to satisfy $P(A_i \cap A_j \cap A_k) = P(A_i) P(A_j) P(A_k)$ for distinct $i, j, k$
+        \item And similarly all quadruplets, quintuplets, and so on...
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Conditional Independence}
+    Events $A$ and $B$ are \alert{conditionally independent} given $E$ if $P(A \cap B |E) = P(A|E) P(B|E)$.
+    \\ \vspace{5mm} \pause
+    Some important notes about conditional independence: \pause 
+      \begin{enumerate} \small 
+        \item Conditional independence given $E$ does not imply conditional independence given $E^c$ (\textbf{Example 2.5.9}) \pause 
+        \item Conditional independence does not imply independence (\textbf{Example 2.5.10}) \pause 
+        \item Independence does not imply conditional independence (\textbf{Example 2.5.11})
+    \end{enumerate}
+    Further intuition: see \textbf{Example 2.5.12}. 
+\end{frame}
+
+{
+\setbeamercolor{background canvas}{bg=white}
+\begin{frame}{The Monty Hall Problem}
+\vspace{5mm}
+\begin{center}
+\includegraphics[width=.7\textwidth]{images/monty.jpeg}
+\end{center}
+\end{frame}
+
+
+\begin{frame}{The Monty Hall Problem}
+    In this game, you are shown three closed doors. Behind two doors are goats; behind the third door is a car. You will get to keep whatever is behind a door of your choosing.
+    \begin{center}
+        \includegraphics[width=.6\textwidth]{images/goats.png}
+    \end{center}
+    You pick a door. Then, the game show host opens one of the remaining doors to reveal a goat. (The host always has to reveal a goat, never the car.) Now, he gives you a chance to switch your guess or stick to your choice. What do you do? 
+\end{frame}
+
+\begin{frame}{The Monty Hall Problem}
+\vspace{5mm}
+\begin{center}    \includegraphics[height=.8\textheight]{images/img.jpeg} 
+\end{center}
+\end{frame}
+
+\begin{frame}{The Monty Hall Problem}
+    Without loss of generality, suppose you pick Door 1 and Monty opens Door 2. What is the probability you get a car if you stick with Door 1? \pause 
+    \begin{itemize} \small 
+        \item Let $M_2$ be the event that Monty opened Door 2
+        \item Let $C_1$ be the event that the car is behind Door 1
+        \item Note that if Doors 2 and 3 both had goats, Monty had to randomly choose a door ($P(M_2|C_1)=\frac{1}{2}$). If the car was behind Door 3, Monty had to choose Door 2 with certainty ($P(M_2|C_3)=1$). 
+    \end{itemize}
+  \end{frame}
+
+
+\begin{frame}{The Monty Hall Problem}
+\vspace{2mm}
+This is a straightforward application of Bayes' Rule and the LOTP. 
+  \begin{align*}
+        P(C_1 | M_2) &= \frac{P(M_2|C_1) P(C_1) } {P(M_2)} \text{ (by Bayes' Rule)}  \\
+        &= \frac{P(M_2|C_1) P(C_1) } {P(M_2|C_1) P(C_1) + P(M_2|C_2) P(C_2) + P(M_2|C_3) P(C_3)  } \\
+        &\text{\; \; (by the LOTP)}
+        \\
+        &= \cfrac{\left( \frac{1}{2} \right) \left( \frac{1}{3} \right)} {\left( \frac{1}{2} \right) \left( \frac{1}{3} \right) + \left( 0 \right) \left( \frac{1}{3} \right) + \left(1 \right) \left( \frac{1}{3} \right)} \\
+        &= \cfrac{\frac{1}{6}}{\frac{1}{2}} = \frac{1}{3}
+    \end{align*}
+    Meaning the probability of getting a car if you switch to Door 3 is $\frac{2}{3}$!
+    \end{frame}
+
+\begin{frame}{Further Practice}
+    \begin{itemize}
+        \item     \textbf{Conditioning:} Chapter 2 Exercises 1, 2, 22, 23, 25.
+        \item \textbf{Independence and Conditional Independence:} Exercises 30, 31, 32, 35. 
+        \item \textbf{Monty Hall:} Exercise 39.
+    \end{itemize}
+
+    
+
+    (As always, these problems have detailed solutions available \href{https://projects.iq.harvard.edu/sites/projects.iq.harvard.edu/files/stat110/files/selected_solutions_blitzstein_hwang_probability_01.pdf}{here}.) 
+\end{frame}
+
+
+\section{Random Variables and Their Distributions }
+
+\begin{frame}{Random Variables}
+    \textbf{Definition:} Given an experiment with sample space $S$, a \textit{random variable} is a function from the sample space $S$ to the real numbers $\mathbb{R}$. \\ \vspace{5mm}
+    Thus, a random variable $X$ assigns a numerical value $X(s)$ to each possible outcome $s$ of the experiment.
+    \begin{itemize}
+        \item \textbf{Note:} The experiment makes $X$ random; the mapping is deterministic.
+    \end{itemize}
+    \vspace{2mm}
+    In other words: the random variable is what connects the random processes we have been learning about to \alert{data}.
+\end{frame}
+
+\begin{frame}{Some Examples of Random Variables}
+    \textbf{Example 3.1.2} Consider an experiment where we toss a fair coin twice. The sample space consists of four possible outcomes: $S = \{HH, HT, TH, TT\}$. \pause 
+    \begin{itemize}
+        \item Let $X$ be the number of heads. This assigns the values: $X(HH) = 2, X(HT) = 1, X(TH) = 1, X(TT)=0 $
+        \pause 
+         \item Let $Y$ be the number of tails. This assigns the values:
+         $Y(HH) = 0, Y(HT) = 1, Y(TH) = 1, Y(TT)=2$ \\
+        Note that $Y(s) = 2 - X(s)$ for all $s$. \pause 
+        \item Let $I$ be an indicator for whether the first toss is heads. Then $I$ assigns 1 to $HH$ and $HT$ and 0 to $TH$ and $TT$.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Discrete and Continuous Random Variables}
+\vspace{2mm}
+    \textbf{Discrete Random Variables:} 
+    A discrete random variable may take on only a countable number of distinct values such as $0,1,2,3,4,...$ Discrete random variables are usually (but not necessarily) counts. \\
+    \vspace{5mm} \pause 
+    \textbf{Continuous Random Variables:}
+    By contrast, continuous random variables can take on any real value in an interval. \\
+    \vspace{5mm} \pause
+    Check your understanding: are the following random variables discrete or continuous? 
+    \begin{itemize}
+        \item Height, weight, number of siblings, years of schooling, number of major earthquakes in the next five years, money in your bank account 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{More on Discrete Random Variables}
+    The \alert{support} of $X$ is defined as all the values $x$ such that $P(X=x)>0$. \\
+    \vspace{5mm} \pause
+    The \alert{probability mass function (PMF)} of $X$ is the function $p_X(x) = P(X=x)$. This is positive if $x$ is in the support of $X$, and 0 otherwise. 
+\end{frame}
+
+\begin{frame}{PMF: Example}
+     Returning to the coin toss example, let $X$ again be the number of heads in two coin tosses. Again, $X$ is 0 if $TT$ occurs, 1 if $HT$ or $TH$ occurs, and 2 if $HH$ occurs. Then the PMF of $X$ is:
+    \begin{align*}
+        p_X(0) = P(X=0) = 1/4 \\
+        p_X(1) = P(X=1) = 1/2 \\
+        p_X(2) = P(X=2) = 1/4 
+    \end{align*}
+    and $p_X(x)=0$ for all other values of $x$.
+    \begin{center}
+        \includegraphics[width=.3\textwidth]{images/pmf.png}
+    \end{center}
+\end{frame}
+
+ \begin{frame}{Two Properties of a Valid PMF}
+     The PMF $p_X$ of $X$ must satisfy the following two criteria: 
+     \begin{itemize}
+         \item Nonnegative: $p_X(x)>0$ if $x=x_j$ for some $j$, and $p_X(x)=0$ otherwise;
+         \item Sums to 1: $\sum_{j=1}^\infty p_X(x_j) = 1$
+     \end{itemize}
+ \end{frame}
+
+ \begin{frame}{PMF: Another Example}
+     \vspace{5mm} \includegraphics[width=\textwidth]{images/pmf_ex.png}
+ \end{frame}
+
+ \begin{frame}{The Bernoulli Distribution}
+     A random variable is said to have the \alert{Bernoulli distribution} with parameter $p$ if $P(X=1)=p$ and $P(X=0)= 1-p$, where $0<p<1$. 
+     \\ \vspace{5mm}
+     We write this as $X \sim Bern(p)$, where $p$ is the success probability.
+ \end{frame}
+
+ \begin{frame}{The Binomial Distribution}
+     The distribution of $X$ is called the \alert{Binomial distribution} with parameters $n$ and $p$ when $n$ independent Bernoulli trials are performed. \\
+     \vspace{5mm}
+     The PMF of the Binomial distribution is: 
+     \[ P(X=k) = {n \choose k} p^k (1-p)^{n-k}\]
+     for $k=0, 1, ..., n$ and $P(X=k)=0$ otherwise.
+    \begin{itemize} \small 
+        \item From now on, this last part will be an unspoken assumption.
+    \end{itemize}
+    Can we deconstruct this expression to explain how it came about? 
+ \end{frame}
+
+\begin{frame}{Some Binomial PMFs}
+    \includegraphics[width=\textwidth]{images/binomial_pmf.png}
+\end{frame}
+
+
+ \begin{frame}{The Discrete Uniform Distribution}
+ \vspace{2mm}
+ Let $C$ be a finite, nonempty set of numbers. Choose one of these numbers uniformly at random. Call the chosen number $X$. Then $X$ is said to have the \alert{Discrete Uniform distribution} with parameter $C$. \\
+ \vspace{5mm}
+ The PMF of $X \sim \text{DUnif}(C)$ is:
+ \[ P(X=x) = \frac{1}{|C|} \]
+ where $|C|$ represents the number of elements in the set $C$. \\
+ \vspace{5mm} 
+ Similarly, 
+ \[ P(X \in A) = \frac{|A|}{|C|} \]
+ where $A \subseteq C$.
+ \end{frame}
+
+ \begin{frame}{The Cumulative Distribution Function (CDF)}
+ \vspace{2mm}
+The \alert{cumulative distribution function (CDF)} of a random variable $X$ is the function $F_X (x) = P(X \leq x)$. \\
+\vspace{5mm}
+\textbf{Example:} Let $X \sim \text{Bin}(4, 1/2)$. Then the PMF and CDF of $X$ are given by: 
+\includegraphics[width=\textwidth]{images/cdf.png}
+ \end{frame}
+\end{document}

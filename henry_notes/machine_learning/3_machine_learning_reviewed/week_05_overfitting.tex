@@ -1,0 +1,548 @@
+% Week 5: Benign Overfitting
+
+\section*{Overview}
+
+This week addresses a surprising phenomenon: models that perfectly fit training data (including noise) can still generalise well. We develop the theoretical framework for understanding when and why ``benign overfitting'' occurs, connecting the practical success of overparameterised models like deep neural networks to rigorous analysis using singular value decomposition.
+
+\textbf{Key themes:}
+\begin{itemize}
+    \item Contrasting behaviour of OLS in low vs high dimensional regimes
+    \item The double descent phenomenon: why test error can \textit{decrease} beyond the interpolation threshold
+    \item The manifold hypothesis: why high-dimensional data often has low intrinsic structure
+    \item SVD-based analysis of benign overfitting
+    \item Conditions under which interpolating models generalise well
+\end{itemize}
+
+%===============================================================================
+\section{Recap: OLS in Different Regimes}
+%===============================================================================
+
+Before diving into benign overfitting, we need to understand why generalisation behaviour depends so critically on the relationship between $p$ (number of features) and $n$ (number of observations).
+
+\begin{greybox}[{Relationship Between Risk, Loss, and Bias-Variance}]
+Recall the key relationships:
+\begin{itemize}
+    \item \textbf{Risk} = expected loss over the data distribution
+    \item The \textbf{loss function} determines the form of risk
+    \item When we use MSE as our risk (i.e., squared error loss), the risk decomposes nicely into bias and variance terms
+    \item This decomposition is specific to squared error-other loss functions may not yield such clean decompositions
+\end{itemize}
+\end{greybox}
+
+\subsection{Low-Dimensional Regime: $p \ll n$}
+
+When we have many more observations than predictors, OLS is in its ``comfort zone.'' This is the classical statistics setting where the Gauss-Markov theorem guarantees optimality.
+
+\begin{greybox}[Risk in Low Dimensions]
+\textbf{Setting}: $p \ll n$ (many more observations than features)
+
+\textbf{Risk formula}:
+\begin{equation}
+R(\hat{\beta}) - R(\beta^*) = \frac{p}{n}\sigma^2
+\end{equation}
+
+\textbf{Properties}:
+\begin{itemize}
+    \item OLS is BLUE (Best Linear Unbiased Estimator) via the Gauss-Markov theorem
+    \item Risk decreases rapidly as $n$ increases (proportional to $1/n$)
+    \item Adding data helps significantly
+    \item The estimator is unbiased: $\mathbb{E}[\hat{\beta}] = \beta^*$
+\end{itemize}
+\end{greybox}
+
+\begin{redbox}
+The formula $R(\hat{\beta}) - R(\beta^*) = \frac{p}{n}\sigma^2$ assumes that the SVD structure of the training data $X$ matches that of test data $\tilde{X}$. This means the geometry (variance-covariance structure) is consistent between training and test sets. This is an idealised assumption-in practice, some regularisation or careful validation is necessary to ensure the theoretical rate of error reduction actually holds.
+\end{redbox}
+
+\subsection{High-Dimensional Regime: $p \gg n$}
+
+This scenario is increasingly common in modern machine learning, where feature dimensionality often vastly exceeds sample size (genomics, image processing, text analysis). The behaviour here is qualitatively different from the low-dimensional case.
+
+\begin{greybox}[Risk in High Dimensions]
+\textbf{Setting}: $p \gg n$ (many more features than observations)
+
+\textbf{Risk formula}:
+\begin{equation}
+R(\hat{\beta}) - R(\beta^*) \approx \left(1 - \frac{n}{p}\right)\|\beta^*\|^2 + \frac{n}{p}\sigma^2
+\end{equation}
+
+This decomposes into:
+\begin{itemize}
+    \item \textbf{Bias}: $\approx (1 - \frac{n}{p})\|\beta^*\|^2$ - very large when $p \gg n$
+    \item \textbf{Variance}: $\approx \frac{n}{p}\sigma^2$ - very small when $p \gg n$
+\end{itemize}
+\end{greybox}
+
+\textbf{Understanding the high-dimensional decomposition}:
+
+The bias term $(1 - n/p)\|\beta^*\|^2$ dominates because:
+\begin{itemize}
+    \item When $p \gg n$, the ratio $n/p \approx 0$, so $(1 - n/p) \approx 1$
+    \item The model has too many degrees of freedom relative to the data
+    \item It can fit noise perfectly, leading to systematic errors on new data
+    \item The bias depends on $\|\beta^*\|^2$-larger true coefficients mean larger potential bias
+\end{itemize}
+
+The variance term $\frac{n}{p}\sigma^2$ is small because:
+\begin{itemize}
+    \item The model is highly constrained by having so many parameters ``explain'' relatively few observations
+    \item There is little room for the estimates to vary across different samples
+    \item Counterintuitively, having more parameters leads to \textit{lower} variance (but much higher bias)
+\end{itemize}
+
+\begin{bluebox}[{On the Margin, Sample Size Does Not Help Much}]
+In the high-dimensional regime, marginally increasing $n$ provides little benefit:
+\begin{itemize}
+    \item The approximation $(1 - n/p)$ shows that when $p$ is large, even substantial increases in $n$ barely change the dominant bias term
+    \item Prediction error does not significantly improve with more data because model complexity is too high relative to available information
+    \item This is a fundamental limitation of unregularised OLS in high dimensions
+\end{itemize}
+\end{bluebox}
+
+\subsection{Comparing the Two Regimes}
+
+\begin{bluebox}[Low vs High Dimensional OLS]
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+& \textbf{Low-dim ($p \ll n$)} & \textbf{High-dim ($p \gg n$)} \\
+\midrule
+Risk formula & $\frac{p}{n}\sigma^2$ & $(1 - \frac{n}{p})\|\beta^*\|^2 + \frac{n}{p}\sigma^2$ \\
+Dominant component & Variance & Bias \\
+Effect of more data & Rapid improvement & Marginal improvement \\
+OLS status & BLUE (optimal) & Problematic without regularisation \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{bluebox}
+
+\subsection{The Regularisation Paradox}
+
+\begin{greybox}[Implications for Regularisation]
+The behaviour in different regimes has led to the development of regularisation techniques:
+\begin{itemize}
+    \item In low dimensions ($p \ll n$), OLS generally performs well with risk decreasing rapidly as data increases
+    \item In high dimensions ($p \gg n$), traditional OLS struggles due to large bias and limited benefit from additional data
+    \item This motivates techniques like Ridge regression and Lasso that deliberately introduce bias to reduce variance
+\end{itemize}
+\end{greybox}
+
+\begin{redbox}
+\textbf{The apparent paradox}: In high dimensions, OLS already has high bias and low variance. Why would introducing \textit{more} bias via regularisation help?
+
+The resolution: The bias-variance decomposition above assumes using the minimum-norm OLS solution. Regularisation changes \textit{which} solution we find, potentially trading a different kind of bias for better overall performance. Ridge regression, for instance, shrinks coefficients toward zero, which can reduce the effective complexity of the model and improve generalisation even though it technically adds bias. The key insight is that not all bias is equally harmful-structured bias (like shrinkage toward zero) can be much less damaging than the unstructured bias of minimum-norm interpolation.
+\end{redbox}
+
+%===============================================================================
+\section{The Double Descent Phenomenon}
+%===============================================================================
+
+Classical learning theory predicts that test error should increase monotonically with model complexity beyond the ``sweet spot'' where bias and variance are optimally balanced. But empirically, something surprising happens with highly overparameterised models.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_05_overfitting/double descent.png}
+    \caption{Double descent: test error peaks at the interpolation threshold ($p \approx n$), then \textbf{decreases} as $p \gg n$. This contradicts the classical U-shaped bias-variance tradeoff curve.}
+    \label{fig:double-descent}
+\end{figure}
+
+\subsection{The Three Regimes}
+
+\begin{bluebox}[Double Descent Explained]
+The double descent curve has three distinct regions:
+\begin{enumerate}
+    \item \textbf{Underparameterised regime} ($p < n$): Classical bias-variance tradeoff applies. Test error initially decreases with complexity (reducing bias), then increases (rising variance).
+
+    \item \textbf{Interpolation threshold} ($p \approx n$): The model can barely fit the training data. It is maximally sensitive to noise-small perturbations in the data cause large changes in the fitted model. Test error peaks here.
+
+    \item \textbf{Overparameterised regime} ($p \gg n$): Many solutions exist that perfectly interpolate the training data. Among these, the minimum-norm solution (found by gradient descent or SVD) generalises surprisingly well. Test error decreases again.
+\end{enumerate}
+\end{bluebox}
+
+\textbf{Why is the interpolation threshold so bad?} At $p \approx n$, the system $X\beta = y$ is just barely solvable-there is essentially one unique solution that fits the training data perfectly. This solution has no ``slack'' to avoid fitting noise, and is extremely sensitive to perturbations. It is the worst of both worlds: complex enough to fit noise, but not complex enough to benefit from implicit regularisation.
+
+\subsection{Explaining the Phenomenon: The Manifold Hypothesis}
+
+Why does test error decrease in the overparameterised regime? The \textbf{manifold hypothesis} provides key intuition.
+
+\begin{greybox}[The Manifold Hypothesis]
+High-dimensional data often lies on or near a low-dimensional \textbf{manifold}-a surface that locally resembles Euclidean space of lower dimension.
+
+\textbf{Key concepts}:
+\begin{itemize}
+    \item \textbf{Ambient dimensionality}: The nominal dimension of the data space (e.g., number of pixels in an image)
+    \item \textbf{Intrinsic dimensionality}: The true number of degrees of freedom needed to describe the data
+    \item A manifold is a mathematical space that might locally look like flat Euclidean space but has more complex, curved structure globally
+\end{itemize}
+
+\textbf{Analogy}: The surface of the Earth is a 2-dimensional manifold embedded in 3-dimensional space. Although we live in 3D, we only need two coordinates (latitude and longitude) to specify any location on the surface.
+\end{greybox}
+
+\begin{bluebox}[Examples of Low Intrinsic Dimensionality]
+\begin{itemize}
+    \item \textbf{Face images}: Live in a space of millions of pixels, but meaningful variations (pose, lighting, expression, identity) span perhaps tens of dimensions
+    \item \textbf{Natural images}: Despite high pixel counts, most random pixel configurations do not look like natural scenes-real images are constrained to a tiny subset of pixel space
+    \item \textbf{Text}: The space of all possible character sequences is vast, but coherent text occupies a vanishingly small fraction
+    \item \textbf{Genomic data}: Tens of thousands of genes, but biological states often involve coordinated changes in small gene modules
+\end{itemize}
+\end{bluebox}
+
+\textbf{Connection to double descent}: Deep neural networks and overparameterised models are exceptionally good at discovering and exploiting low-dimensional structure within high-dimensional data. Through training:
+\begin{itemize}
+    \item They learn to ignore irrelevant dimensions (noise)
+    \item They focus on the manifold's structure, capturing patterns that generalise
+    \item The extra parameters provide flexibility to represent complex manifold geometry
+    \item Implicit regularisation (from gradient descent, architecture choices) keeps solutions smooth
+\end{itemize}
+
+The underlying structure-not the nominal dimensionality-determines what can be learned. This is why complex models can generalise: they are not fitting to $p$ independent dimensions, but to a much smaller intrinsic dimensionality.
+
+%===============================================================================
+\section{Modern Analysis: The $k$-Split Perspective}
+%===============================================================================
+
+To understand benign overfitting rigorously, we decompose the problem using singular value decomposition (SVD). This provides a mathematical framework for separating ``signal'' from ``noise'' in high-dimensional data.
+
+\subsection{The Interpolation Threshold}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_05_overfitting/interpolation_threshold.png}
+    \caption{At $p \approx n$, the model achieves perfect interpolation-zero training error. The system $X\beta = y$ transitions from overdetermined (unique solution, typically positive training error) to underdetermined (infinitely many solutions, zero training error).}
+    \label{fig:interpolation-threshold}
+\end{figure}
+
+When $p > n$, the linear system $X\beta = y$ is underdetermined-infinitely many coefficient vectors $\beta$ achieve zero training error. The key question becomes: \textit{which} interpolating solution does our algorithm find, and how well does it generalise?
+
+\subsection{SVD to the Rescue}
+
+When $p > n$, the matrix $X^\top X$ is singular (rank at most $n < p$), so we cannot compute $(X^\top X)^{-1}$ directly. Instead, we use the SVD.
+
+\begin{greybox}[Minimum-Norm Solution via SVD]
+Given the SVD $X = U\Sigma V^\top$ where:
+\begin{itemize}
+    \item $U$ is $n \times r$ with orthonormal columns (left singular vectors)
+    \item $\Sigma$ is $r \times r$ diagonal with singular values $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_r > 0$
+    \item $V$ is $p \times r$ with orthonormal columns (right singular vectors)
+    \item $r = \text{rank}(X) = \min(n, p)$ when $X$ has full rank
+\end{itemize}
+
+The \textbf{minimum-norm} OLS solution is:
+\begin{equation}
+\hat{\beta} = V\Sigma^{-1}U^\top y
+\end{equation}
+
+This is the solution with smallest $\|\beta\|_2$ among all vectors satisfying $X\beta = y$.
+
+\textbf{Predictions on training data}:
+\begin{equation}
+\hat{y} = X\hat{\beta} = U\Sigma V^\top \cdot V\Sigma^{-1}U^\top y = UU^\top y
+\end{equation}
+
+The matrix $UU^\top$ projects onto the column space of $X$.
+\end{greybox}
+
+\begin{redbox}
+A common source of confusion: in the formula $\hat{\beta} = V\Sigma^{-1}U^\top y$, you do not need to explicitly compute $\hat{\beta}$ to make predictions on the training data. The SVD provides a direct linear projection ($UU^\top$) onto $X$. For new data $\tilde{X}$, predictions are $\tilde{X}\hat{\beta} = \tilde{X}V\Sigma^{-1}U^\top y$.
+\end{redbox}
+
+\subsection{Splitting Signal from Noise: The $k$-Split}
+
+The key insight of modern benign overfitting theory is to conceptually partition the coefficient vector based on singular value magnitudes:
+\begin{equation}
+\beta^* = [\beta^*_{1:k}, \beta^*_{k+1:p}]
+\end{equation}
+
+\begin{greybox}[The $k$-Split Decomposition]
+\textbf{Low-dimensional part} ($\beta^*_{1:k}$):
+\begin{itemize}
+    \item Corresponds to the first $k$ singular vectors (largest singular values)
+    \item Captures the \textbf{signal}-the structured, predictive variation in the data
+    \item Behaves like classical low-dimensional OLS: well-estimated, low bias, moderate variance
+\end{itemize}
+
+\textbf{High-dimensional part} ($\beta^*_{k+1:p}$):
+\begin{itemize}
+    \item Corresponds to the remaining $p - k$ singular vectors (smaller singular values)
+    \item Represents the \textbf{noise subspace}-variation that adds complexity without predictive power
+    \item Key question: does this part help or hurt generalisation?
+\end{itemize}
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_05_overfitting/ksplit.png}
+    \caption{SVD naturally orders dimensions by importance. The first $k$ singular values (left portion) capture structured signal; the remainder (right portion) capture noise-like variation. The split occurs where singular values transition from ``large'' to ``small.''}
+    \label{fig:k-split}
+\end{figure}
+
+\begin{bluebox}[SVD as Automatic Feature Selection]
+The SVD accomplishes several things simultaneously:
+\begin{enumerate}
+    \item \textbf{Orthogonalisation}: Each transformed feature (singular vector) is orthogonal to all others-no collinearity
+    \item \textbf{Ordering by importance}: Features are automatically ranked by singular value magnitude (variance explained)
+    \item \textbf{Variance concentration}: The first $k$ features capture most of the variance
+    \item \textbf{Rotation without distortion}: This is a rotation of the feature space that reveals intrinsic structure without changing distances
+\end{enumerate}
+
+The SVD does not discard information-it reorganises it so that ``importance'' is monotonically decreasing across dimensions.
+\end{bluebox}
+
+\subsection{Two Perspectives on the Manifold Hypothesis}
+
+The $k$-split provides a formal operationalisation of the manifold hypothesis:
+
+\begin{greybox}[Formal Interpretations of the Manifold Hypothesis]
+\textbf{Perspective 1: Coefficient decomposition (conceptual)}
+
+Splitting $\beta^* = [\beta^*_{1:k}, \beta^*_{k+1:p}]$ reflects:
+\begin{itemize}
+    \item A prioritisation of features deemed most informative
+    \item The $1:k$ part resides in ``effective low dimensionality'' and can behave like OLS when $k \ll n$
+    \item The $k+1:p$ part is relegated to noise
+\end{itemize}
+
+\textbf{Perspective 2: SVD truncation (mechanistic)}
+
+Keeping only the first $k$ singular values (and corresponding vectors) means:
+\begin{itemize}
+    \item Approximating $X$ by its most significant components
+    \item Reducing effective model complexity
+    \item Mitigating overfitting by disregarding dimensions that contribute little to variance
+\end{itemize}
+
+\textbf{Key insight}: The split is \textit{within the SVD}-SVD is simultaneously enabling regression in high dimensions (bypassing singularity) and performing implicit dimensionality reduction.
+\end{greybox}
+
+\textbf{When does this work?} The $k$-split approach is effective for \textbf{highly structured data}:
+\begin{itemize}
+    \item The low-dimensional part has high singular values-these dimensions ``matter''
+    \item SVD reshuffles the data so that the most important components come first
+    \item After the SVD rotation, each column is independent of all others, and importance is monotonically ordered
+    \item This reveals and exploits intrinsic structure automatically
+\end{itemize}
+
+%===============================================================================
+\section{Benign Overfitting: When Interpolation Works}
+%===============================================================================
+
+``Benign overfitting'' describes the counterintuitive scenario where a model that perfectly fits training data (including noise) still generalises well to unseen data. This is not magic-it requires specific conditions.
+
+\subsection{The Risk Bound}
+
+\begin{greybox}[Risk Bound for Benign Overfitting]
+Under appropriate conditions, the excess risk is bounded by:
+\begin{equation}
+R(\hat{\beta}) - R(\beta^*) \lesssim \frac{\sigma^2}{c}\left(\frac{k^*}{n} + \frac{n}{R_{k^*}(\Sigma)}\right)
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $\sigma^2$: Noise variance (irreducible error from the data-generating process)
+    \item $c$: A constant that depends on distributional assumptions (the precise value requires deep mathematical analysis)
+    \item $k^*$: The ``split point''-number of dimensions in the signal subspace
+    \item $n$: Sample size
+    \item $R_{k^*}(\Sigma)$: Effective rank of the covariance matrix in the high-dimensional part
+\end{itemize}
+\end{greybox}
+
+\subsection{Understanding the Two Terms}
+
+The bound has two additive components, corresponding to the two parts of the $k$-split:
+
+\textbf{First term: $k^*/n$ (parametric rate)}
+
+\begin{itemize}
+    \item This is the familiar rate from low-dimensional OLS: risk $\propto p/n$
+    \item Here, $k^*$ plays the role of effective dimensionality
+    \item The low-dimensional part of the model (first $k^*$ singular values) behaves like classical OLS with $k^*$ features
+    \item This term decreases as $n$ grows, just as in standard regression
+    \item \textit{Compare to}: In low-dimensional OLS, risk is $\frac{p}{n}\sigma^2$; here the analogous term is $\frac{k^*}{n}$ (up to constants)
+\end{itemize}
+
+\textbf{Second term: $n/R_{k^*}(\Sigma)$ (high-dimensional contribution)}
+
+\begin{itemize}
+    \item This captures the contribution from the high-dimensional part
+    \item $R_{k^*}(\Sigma)$ measures the ``effective number of directions'' in the high-dimensional subspace
+    \item It is a technical rank condition on the covariance matrix-specifically, a measure of how spread out the singular values are
+    \item When $R_{k^*}(\Sigma)$ is large, this term is small: high-dimensional noise ``averages out''
+\end{itemize}
+
+\begin{bluebox}[What is $R_{k^*}(\Sigma)$?]
+The effective rank $R_{k^*}(\Sigma)$ captures the spread of singular values in the high-dimensional part:
+\begin{itemize}
+    \item Each SVD dimension is orthogonal to all others
+    \item High $R_{k^*}(\Sigma)$ means the high-dimensional part ``moves in many different directions''
+    \item This is precisely the ``white noise'' assumption: variation is spread across many dimensions rather than concentrated
+    \item If the noise dimensions point in many different directions, they average out rather than systematically biasing predictions
+    \item With high effective rank, we can effectively estimate zero for coefficients in this part-the noise cancels
+\end{itemize}
+\end{bluebox}
+
+\subsection{When is Overfitting Benign?}
+
+\begin{greybox}[Three Conditions for Benign Overfitting]
+Benign overfitting occurs when:
+\begin{enumerate}
+    \item \textbf{Low intrinsic dimension}: The signal lives in a low-dimensional subspace ($k^* \ll p$). Most of the predictive information is captured by a small number of dimensions.
+
+    \item \textbf{White noise in high dimensions}: The remaining dimensions behave like isotropic (direction-independent) noise. No preferred directions, no structure to exploit or be misled by.
+
+    \item \textbf{Sufficient spread}: The noise spreads across \textit{many} directions ($R_{k^*}(\Sigma)$ is large). This ensures averaging effects dominate.
+\end{enumerate}
+
+\textbf{When these hold}: Generalisation in the interpolating regime is ``as if'' you ran OLS on just the $k^*$ intrinsic dimensions. The high-dimensional noise part contributes negligibly.
+\end{greybox}
+
+\begin{redbox}
+\textbf{Critical assumption}: The high-dimensional part must behave like white noise for benign overfitting to work.
+
+If the high-dimensional part has structure (correlations between dimensions, preferred directions, systematic patterns), it can bias the model and hurt generalisation. The theory does \textit{not} say interpolation is always benign-only that it can be benign under specific conditions.
+\end{redbox}
+
+\subsection{Why SVD Makes This Automatic}
+
+When you fit OLS using SVD (which is necessary when $p > n$), the decomposition automatically:
+
+\begin{enumerate}
+    \item \textbf{Identifies signal directions}: The SVD finds directions of maximum variance, which typically correspond to signal
+    \item \textbf{Orders by importance}: Dimensions are ranked by singular value magnitude
+    \item \textbf{Finds minimum-norm solution}: Among all interpolating solutions, SVD gives the one with smallest $\|\beta\|_2$
+    \item \textbf{Avoids overweighting noise}: The minimum-norm constraint acts as \textbf{implicit regularisation}, preventing the solution from amplifying noise directions
+\end{enumerate}
+
+The minimum-norm property is crucial: among infinitely many solutions that fit the training data perfectly, the SVD-based solution is ``smoothest'' in the sense of having smallest coefficient norm. This is a form of Occam's razor built into the mathematics.
+
+\begin{bluebox}[Implicit Regularisation via Minimum Norm]
+The minimum-norm OLS solution from SVD provides a double benefit:
+\begin{enumerate}
+    \item \textbf{Enables computation}: Bypasses the singularity of $X^\top X$ when $p > n$
+    \item \textbf{Provides regularisation}: Among all perfect-fit solutions, selects the ``simplest'' one
+\end{enumerate}
+
+This is why gradient descent on overparameterised models often works well: it tends to find minimum-norm solutions, which have this implicit regularisation property.
+\end{bluebox}
+
+%===============================================================================
+\section{Implications for High-Dimensional Models}
+%===============================================================================
+
+\begin{greybox}[Why High-Dimensional Models Can Generalise]
+As long as the high-dimensional part of $X$ covers a wide array of directions, the risk of overfitting-though present-does not necessarily impair generalisation. The mechanism:
+\begin{itemize}
+    \item Diversity in noise directions distributes model complexity across many dimensions
+    \item No single noise direction dominates or systematically biases predictions
+    \item The minimum-norm solution naturally de-emphasises noise directions (they have small coefficients)
+    \item The model effectively ``averages over'' the noise, leaving only the signal
+\end{itemize}
+\end{greybox}
+
+This provides a resolution to the apparent paradox of deep learning success:
+
+\begin{bluebox}[Connection to Deep Learning]
+Deep neural networks routinely have more parameters than training examples, yet generalise well. Benign overfitting theory helps explain this:
+\begin{itemize}
+    \item Real-world data has low intrinsic dimensionality (manifold hypothesis)
+    \item Networks learn to represent this low-dimensional structure
+    \item ``Noise'' dimensions of the parameter space are handled via implicit regularisation
+    \item Gradient descent finds solutions with beneficial properties (low norm, smooth)
+    \item The interpolation threshold is avoided by being firmly in the overparameterised regime
+\end{itemize}
+\end{bluebox}
+
+\subsection{The Importance of Data Structure}
+
+Benign overfitting underscores a fundamental insight: \textbf{data structure matters more than nominal dimensionality}.
+
+\begin{itemize}
+    \item The effective complexity of learning depends on intrinsic, not ambient, dimensionality
+    \item Models can be ``complex'' in parameter count but ``simple'' in what they actually learn
+    \item Understanding the geometry and distribution of the feature space is crucial for high-dimensional analysis
+    \item Not all high-dimensional problems are equally hard-structure makes them tractable
+\end{itemize}
+
+%===============================================================================
+\section{Practical Implications}
+%===============================================================================
+
+\begin{bluebox}[Key Takeaways for Practice]
+\begin{enumerate}
+    \item \textbf{Interpolation is not always bad}: In high dimensions with structured data, fitting training data perfectly can still yield good generalisation
+
+    \item \textbf{Structure matters}: The manifold hypothesis explains why-real data has low intrinsic dimension. Exploit this.
+
+    \item \textbf{Noise distribution matters}: High-dimensional noise must be spread across many directions. Beware of systematic noise patterns.
+
+    \item \textbf{Implicit regularisation is powerful}: Minimum-norm solutions (from SVD, gradient descent) automatically avoid overfitting to noise in many cases
+
+    \item \textbf{Do not fear overparameterisation}: Modern deep learning operates successfully in this regime. The interpolation threshold ($p \approx n$) is dangerous, but $p \gg n$ can be safe.
+
+    \item \textbf{More data always helps for signal}: Even in high dimensions, more data improves estimation of the intrinsic structure (the $k^*/n$ term)
+\end{enumerate}
+\end{bluebox}
+
+\begin{redbox}
+\textbf{Benign overfitting is NOT a license to ignore model complexity.}
+
+It requires:
+\begin{itemize}
+    \item Data with genuine low-dimensional structure
+    \item High-dimensional noise that is approximately isotropic
+    \item Appropriate inductive biases (minimum-norm, early stopping, architecture choices)
+    \item Being sufficiently past the interpolation threshold ($p \gg n$, not $p \approx n$)
+\end{itemize}
+
+Without these conditions, overfitting remains harmful. Standard regularisation (Ridge, Lasso, early stopping) remains important when:
+\begin{itemize}
+    \item Data structure is unknown or weak
+    \item Noise has systematic patterns
+    \item You are near the interpolation threshold
+    \item Computational constraints prevent reaching the overparameterised regime
+\end{itemize}
+\end{redbox}
+
+%===============================================================================
+\section{Summary}
+%===============================================================================
+
+\begin{bluebox}[Key Concepts from Week 5]
+\begin{enumerate}
+    \item \textbf{Regime-dependent behaviour}: OLS behaves fundamentally differently in low-dimensional ($p \ll n$) versus high-dimensional ($p \gg n$) settings
+    \begin{itemize}
+        \item Low-dim: variance dominates, risk $\propto p/n$, more data helps rapidly
+        \item High-dim: bias dominates, risk $\propto (1-n/p)\|\beta^*\|^2$, more data helps marginally
+    \end{itemize}
+
+    \item \textbf{Double descent}: Test error peaks at the interpolation threshold ($p \approx n$), then \textit{decreases} in the overparameterised regime
+    \begin{itemize}
+        \item Contradicts classical U-shaped bias-variance curves
+        \item Explained by implicit regularisation in overparameterised models
+    \end{itemize}
+
+    \item \textbf{Manifold hypothesis}: High-dimensional data often has low intrinsic dimensionality
+    \begin{itemize}
+        \item Real data lives near low-dimensional manifolds
+        \item This structure enables learning despite high ambient dimensionality
+    \end{itemize}
+
+    \item \textbf{$k$-split analysis}: SVD separates signal (large singular values) from noise (small singular values)
+    \begin{itemize}
+        \item Low-dimensional part behaves like classical regression
+        \item High-dimensional part averages out if noise is isotropic
+    \end{itemize}
+
+    \item \textbf{Benign overfitting conditions}: Interpolating models generalise well when:
+    \begin{itemize}
+        \item Signal has low intrinsic dimension
+        \item Noise is white (isotropic, spread across many directions)
+        \item Minimum-norm solutions are used (implicit regularisation)
+    \end{itemize}
+
+    \item \textbf{Implicit regularisation}: Minimum-norm solutions from SVD/gradient descent avoid amplifying noise directions
+    \begin{itemize}
+        \item This happens automatically, not through explicit penalties
+        \item Explains why overparameterised models can generalise
+    \end{itemize}
+\end{enumerate}
+\end{bluebox}

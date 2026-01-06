@@ -1,0 +1,224 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{bm}
+\usepackage{xcolor}
+\usepackage{enumerate}
+\usepackage{mathtools}
+\usepackage{minted}
+
+\newcommand{\matr}[1]{\bm{#1}}     % ISO complying version
+\newcommand{\R}{\mathbb{R}}
+
+
+
+\newif\ifanswers
+\answerstrue % comment out to hide answers
+
+\begin{document}
+
+
+\section*{Practice Problems}
+
+\noindent \textbf{Problem 1.} Singular Value Decomposition of a Matrix. \\
+
+    Let $\matr{A} = \begin{bmatrix}
+        0 & 2 \\
+        1 & 1 \\
+        2 & 0
+    \end{bmatrix}$.
+
+\begin{enumerate}
+    \item[a.] Write down $\matr{A}^T$.
+
+     \ifanswers
+     \textbf{Solution:} $\matr{A}^T = \begin{bmatrix}
+         0 & 1 & 2 \\
+         2 & 1 & 0
+     \end{bmatrix}$
+  \fi 
+
+  \item[b.] Compute $\matr{A}^T \matr{A}$.   
+  
+  
+     \ifanswers
+     \textbf{Solution:} 
+     \[
+     \begin{bmatrix}
+         0 & 1 & 2 \\
+         2 & 1 & 0
+     \end{bmatrix} \begin{bmatrix}
+        0 & 2 \\
+        1 & 1 \\
+        2 & 0
+    \end{bmatrix} 
+    = \begin{bmatrix}
+         5 & 1 \\
+         1 & 5
+     \end{bmatrix}
+  \] \fi 
+  \item[c.] Find the eigenvalues of $\matr{A}^T \matr{A}$. 
+  
+  
+    \ifanswers
+     \textbf{Solution:} 
+     \[
+     \text{det} \left( \begin{bmatrix}
+         \lambda & 0 \\
+         0 & \lambda 
+     \end{bmatrix} - \begin{bmatrix}
+         5 & 1 \\
+         1 & 5
+     \end{bmatrix}\right) =  \text{det} \left( \begin{bmatrix}
+\lambda - 5 & -1 \\ 
+-1 & \lambda - 5
+     \end{bmatrix} 
+\right)  = 0 
+     \] 
+Yielding the characteristic polynomial: 
+\[ (\lambda - 5)^2 - 1 = 0 \]
+Reducing, 
+\begin{align*}
+    \lambda^2 - 10 \lambda + 25 - 1 &= 0 \\
+    \lambda^2 - 10 \lambda + 24 &= 0 \\
+    (\lambda - 6) (\lambda - 4) &= 0 \\
+    \lambda = 6, \lambda &= 4
+\end{align*} \fi 
+
+\item[d.] Recall that the singular value decomposition of an $m \times n$ matrix $\matr{A}$ is given by: 
+\[ 
+\matr{U} \Sigma \matr{V}^T
+\] 
+where: 
+\begin{itemize}
+    \item $\matr{U}$ contains the $m$ eigenvectors of the square matrix $\matr{A} \matr{A}^T$
+    \item $\matr{V}^T$ contains the $n$ eigenvectors of the square matrix $\matr{A}^T\matr{A}$
+\end{itemize}
+Write down $\Sigma$, paying close attention to its dimensionality. Please sort the singular values in order from largest to smallest magnitude.
+
+
+  \ifanswers
+     \textbf{Solution:} If $\matr{A}$ is $3 \times 2$, then $\Sigma$ must have the same dimensions. Write the eigenvalues you found in (d) above on the diagonal and put 0's everywhere else: 
+\[
+\Sigma = \begin{bmatrix}
+    \sqrt{6} & 0 \\
+    0 & \sqrt{4} \\
+    0 & 0
+\end{bmatrix}
+\]
+     \fi 
+
+\item[e.] In \texttt{R}, create the $\matr{U}$, $\Sigma$, and $\matr{V}^T$ objects. Check by matrix multiplication that $\matr{U} \Sigma \matr{V}^T$ indeed gives you back the original matrix $\matr{A}$. 
+
+  \ifanswers
+  \begin{minted}[fontsize=\small, linenos, frame=lines]{R}
+# make matrix A
+A <- matrix(c(0, 2, 1, 1, 2, 0),
+            ncol = 2, 
+            byrow = TRUE)
+
+# a. take its transpose 
+t(A)
+
+# b. compute A^TA
+t(A) %*% A
+
+# c. find the eigenvalues of A^TA
+eigen(t(A) %*% A)
+
+# d. write down Sigma
+Sigma <- matrix(c(sqrt(6), 0, 0, sqrt(4), 0, 0),
+            ncol = 2, 
+            byrow = TRUE)
+
+# e. get U and V
+U <- eigen(A %*% t(A))$vectors
+V <- eigen(t(A) %*% A)$vectors
+
+# check that it works 
+svdA <- U %*% Sigma %*% t(V)
+round(svdA)
+\end{minted} 
+\fi 
+
+
+\end{enumerate}
+
+\noindent \textbf{Problem 2.}  Optimization. \\
+
+Let $\matr{X}$ be a data matrix with 3 columns of length $n$: $\matr{x}_1$, $\matr{x}_2$, and $\matr{x}_3$. Suppose I want to construct a linear combination of these columns called $\matr{z}$, such that: 
+
+\[ 
+\matr{z} = \phi_1 \matr{x}_1 + \phi_2 \matr{x}_2 + \phi_3 \matr{x}_3
+\]
+
+\begin{enumerate}
+    \item[a.] I wish to find the vector $\matr{\phi} = \begin{bmatrix}
+    \phi_1 \\ \phi_2 \\ \phi_3 \end{bmatrix}$ to maximize the \textit{mean} of $\matr{z}$, subject to the constraint:
+    \[
+    || \matr{\phi}||_2^2 = 1
+    \]
+    Please write down the Lagrangian for this maximization problem. 
+
+  \ifanswers   \textbf{Solution:} 
+  Several forms are accepted: 
+
+  \begin{align}
+      \mathcal{L} = \frac{1}{n} \sum_{i=1}^n z_i + \lambda \left( 1 - \phi_1^2 - \phi_2^2 - \phi_3^2 \right)  \\
+      \mathcal{L} = \frac{1}{n} \sum_{i=1}^n z_i + \lambda \left( 1 - \sum_{j=1}^3 \phi_j^2 \right)  \\
+         \mathcal{L} = \frac{1}{n} \sum_{i=1}^n z_i - \lambda \left( 1 - \sum_{j=1}^3 \phi_j^2 \right)  \\
+          \mathcal{L} = \frac{1}{n} \sum_{i=1}^n z_i + \lambda \left( \sum_{j=1}^3 \phi_j^2 - 1 \right)  \\
+  \mathcal{L} = \frac{1}{n} \sum_{i=1}^n z_i - \lambda \left( \sum_{j=1}^3 \phi_j^2 - 1 \right)  \\
+  \end{align}
+  Equation (1) above will make the gradient in part (b) easiest to compute, but I accept any variation of the above, with $\sum_{j=1}^3 \phi_j^2$ written out as $\phi_1^2 + \phi_2^2 + \phi_3^2$ or as $\matr{\phi}^T{\matr{\phi}}$. You could also have written the mean of $\matr{z}$ as $\frac{1}{n} \matr{1}^T \matr{z}$.
+  
+  \fi  
+
+    \item[b.] Find the gradient of your Lagrangian with respect to $\matr{\phi}$. 
+
+  \ifanswers   \textbf{Solution:} 
+
+I'm going to start with Equation (1) above, although of course your answer will vary slightly based on what Lagrangian you wrote down. It will be easier if we fill in the definition of $z_i$: 
+ \[
+   \mathcal{L} = \frac{1}{n} \sum_{i=1}^n (\phi_1 x_{i1} + \phi_2 x_{i2} + \phi_3 x_{i3} ) + \lambda \left( 1 - \phi_1^2 - \phi_2^2 - \phi_3^2 \right) 
+ \]
+Now, take the first derivatives of $\mathcal{L}$ with respect to $\phi_1$, $\phi_2$, $\phi_3$, and $\lambda$: 
+
+\[
+\nabla_{\matr{\phi}} \mathcal{L} = \begin{bmatrix}
+    \frac{\partial \mathcal{L} }{\partial \phi_1 } \\
+      \frac{\partial \mathcal{L} }{\partial \phi_2 } \\
+        \frac{\partial \mathcal{L} }{\partial \phi_3 } \\
+  \frac{\partial \mathcal{L} }{\partial \lambda  }
+\end{bmatrix} = 
+\begin{bmatrix}
+    \frac{1}{n} \sum_{i=1}^n x_{i1} - \lambda 2 \phi_1  \\
+    \frac{1}{n} \sum_{i=1}^n x_{i2} - \lambda 2 \phi_2 \\
+    \frac{1}{n} \sum_{i=1}^n x_{i3} - \lambda 2 \phi_3 \\ 
+1 - \phi_1^2 - \phi_2^2 - \phi_3^2 
+\end{bmatrix}
+\]
+\fi 
+
+    \item[c.] Solve the system of equations created by the first order conditions from (b) just enough to find $\frac{\hat{\phi}_1}{\hat{\phi}_2}$. (Try to find an expression without $\lambda$ in it.) You should arrive at an answer that is somewhat intuitive.
+    
+  \ifanswers   \textbf{Solution:} 
+Taking the first two elements of the gradient: 
+\[
+\frac{1}{n} \sum_{i=1}^n x_{i1} - \lambda 2 \hat{\phi}_1 = 0 \rightarrow \bar{x}_1 = \lambda 2 \hat{\phi}_1
+\]
+Similarly, we get $\bar{x}_2 = \lambda 2 \hat{\phi}_2$. Rearranging to get $\lambda$ on one side, we get: 
+\[
+\lambda = \frac{\bar{x}_1}{ 2 \hat{\phi}_1} = \frac{\bar{x}_2}{ 2 \hat{\phi}_2}
+\]
+And rearranging a bit further, we get: 
+\[
+\frac{\hat{\phi}_1}{\hat{\phi}_2} = \frac{\bar{x}_1}{\bar{x}_2} 
+\]
+The optimal $\phi$'s are proportional to the column means. 
+\fi 
+\end{enumerate}
+\end{document}
+

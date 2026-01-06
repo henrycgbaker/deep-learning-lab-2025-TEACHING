@@ -1,0 +1,802 @@
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}}
+{\large \bf ML Lecture Notes 2024 \\ Henry Baker}
+\hline
+\\
+\end{tabular}
+
+\vspace*{0.3cm}
+\begin{center}
+	{\Large \bf ML Lecture Notes: Week 3\\ High-Dimensional Methods \& Regularisation}
+	\vspace{2mm}
+
+\end{center}
+\vspace{0.4cm}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Supervised Learning: A Quick Recap}
+%══════════════════════════════════════════════════════════════════════════════
+
+Before diving into high-dimensional methods, let us briefly recall the supervised learning framework. Given inputs $X$ with corresponding labels $y$, we aim to learn a function $f$ that maps inputs to outputs:
+
+\begin{itemize}
+    \item \textbf{Classification}: Learn $f(x): \mathcal{X} \to \{0, 1\}$ (or more generally, $\{1, \ldots, K\}$ for $K$ classes)
+    \item \textbf{Regression}: Learn $f(x): \mathcal{X} \to \mathbb{R}$
+\end{itemize}
+
+Performance is measured by some distance or discrepancy between predicted and actual labels: $d(\hat{f}(x), y)$. For example, in OLS regression we use the squared error $(\hat{f}(x) - y)^2$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_03_highdim/reg-class.png}
+    \caption{Regression vs classification in supervised learning. Left: regression fits a continuous function through the data. Right: classification finds a decision boundary separating classes.}
+    \label{fig:regression-vs-classification}
+\end{figure}
+
+\subsection{OLS Recap}
+
+Recall that OLS gives us the optimal linear predictor:
+$$\hat{\beta} = (X^\top X)^{-1} X^\top y$$
+
+This gives us the optimal coefficients; we then plug these back to get predictions:
+$$\hat{y} = X\hat{\beta}$$
+
+In general, we assume the first column of $X$ is a column of ones (the intercept), giving us a matrix of dimension $n \times (p + 1)$. The prediction is then:
+$$\hat{y} = \hat{\beta}_0 + \hat{\beta}_1 X_1 + \cdots + \hat{\beta}_p X_p$$
+
+But what if the true relationship is nonlinear? One approach is \textbf{feature expansion}.
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{From Linear to Nonlinear: Polynomial Regression}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{greybox}[Polynomial Regression]
+For a single feature $x$, expand to polynomial basis:
+$$f(x) = \beta_0 + \beta_1 x + \beta_2 x^2 + \cdots + \beta_M x^M$$
+
+This is still \textbf{linear in parameters} $\beta$-we are just using transformed features $[1, x, x^2, \ldots, x^M]$.
+
+The design matrix becomes:
+$$X = \begin{bmatrix} 1 & x_1 & x_1^2 & \cdots & x_1^M \\ 1 & x_2 & x_2^2 & \cdots & x_2^M \\ \vdots & \vdots & \vdots & \ddots & \vdots \\ 1 & x_n & x_n^2 & \cdots & x_n^M \end{bmatrix}$$
+\end{greybox}
+
+\begin{bluebox}[Key Insight: ``Linear'' Refers to Parameters]
+``Linear regression'' means linear in \textbf{parameters}, not in features. We can model arbitrarily complex relationships by transforming features-polynomials, interactions, logarithms, etc.-while still using the OLS machinery.
+
+The polynomial order $M$ is our \textbf{measure of model complexity}: it determines how well the model can fit the training data.
+\end{bluebox}
+
+\subsection{The Problem: Choosing $M$}
+
+Higher-degree polynomials are more expressive but risk overfitting:
+\begin{itemize}
+    \item $M = 1$: Straight line (may underfit)
+    \item $M = 3$: Cubic (often reasonable)
+    \item $M = 15$: Wiggly curve that passes through every training point (overfits)
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_03_highdim/choosing M.png}
+    \caption{Effect of polynomial degree on fit. Higher degrees fit training data perfectly but generalise poorly. This illustrates the fundamental tension in model selection.}
+    \label{fig:choosing-M}
+\end{figure}
+
+\subsection{Why Polynomials Are Attractive (In Theory)}
+
+Polynomials can represent a huge class of functions, making them highly flexible and mathematically convenient:
+\begin{itemize}
+    \item \textbf{Taylor series}: Any smooth function can be approximated by its Taylor polynomial
+    \item \textbf{Weierstrass approximation theorem}: Any continuous function on a closed interval can be uniformly approximated by polynomials to arbitrary precision
+\end{itemize}
+
+\subsection{Challenges with Polynomial Regression: Numerical Instability}
+
+\begin{redbox}[Polynomials Are Global Approximators]
+Polynomials are \textbf{global approximators}-changing the polynomial anywhere affects it everywhere. This leads to fundamental problems with \textbf{edges} and \textbf{variance}:
+
+\begin{enumerate}
+    \item \textbf{Runge's phenomenon}: High-degree polynomials oscillate wildly near boundaries when interpolating, even for smooth underlying functions
+    \item \textbf{High variance at edges}: As polynomial degree increases, behaviour becomes increasingly erratic near domain boundaries
+    \item \textbf{Sensitivity to data}: Small changes in data points can cause radically large differences in predictions throughout the entire domain
+\end{enumerate}
+
+Because polynomials are global approximators, changes to improve the fit in one part of the domain can have far-reaching effects throughout the entire domain, including unwanted oscillations at the edges.
+\end{redbox}
+
+For polynomials of large degrees ($x^k$ where $k$ is large), two main issues contribute to \textbf{numerical instability}:
+
+\begin{greybox}[Sources of Numerical Instability]
+\begin{enumerate}
+    \item \textbf{Magnitude of polynomial terms}: As the degree $k$ increases, $x^k$ grows rapidly for $|x| > 1$. This leads to extremely large values that are difficult to manage computationally.
+
+    \textit{When $k$ gets large, $x^k$ becomes enormous.}
+
+    \item \textbf{Magnitude of coefficients}: To compensate for large polynomial terms, the fitting process produces very small (or very large) coefficients $\beta_k$. These coefficients must scale the polynomial terms back to fit the data.
+
+    \textit{As $x^k$ explodes, $\beta_k$ must shrink correspondingly to keep the fit reasonable.}
+\end{enumerate}
+
+The combination of very large polynomial terms and small coefficients leads to numerical instability: small changes in data or coefficients produce disproportionately large changes in predictions.
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_03_highdim/numerical_instability.png}
+    \caption{Numerical instability in high-degree polynomials: small perturbations in data cause large changes in the fitted curve, particularly near the edges of the domain.}
+    \label{fig:numerical-instability}
+\end{figure}
+
+\subsubsection{The Condition Number}
+
+\begin{greybox}[Condition Number]
+The \textbf{condition number} $\kappa(A) = \|A\| \cdot \|A^{-1}\|$ measures how sensitive $A^{-1}b$ is to perturbations in $b$.
+
+For symmetric positive definite matrices:
+$$\kappa(A) = \frac{\lambda_{\max}(A)}{\lambda_{\min}(A)}$$
+
+\begin{itemize}
+    \item $\kappa \approx 1$: Well-conditioned, stable inversion
+    \item $\kappa \gg 1$: Ill-conditioned, numerically unstable
+    \item $\kappa = \infty$: Singular, non-invertible
+\end{itemize}
+\end{greybox}
+
+The condition number of $X^\top X$ for polynomial regression grows rapidly with degree $M$. Intuitively, think of SVD: the condition number captures how ``hard'' it is to invert the matrix-it depends on the ratio between the largest and smallest singular values.
+
+\begin{bluebox}[Alternatives to High-Degree Polynomials]
+Because polynomials are global approximators, trying to fit functions with sharp edges or rapid changes leads to high variance and oscillatory behaviour at domain boundaries. This motivates alternative approaches:
+\begin{itemize}
+    \item \textbf{Splines}: Piecewise polynomials providing \textit{local} approximation
+    \item \textbf{Regularisation}: Penalising complexity to control oscillations
+    \item \textbf{Kernel methods}: Implicit feature expansion without explicit polynomial terms
+\end{itemize}
+\end{bluebox}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Decomposing Prediction Error}
+%══════════════════════════════════════════════════════════════════════════════
+
+To understand model selection, we need to formalise what we are trying to minimise. This section develops the theoretical framework for understanding generalisation.
+
+\subsection{The Bias-Variance Tradeoff: A First Look}
+
+Before diving into the formal framework, let us recall the fundamental decomposition:
+
+\begin{greybox}[Bias-Variance Decomposition]
+For an estimator $\hat{\theta}$ of a parameter $\theta$:
+$$\text{bias}(\hat{\theta}) = \mathbb{E}[\hat{\theta}] - \theta$$
+$$\text{MSE}(\hat{\theta}) = \text{Var}(\hat{\theta}) + \text{bias}(\hat{\theta})^2$$
+\end{greybox}
+
+As model complexity increases:
+\begin{itemize}
+    \item \textbf{Bias decreases}: The function can ``express'' the data better-a more flexible model can capture the true underlying pattern
+    \item \textbf{Variance increases}: The function becomes harder to estimate reliably-more parameters mean more sensitivity to the particular sample
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_03_highdim/bias_variance_MSE.png}
+    \caption{Bias-variance tradeoff: as model complexity increases, bias decreases but variance increases. The optimal complexity minimises total error (MSE). This U-shaped curve is fundamental to model selection.}
+    \label{fig:bias-variance-MSE}
+\end{figure}
+
+\subsection{Evaluation Metrics: Defining ``Risk''}
+
+Different metrics capture different aspects of model performance. The choice of metric defines what ``risk'' we are trying to minimise.
+
+\begin{greybox}[Key Concepts]
+\begin{enumerate}
+    \item \textbf{Model}: How you predict $f(x)$ from $X$
+    \item \textbf{Loss function}: Quantifies the discrepancy between actual outcome $y$ and predicted outcome $f(x)$:
+    $$\ell(y, f(x))$$
+    \item \textbf{Risk}: The expected loss of a model-the metric we minimise in ERM
+\end{enumerate}
+\end{greybox}
+
+``Risk'' is a generalised concept referring to the \textbf{expected loss or error of a model with respect to its predictions on new data}. It quantifies how much, on average, the model's predictions deviate from actual values according to the chosen loss function.
+
+\begin{greybox}[Common Evaluation Metrics]
+\textbf{For Classification:}
+\begin{itemize}
+    \item \textbf{Accuracy}: Proportion of correct predictions. Use when false positives and false negatives have similar costs.
+    \item \textbf{Precision}: $\frac{\text{TP}}{\text{TP} + \text{FP}}$. Use when the cost of false positives is high (e.g., spam filtering-you do not want legitimate emails marked as spam).
+    \item \textbf{Recall}: $\frac{\text{TP}}{\text{TP} + \text{FN}}$. Use when the cost of false negatives is high (e.g., disease screening-you do not want to miss actual cases).
+    \item \textbf{AUC-ROC}: Area under the ROC curve. Summarises performance across all classification thresholds; higher is better. Risk could be considered as $1 - \text{AUC}$.
+\end{itemize}
+
+\textbf{For Regression:}
+\begin{itemize}
+    \item \textbf{MSE}: Mean squared error. Penalises large errors heavily. Directly quantifies risk as expected squared error.
+    \item \textbf{MAE}: Mean absolute error. More robust to outliers.
+    \item \textbf{$R^2$}: Proportion of variance explained.
+\end{itemize}
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\linewidth]{figures/week_03_highdim/image_2.png}
+    \caption{Confusion matrix showing Type I errors (false positives) and Type II errors (false negatives). These frame the loss in terms of incorrect predictions.}
+    \label{fig:confusion-matrix}
+\end{figure}
+
+\begin{redbox}[Accuracy Can Be Misleading]
+In imbalanced datasets, accuracy can be deceptive. A classifier that always predicts the majority class achieves high accuracy but is useless.
+
+For example, if 99\% of emails are not spam, a classifier that predicts ``not spam'' for everything achieves 99\% accuracy but catches zero spam. Precision and recall provide more insight in such cases.
+\end{redbox}
+
+\subsection{Population Risk vs Empirical Risk}
+
+\begin{greybox}[Population Risk (True Risk)]
+$$R(f) = R_{f,p^*} = \mathbb{E}_{(x,y) \sim p^*}[\ell(y, f(x))]$$
+
+The expected loss over the \textbf{true data distribution} $p^*$. This is what we ultimately care about, but we cannot compute it-we do not know $p^*$.
+
+\textbf{Unpacking the notation:}
+\begin{itemize}
+    \item $R_{f,p^*}$ or $R_f$: Population risk for model $f$
+    \item $\mathbb{E}_{p^*}[\cdot]$: Expectation over the true population distribution
+    \item $\ell(y, f(x))$: Loss function measuring discrepancy between true $y$ and predicted $f(x)$
+\end{itemize}
+
+Population risk is the gold standard for model performance: it indicates how well the model would perform in general, beyond just the observed data. But since the true distribution $p^*$ is unknown, direct computation is infeasible.
+\end{greybox}
+
+\begin{greybox}[Empirical Risk]
+$$\hat{R}(f) = \frac{1}{n} \sum_{i=1}^n \ell(y_i, f(x_i))$$
+
+The average loss over our \textbf{training sample}. This we can compute, but it is only an estimate of population risk.
+
+The empirical risk is based on the \textbf{empirical distribution} of the sample data, which approximates the true underlying distribution.
+\end{greybox}
+
+\begin{bluebox}[Empirical Risk Minimisation (ERM)]
+$$\hat{f}_{\text{ERM}} = \argmin_{f \in \mathcal{H}} \hat{R}(f) = \argmin_{f \in \mathcal{H}} \frac{1}{n} \sum_{i=1}^n \ell(y_i, f(x_i))$$
+
+Find the function in hypothesis class $\mathcal{H}$ that minimises training loss. This is the foundation of most ML algorithms.
+
+\textbf{Components:}
+\begin{itemize}
+    \item $\hat{f}_{\text{ERM}}$: The model we seek
+    \item $\argmin_{f \in \mathcal{H}}$: Search over hypothesis space $\mathcal{H}$
+    \item The sum: Empirical risk (average loss on training data)
+\end{itemize}
+
+ERM seeks to approximate optimal population risk by minimising loss on the observed dataset.
+\end{bluebox}
+
+\begin{redbox}[The Problem with Pure ERM]
+If you choose a model based on ERM alone, you will overfit to the training data and end up with a high-order polynomial (or similarly complex model)-which is problematic!
+
+Pure ERM drives training loss toward zero while test loss remains high. We need additional considerations...
+\end{redbox}
+
+\subsection{Three Levels of Optimality}
+
+To understand what we can and cannot achieve, we distinguish three levels of model quality:
+
+\begin{greybox}[Hierarchy of Functions]
+\begin{enumerate}
+    \item \textbf{Bayes optimal}: $f^{**} = \argmin_f R(f)$
+    \begin{itemize}
+        \item Best possible function over \textit{all} functions
+        \item Theoretical ideal; typically unachievable
+        \item Minimises true risk $R(f)$ without any constraints
+        \item This is an ideal function-perhaps more complex than any polynomial, perhaps discontinuous
+        \item Can never be observed
+    \end{itemize}
+
+    \item \textbf{Best in class}: $f^* = \argmin_{f \in \mathcal{H}} R(f)$
+    \begin{itemize}
+        \item Best function within our hypothesis class $\mathcal{H}$
+        \item Still uses true risk (unknown in practice)
+        \item Represents the best we could achieve given our modelling choice
+        \item We cannot reach $f^{**}$ if the true function is not in $\mathcal{H}$
+    \end{itemize}
+
+    \item \textbf{Empirical best}: $\hat{f}_n = \argmin_{f \in \mathcal{H}} \hat{R}(f)$
+    \begin{itemize}
+        \item Best function based on training data (minimises empirical risk)
+        \item What we actually compute
+        \item Trained on $n$ samples-a subset of the full population
+        \item Aims to approximate $f^*$ by minimising observed errors
+    \end{itemize}
+\end{enumerate}
+\end{greybox}
+
+\subsection{Approximation vs Estimation Error}
+
+The gap between what we achieve and the theoretical best decomposes into two sources. This decomposition is fundamental to understanding model selection.
+
+\begin{greybox}[Error Decomposition]
+$$\underbrace{R(\hat{f}_n) - R(f^{**})}_{\text{Total excess risk}} = \underbrace{R(f^*) - R(f^{**})}_{\text{Approximation error}} + \underbrace{R(\hat{f}_n) - R(f^*)}_{\text{Estimation error}}$$
+
+Or equivalently, thinking of this as $R_3 - R_1 = (R_2 - R_1) + (R_3 - R_2)$.
+\end{greybox}
+
+\subsubsection{Approximation Error}
+
+\textbf{Approximation Error} (also called: bias, model misspecification):
+\begin{itemize}
+    \item Gap between Bayes optimal ($f^{**}$) and best-in-class ($f^*$)
+    \item Due to \textbf{limitations of our hypothesis class}
+    \item Does \textbf{not} decrease with more data
+    \item Reduced by using more expressive model classes
+    \item Quantifies how well the best theoretical model in our chosen hypothesis space can approximate the true best model
+    \item This error is \textbf{theory-based}-inherent to our modelling choice
+\end{itemize}
+
+\begin{bluebox}[Approximation Error: The Cost of Our Modelling Choice]
+Approximation error measures how much worse our chosen model class is compared to the best possible. We can never eradicate this entirely; we can only do a better job of selecting our function class. We will always pay some cost based on our modelling choice.
+\end{bluebox}
+
+\subsubsection{Estimation Error}
+
+\textbf{Estimation Error} (also called: variance, generalisation error):
+\begin{itemize}
+    \item Gap between best-in-class ($f^*$) and what we actually learn ($\hat{f}_n$)
+    \item Due to \textbf{finite training data}
+    \item \textbf{Decreases} with more data (typically $O(1/\sqrt{n})$)
+    \item \textbf{Increases} with model complexity (overfitting)
+    \item This error is \textbf{empirically-based}-from estimating from finite samples
+\end{itemize}
+
+\begin{redbox}[Estimation Error: What We Can Control]
+The estimation error is influenced by:
+\begin{enumerate}
+    \item \textbf{Sample size}: Decreases as $n$ increases
+    \item \textbf{Model complexity}: Increases if complexity is too high relative to available data (overfitting)
+\end{enumerate}
+
+This is where we \textit{can} do something-unlike approximation error, which is fixed by our model choice.
+\end{redbox}
+
+\subsubsection{The Fundamental Tradeoff}
+
+\begin{bluebox}[Approximation vs Estimation: The Core Tradeoff]
+\begin{center}
+\begin{tabular}{l|cc}
+& \textbf{Approximation Error} & \textbf{Estimation Error} \\
+\hline
+Simple model & High & Low \\
+Complex model & Low & High \\
+\end{tabular}
+\end{center}
+
+More expressive models reduce approximation error but increase estimation error. The optimal model balances these.
+
+This is analogous to the bias-variance tradeoff: we could make $\mathcal{H}$ a huge class of functions, but this increases complexity and makes estimation harder. We want to choose a model that balances the tradeoff between approximation and estimation errors.
+\end{bluebox}
+
+\begin{greybox}[Balancing the Errors]
+The total difference in risk between the theoretical best possible model and our empirically best model can be understood through two fundamental challenges:
+\begin{enumerate}
+    \item \textbf{Choosing the right model class} (approximation error)
+    \item \textbf{Accurately estimating the best model within that class from limited data} (estimation error)
+\end{enumerate}
+
+Minimising total error involves balancing these two sources. Improving the model class to reduce approximation error might increase model complexity, potentially increasing estimation error if additional data is not available.
+\end{greybox}
+
+\subsection{Estimating Generalisation Error}
+
+We cannot compute true risk, but we can \textbf{estimate} generalisation performance using held-out data.
+
+\begin{greybox}[Train-Test Split]
+Partition data into:
+\begin{itemize}
+    \item \textbf{Training data} $p_{\text{train}}(x,y)$: Do ERM-minimise loss on these points, learning the underlying pattern
+    \item \textbf{Testing data} $p_{\text{test}}(x,y)$: Evaluate model performance-specifically, its ability to generalise to new, unseen data
+\end{itemize}
+
+By evaluating on testing data, we can estimate generalisation error:
+$$\underbrace{\mathbb{E}_{p^*} R(\hat{f}_n) - R(f^*)}_{\text{Estimation/Generalisation Error}} \approx \underbrace{\mathbb{E}_{p_{\text{test}}} [\ell(y, \hat{f}_n)]}_{\text{Test Loss}} - \underbrace{\mathbb{E}_{p_{\text{train}}} [\ell(y, \hat{f}_n)]}_{\text{Training Loss}}$$
+\end{greybox}
+
+We are comparing:
+\begin{itemize}
+    \item \textbf{Training Loss}: How well we \textit{thought} we did-average loss on the training dataset
+    \item \textbf{Test Loss}: How well we \textit{actually} did-average loss on unseen data
+\end{itemize}
+
+\textbf{Generalisation gap}:
+$$\text{Gap} = \hat{R}_{\text{test}}(\hat{f}_n) - \hat{R}_{\text{train}}(\hat{f}_n)$$
+
+A large gap indicates overfitting: the model performs much better on training data than on new data.
+
+\begin{redbox}[The Optimism of Pure ERM]
+Generalisation/estimation error quantifies how \textbf{overly optimistic} we were when using pure ERM.
+
+In an overfitted model:
+\begin{itemize}
+    \item Approximation error is basically zero (the model can express the training data perfectly)
+    \item But estimation/generalisation error is high (the gap between training loss approaching zero and test loss remaining high is large)
+\end{itemize}
+
+ERM makes us overly optimistic because we are overfitting to the data-it will reduce training loss to zero but this does not translate to good test performance.
+\end{redbox}
+
+\begin{bluebox}[Key Takeaways on Generalisation]
+\begin{itemize}
+    \item \textbf{Generalisation gap} = difference between test and training performance. Small gap indicates good generalisation; large gap suggests overfitting.
+    \item Since we cannot directly observe true expected risk over the entire distribution $p^*$, we use train/test splits to estimate how well our model will perform in practice.
+    \item The testing data provides an estimate-the model's true performance could vary in completely new contexts.
+\end{itemize}
+\end{bluebox}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Regularisation}
+%══════════════════════════════════════════════════════════════════════════════
+
+\textbf{Regularisation} adds a penalty for model complexity, trading off fit against simplicity. It prevents models from overfitting by introducing additional information or constraints to discourage overly complex models.
+
+\subsection{The Mechanics of Regularisation}
+
+Overfitting occurs when a model learns patterns specific to the training data, including noise, to the extent that it performs poorly on new data. Regularisation addresses this by adding a \textbf{penalty on the size of model parameters} to the loss function.
+
+\begin{greybox}[Regularised Objective]
+$$\mathcal{L}(\theta; \lambda) = \underbrace{\frac{1}{n} \sum_{i=1}^n \ell(y_i, f(x_i; \theta))}_{\text{Loss (data fit)}} + \lambda \underbrace{C(\theta)}_{\text{Complexity penalty}}$$
+
+where $\lambda \geq 0$ controls the regularisation strength:
+\begin{itemize}
+    \item $\lambda = 0$: No regularisation (pure ERM)
+    \item $\lambda \to \infty$: Ignore data, minimise complexity only
+\end{itemize}
+
+The parameter $\lambda$ manages the tradeoff between fitting the data and keeping the model simple.
+\end{greybox}
+
+\subsection{Uses of Regularisation}
+
+\begin{enumerate}
+    \item \textbf{Prevent overfitting}: By penalising large coefficients, regularisation reduces model complexity, leading to lower variance and less overfitting
+    \item \textbf{Improve generalisation}: A simpler model with smaller coefficients is less sensitive to noise in training data, making it better at predicting outcomes for unseen data
+    \item \textbf{Feature selection} (L1): By driving some coefficients to zero, L1 regularisation helps identify the most important features
+\end{enumerate}
+
+\subsection{Ridge Regression (L2 Regularisation)}
+
+\begin{greybox}[Ridge Regression]
+$$\mathcal{L}_{\text{ridge}}(\beta; \lambda) = \frac{1}{n} \|y - X\beta\|_2^2 + \lambda \|\beta\|_2^2$$
+
+where $\|\beta\|_2^2 = \beta^\top \beta = \sum_j \beta_j^2$ penalises the \textbf{squared magnitude} of coefficients.
+
+\textbf{Closed-form solution}:
+$$\hat{\beta}_{\text{ridge}} = (X^\top X + \lambda I_p)^{-1} X^\top y$$
+
+Note: When $\lambda = 0$, this reduces to the standard OLS solution.
+\end{greybox}
+
+\begin{bluebox}[Why Ridge Works]
+\begin{enumerate}
+    \item \textbf{Shrinkage}: Coefficients are pulled toward zero, reducing variance
+    \item \textbf{Guaranteed invertibility}: Adding $\lambda I$ ensures $X^\top X + \lambda I$ is always invertible
+    \item \textbf{Stabilises conditioning}: Increases smallest eigenvalues, reducing $\kappa$
+\end{enumerate}
+\end{bluebox}
+
+\subsubsection{Ridge as Rescaled OLS}
+
+For orthonormal $X$ (i.e., $X^\top X = I$, where each column is independent and normalised):
+$$\hat{\beta}_{\text{ridge}} = \frac{\hat{\beta}_{\text{OLS}}}{1 + \lambda}$$
+
+Ridge uniformly shrinks all coefficients toward zero. This introduces bias but reduces variance.
+
+\subsection{Lasso Regression (L1 Regularisation)}
+
+\begin{greybox}[Lasso Regression]
+$$\mathcal{L}_{\text{lasso}}(\beta; \lambda) = \frac{1}{n} \|y - X\beta\|_2^2 + \lambda \|\beta\|_1$$
+
+where $\|\beta\|_1 = \sum_j |\beta_j|$ penalises the \textbf{sum of absolute values} of coefficients.
+
+\textbf{No closed-form solution}-requires iterative optimisation (e.g., coordinate descent).
+\end{greybox}
+
+\subsubsection{Lasso as Soft Thresholding}
+
+For orthonormal $X$:
+$$\hat{\beta}_{\text{lasso},j} = \text{sign}(\hat{\beta}_{\text{OLS},j}) \cdot (|\hat{\beta}_{\text{OLS},j}| - \lambda)_+$$
+
+where $(z)_+ = \max(0, z)$ denotes the positive part.
+
+\begin{greybox}[Understanding the Lasso Formula]
+\begin{itemize}
+    \item $\text{sign}(\hat{\beta}^{\text{OLS}}_j)$: Preserves the direction (positive or negative) of the coefficient
+    \item $|\hat{\beta}^{\text{OLS}}_j| - \lambda$: Subtracts a constant $\lambda$ from the absolute value
+    \item $(\cdot)_+$: Sets result to zero if negative
+\end{itemize}
+
+This is a \textbf{thresholding function}: take the magnitude of the OLS estimate, subtract $\lambda$, and take the positive part. Small coefficients (those with $|\hat{\beta}^{\text{OLS}}_j| < \lambda$) are set exactly to zero.
+\end{greybox}
+
+\begin{bluebox}[Ridge vs Lasso: A Comparison]
+\begin{center}
+\begin{tabular}{l|cc}
+& \textbf{Ridge (L2)} & \textbf{Lasso (L1)} \\
+\hline
+Penalty & $\|\beta\|_2^2 = \sum \beta_j^2$ & $\|\beta\|_1 = \sum |\beta_j|$ \\
+Effect & Shrinks all coefficients & Sets some coefficients to exactly 0 \\
+Sparsity & No & Yes (automatic feature selection) \\
+Solution & Closed-form & Iterative \\
+Geometry & Circular constraint & Diamond constraint \\
+Orthonormal $X$ & $\frac{\hat{\beta}_{\text{OLS}}}{1+\lambda}$ & Soft thresholding \\
+\end{tabular}
+\end{center}
+
+\textbf{Ridge} gives small $\beta^\top \beta$; \textbf{Lasso} makes $\beta$ \textbf{sparse} (drives coefficients to zero).
+\end{bluebox}
+
+\subsection{Elastic Net}
+
+Combines L1 and L2 penalties:
+$$\mathcal{L}_{\text{elastic}}(\beta; \lambda_1, \lambda_2) = \frac{1}{n} \|y - X\beta\|_2^2 + \lambda_1 \|\beta\|_1 + \lambda_2 \|\beta\|_2^2$$
+
+where $\lambda_1$ and $\lambda_2$ control the impact of L1 and L2 terms respectively.
+
+\textbf{Benefits}: Sparsity of Lasso + stability of Ridge. Particularly useful when features are correlated.
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Multiple Perspectives on Regularisation}
+%══════════════════════════════════════════════════════════════════════════════
+
+Regularisation can be understood from several complementary viewpoints, each providing different intuition.
+
+\subsection{Perspective 1: Necessity (Invertibility)}
+
+\begin{greybox}[When OLS Fails]
+OLS requires $(X^\top X)^{-1}$ to exist. This fails when:
+\begin{itemize}
+    \item $n < p$ (more features than observations)
+    \item Columns of $X$ are linearly dependent (multicollinearity)
+    \item Near-collinearity (numerically unstable)
+\end{itemize}
+
+The requirements for invertibility:
+\begin{itemize}
+    \item Non-zero determinant
+    \item Full rank: each column of $X$ is linearly independent
+    \item Equivalent to an eigenvalue condition
+\end{itemize}
+
+Ridge \textbf{guarantees invertibility}: $(X^\top X + \lambda I)$ is always positive definite for $\lambda > 0$.
+\end{greybox}
+
+\begin{greybox}[Diagonal Dominance]
+The key insight is \textbf{diagonal dominance}: if $\sum_{j \neq i} |A_{ij}| < |A_{ii}|$ for all $i$, then $A$ is invertible.
+
+Adding $\lambda I$ makes $(X^\top X)_{ii}$ larger-the ``ridge'' dominates the matrix, eventually making it invertible.
+
+$$\hat{\beta}_{\text{ridge}} = (X^\top X + \lambda I_p)^{-1} X^\top y$$
+
+Here the scaling factor $\lambda$ increases the diagonal terms, guaranteeing invertibility.
+\end{greybox}
+
+\subsection{Perspective 2: Bias-Variance Tradeoff}
+
+\begin{redbox}[Core Intuition]
+Regularisation \textbf{introduces bias} in order to \textbf{reduce variance}.
+\end{redbox}
+
+\begin{greybox}[Regularisation Trades Bias for Variance]
+\begin{itemize}
+    \item \textbf{OLS}: Unbiased but high variance (especially with many features)
+    \item \textbf{Ridge}: Biased (shrinks toward zero) but lower variance
+\end{itemize}
+
+When variance dominates (high-dimensional settings), this tradeoff improves MSE:
+$$\text{MSE} = \text{Bias}^2 + \text{Variance}$$
+
+A small increase in bias can yield a large decrease in variance.
+\end{greybox}
+
+\begin{bluebox}[Why Social Scientists Often Avoid Regularisation]
+In social science and econometrics, unbiased estimation is often prioritised:
+\begin{enumerate}
+    \item \textbf{Causal interpretation}: Biased estimates can lead to incorrect causal conclusions
+    \item \textbf{Interpretability}: Shrinkage changes the meaning of coefficients
+\end{enumerate}
+
+The philosophy is: first find an unbiased estimator, then work to reduce its variance. Ridge introduces bias deliberately (scaling down)-useful for prediction but potentially problematic for inference.
+
+This highlights a fundamental difference between \textbf{prediction} (where bias-variance tradeoff matters) and \textbf{inference} (where unbiasedness may be paramount).
+\end{bluebox}
+
+\subsection{Perspective 3: Bayesian Interpretation (MAP)}
+
+\begin{redbox}[Key Connection]
+The Bayesian MAP estimator \textit{is} ridge regression. There is a one-to-one correspondence between regularisation and prior distributions.
+\end{redbox}
+
+\begin{greybox}[Regularisation as Prior]
+Ridge regression is equivalent to MAP estimation with a Gaussian prior:
+$$\beta \sim \mathcal{N}(0, \tau^2 I)$$
+
+The regularisation parameter relates to the prior: $\lambda = \sigma^2 / \tau^2$
+
+\begin{itemize}
+    \item $\tau \to \infty$ (weak prior, large variance): Ridge $\to$ OLS (indifferent to prior)
+    \item $\tau \to 0$ (strong prior, small variance): $\hat{\beta} \to 0$ (ignores data, assumes $\beta = 0$)
+\end{itemize}
+
+Similarly, Lasso corresponds to a \textbf{Laplace prior} (double exponential):
+$$p(\beta_j) \propto \exp(-|\beta_j|/b)$$
+
+The Laplace distribution has heavier tails than Gaussian but concentrates more mass at zero, explaining why Lasso produces sparse solutions.
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_03_highdim/image.png}
+    \caption{Bayes' theorem: the posterior $p(\theta | \mathcal{D})$ is proportional to the prior $p(\theta)$ times the likelihood $p(\mathcal{D} | \theta)$. Regularisation enters through the prior.}
+    \label{fig:bayes-theorem}
+\end{figure}
+
+\begin{bluebox}[Frequentist-Bayesian Connection]
+\begin{center}
+\begin{tabular}{l|l}
+\textbf{Regularisation} & \textbf{Prior Distribution} \\
+\hline
+L2 (Ridge) & Gaussian $\mathcal{N}(0, \tau^2)$ \\
+L1 (Lasso) & Laplace (double exponential) \\
+Elastic Net & Mixture of Gaussian and Laplace \\
+None (OLS) & Uniform (improper) \\
+\end{tabular}
+\end{center}
+
+This relationship highlights a beautiful crossover between frequentist (regularisation) and Bayesian approaches. Choosing a specific form of regularisation implicitly makes assumptions akin to choosing a prior in Bayesian analysis.
+\end{bluebox}
+
+\begin{greybox}[Intuitive Understanding]
+If you believe the true parameters should be small (to avoid overfitting), you can express this belief by:
+\begin{itemize}
+    \item \textbf{Frequentist}: Imposing a penalty on parameter size (regularisation)
+    \item \textbf{Bayesian}: Choosing priors that favour smaller values
+\end{itemize}
+
+Both approaches add extra information to guide the optimisation toward certain properties. Regularisation does this via a penalty term; Bayesian inference does this through priors combined with the likelihood to form posteriors.
+\end{greybox}
+
+\subsection{Perspective 4: Geometric Interpretation}
+
+The regularised objective can be written as a constrained optimisation:
+$$\min_\beta \|y - X\beta\|_2^2 \quad \text{subject to} \quad \|\beta\|_p \leq t$$
+
+\begin{itemize}
+    \item \textbf{Ridge}: Constraint region is a \textbf{sphere} ($\ell_2$ ball)
+    \item \textbf{Lasso}: Constraint region is a \textbf{diamond} ($\ell_1$ ball)
+\end{itemize}
+
+The Lasso's corners at the axes explain why it produces exact zeros: the elliptical contours of the loss function are more likely to first touch the constraint at a corner, corresponding to a coordinate being exactly zero.
+
+\subsection{Perspective 5: Measurement Error}
+
+Adding Gaussian noise to features is equivalent to Ridge regression:
+
+If we observe $\tilde{X} = X + \epsilon$ where $\epsilon_{ij} \sim \mathcal{N}(0, \sigma^2)$, then OLS on $\tilde{X}$ yields:
+$$\hat{\beta} \approx (X^\top X + n\sigma^2 I)^{-1} X^\top y$$
+
+This simplifies to the ridge regression objective:
+$$R(\theta) = \frac{1}{n} \sum_{i=1}^n (X\beta - y_i)^2 + \sigma^2 \|\beta\|_2^2$$
+
+\begin{bluebox}[Intuition: Noise Breaks Spurious Correlations]
+Adding Gaussian noise to features effectively shrinks coefficients. Why?
+
+If you add infinite Gaussian noise to each feature, all relationships become random-there will be no linear relationship between features and output. Less linear relationship means smaller coefficients.
+
+Features that do not truly predict $y$ get shrunk because noisy versions of them show no relationship. Thus, adding noise is equivalent to regularisation.
+\end{bluebox}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Model Selection and Validation}
+%══════════════════════════════════════════════════════════════════════════════
+
+How do we choose the regularisation strength $\lambda$? This is a \textbf{hyperparameter}-a parameter that controls the learning process rather than being learned from data.
+
+We want to choose hyperparameter values to \textbf{minimise generalisation error}.
+
+\subsection{Validation Sets}
+
+\begin{greybox}[Three-Way Split]
+\begin{enumerate}
+    \item \textbf{Training set} ($p_{\text{train}}$): Fit model for each candidate $\lambda$
+    \item \textbf{Validation set} ($p_{\text{validation}}$): Choose $\lambda$ that minimises validation loss (model selection)
+    \item \textbf{Test set} ($p_{\text{test}}$): Estimate final generalisation error (used only once!)
+\end{enumerate}
+
+This prevents ``leaking'' test information into model selection.
+\end{greybox}
+
+\begin{redbox}[Never Use the Test Set for Model Selection!]
+If you repeatedly evaluate on the test set and choose the best model, you are effectively fitting to the test set and will overestimate performance on truly new data.
+
+The test set should be touched exactly once-at the very end, to report final performance.
+\end{redbox}
+
+\subsection{Cross-Validation}
+
+When data is limited, cross-validation reuses data for both training and validation.
+
+\begin{greybox}[$K$-Fold Cross-Validation]
+\begin{enumerate}
+    \item Split data into $K$ roughly equal folds
+    \item For $k = 1, \ldots, K$:
+    \begin{itemize}
+        \item Train on all folds except $k$
+        \item Evaluate on fold $k$
+    \end{itemize}
+    \item Average the $K$ validation scores
+\end{enumerate}
+
+Common choices: $K = 5$ or $K = 10$
+
+\textbf{Leave-One-Out CV} (LOOCV): $K = n$. Uses maximum data for training but computationally expensive.
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_03_highdim/kplot.pdf}
+    \caption{Cross-validation error as a function of model complexity (indexed on x-axis). The U-shaped curve shows the bias-variance tradeoff: too simple models underfit (high error on left), too complex models overfit (high error on right). The optimal complexity minimises CV error.}
+    \label{fig:cv-error}
+\end{figure}
+
+\begin{bluebox}[Choosing $\lambda$ via CV]
+\begin{enumerate}
+    \item Define a grid of $\lambda$ values (e.g., $10^{-4}, 10^{-3}, \ldots, 10^2$)
+    \item For each $\lambda$, compute CV score
+    \item Select $\lambda^* = \argmin_\lambda \text{CV}(\lambda)$
+    \item Refit on full training data with $\lambda^*$
+\end{enumerate}
+\end{bluebox}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Regularised Polynomial Regression}
+%══════════════════════════════════════════════════════════════════════════════
+
+Combining polynomial features with regularisation gives the best of both worlds:
+\begin{itemize}
+    \item \textbf{High expressivity}: Can fit complex relationships (high-dimensional model)
+    \item \textbf{Controlled complexity}: Regularisation prevents overfitting
+\end{itemize}
+
+\begin{bluebox}[Recipe for Flexible Regression]
+\begin{enumerate}
+    \item Expand features (polynomials, interactions, etc.)
+    \item Apply Ridge or Lasso regularisation
+    \item Choose $\lambda$ via cross-validation
+\end{enumerate}
+
+This allows fitting smooth, complex curves without the instability of high-degree unregularised polynomials.
+\end{bluebox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_03_highdim/regularised_polynomial.png}
+    \caption{Regularised polynomial regression. The right panels show L2 regularisation producing smooth fits even with high-degree polynomials, avoiding the oscillatory behaviour of unregularised fits. Panel (c) is particularly notable: a smooth model that does not exhibit typical polynomial wiggles. Regularisation allows us to get the best of both worlds-expressivity without instability.}
+    \label{fig:regularised-polynomial}
+\end{figure}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Summary}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Key Concepts from Week 3]
+\begin{enumerate}
+    \item \textbf{Polynomial regression}: Nonlinear relationships via feature expansion; still linear in parameters
+    \item \textbf{Numerical instability}: High-degree polynomials have ill-conditioned $X^\top X$; global approximators cause edge problems (Runge's phenomenon)
+    \item \textbf{Population vs empirical risk}: We minimise the latter (what we can compute) to approximate the former (what we care about)
+    \item \textbf{Three levels of optimality}: Bayes optimal $f^{**}$, best-in-class $f^*$, empirical best $\hat{f}_n$
+    \item \textbf{Approximation error}: Limitation of hypothesis class (does not decrease with $n$)
+    \item \textbf{Estimation error}: Finite-sample error (decreases with $n$, increases with complexity)
+    \item \textbf{Regularisation}: Penalty on complexity to reduce overfitting; trades bias for variance
+    \item \textbf{Ridge (L2)}: Shrinks coefficients, guarantees invertibility, closed-form solution
+    \item \textbf{Lasso (L1)}: Sparse solutions, automatic feature selection, no closed-form
+    \item \textbf{Multiple perspectives}: Regularisation as necessity, bias-variance tradeoff, Bayesian prior, geometric constraint, measurement error
+    \item \textbf{Bayesian view}: Ridge = Gaussian prior, Lasso = Laplace prior
+    \item \textbf{Cross-validation}: Choose hyperparameters without overfitting to test data
+\end{enumerate}
+\end{bluebox}
+

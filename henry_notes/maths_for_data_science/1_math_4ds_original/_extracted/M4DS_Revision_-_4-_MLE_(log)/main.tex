@@ -1,0 +1,144 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize M4DS Mid-term revision}
+\rhead{\footnotesize Henry Baker} 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf Mid Terms Fall 2023  \\ Henry Baker}
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: \\ Maximum Likelihood Estimation LOGGING}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\begin{itemize}
+    \item We have some data.
+    \item We assume the events in the data are i.i.d.
+    \item Following an \{insert distribution\}, with \{insert parameters\}, but some unknown success probability $p$.
+    \item Aim: find value of $p$ that maximises the probability that this particular dataset is observed.
+    \item We can't observe the true $p$, but every possible value that $p$ could take corresponds to some joint probability of observing the data that we see $\rightarrow$ find value of $p$ that makes data most likely.
+\end{itemize}
+
+\section{Express likelihood function}
+\subsection{Specify the model}
+Let $X_i$ (number of saves in game $i$) be i.i.d., with distribution 
+\[X_i \sim Binomial \binom{5}{\theta}\]
+
+\begin{tcolorbox}[colback=gray!20]
+
+Here $\theta$ represents unknown value of $p$.
+
+Given a statistical model with parameter(s) $\theta$, and some observed data $X$, the likelhood function $L(\theta; X)$ quantifies how likely the observed data is for different values of $\theta$: 
+\[L(\theta; X) = f(X; \theta)\]
+Where $f(X; \theta)$ is the PMF/PDF of the oberved data, given the parameters $\theta$.
+
+\[L(x_1, x_2, \ldots, x_n; \theta) = P(X_1 = x_1, X_2 = x_2, \ldots, X_n = x_n; \theta)\]
+
+\end{tcolorbox}
+
+\subsection{Generic PMF of $X_i$}
+Binomial PMF given by: 
+\[P(X_i = k) = \binom{n}{k} p^k (1 - p)^{n-k}\]
+
+\subsection{Generic likelihood given $n$ events with $m$ trials}
+\[L(x_1, \ldots, x_n; \theta) = \prod_{j=1}^{n}  \binom{m}{x_j} \cdot \theta^{x_j} \cdot (1 - \theta)^{m-x_j}\]
+
+\section{Express log likelihood}
+Better behaved function; easier to maximise. 
+\subsection{take the log}
+
+\begin{tcolorbox}
+Log rules:
+    \begin{align*}
+        \log(ab) &= \log(a) + \log(b) \\
+        \log\left(\frac{a}{b}\right) &= \log(a) - \log(b) \\
+        \log\left(\prod_{j=1}^{n} x_j\right) &= \sum_{j=1}^{n} \log(x_j) \\
+        \log(a^b) &= b \log a
+    \end{align*}
+\end{tcolorbox}
+
+\[\ell(x_1, \ldots, x_n; \theta) = \sum_{j=1}^{n} \left[ \log\binom{m}{x_j} + x_j \log \theta + (m - x_j) \log(1 - \theta) \right]\]
+
+\subsection{Derive the log}
+Term 1: constant drops out\\
+Term 2: $log \theta$ becomes $\frac{1}{\theta} \rightarrow \frac{x_j}{\theta}$ \\
+Term 3: For $log(1- \theta)$ we apply the chain rule: 
+\begin{itemize}
+    \item inner: -1
+    \item outer: $\frac{1}{1- \theta}$
+    \item inner $\times$ outer: $-\frac{1}{1-\theta}$
+\end{itemize}
+
+\begin{align*}
+\frac{d\ell}{d\theta} = \sum_{j=1}^{n} \left( \frac{x_j}{\theta} \right) - \sum_{j=1}^{n} \left( \frac{m - x_j}{1 - \theta} \right)
+\end{align*}
+
+\subsection{Set derivative to 0, solve for $\theta$}
+THIS BELOW IS NOT RIGHT, LOOK AT SLIDES
+\begin{align*}
+    0 &= \sum_{j=1}^{n}x_j(\frac{1}{\hat{\theta}} - \sum_{j=1}^{n}(m-x_j)(\frac{1}{1-\hat{\theta}}\\
+    \sum_{j=1}^{n} \frac{5 - x_j}{1 - \hat{\theta}} &= \sum_{j=1}^{n} \frac{x_j}{\hat{\theta}} \\
+    \hat{\theta} \sum_{j=1}^{n} (5 - x_j) &= (1 - \hat{\theta}) \sum_{j=1}^{n} x_j \\
+    5n\hat{\theta} - \hat{\theta} \sum_{j=1}^{n} x_j &= \sum_{j=1}^{n} x_j - \hat{\theta} \sum_{j=1}^{n} x_j \\
+    5n\hat{\theta} &= \sum_{j=1}^{n} x_j \\
+    \hat{\theta} &= \frac{\sum_{j=1}^{n} x_j}{5n}
+\end{align*}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Screenshot 2023-10-23 184105.png}
+    \caption{NEED TO INTEGRATE}
+    \label{fig:enter-label}
+\end{figure}
+
+Maximum Likelihood Estimation (MLE) is a statistical method used for estimating the parameters of a statistical model. It is a fundamental concept in probability theory and statistics, widely used in various fields, including machine learning and optimization. The core idea of MLE is to find the parameter values that maximize the likelihood function, which measures how well the model with those parameters explains the observed data.
+
+Here's a more detailed breakdown of the MLE concept:
+
+Statistical Model: A statistical model is a mathematical representation of a real-world process, described by a set of parameters. For example, in a normal distribution, the mean and variance are its parameters.
+
+Likelihood Function: The likelihood function is a function of the model parameters given the observed data. It represents the probability of observing the given data under different parameter values of the model. The likelihood is different from probability as it treats the observed data as fixed and the parameters as variables.
+
+Maximizing the Likelihood: MLE seeks to find the parameter values that maximize the likelihood function. These values are called the maximum likelihood estimates. The idea is that the best model parameters are those under which the observed data is most probable.
+
+Log-Likelihood: In practice, it's common to work with the logarithm of the likelihood function, known as the log-likelihood. This transformation simplifies the calculations, especially for products, as it turns them into sums. The maximization principle remains the same since logarithm is a monotonic function.
+
+Finding the Maximum: To find the maximum of the likelihood or log-likelihood, we often use calculus, setting the derivative with respect to the parameters to zero and solving for the parameters. In complex models, this process may require numerical methods.
+
+Applications: MLE is used in various contexts like regression analysis, time series analysis, and machine learning models. It provides a way of fitting a model to data and is foundational in the field of inferential statistics.
+
+For example, in the case of a normal distribution, the MLE for the mean and variance can be calculated using the observed data, and these estimates will be the sample mean and sample variance, respectively.
+
+Would you like to see an example of MLE in practice, perhaps through a specific problem or a demonstration in R code?
+\end{document}

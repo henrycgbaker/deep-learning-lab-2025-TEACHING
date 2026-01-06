@@ -1,0 +1,494 @@
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf ML Lecture Notes 2024 \\ Henry Baker}
+\hline 
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf ML Lecture Notes: Wk 8 - i\\ Boosting }
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Boosting/Ensemble Learning \& Correlated Errors}
+
+\subsection{Motivation: errors of trees are correlated!}
+
+The main issue encountered in ensemble learning, particularly with methods that rely on decision trees, like Random Forests and Gradient Boosting Machines (GBMs): is the correlation of errors among the trees in the ensemble.\\
+
+Despite efforts to diversify the trees—through methods like bootstrapping the data (as in Random Forests) or by manipulating input features — the errors made by individual trees can still be correlated.\\
+
+This correlation can diminish the ensemble's ability to reduce overall error through averaging or combining individual tree predictions.
+
+\subsubsection{Core issue in Ensemble Learning Basics}
+combine the predictions of several base estimators (like decision trees) to improve generalizability and robustness over a single estimator.\\
+
+Core issue: if the base learners (trees) make similar errors, then these errors will reinforce each other when their predictions are combined, instead of cancelling out. \\
+
+Ensemble model's main strength is its ability to reduce the variance component of the error by averaging out uncorrelated errors from diverse models. However, if errors are correlated, this variance reduction is less effective.
+
+\subsubsection{Ensemble Prediction Function}
+Formalising ensemble method in prediction function:
+\begin{redbox}
+    \textbf{For each tree (weak learners):}
+    $$f(x;\theta, w) = \sum_{m=1}^M w_m F_m(x;\theta)$$ 
+\end{redbox}
+Where
+\begin{itemize}
+    \item $F_m(x;\theta)$ represents the individual tree predictions
+    \item $w_m$ are the weights assigned to each tree's prediction
+    \item $w_m = \frac{1}{M}$ - in simple ensemble methods like bagging, each tree has equal weight.
+\end{itemize}
+
+ However, when we fit each $F_m(\cdot)$ independently, we can't ensure they do different things; despite being trained on different samples or with different features, they end up making similar mistakes due to overlapping regions of error.
+
+\subsubsection{Solution} 
+\begin{enumerate}
+    \item Fit $F_1(\cdot)$ as normal, 
+    \item Fit $F_2(\cdot)$ on reweighted (or residual-focused) data that emphasizes the errors made by $F_1(\cdot)$.\\
+\end{enumerate}
+
+\textit{i.e. subsequent trees focus on learning different things than (i.e. correcting the errors of) the prev tree}.\\
+
+This is the core of Boosting algorithms, such as AdaBoost and Gradient Boosting. These involve a sequential learning process. 
+\begin{itemize}
+    \item Step 1 is always same
+    \item How subsequent steps are handled depends on method: each reweight or remodel the data to emphasize the errors made by the previous models in the sequence.
+    \begin{itemize}
+        \item \textbf{AdaBoost} - this involves increasing the weights of the instances that were misclassified by the previous models, making them more 'important' for the next model to correct.
+        \item \textbf{Gradient Boosting} - each new model is trained on the residuals (the differences between the observed and predicted values) of the previous models, effectively focusing on correcting the errors made by the ensemble so far.
+    \end{itemize}
+\end{itemize}
+
+This reduces correlation between the errors of the individual trees -> more robust \& accurate ensemble methods.
+
+\section{Intuition of Boosting}
+
+An ensemble technique that focuses on minimizing a loss function by sequentially adding models that predict the residuals or errors of the ensemble thus far.
+
+\begin{enumerate}
+    \item Fit a model
+    \item Calculate residuals
+    \item Fit a model to the residuals
+    \item Repeat
+\end{enumerate}
+
+The residuals are our mistakes. So at each iteration, we are fitting a model that will correct the mistakes we made. \\
+
+\begin{tcolorbox}
+    Mathematically we can directly add these together (although in practice we don't actually directly add them together: we use $\beta$ parameter as a learning rate to avoid fitting too closely to the data in each model.\\
+
+    By down weighting a single decision tree, we are...(?)
+\end{tcolorbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{figures/week_08_boosting/boosting.png}
+    \caption{Green line is a single decision tree; Red line is combined trees.\\
+    
+    NB Green line is not that deep-expressive: you might only have a depth of 1-2; we're not doing so much learning with each decision tree, but when we combine them together we have depth.\\
+    
+    Cross validation: decide how deep each tree, how many iterations.}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Generic Loss function at iteration $m$}
+
+\[
+\beta_{m}, \theta_{m} = \arg\min_{\beta,\theta} \sum_{i=1}^{N} \mathcal{L}\left(y_{i}, \textcolor{blue}{f_{m-1}(x_{i})}+\textcolor{green}{\beta} \textcolor{purple}{ F(x_{i};\theta)}\right)
+\]
+
+Where:
+\begin{itemize}
+    \item \textcolor{blue}{$f_{m-1}(x_{i})$ - previous prediction (in iteration $m-1$)}
+    \item \textcolor{green}{$\beta$ - Tradeoff between previous and current prediction}
+    \item \textcolor{purple}{$F(x_{i};\theta)$ - current function (tree) being optimizes}
+\end{itemize}
+
+What's going on:
+\begin{itemize}
+    \item $\ell(y, \hat{y})$ is the loss function comparing the true labels $y$ with the predictions $\hat{y}$
+    \item $\hat{y} = f_{m-1}(x_i)$ is the prediction from the previous iteration,
+    \item the minimization argument is minimising over two sets of parameters
+\end{itemize}
+
+\begin{tcolorbox}
+    Take the prediction from the previous set of trees, then add that into the prediction of the current tree, but weight it by $\beta$
+\end{tcolorbox}
+
+Big $F$ the \textbf{Strong learner} = all trees.\textcolor{red}{I DON'T THINK THIS IS RIGHT?}\\
+
+Small $f$ the \textbf{Weak learner} = individual trees.\\
+
+We are not trying to fit a perfect model each time; rather we are trying to reduce the error a bit each time...\\
+
+... if we make $M$ big enough, we will reduce a lot of error: intuitively, if each of your weak learners is able to do a bit to help you, then eventually you can combine to get a strong learner.\\
+
+The logic of boosting: you can do a better job by iteratively stacking weak learners, than fitting just one strong learner.
+
+\begin{tcolorbox}
+    This works extremely well. In practice, most models are boosted models - they are extremely robust.
+\end{tcolorbox}
+
+\subsection{Double Optimization Process}
+
+The optimization process involves two key steps at each iteration:\\
+
+\textbf{Fitting the New Model to Residuals:} For each observation $i$, calculate the residual from the previous iteration's prediction. Then, fit a new model $f(x;\theta)F(x;\theta)$ to these residuals. This step focuses on learning from the mistakes of the ensemble thus far.\\
+
+\textbf{Finding the Optimal $\beta$:} Once $f(x;\theta)F(x;\theta)$ is fitted to predict the residuals, the next step is to find the optimal scaling factor $\beta$ that minimizes the overall loss when the predictions of $f(x;\theta)F(x;\theta)$ are added to the previous ensemble's predictions. This involves a line search to find the value of $\beta$ that best reduces the loss.
+
+\section{Least Squares Boosting}
+A specific Gradient Boosting Machine (GBM) - common for regression problems.\\
+
+\textbf{Squared Loss Function}: For least squares boosting, the loss function is specifically the squared error between the true and predicted values, $$\ell(y, \hat{y}) = (y - \hat{y})^2$$
+
+Insert this into the prev generic loss function at iteration $m$:
+
+$$\mathcal{L}\left(y_{i}, f_{m-1}(x_{i})+\beta F(x_{i};\theta)\right = \textcolor{red}{(y_i - f_{m-1}(x_i)} - \beta F(x_i;\theta))^2)$$
+
+In which \textcolor{red}{$(y_i - f_{m-1}(x_i))$} is the residual from the previous iteration \textit{= essentially predicting the error of the previous model, thereby correcting it}.\\
+
+
+
+The goal at each step is to reduce the discrepancy between the observed values and the ensemble's predictions by adding a new predictor $\hat{y}(x;\theta)F(x;\theta)$ that corrects the residuals from the previous step.\\
+
+\begin{tcolorbox}
+    Take the residual from the previous prediction, then fit a model on that.\\
+
+    NB the previous model is \textit{all of the previous trees} - it is combining them recursively
+\end{tcolorbox}
+
+\section{AdaBoost}
+
+\begin{redbox}
+    Essentially: if model misclassifies something, weight up next time (using exponential loss function)!
+\end{redbox}
+\subsection{Binary Classification \& Encoding}
+
+\textcolor{red}{Not so important}
+
+
+AdaBoost typically deals with labels $y$ that are encoded as $\{-1, 1\}$.\\
+
+This encoding facilitates mathematical manipulation, especially in the context of loss functions that compare predictions ($F(x)$) to actual labels ($y$).\\
+
+
+    To transform binary labels $\{0,1\}$ into a $\{-1,1$\} encoding, we use a transformation: $\hat{y = (2y-1)}$:
+    \begin{align*}
+    y &= 0 & \Rightarrow \hat{y} &= (2 \times 0 - 1) = -1 \\
+    y &= 1 & \Rightarrow \hat{y} &= (2 \times 1 - 1) = 1
+\end{align*}
+
+
+AdaBoost models produce predictions $F(x)$ that can take any real value ($-\infty$ to $+\infty$). To interpret these predictions as probabilities, a logistic function (or sigmoid function) $\sigma$ is used:
+\[
+\sigma(F(x)) = \frac{1}{1 + \text{exp}\{2 F(x)\}}
+\]
+This function maps the real-valued predictions to the $(0,1)$ interval, providing a probability measure.
+
+\subsection{Use of Exponential Loss Function}
+
+AdaBoost uses Exponential Loss Function
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_08_boosting/loss functions.png}
+    \caption{Shows exponential loss function is closest to trie loss function??? wile remaining differentiable?}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsubsection{Possible Loss Functions}
+
+\textbf{Log-Loss (or Logistic Loss):} This is commonly used in logistic regression and measures the discrepancy between the actual labels and predicted probabilities. It is given by:
+\[
+\ell_{\text{log}}(y,F(x)) = \log(1 + \exp(-2yF(x)))
+\]
+The factor of 2 is included to adjust for the $y \in \{-1,1\}$ encoding. This loss encourages predictions $F(x)$ that are consistent with the actual labels $y$, penalizing incorrect predictions more heavily as the discrepancy increases.\\
+
+\textbf{Exponential Loss:} Used by AdaBoost, the exponential loss function is:
+\[
+\ell_{\text{exp}}(y,F(x)) = \exp(-yF(x))
+\]
+This loss function similarly aims to penalize discrepancies between the labels and predictions but does so in an exponential manner. The key characteristic of the exponential loss is that it heavily penalizes models that are confident and wrong. Unlike log-loss, which asymptotically approaches its maximum penalty, the exponential loss can grow without bound as the prediction moves away from the actual label.
+
+\begin{tcolorbox}
+    The magnitude of this loss depends on the loss function being used. For both the exponential loss and log loss functions, incorrect predictions are penalized, but the severity of the penalty differs:
+    \begin{enumerate}
+        \item \textbf{Exponential Loss:} This function imposes a higher penalty on incorrect predictions compared to log loss. The penalty increases exponentially with the degree of incorrectness of the prediction, thus heavily penalizing predictions that are far from the true outcome. This characteristic of exponential loss drives the model to prioritize the correction of incorrect predictions to a greater extent.
+    
+        \item \textbf{Log Loss}: While also penalizing incorrect predictions, log loss does so in a manner that is less aggressive than exponential loss. The penalty increases logarithmically, meaning that while incorrect predictions are discouraged, the model is not penalized as harshly for predictions that are wrong.
+    \end{enumerate}
+
+    Both serve as effective surrogate loss functions; minimizing either loss function over a sufficiently large dataset tends to lead the model towards similar performance outcomes. \\
+    
+    However, from a mathematical optimization perspective, log loss is generally considered easier to minimize due to its smoother gradient. 
+\end{tcolorbox}
+
+\subsubsection{AdaBoost and Exponential Loss}
+
+The use of the exponential loss in AdaBoost is strategic:
+
+\begin{itemize}
+    \item \textbf{Weight Update Mechanism:} The exponential loss directly influences the way weights are updated for each observation in the training dataset. Observations that are misclassified by the current ensemble are assigned exponentially higher weights, making them more critical for the next model to get right.
+    
+    \item \textbf{Model Fitting:} Each new model in the AdaBoost sequence is fitted to correct the errors of the ensemble thus far, with a focus on the observations that the current ensemble finds most challenging. This is operationalized by the weights, which are updated according to the exponential loss.
+    
+    \item \textbf{Error Correction Focus:} The exponential nature of the loss ensures that as the sequence progresses, the boosting algorithm focuses more on the hardest to classify observations. This focus enables AdaBoost to achieve high accuracy, even when individual models in the ensemble are weak learners.
+\end{itemize}
+
+The exponential loss function is fundamental to how AdaBoost iteratively improves the ensemble model, emphasizing the algorithm's adaptiveness and its capacity to concentrate on the most challenging aspects of the training data.
+
+\subsection{(discrete) AdaBoost}
+\textit{An iterative process of minimizing the exponential loss for binary classification tasks.}\\
+
+\textbf{Iteration $m$:} AdaBoost aims to find a weak learner (model) $F(x)$ that, when added to the ensemble of previous learners, minimally increases the overall exponential loss:
+    $$L_{m}(y,f_{m}) = \sum_{i=1}^{N} \exp(-y_{i}(f_{m-1}(x_{i})+\beta F(x_{i}))$$
+
+This can be rewritten to highlight the weights $w_{im}$ at iteration $m$, emphasizing that each sample is weighted based on the ensemble's performance on it up to the last iteration:
+
+$$= \sum_{i=1}^{N} \omega_{im} \exp\{-\beta \tilde{y}_i F(x_i)\}$$
+
+
+\textbf{Weights $\omega_{im}$:} The weight for each sample $i$ at iteration $m$, $\omega_i^{(m)}$, is defined as $$\exp(-\beta \tilde{y}_i f_{m-1}(x_i))$$
+
+This represents the loss due to the previous iteration's ensemble prediction. This makes samples that were harder to classify in the previous iterations more significant in the current iteration.
+
+\begin{redbox}
+    weights = loss due to prev iteration's ensemble prediction.\\
+
+    It's nice because they are a direct function of the (prev) loss, so we only have to minimize one argument $F_m$.
+\end{redbox}
+
+\textbf{Loss Simplification:} The loss can be further simplified by separating it into parts based on whether the prediction $f_{m-1}(x_i)$ matches the actual label $y_i$. \\
+
+...Incorrect predictions are penalized more heavily, leading to the update rule for the ensemble model that focuses on minimizing the weighted sum of incorrectly classified samples.\\
+
+
+\textbf{Choosing $\boldsymbol{F_m}$:} The model $F_m$ for iteration $m$ is chosen such that it minimizes the weighted error of misclassification, effectively focusing on the samples that the previous model found challenging:
+\[
+F_m = \text{argmin}_F \sum_{i=1}^{N} \omega_i^{(m)} I(y_i \neq F(x_i))
+\]
+
+\textbf{Update Rule for $\boldsymbol{\beta_m}$:} The amount $\beta_m$ by which to adjust the contribution of $F_m$ is determined by its weighted classification accuracy, with 
+\[
+\beta_m = \frac{1}{2} \log\left(\frac{1 - \text{acc}_m}{\text{acc}_m}\right)
+\]
+
+where $\text{acc}_m$ is the weighted accuracy of $F_m$.\\
+
+\begin{tcolorbox}
+    slides ?:
+    $$\beta_m = \frac{1}{2} \log\left( \frac{\%}{\%' } \right)$$
+    Where
+    $$\text{acc}_m = \sum_{i=1}^{N} 2^{\omega_i^{(m)} \mathbb{I}(y_i \neq F(x_i))} \bigg/ \sum_{i=1}^{N} 2^{\omega_i^{(m)}}$$
+\end{tcolorbox}
+
+
+We are weighting samples up by omega, so that the implicit beta is the ratio of the accuracy: misclassification rate (we then take the log and halve to get the learning rate).
+
+This formula ensures that more accurate models have a greater influence on the ensemble prediction.\\
+
+\textbf{Weight Update for Samples:} After determining $F_m$ and $\beta_m$, the weights of the samples are updated to reflect the new ensemble's performance, making the next iteration focus on samples that are still misclassified.
+
+\begin{tcolorbox}
+    In sum, for our weaker learner we reweight the loss function by the exponential loss of the prev iteration.\\
+
+    So where we had large loss before, we weight that up by te size of that loss.\\
+
+    This is why the exponential loss function is nice - it reweights it up
+\end{tcolorbox}
+
+\begin{tcolorbox}
+    Discrete AdaBoost effectively combines multiple weak learners into a strong ensemble classifier by iteratively focusing more on the samples hardest to classify. \\
+    
+    By adjusting weights based on previous errors and choosing each subsequent model to minimize these weighted errors, AdaBoost dynamically adapts to the challenges presented by the training data. \\
+    
+    This process not only improves the ensemble's overall accuracy but also provides a robust mechanism against overfitting, given the emphasis on correcting misclassified samples.
+\end{tcolorbox}
+
+\section{Gradient Boosting}
+
+\begin{redbox}
+    More generalizable! Doing gradient descent on functions - focusing on the residuals or the gradients of a wide range of loss functions  
+\end{redbox}
+
+NB
+\begin{itemize}
+    \item  Least Squares Boosting is a form of gradient descent that specifically uses the squared error loss function (esp suited to regression)
+    \item AdaBoost is another specific instance of gradient boosting primarily focused on classification tasks and specifically designed to increase the weight of training instances that are misclassified by the previous models (using exponential loss function), thereby focusing subsequent models on the hard cases.
+    \item Gradient boosting is more generalizable: its use of gradient descent on the loss function provides a systematic and generalizable approach to minimizing prediction error, which contrasts with AdaBoost's focus on correcting misclassified instances through weight adjustments
+\end{itemize}
+
+\subsubsection{Conceptual Overview}
+
+\begin{itemize}
+    \item \textbf{Objective:} The goal is to find a function $f^*$ that minimizes the loss function $\mathcal{L}(f)$. This is akin to seeking the best approximation of the target variable as a function of the input variables.
+    
+    \item \textbf{Gradient of Loss Function:} The gradient of the loss function with respect to the predictions, denoted $g_m$, points in the direction of the steepest increase in the loss. By moving in the opposite direction, we can reduce the loss. The gradient is calculated as:
+    \[
+    g_m = \nabla_{f_{m-1}} \ell(y_i, f_{m-1}(x_i))
+    \]
+    This gradient represents the direction in which we should adjust our predictions to minimize the loss.
+    
+    \item \textbf{Function Update with Gradient Descent:} The estimated function $f_m$ is updated by taking a step in the opposite direction of the gradient:
+    \[
+    f_m = f_{m-1} - \beta_m g_m
+    \]
+    Here, $\beta_m$ is the step length or learning rate, which determines the size of the step taken in the direction of the negative gradient.
+    
+    \item \textbf{Step Length (Learning Rate) $\beta_m$:} In the ideal theoretical setup, $\beta_m$ is chosen to minimize the loss given the current direction of the step, $g_m$:
+    \[
+    \beta_m = \text{argmin}_\beta \mathcal{L}(f_{m-1} - \beta g_m)
+    \]
+    However, in practice, $\beta_m$ is often treated as a hyperparameter that is set prior to the start of training. It controls the speed of convergence and can help prevent overfitting by making smaller adjustments to the model at each step.
+\end{itemize}
+
+\subsubsection{Practical Implementation}
+
+In practice, each $g_m$ is represented by a new model (usually a decision tree) that is fitted to the current residuals (or gradients). The ensemble is updated by adding this new model, scaled by the learning rate $\beta_m$, to the existing ensemble. This process is repeated for a specified number of iterations or until convergence.
+
+\begin{itemize}
+    \item \textbf{Residual Fitting:} Instead of directly computing and working with gradients, gradient boosting typically involves fitting new models to the residuals of the previous model predictions. For regression problems, these residuals are the differences between the observed values and the ensemble predictions. For classification, they are related to the gradient of the loss function with respect to the ensemble predictions.
+    
+    \item \textbf{Hyperparameter Tuning:} The learning rate $\beta_m$, along with other parameters like the depth of the trees and the number of trees in the ensemble, are crucial hyperparameters that need to be tuned to achieve the best performance.
+\end{itemize}
+
+Gradient boosting leverages the concept of gradient descent in function space by iteratively reducing the loss, leading to a highly flexible and powerful modeling approach that can capture complex relationships in the data.
+
+\section{XGBoost - eXtreme Gradient Boosting}
+Quasi-gradient descent
+\begin{redbox}
+    Adds a bunch of hyperparameters for regularization tuning + that allow us to do Cross Validation easily
+\end{redbox}
+
+\begin{itemize}
+    \item \textbf{Hyperparameters Tuning:} XGBoost provides a wide range of hyperparameters that can be finely tuned to optimize performance.
+    
+    \item \textbf{Regularization:} Unlike traditional gradient boosting, XGBoost incorporates regularization terms directly into the objective function to control overfitting. The regularization term is given by:
+    \[ \gamma J + \frac{1}{2} \lambda \sum_{j=1}^{J} w_j^2 \]
+    where
+    \begin{itemize}
+        \item \(J\) is the number of leaves in a tree
+        \item \(w_j\) are the leaf weights, 
+        \item \(\gamma\) and \(\lambda\) are regularization parameters that penalize the complexity of the model.
+    \end{itemize}
+    So, in addition to defining the depth of the tree - it also allows us to add a regularizer that adds a penalty for each split.
+    \begin{itemize}
+        \item this is more continuous 
+        \item whereas before it was a binary decision: split or not
+    \end{itemize}
+    
+    \item \textbf{Second-Order Approximation:} XGBoost uses a second-order approximation of the loss function, rather than just the first-order. This allows for a more accurate estimation of the optimal step size and direction when optimizing the loss function.
+    \begin{itemize}
+        \item curvature of the function as well as gradient
+        \item better understands the loss landscape
+    \end{itemize}
+    And integration of this into the splitting criteria...\\
+    
+    \item \textbf{Enhanced Splitting Criteria:} The integration of the second-order approximation into the splitting criteria for the decision trees leads to more optimal splits, further improving model accuracy and training speed.\\
+    
+    \item \textbf{Feature Sampling at Nodes:} Similar to the strategy employed by Random Forests: sampling features at each node before determining best split. 
+    \begin{itemize}
+        \item contributes to diversity f the models in the ensemble
+        \item reduces overfitting
+        \item speeds up computation -> scalable
+    \end{itemize}
+    
+    \item \textbf{Comparison with Random Forests:} Radom forests is to bagging, what XGBoost is to boosting.
+    \begin{itemize}
+        \item While Random Forests build trees independently using bagging, 
+        \item XGBoost sequentially builds trees that complement each other using boosting.
+    \end{itemize}
+\end{itemize}
+
+\section{Introspection into Complex Models}
+
+\subsection{Feature Importance}
+\begin{tcolorbox}
+    Which features are used to make predictions?
+\end{tcolorbox}
+
+Quantifies the contribution of each feature to the predictive power of the model, providing insights into which features are most informative for making predictions.\\
+
+One common method to compute feature importance in tree-based models is by using the gain in model accuracy attributed to the $k$th feature. This can be represented as:
+
+$$R_k (T) \sum_{j=1}^{J-1} G_j I(v_j = k)$$
+
+where:
+\begin{itemize}
+    \item $R_k(T)$ is the feature importance of feature $k$ in tree $T$,
+    \item $J$ is the number of nodes in the leaves/tree,
+    \item $\text{Gain}_n$ is the gain in accuracy at node $j$,
+    \item $(v_j = k)$ indicates that node $j$ splits on feature $k$,
+    \item $\text{Indicator}(v_j = k)$ is an indicator function that is 1 if node $j$ splits on feature $k$ and 0 otherwise,
+    \item $T$ is the total number of trees in the ensemble,
+\end{itemize}
+?
+
+Then we avg over trees, and nromalise to sum to 100.
+$$R_k = \frac{1}{M} \sum_{m=1}^M R_k (T_m)$$
+Here
+$R_k$ is the average importance of feature $k$ across all trees.\\
+
+This gives us a rank of feature importance.\\
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_08_boosting/spam.png}
+    \caption{Feature Importance for spam filter, where features are words}
+    \label{fig:enter-label}
+\end{figure}
+
+\textit{NB - Feature Importance does NOT tell you about direction, it just tells you how the accuracy went up when it split on 'George' (see above): when split on "George" the accuracy went up, but we can't say inclusion of George is more or less likely to make it spam. There's lots of interaction effects going on in this model - could be that in some cases inclusion of "George makes it much less likely to be spam, whereas other times it is not - it depends on interaction effects}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_08_boosting/number id.png}
+    \caption{Feature Importance for number classifiction: 3 vs 8. Intuitively, it's the middle pixels which are most useful}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Partial Dependency}
+
+\begin{tcolorbox}
+    How does the prediction change as this feature varies?" 
+\end{tcolorbox}
+
+A way to visualize the effect of a single feature on the predicted outcome, holding all other features constant.\\
+
+Particularly useful for interpreting the behavior of complex models.
+
+$$\bar{f}(x_k = x) = \frac{1}{N} \sum_{i=1}^{N} f(x_i \mid do( x^{(i)}_{k} = x))
+$$
+Prediction of the model when the feature 
+$x_k$ is held constant at a specific value, and the other features $x^{(i)}$ take on their values from the dataset.\\
+
+This function averages the predictions over all data points, with the feature of interest set to a particular value, effectively tracing out the relationship between that feature and the predicted outcome.\\
+
+The only thing we're changing in the the feature vectoris the open feature -> what is the effect of this feature on the prediction.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_08_boosting/partial dependency.png}
+    \caption{Partial Dependency visualised}
+    \label{fig:enter-label}
+\end{figure}
+
+\section{Demonstration - Boosting}
+
+\section{Takewaway}
+
+Tree-based models are robust, scalable and amenable to tuning (lots of useful hyperparameters).\\
+
+They are one of the most important workhorse models you will learn about\\
+
+Rarely should you use something more complex than them without benchmarking against them first.\\
+
+Many models are just gradient boost models. Unlike neural nets they are much easier to tune: even if you get the learning rate a little wrong they still work - whereas a neural net if you get the learning
+parameter a little wrong, it will just fail to converge.
+

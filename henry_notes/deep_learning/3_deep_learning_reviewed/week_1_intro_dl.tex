@@ -1,0 +1,506 @@
+% Week 1: Introduction to Deep Learning
+\chapter{Week 1: Introduction to Deep Learning}
+\label{ch:week1}
+
+\begin{quickref}[Chapter Overview]
+\textbf{Core question:} Given data $\mathcal{D} = \{(x_i, y_i)\}_{i=1}^n$, find a function $f$ such that $y \approx f(x)$.
+
+\textbf{Key topics:}
+\begin{itemize}
+    \item Learning paradigms: supervised, unsupervised, reinforcement learning
+    \item Machine learning vs deep learning: when and why depth matters
+    \item Universal Approximation Theorem: theoretical foundations
+    \item Representation learning: the key insight of deep learning
+\end{itemize}
+\end{quickref}
+
+\section{What is Deep Learning?}
+
+Deep learning is a subfield of machine learning concerned with algorithms inspired by the structure and function of the brain, called artificial neural networks. The ``deep'' in deep learning refers to the use of multiple layers in these networks-typically more than three-which enables hierarchical learning of increasingly abstract representations.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_1/DL_venn.png}
+    \caption{Relationship between AI, machine learning, and deep learning. Deep learning is a subset of machine learning, which itself is a subset of artificial intelligence.}
+    \label{fig:dl-venn}
+\end{figure}
+
+At its core, we seek to learn the relationship:
+\[
+Y = f(X) + \epsilon
+\]
+where:
+\begin{itemize}
+    \item $X \in \mathbb{R}^d$ represents the input features (a $d$-dimensional vector of observable quantities)
+    \item $Y$ is the target variable we wish to predict (could be continuous for regression or categorical for classification)
+    \item $f: \mathbb{R}^d \to \mathbb{R}^k$ is the unknown function we wish to approximate-the ``true'' relationship between inputs and outputs
+    \item $\epsilon$ represents irreducible noise: randomness inherent in the data-generating process that cannot be explained by any model
+\end{itemize}
+
+The goal of deep learning is to find an approximation $\hat{f}$ to the true function $f$ using neural networks with multiple layers.
+
+\subsection{Historical Context}
+
+The field has experienced several waves of development, each characterised by key breakthroughs and subsequent periods of reduced interest (so-called ``AI winters''):
+
+\begin{enumerate}
+    \item \textbf{1940s--1960s: Cybernetics era.} The foundations were laid with the McCulloch-Pitts neuron (1943), a simplified mathematical model of biological neurons, and the Perceptron (Rosenblatt, 1958), the first trainable neural network. This era ended with Minsky and Papert's critique showing limitations of single-layer perceptrons.
+
+    \item \textbf{1980s--1990s: Connectionism.} Backpropagation was popularised (Rumelhart et al., 1986), enabling training of multi-layer networks. LeCun developed CNNs for digit recognition (1989). However, computational limitations and the success of kernel methods (SVMs) led to another decline in neural network research.
+
+    \item \textbf{2006--present: Deep learning revolution.} Hinton's Deep Belief Networks (2006) showed that deep networks could be effectively trained. AlexNet (2012) demonstrated the power of deep CNNs on ImageNet. Transformers (Vaswani et al., 2017) revolutionised sequence modelling, leading to GPT and modern LLMs (2018--present).
+\end{enumerate}
+
+\begin{quickref}[Why Now? Three Key Factors]
+The recent success of deep learning is attributable to three convergent factors:
+\begin{enumerate}
+    \item \textbf{Data:} The internet age has produced massive labelled datasets (ImageNet, Common Crawl, etc.)
+    \item \textbf{Compute:} GPUs provide orders of magnitude speedup for matrix operations central to neural networks
+    \item \textbf{Algorithms:} Key innovations-ReLU activations, batch normalisation, residual connections, attention mechanisms-have made deep networks trainable and effective
+\end{enumerate}
+\end{quickref}
+
+%==============================================================================
+\section{Learning Paradigms}
+\label{sec:learning-paradigms}
+%==============================================================================
+
+Machine learning algorithms are typically categorised by the nature of their training signal-that is, what information is available during training to guide the learning process.
+
+\begin{rigour}[Formal Definitions]
+Let $\mathcal{X}$ denote the input space (the set of all possible inputs) and $\mathcal{Y}$ the output space (the set of all possible outputs).
+
+\textbf{Supervised Learning:} Given a training set $\mathcal{D} = \{(x_i, y_i)\}_{i=1}^n$ where $x_i \in \mathcal{X}$ and $y_i \in \mathcal{Y}$, learn a function $f: \mathcal{X} \to \mathcal{Y}$ that minimises the expected loss:
+\[
+f^* = \arg\min_{f \in \mathcal{F}} \mathbb{E}_{(x,y) \sim p_{\text{data}}}[\mathcal{L}(f(x), y)]
+\]
+Here, $\mathcal{F}$ is the hypothesis class (the set of functions we consider), $p_{\text{data}}$ is the true data distribution, and $\mathcal{L}$ is a loss function measuring prediction quality (e.g., squared error for regression, cross-entropy for classification).
+
+\textbf{Unsupervised Learning:} Given only inputs $\mathcal{D} = \{x_i\}_{i=1}^n$ without corresponding labels, learn structure in the data distribution $p(x)$. This encompasses several distinct tasks:
+\begin{itemize}
+    \item \textit{Density estimation:} Learn an approximation $\hat{p}(x)$ to the data distribution
+    \item \textit{Clustering:} Partition $\mathcal{X}$ into groups of similar examples
+    \item \textit{Dimensionality reduction:} Find a mapping $z = g(x)$ where $\dim(z) < \dim(x)$, preserving important structure
+    \item \textit{Generative modelling:} Learn to sample new data points $x \sim \hat{p}(x)$
+\end{itemize}
+
+\textbf{Reinforcement Learning:} An agent interacts with an environment over time, receiving states $s_t \in \mathcal{S}$, taking actions $a_t \in \mathcal{A}$, and receiving scalar rewards $r_t$. The goal is to learn a policy $\pi: \mathcal{S} \to \mathcal{A}$ (or $\pi: \mathcal{S} \to \Delta(\mathcal{A})$ for stochastic policies) that maximises cumulative discounted reward:
+\[
+\pi^* = \arg\max_{\pi} \mathbb{E}\left[\sum_{t=0}^{\infty} \gamma^t r_t \mid \pi\right]
+\]
+where $\gamma \in [0, 1)$ is the discount factor, controlling the trade-off between immediate and future rewards. When $\gamma$ is close to 0, the agent is ``myopic'' (prioritises immediate rewards); when close to 1, it values long-term outcomes.
+\end{rigour}
+
+\begin{quickref}[Learning Paradigms at a Glance]
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Paradigm} & \textbf{Training Signal} & \textbf{Examples} \\
+\midrule
+Supervised & $(x, y)$ pairs & Classification, regression \\
+Unsupervised & $x$ only & Clustering, GANs, VAEs \\
+Reinforcement & Reward signal & Game playing, robotics \\
+Self-supervised & Labels derived from $x$ & BERT, contrastive learning \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{quickref}
+
+\textbf{Self-supervised learning} deserves special mention as it has become central to modern deep learning. In self-supervised learning, the training signal is derived automatically from the input data itself, without human annotation. Examples include:
+\begin{itemize}
+    \item \textit{Language modelling:} Predict the next word given previous words (GPT) or predict masked words (BERT)
+    \item \textit{Contrastive learning:} Learn representations by distinguishing between similar and dissimilar pairs (SimCLR, CLIP)
+    \item \textit{Autoencoding:} Reconstruct the input from a compressed representation (autoencoders, MAE)
+\end{itemize}
+
+\begin{redbox}
+Modern large language models (GPT, LLaMA, Claude) blur the boundaries between paradigms. Pre-training is self-supervised (predicting next tokens), while fine-tuning often uses reinforcement learning from human feedback (RLHF). The distinctions are less rigid than traditional textbooks suggest-understanding the core principles matters more than rigid categorisation.
+\end{redbox}
+
+%==============================================================================
+\section{Machine Learning vs Deep Learning}
+\label{sec:ml-vs-dl}
+%==============================================================================
+
+The fundamental distinction between classical machine learning and deep learning lies in \textit{how features are obtained}-that is, how raw data is transformed into a form suitable for prediction.
+
+\subsection{Feature Engineering vs Feature Learning}
+
+\textbf{Classical ML Pipeline:}
+\[
+\text{Raw Data} \xrightarrow{\text{Feature Engineering}} \text{Features} \xrightarrow{\text{Model}} \text{Prediction}
+\]
+
+In classical machine learning, practitioners manually design features based on domain knowledge. This process, called \textit{feature engineering}, requires substantial expertise and often determines the success or failure of the model. Examples include:
+\begin{itemize}
+    \item \textit{Computer vision:} Edge detectors (Sobel, Canny), colour histograms, SIFT/SURF descriptors, HOG features
+    \item \textit{Natural language processing:} Bag-of-words, TF-IDF weighting, n-gram counts, part-of-speech tags
+    \item \textit{Tabular data:} Polynomial features, interaction terms, domain-specific ratios
+\end{itemize}
+
+\textbf{Deep Learning Pipeline:}
+\[
+\text{Raw Data} \xrightarrow{\text{Neural Network}} \text{Learned Features} \to \text{Prediction}
+\]
+
+Deep learning performs \textit{representation learning}: the network automatically discovers the features needed for the task through training. Early layers learn low-level features (edges, textures), while deeper layers learn increasingly abstract, high-level representations (object parts, semantic concepts).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_1/representation learning.png}
+    \caption{Hierarchical feature learning in deep networks. Each layer builds increasingly abstract representations from the layer below.}
+    \label{fig:rep-learning-1}
+\end{figure}
+
+\begin{redbox}
+Not all preprocessing is eliminated in deep learning. Some data transformations remain essential:
+\begin{itemize}
+    \item \textbf{Tokenisation in NLP:} Text must be split into tokens (words, subwords, or characters) before being fed to neural networks. The choice of tokenisation scheme (BPE, WordPiece, SentencePiece) significantly affects model performance.
+    \item \textbf{Normalisation:} Input scaling (e.g., pixel values to $[0,1]$, z-score normalisation) improves training stability.
+    \item \textbf{Data augmentation:} Transformations like cropping, rotation, and colour jittering remain crucial for computer vision.
+    \item \textbf{Audio preprocessing:} Mel spectrograms or other time-frequency representations are typically computed before feeding audio to neural networks.
+\end{itemize}
+The distinction is that deep learning \textit{learns task-relevant features} from (minimally preprocessed) data, rather than relying on hand-crafted feature extractors.
+\end{redbox}
+
+\begin{quickref}[ML vs DL: Key Differences]
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Aspect} & \textbf{Classical ML} & \textbf{Deep Learning} \\
+\midrule
+Features & Hand-crafted & Learned \\
+Data requirements & Moderate & Large \\
+Compute requirements & Low--moderate & High \\
+Interpretability & Often higher & Often lower \\
+Performance ceiling & Limited by features & Limited by data/compute \\
+Domain expertise & Critical for features & Less critical \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{quickref}
+
+\subsection{When to Use Which}
+
+Deep learning excels when:
+\begin{itemize}
+    \item Large amounts of labelled (or unlabelled, for self-supervised) data are available
+    \item The input is high-dimensional and unstructured (images, audio, text, video)
+    \item Feature engineering is difficult or domain knowledge is limited
+    \item Sufficient computational resources (GPUs/TPUs) are available
+    \item State-of-the-art performance is required and interpretability is secondary
+\end{itemize}
+
+Classical ML may be preferable when:
+\begin{itemize}
+    \item Data is limited (hundreds to thousands of examples)
+    \item Data is tabular/structured with meaningful features
+    \item Interpretability and explainability are crucial (e.g., regulatory requirements)
+    \item Training time or inference latency must be minimal
+    \item Strong domain knowledge enables effective feature engineering
+\end{itemize}
+
+\begin{redbox}
+For tabular data, gradient boosted trees (XGBoost, LightGBM, CatBoost) consistently outperform deep learning despite decades of research into neural networks for structured data. This remains true even for large tabular datasets. Recent work on TabNet, FT-Transformer, and TabPFN shows promise, but tree-based methods remain the default choice for most tabular problems in practice.
+\end{redbox}
+
+%==============================================================================
+\section{Universal Approximation Theorem}
+\label{sec:uat}
+%==============================================================================
+
+A natural question arises: why should neural networks work at all? What makes them capable of learning complex functions? The Universal Approximation Theorem (UAT) provides theoretical justification for the expressive power of neural networks.
+
+\subsection{Intuitive Statement}
+
+A neural network with a single hidden layer can approximate any continuous function to arbitrary precision, given enough hidden units. This means neural networks are, in principle, capable of learning any reasonable input-output mapping-they have sufficient \textit{expressive power}.
+
+Think of it this way: imagine trying to approximate a complex curve. With enough simple building blocks (like sigmoid ``bumps'' or ReLU ``ramps''), you can piece together an approximation to any shape you want, to any desired accuracy.
+
+\begin{rigour}[Universal Approximation Theorem (Cybenko, 1989)]
+Let $\sigma: \mathbb{R} \to \mathbb{R}$ be a continuous sigmoidal function-that is, a function satisfying:
+\[
+\sigma(x) \to 1 \text{ as } x \to \infty \quad \text{and} \quad \sigma(x) \to 0 \text{ as } x \to -\infty
+\]
+The logistic sigmoid $\sigma(x) = 1/(1+e^{-x})$ is the canonical example.
+
+Let $I_d = [0,1]^d$ be the $d$-dimensional unit hypercube (the set of all points with coordinates between 0 and 1).
+
+\textbf{Theorem:} For any continuous function $f: I_d \to \mathbb{R}$ and any $\epsilon > 0$, there exist $N \in \mathbb{N}$, weights $\{w_j\}_{j=1}^N \subset \mathbb{R}^d$, biases $\{b_j\}_{j=1}^N \subset \mathbb{R}$, and output coefficients $\{\alpha_j\}_{j=1}^N \subset \mathbb{R}$ such that the single-hidden-layer network:
+\[
+g(x) = \sum_{j=1}^{N} \alpha_j \sigma(w_j^\top x + b_j)
+\]
+satisfies:
+\[
+\sup_{x \in I_d} \left| f(x) - g(x) \right| < \epsilon
+\]
+That is, the network approximates $f$ uniformly to within $\epsilon$ on the entire domain.
+\end{rigour}
+
+\begin{rigour}[Extended Results]
+The original Cybenko result has been significantly generalised:
+
+\textbf{Hornik (1991):} Extended the theorem to show that:
+\begin{enumerate}
+    \item The result holds for any non-constant, bounded, continuous activation function
+    \item Neural networks are universal approximators not just for functions, but also for their derivatives (important for learning smooth functions)
+    \item The result extends to $L^p$ spaces: neural networks can approximate functions in the $L^p$ norm (i.e., in an average sense, not just pointwise)
+\end{enumerate}
+
+\textbf{Leshno et al.\ (1993):} Showed that the result holds for any non-polynomial activation function, including the ReLU: $\sigma(x) = \max(0, x)$. This is significant because ReLU is unbounded, so earlier theorems did not apply.
+
+\textbf{Telgarsky (2016):} Demonstrated that depth provides exponential efficiency gains-some functions require exponentially many units in shallow networks but only polynomially many in deep networks.
+\end{rigour}
+
+\subsection{Implications and Limitations}
+
+\begin{quickref}[UAT: What It Says and What It Doesn't]
+\textbf{Does guarantee:}
+\begin{itemize}
+    \item A sufficiently wide network \textit{can} represent any continuous function
+    \item Neural networks have sufficient \textit{expressive power} (they can, in theory, learn anything)
+\end{itemize}
+
+\textbf{Does NOT guarantee:}
+\begin{itemize}
+    \item That gradient descent will \textit{find} the optimal weights (learnability $\neq$ representability)
+    \item How many hidden units are required (may be exponentially large in $d$)
+    \item Good generalisation to unseen data (approximating training data $\neq$ generalising)
+    \item Computational tractability of training
+    \item That the approximating network is unique or interpretable
+\end{itemize}
+\end{quickref}
+
+The UAT is an \textit{existence} result, not a \textit{constructive} one. It tells us that a solution exists but provides no algorithm for finding it. This is analogous to the Stone-Weierstrass theorem in analysis: it guarantees that polynomials can approximate any continuous function, but doesn't tell you which polynomial to use.
+
+\begin{redbox}
+The gap between ``can approximate'' (UAT) and ``will learn'' (practice) is substantial. The theorem says nothing about:
+\begin{itemize}
+    \item Whether the loss landscape has local minima that trap gradient descent
+    \item Whether the required number of parameters is computationally feasible
+    \item Whether the learned function will generalise beyond the training data
+\end{itemize}
+Understanding \textit{why} deep learning works in practice-despite these gaps-remains an active area of research.
+\end{redbox}
+
+\subsection{Why Depth Matters}
+
+If a single hidden layer suffices in theory, why use deep networks in practice?
+
+\begin{enumerate}
+    \item \textbf{Efficiency:} Deep networks can represent certain functions exponentially more efficiently than shallow ones. A function requiring $2^n$ units in a shallow network may need only $O(n)$ units in a deep network. This is not merely a theoretical curiosity-it has practical implications for model size, memory, and computation.
+
+    \item \textbf{Compositionality:} Many real-world functions have hierarchical structure. Images are composed of edges, which form textures, which form parts, which form objects. Language has words composing into phrases, sentences, paragraphs, and documents. Deep networks naturally capture this compositional structure through their layered architecture.
+
+    \item \textbf{Optimisation:} Empirically, deep networks are often easier to optimise than very wide shallow networks. This is counterintuitive-more layers means more potential for vanishing gradients and other pathologies-but architectural innovations (residual connections, normalisation) have made deep networks highly trainable.
+\end{enumerate}
+
+\begin{rigour}[Depth Efficiency (Telgarsky, 2016)]
+There exist functions computable by networks of depth $k$ and polynomial width that require exponential width to approximate with networks of depth $k-1$.
+
+A concrete example: consider the ``sawtooth'' function constructed by composing a tent function with itself:
+\[
+f_k(x) = \underbrace{g \circ g \circ \cdots \circ g}_{k \text{ compositions}}(x)
+\]
+where $g(x) = 2\min(x, 1-x)$ is the tent function (a triangle wave from 0 to 1 and back).
+
+\textbf{Result:} A depth-$k$ ReLU network with $O(k)$ total units can represent $f_k$ exactly, while any depth-2 network (single hidden layer) requires $\Omega(2^k)$ units to approximate $f_k$ within constant error.
+
+This demonstrates a fundamental \textit{depth-width trade-off}: depth provides representational power that width cannot efficiently match.
+\end{rigour}
+
+%==============================================================================
+\section{Representation Learning}
+\label{sec:representation-learning}
+%==============================================================================
+
+The central insight of deep learning is that \textit{good representations make downstream tasks easier}. Rather than learning a direct mapping from inputs to outputs, deep networks learn intermediate representations that capture the underlying structure of the data.
+
+\begin{rigour}[Representation Learning]
+A \textbf{representation} is a mapping $\phi: \mathcal{X} \to \mathcal{Z}$ from the input space to a \textit{feature space} or \textit{latent space} $\mathcal{Z}$. In a neural network, each layer computes a representation of its input.
+
+A representation is considered ``good'' if it satisfies some or all of the following desiderata:
+\begin{enumerate}
+    \item \textbf{Captures factors of variation:} The representation encodes the important sources of variability in the data
+    \item \textbf{Facilitates downstream tasks:} Classification, generation, or other tasks become easier (e.g., linearly separable classes)
+    \item \textbf{Invariance:} The representation is robust to irrelevant transformations (e.g., lighting changes, translation)
+    \item \textbf{Disentanglement:} Independent factors of variation are encoded in separate dimensions
+\end{enumerate}
+
+Formally, for a downstream task with labels $y$, we want $\phi$ such that $p(y \mid \phi(x))$ has low entropy-that is, $y$ is easily predictable from $\phi(x)$. In the ideal case, $y = h(\phi(x))$ for some simple function $h$ (e.g., a linear classifier).
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/week_1/representation learning_2.png}
+    \caption{Deep networks learn hierarchical representations: raw pixels $\to$ edges $\to$ textures $\to$ parts $\to$ objects. Each layer builds on the representations learned by previous layers.}
+    \label{fig:rep-learning-2}
+\end{figure}
+
+\subsection{Manifold Hypothesis}
+
+A key assumption underlying deep learning is the \textit{manifold hypothesis}: real-world high-dimensional data (images, text, audio) lies on or near a low-dimensional manifold embedded in the high-dimensional ambient space.
+
+Consider the space of all possible $256 \times 256$ RGB images: this is $\mathbb{R}^{256 \times 256 \times 3} = \mathbb{R}^{196608}$-nearly 200,000 dimensions. However, the set of ``natural images'' (photographs of real-world scenes) occupies a vanishingly small fraction of this space. Most random points in $\mathbb{R}^{196608}$ look like static noise, not photographs.
+
+The manifold hypothesis suggests that natural images lie on or near a much lower-dimensional manifold (perhaps thousands or tens of thousands of dimensions) embedded in this high-dimensional space. Deep networks learn to navigate and represent this manifold.
+
+\begin{quickref}[Representation Learning: Key Ideas]
+\begin{itemize}
+    \item \textbf{Distributed representations:} Each concept is represented by a pattern of activations across many neurons, not one neuron per concept. This enables exponentially many concepts with linearly many neurons.
+    \item \textbf{Compositionality:} Complex features are built from simpler ones in a hierarchy
+    \item \textbf{Transfer learning:} Good representations generalise across tasks-features learned for ImageNet classification transfer to medical imaging, satellite imagery, etc.
+    \item \textbf{Disentanglement:} Ideally, each latent dimension captures one independent factor of variation (e.g., pose, lighting, identity for faces)
+\end{itemize}
+\end{quickref}
+
+%==============================================================================
+\section{Modern Deep Learning Architectures}
+\label{sec:architectures}
+%==============================================================================
+
+Modern deep learning encompasses several architectural paradigms, each designed to exploit different structural properties of data. The choice of architecture is often dictated by the nature of the input data and the inductive biases we wish to encode.
+
+\begin{quickref}[Architecture Summary]
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Architecture} & \textbf{Input Type} & \textbf{Key Property} & \textbf{Applications} \\
+\midrule
+MLP & Tabular/vectors & Universal approximation & General \\
+CNN & Images/grids & Translation equivariance & Vision \\
+RNN/LSTM & Sequences & Temporal memory & Time series \\
+Transformer & Sequences/sets & Attention mechanism & NLP, vision \\
+GNN & Graphs & Permutation equivariance & Molecules, networks \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{quickref}
+
+\subsection{Convolutional Neural Networks (CNNs)}
+
+CNNs exploit the spatial structure of images (and other grid-like data) through three key properties:
+\begin{itemize}
+    \item \textbf{Local connectivity:} Each neuron connects only to a local region (receptive field) of the input, reflecting the fact that nearby pixels are more related than distant ones
+    \item \textbf{Weight sharing:} The same convolutional filter is applied across all spatial locations, dramatically reducing the number of parameters
+    \item \textbf{Translation equivariance:} Shifting the input shifts the output correspondingly-the network responds the same way to a pattern regardless of where it appears
+\end{itemize}
+
+These inductive biases make CNNs highly effective for image data while being far more parameter-efficient than fully-connected networks. We cover CNNs in detail in Chapters~\ref{ch:week4} and~\ref{ch:week5}.
+
+\subsection{Recurrent Neural Networks (RNNs)}
+
+RNNs process sequential data by maintaining a hidden state $h_t$ that is updated at each time step:
+\[
+h_t = f(h_{t-1}, x_t; \theta)
+\]
+where $x_t$ is the input at time $t$ and $\theta$ are the (shared) parameters. This allows the network to maintain a ``memory'' of past inputs.
+
+The basic RNN suffers from the \textit{vanishing gradient problem}: gradients diminish exponentially when backpropagating through many time steps, making it difficult to learn long-range dependencies. \textbf{LSTMs} (Long Short-Term Memory) and \textbf{GRUs} (Gated Recurrent Units) address this through gating mechanisms that control information flow. We cover these in Chapter~\ref{ch:week6}.
+
+\subsection{Transformers}
+
+Transformers (Vaswani et al., 2017) have become the dominant architecture for sequence modelling and beyond. They replace recurrence with \textit{self-attention}, allowing direct modelling of dependencies between any positions in the sequence:
+\[
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V
+\]
+where $Q$ (queries), $K$ (keys), and $V$ (values) are linear projections of the input, and $d_k$ is the key dimension (the $\sqrt{d_k}$ scaling prevents the softmax from becoming too peaked).
+
+Key advantages of transformers:
+\begin{itemize}
+    \item \textbf{Parallelisation:} Unlike RNNs, all positions can be processed simultaneously during training
+    \item \textbf{Long-range dependencies:} Attention connects any two positions directly, avoiding the vanishing gradient problem
+    \item \textbf{Scalability:} Transformers scale effectively to massive models (billions of parameters)
+\end{itemize}
+
+We cover attention and transformers in Chapter~\ref{ch:week7}.
+
+%==============================================================================
+\section{Deep Learning in Policy Context}
+\label{sec:policy-context}
+%==============================================================================
+
+The deployment of deep learning systems in society raises important considerations for public policy and governance. As these systems become more prevalent in high-stakes domains, understanding their limitations and societal implications becomes essential.
+
+\subsection{Ethical Considerations}
+
+\textbf{Bias and Fairness:} Deep learning models can perpetuate and amplify biases present in training data. If historical data reflects discriminatory practices, models trained on this data may learn to reproduce those patterns. This is particularly concerning in high-stakes domains:
+\begin{itemize}
+    \item \textit{Criminal justice:} Risk assessment algorithms for bail, sentencing, and parole
+    \item \textit{Hiring:} Resume screening and candidate ranking systems
+    \item \textit{Healthcare:} Diagnostic systems and treatment recommendations
+    \item \textit{Financial services:} Credit scoring and loan approval
+\end{itemize}
+
+\begin{rigour}[Fairness Definitions]
+Several mathematical definitions of fairness have been proposed, but they are often mutually incompatible:
+
+\textbf{Demographic parity:} The prediction rate should be equal across groups:
+\[
+P(\hat{Y}=1 \mid A=0) = P(\hat{Y}=1 \mid A=1)
+\]
+where $A$ is a protected attribute (e.g., race, gender).
+
+\textbf{Equalised odds:} True positive and false positive rates should be equal across groups:
+\[
+P(\hat{Y}=1 \mid Y=y, A=0) = P(\hat{Y}=1 \mid Y=y, A=1) \quad \text{for } y \in \{0,1\}
+\]
+
+\textbf{Calibration:} Among individuals predicted to have probability $p$ of the positive outcome, the fraction who actually have the positive outcome should be $p$, regardless of group membership:
+\[
+P(Y=1 \mid \hat{Y}=p, A=a) = p \quad \text{for all } a
+\]
+
+\textbf{Impossibility theorem} (Chouldechova, 2017; Kleinberg et al., 2016): Except in degenerate cases (equal base rates across groups, or perfect prediction), a classifier cannot simultaneously satisfy calibration and equalised odds. This means practitioners must make value judgements about which fairness criteria to prioritise.
+\end{rigour}
+
+\subsection{Transparency and Explainability}
+
+Deep networks are often criticised as ``black boxes''-they make predictions without providing human-understandable explanations. This is problematic in contexts where explanations are legally required or ethically important:
+\begin{itemize}
+    \item \textit{GDPR Article 22:} European regulations provide a right to explanation for automated decisions significantly affecting individuals
+    \item \textit{US Equal Credit Opportunity Act:} Requires ``adverse action notices'' explaining why credit was denied
+    \item \textit{Medical diagnosis:} Clinicians need to understand \textit{why} a system recommends a diagnosis
+\end{itemize}
+
+Explainability methods attempt to provide post-hoc explanations:
+\begin{itemize}
+    \item \textbf{Saliency maps:} Highlight which input features most influenced the prediction
+    \item \textbf{LIME:} Local Interpretable Model-agnostic Explanations-fit a simple model locally
+    \item \textbf{SHAP:} Shapley Additive Explanations-attribute predictions to features using game theory
+    \item \textbf{Attention visualisation:} Examine which parts of the input the model ``attends to''
+\end{itemize}
+
+\subsection{Safety and Robustness}
+
+\begin{redbox}
+Deep learning systems can fail in unexpected and potentially dangerous ways:
+\begin{itemize}
+    \item \textbf{Adversarial examples:} Small, often imperceptible perturbations to inputs can cause confident misclassifications. A stop sign with carefully placed stickers might be classified as a speed limit sign.
+    \item \textbf{Distribution shift:} Performance can degrade dramatically when test data differs from training data-a model trained on daytime driving may fail at night.
+    \item \textbf{Hallucination:} Generative models (especially LLMs) can produce confident but entirely fabricated outputs.
+    \item \textbf{Spurious correlations:} Models may learn shortcuts that work on training data but fail in deployment (e.g., classifying ``wolf'' based on snow in the background).
+\end{itemize}
+These failure modes are particularly concerning for safety-critical applications such as autonomous vehicles, medical diagnosis, and infrastructure control systems.
+\end{redbox}
+
+\subsection{Environmental Impact}
+
+Training large deep learning models has significant environmental costs. Strubell et al.\ (2019) estimated that training a single large NLP model can emit as much CO$_2$ as five cars over their entire lifetimes. More recent large language models require even more compute.
+
+This raises important questions:
+\begin{itemize}
+    \item Is the ``scale is all you need'' paradigm sustainable?
+    \item How should the environmental costs of AI be factored into research and deployment decisions?
+    \item What role should efficiency play in model development?
+\end{itemize}
+
+\begin{quickref}[Policy Considerations Summary]
+\begin{itemize}
+    \item \textbf{Regulation:} EU AI Act (risk-based framework), sector-specific regulations (healthcare, finance)
+    \item \textbf{Standards:} IEEE, NIST frameworks for trustworthy AI
+    \item \textbf{Auditing:} Third-party algorithmic audits and impact assessments
+    \item \textbf{Governance:} Internal AI ethics boards, responsible AI principles
+    \item \textbf{Transparency:} Model cards, datasheets for datasets, documentation requirements
+\end{itemize}
+\end{quickref}

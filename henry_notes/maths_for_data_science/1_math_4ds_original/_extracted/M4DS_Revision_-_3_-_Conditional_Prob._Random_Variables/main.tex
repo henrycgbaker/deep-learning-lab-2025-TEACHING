@@ -1,0 +1,377 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize M4DS Mid-term revision}
+\rhead{\footnotesize Henry Baker} 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf Mid Terms Fall 2023  \\ Henry Baker }
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: Session 3\\ Conditional Probability \& Random Variables}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{(Joint) Random Variables and their Distributions} 
+\textit{
+(I skipped p2: random walk - I didn't understand the final PMF bit)\\
+A function of 2 r.v.s = joint distribution?} \\
+\\
+Given an experiment with sample space $S$, if $X$ and $Y$ are r.v.s that map $s \in S$ to $X(s)$ and $Y (s)$ respectively, then $g(X,Y)$ is the r.v. that maps s to g(X(s), Y (s)).\\
+\\
+\textbf{Independence of r.v.s} for joint r.v.s (???)\\ 
+Continuous r.v.s
+\[P(X \leq x,Y \leq y) = P(X \leq x)P(Y \leq y)\]
+Discrete r.v.s
+\[P(X = x,Y = y) = P(X = x)P(Y = y)\]
+
+\textbf{Conditional Independence}
+\[P(X \leq x,Y \leq y | Z = z) = P(X \leq x | Z = z)P(Y \leq y | Z = z)\]
+NB:
+\begin{itemize}
+    \item \textbf{Independence does not imply conditional independence}.
+    \begin{itemize}
+        \item Let X be an indicator for whether my friend Bob calls me next Friday and Y be an indicator for whether my friend Alice calls next Friday, and suppose X and Y are independent
+        \item Let Z be an indicator for exactly one of my friends calling me next Friday
+        \item Then, X and Y are (perfectly) dependent given Z.
+        \end{itemize}
+    \item \textbf{Conditional independence does not imply independence}...A lot of applied causal inference is built on finding conditional independence where there is not independence, e.g. by applying statistical controls. E.g., no selection into treatment given some conditions.
+\end{itemize}
+\\
+\hline
+\vskip 0.4cm
+
+\section{Expectation}
+\textbf{Expectation, Expected Value, Mean} \\
+= weighted avg of possible values $X$ can take:
+\[E(X) = \sum_{x} x \cdot \underbrace{P(X = x)}_{\text{PMF at } x}\]
+Eg Let $X$ be the result of rolling a 6-sided die:
+\[E(X) = (1 + 2 + 3 + 4 + 5 + 6) \cdot \frac{1}{6} = 3.5\]
+NB $X$ never equals its mean here.\\
+\\
+Eg let $X$ be the result of 2x coin flip (heads)
+\[E(X) = 0 \times \frac{1}{4} + 1 \times \frac{1}{2} + 2 \times \frac{1}{4} = 1\]\\
+\\
+In Bernoulli: $X \sim Bern(p)$: 
+\[E(X) = 1p + 0(1-p) = p\]
+This is the value (1, 0) multiplied by its probability of occurring. \\
+\\
+\textbf{Linearity of Expectation:}
+\begin{enumerate}
+    \item $E(cX) = cE(x)$
+    \item $E(X+Y) = E(X) + E(Y)$ \\
+\end{enumerate}
+\textit{Even if X and Y are not independent\\ 
+    BUT this only works when functions are linear.... p.12} \\
+
+\underline{Returning to coin flip example:} \\
+\\
+1) $E(cX) = cE(x)$\\
+For a constant \(c = 3\), let \(Y = 3X\). Thus, the values of \(Y\) are 0, 3, and 6.
+\[E(3X) = 0 \times \frac{1}{4} + 3 \times \frac{1}{2} + 6 \times \frac{1}{4} = 3\]
+
+According to the property:
+\[E(3X) = 3E(X) = 3 \times 1 = 3\]
+\\
+2) \(E(X + Y) = E(X) + E(Y)\) \\
+Property: The expected value of the sum of two random variables is the sum of their expected values.\\
+\\
+Example:
+Let \(X\) be the number of heads when flipping a fair coin twice and \(Z\) represents the outcome when rolling a fair die.
+\begin{align*}
+E(X) &= 1 \\
+E(Z) &= 1 \times \frac{1}{6} + 2 \times \frac{1}{6} + 3 \times \frac{1}{6} + 4 \times \frac{1}{6} + 5 \times \frac{1}{6} + 6 \times \frac{1}{6} = 3.5
+\end{align*}
+
+For \(W = X + Z\):
+\[E(X + Z) = E(X) + E(Z) = 1 + 3.5 = 4.5\]
+
+
+\\
+\hline
+\vskip 0.4cm
+
+\section{Variance}
+\[Var(X) = E((X - EX)^2)\]
+\[S.d = \sqrt{var}\]
+This means: it is the actual value $(x)$, minus mean$(\mu)$, squared, then multiplied by probability of that value, then all summed. \\
+\\
+Example: What is the variance of $X$, if $X$ is the result of one roll of a fair six-sided die? \\
+E(X) = 3.5. \\
+\[\frac{1}{6} \left[ (1 - 3.5)^2 + (2 - 3.5)^2 + \dots + (6 - 3.5)^2 \right] \approx 2.9 \]
+
+More useful: 
+\[Var(X) = E(X^2) - (EX)^2\]
+\\
+\textit{Example: six-sided die}. 
+Let $X$ be the result of one roll. 
+\begin{align}
+    E(X) &= \frac{1}{6} \sum_{i=1}^{6} i = \frac{1+2+3+4+5+6}{6} = 3.5 \\
+    E(X^2) &= \frac{1}{6} \sum_{i=1}^{6} i^2 = \frac{1^2+2^2+3^2+4^2+5^2+6^2}{6} = \frac{91}{6} \\
+    \text{Var}(X) &= E(X^2) - (E(X))^2 \\
+    \text{Var}(X) &= \frac{91}{6} - (3.5)^2 = \frac{91}{6} - 12.25 = 2.92
+\end{align}
+\\
+\textbf{Variance facts:}
+\begin{itemize}
+    \item $Var(c) = 0$ for any constant c
+    \item $Var(X + c) = Var(X)$ for any constant c
+    \item $Var(cX) = c^2Var(X)$ for any constant c \textbf{ <--- NB}
+    \item $Var(X + Y ) = Var(X) + Var(Y )$ only if X and Y are independent.\\
+    \textbf{Caution: unlike expectation, variance is not linear}
+    \begin{itemize}
+        \item $Var(cX) \neq cVar(X)$
+        \item $Var(X + Y) \neq Var(X) + Var(Y)$ (in general)
+    \end{itemize}
+\end{itemize}
+\\
+
+\hline
+\vskip 0.4cm
+
+\section{Joint Distributions - how 2 r.v.s interact}
+\subsection{PMF}
+Still has to sum to 1 over all values of X and Y.
+\[p_{X,Y}(x, y) = P(X = x, Y = y)\]
+
+\subsection{CDF}
+\[F_{X, Y}(x, y) = P(X \leq x, Y\leq y)\]
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Screenshot 2023-10-21 140956.png}
+    \caption{Joint PMF}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Marginal PMF of X}
+Sum over all \(y\):
+\[P(X = x) = \sum_{y} P(X = x, Y = y)\]
+\(\rightarrow\) the PMF of \(X\)
+\vskip 0.2cm
+\textit{We've marginalised out \(Y\) - by summing over all values of \(Y\).}
+\vskip 0.2cm
+\textbf{Heuristic}: no longer interested in \(Y\); it's sort of flattened the square base into a line.
+
+
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Screenshot 2023-10-21 141320.png}
+    \caption{Marginal PMF of X}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Conditional PMF of Y}
+Joint divided by marginal.
+\[P(Y = y|X = x) = \frac{P(X = x, Y = y)}{P(X = x)}\]
+= the joint PMF over the PMF of 2nd variable at a certain value of (ie the marginal) 
+\vskip 0.2cm
+You need to renormalise based on PMF of $X = x$ (ie a certain value of $x$) 
+\vskip 0.2cm
+\textbf{Heuristic}: taking a cross section of the joint based on a value of X. \\
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Screenshot 2023-10-21 141759.png}
+    \caption{Conditional PMF of Y}
+    \label{fig:enter-label}
+\end{figure}
+
+Joint PMF > Marginal PMF of X > Conditional PMF of Y \\
+
+\textit{Example 1:} \\
+randomly sample from population:\\
+\begin{itemize}
+    \item Let X be an indicator for the presence of a gene 
+    \item Y be an indicator for developing a certain disease at some point in his life.
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+ & \(Y = 1\) & \(Y = 0\) \\
+\hline
+\(X = 1\) & \( \frac{5}{100} \) & \( \frac{20}{100} \) \\
+\hline
+\(X = 0\) & \( \frac{3}{100} \) & \( \frac{72}{100} \) \\
+\hline
+\end{tabular}
+\caption{Contingency table for \(X\) and \(Y\)}
+\end{table}
+
+What are joint PMF of X, Y?, marginal prob of X, Y? conditional prob of Y given X = 1?
+\begin{itemize}
+    \item joint PMF: given by table itself
+    \item marginal: we work out onto the margins
+\end{itemize}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+     & \(Y = 1\) & \(Y = 0\) & Marginal \(X\) \\
+    \hline
+    \(X = 1\) & \( \frac{5}{100} \) & \( \frac{20}{100} \) & \( \frac{25}{100} \) \\
+    \hline
+    \(X = 0\) & \( \frac{3}{100} \) & \( \frac{72}{100} \) & \( \frac{75}{100} \) \\
+    \hline
+    Marginal \(Y\) & \( \frac{8}{100} \) & \( \frac{92}{100} \) & 1 \\
+    \hline
+    \end{tabular}
+    \caption{Contingency table for \(X\) and \(Y\) with Marginal Distributions}
+\end{table}
+
+\begin{itemize}
+    \item conditional distribution of Y|X = 1:\\
+    \(P(Y = 1|X = 1) = \frac{P(X = x, Y = y)}{P(X = x)} = \frac{\frac{5}{100}}{\frac{25}{100}} = 0.2\)\\
+    So conditional distribution of Y given $X=1$ is Bernoulli(0.2)
+\end{itemize}
+
+\textbf{NB we can work out if they are independent r.v.s.}
+\[\text{If independent: } P(X = x,Y = y) = P(X = x)P(Y = y)\] 
+Finding even one pair, such that $P(X = x,Y = y) \neq P(X = x)P(Y = y)$ is sufficient to rule out independence.\\
+
+To determine if the variables \(X\) and \(Y\) are independent, we need to check if:
+\[ P(X = x, Y = y) = P(X = x) \times P(Y = y) \]
+for all values of \(x\) and \(y\). \\
+Checking marginals against individual values in the joint PMF.
+
+Using the values from the table:
+\begin{enumerate}
+    \item For \(X = 1\) and \(Y = 1\):
+    \[ \frac{5}{100} \stackrel{?}{=} \frac{25}{100} \times \frac{8}{100} \]
+    
+    \item For \(X = 1\) and \(Y = 0\):
+    \[ \frac{20}{100} \stackrel{?}{=} \frac{25}{100} \times \frac{92}{100} \]
+    
+    \item For \(X = 0\) and \(Y = 1\):
+    \[ \frac{3}{100} \stackrel{?}{=} \frac{75}{100} \times \frac{8}{100} \]
+    
+    \item For \(X = 0\) and \(Y = 0\):
+    \[ \frac{72}{100} \stackrel{?}{=} \frac{75}{100} \times \frac{92}{100} \]
+\end{enumerate}
+
+Given that none of the joint probabilities match the product of the marginal probabilities, we can conclude that \(X\) and \(Y\) are \textbf{not independent}.\\
+
+\hline
+\vskip 0.4cm
+
+FROM LAB NEED TO ADD THE MEAN AND VARIANCE OF THE BINOMIAL / THE MULTINOMIAL / POISSON
+
+\hline
+\vskip 0.4cm
+
+\textbf{\underline{ChatGPT's Joint > Marginal > Conditional example:}} \\
+\documentclass{article}
+\usepackage{amsmath, amssymb, array}
+
+\begin{document}
+
+\section*{Joint Distribution to Marginal and Conditional PMFs}
+
+Consider two discrete random variables \(X\) and \(Y\) with the following joint distribution:
+
+\[
+\begin{array}{c|ccc}
+P(X, Y) & Y = 1 & Y = 2 & Y = 3 \\
+\hline
+X = 1 & 0.1 & 0.2 & 0.1 \\
+X = 2 & 0.05 & 0.25 & 0.1 \\
+X = 3 & 0.05 & 0.1 & 0.05 \\
+\end{array}
+\]
+
+\subsection*{Marginal PMFs}
+
+\textbf{Marginal PMF of \(X\):}
+\begin{align*}
+P(X = 1) &= \sum_{y} P(X = 1, Y = y) = 0.1 + 0.2 + 0.1 = 0.4 \\
+P(X = 2) &= \sum_{y} P(X = 2, Y = y) = 0.05 + 0.25 + 0.1 = 0.4 \\
+P(X = 3) &= \sum_{y} P(X = 3, Y = y) = 0.05 + 0.1 + 0.05 = 0.2
+\end{align*}
+
+\textbf{Marginal PMF of \(Y\):}
+\begin{align*}
+P(Y = 1) &= \sum_{x} P(X = x, Y = 1) = 0.1 + 0.05 + 0.05 = 0.2 \\
+P(Y = 2) &= \sum_{x} P(X = x, Y = 2) = 0.2 + 0.25 + 0.1 = 0.55 \\
+P(Y = 3) &= \sum_{x} P(X = x, Y = 3) = 0.1 + 0.1 + 0.05 = 0.25
+\end{align*}
+
+\subsection*{Conditional PMFs}
+
+\textbf{Conditional PMF of \(X\) given \(Y = 1\):}
+\begin{align*}
+P(X = 1 | Y = 1) &= \frac{0.1}{0.2} = 0.5 \\
+P(X = 2 | Y = 1) &= \frac{0.05}{0.2} = 0.25 \\
+P(X = 3 | Y = 1) &= \frac{0.05}{0.2} = 0.25
+\end{align*}
+
+\textbf{Conditional PMF of \(X\) given \(Y = 2\):}
+\begin{align*}
+P(X = 1 | Y = 2) &= \frac{0.2}{0.55} \approx 0.3636 \\
+P(X = 2 | Y = 2) &= \frac{0.25}{0.55} \approx 0.4545 \\
+P(X = 3 | Y = 2) &= \frac{0.1}{0.55} \approx 0.1818
+\end{align*}
+
+\textbf{Conditional PMF of \(X\) given \(Y = 3\):}
+\begin{align*}
+P(X = 1 | Y = 3) &= \frac{0.1}{0.25} = 0.4 \\
+P(X = 2 | Y = 3) &= \frac{0.1}{0.25} = 0.4 \\
+P(X = 3 | Y = 3) &= \frac{0.05}{0.25} = 0.2
+\end{align*}
+
+\textbf{Conditional PMF of \(Y\) given \(X = 1\):}
+\begin{align*}
+P(Y = 1 | X = 1) &= \frac{0.1}{0.4} = 0.25 \\
+P(Y = 2 | X = 1) &= \frac{0.2}{0.4} = 0.5 \\
+P(Y = 3 | X = 1) &= \frac{0.1}{0.4} = 0.25
+\end{align*}
+
+\textbf{Conditional PMF of \(Y\) given \(X = 2\):}
+\begin{align*}
+P(Y = 1 | X = 2) &= \frac{0.05}{0.4} = 0.125 \\
+P(Y = 2 | X = 2) &= \frac{0.25}{0.4} = 0.625 \\
+P(Y = 3 | X = 2) &= \frac{0.1}{0.4} = 0.25
+\end{align*}
+
+\textbf{Conditional PMF of \(Y\) given \(X = 3\):}
+\begin{align*}
+P(Y = 1 | X = 3) &= \frac{0.05}{0.2} = 0.25 \\
+P(Y = 2 | X = 3) &= \frac{0.1}{0.2} = 0.5 \\
+P(Y = 3 | X = 3) &= \frac{0.05}{0.2} = 0.25
+\end{align*}
+
+\end{document}
+
+\end{document}

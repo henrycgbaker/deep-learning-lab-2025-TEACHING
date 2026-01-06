@@ -1,0 +1,685 @@
+%\documentclass[xcolor=dvipsnames]{beamer}
+\documentclass[xcolor=dvipsnames,handout]{beamer}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\usepackage{etex}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epsfig}
+\usepackage[english]{babel}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{fancyvrb}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{epsdice}
+
+\hypersetup{
+    colorlinks = true
+}
+
+\definecolor{newred}{RGB}{127,0,0}
+\let\iitemize=\itemize \let\endiitemize=\enditemize \renewenvironment{itemize}{\iitemize \vspace{1mm} \itemsep2mm}{\endiitemize}
+\let\eenumerate=\enumerate \let\endeenumerate=\endenumerate \renewenvironment{enumerate}{\eenumerate \vspace{1mm} \itemsep2mm}{\endeenumerate}
+% == theme & colors
+\mode<presentation>
+{
+
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usecolortheme{beaver}
+  \setbeamercovered{invisible} %or transparent
+  \metroset{block=fill}
+  \setbeamercolor{block title example}{fg=gray!40!black}
+  \setbeamercolor{itemize item}{fg=gray!40!black} 
+  \setbeamercolor{title}{fg=newred} 
+}
+
+      
+
+
+% === tikz for pictures ===
+\usepackage{tikz}
+\usepackage[latin1]{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning}
+\usetikzlibrary{decorations.pathreplacing}
+\tikzstyle{doublearr}=[latex-latex, black, line width=0.5pt]
+
+% === if you want more than one slides on one page ===
+\usepackage{pgfpages}
+
+
+
+\title{Mathematics for Data Science}
+\subtitle[]{Lecture 1: Introduction and Probability Theory}
+\author[Asya Magazinnik]{Prof. Asya Magazinnik}
+\institute{Hertie School}
+\date{September 2, 2024}
+
+\renewcommand\r{\right}
+\renewcommand\l{\left}
+
+
+\def\insertnavigation#1{\relax}
+\usepackage[all]{xy}
+\usepackage{geometry,colortbl,wrapfig}
+\usepackage{tikz}  
+\usepackage{graphicx,setspace,subfigure}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\newcommand{\Ex}{\textsc{Example  }}
+\newcommand{\series}{\sum_{n=1}^{\infty}} 
+\newcommand{\ball}[1]{B( #1)} 
+\newcommand{\inner}[1]{\ensuremath{\langle #1 \rangle}}
+\newcommand{\e}{\epsilon}
+\newcommand{\grad}{\nabla}
+\newcommand{\pa}{\pause \item}
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+\newcommand{\R}{\mathbb{R}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+
+
+
+
+\newcommand{\indep}{{\bot\negthickspace\negthickspace\bot}}
+
+\begin{document}
+
+\subject{Talks}
+\AtBeginSection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection,currentsubsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+
+\frame[plain]{
+  \titlepage
+  \addtocounter{framenumber}{-1}
+}
+
+
+
+\section{Welcome}
+
+
+\begin{frame}
+\frametitle{A Lay of the Land}
+\begin{itemize}
+    \item Introductions
+    \item What we do in the MDS
+    \item What we will do in this course (and how it fits into the MDS)
+    \item Structure of the course/ground rules
+\end{itemize}
+\end{frame}
+
+\begin{frame}{What We Do in the MDS}
+\includegraphics[width=\textwidth]{images/what-we-do-in-the-shadows-colin-trolling-1014x570.jpg}
+\end{frame}
+
+\begin{frame}{We take data from the world...}
+\vspace{6mm}
+\includegraphics[width=\textwidth]{images/data.png}
+\end{frame}
+
+\begin{frame}{And we produce:}
+\begin{itemize}
+    \item Descriptive information (digestible facts)
+    \begin{itemize}
+        \item Summary statistics, e.g. means, medians
+        \item Plots, maps, infographics, apps... 
+    \end{itemize} \pause 
+    \item Predictions about the future or new contexts
+    \begin{itemize}
+        \item Who will win the next election?
+        \item Will the economy contract or grow next year?
+    \end{itemize} \pause 
+    \item Evidence for social scientific (causal) theories
+    \begin{itemize}
+        \item Are democracies less likely to go to war than autocracies?
+        \item How does immigration affect support for redistribution? 
+    \end{itemize} \pause 
+    \item Policy recommendations and interventions
+    \begin{itemize}
+        \item Taxes, regulations, goods provision
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{What We Do in the MDS}
+\vspace{3mm}
+\begin{center}
+    \begin{tikzpicture}
+  \node[draw,fill=black,text=white] (Data) at (0,0) {Data};
+\node[draw] (Information) at (2.3,0) {Information};
+  \draw[->] (Data) to (Information);
+  \end{tikzpicture}
+\end{center}
+\pause \vspace{2mm}
+Three broad sets of skills are involved in this process: 
+\vspace{2mm}
+\begin{eenumerate}
+    \item \textbf{Computational:} How to deal with your data
+    \begin{iitemize}
+        \item Introduction to data science
+        \item Data structures and algorithms
+    \end{iitemize} \vspace{2mm}
+    \item \textbf{Mathematical:} How to analyze your data
+    \begin{iitemize}
+        \item Machine learning and statistics
+        \item Causal inference
+    \end{iitemize} \vspace{2mm}
+    \item \textbf{Substantive:} What to make of your analysis
+    \begin{iitemize}
+        \item The policy process
+        \item Law and governance
+        \item Economics        
+    \end{iitemize}
+\end{eenumerate}
+\pause 
+  \begin{picture}(0,0)
+\put(0,116){\includegraphics[width=.4\textwidth]{images/ospmcme4v0nfi98k7cjnnof35t-87ad3f1b9b75ce9ea64d82d11347feed.png}}
+\put(-2,58){\includegraphics[width=.4\textwidth]{images/circle-oval-angle-hydrosphere-ppt-0c39053ad101856208df16436710cc2d.png}}
+\end{picture}
+\end{frame}
+
+\begin{frame}{Purpose of this Course}
+    The mathematical foundations of data science:
+    \begin{enumerate}
+        \item Probability theory
+        \item Calculus
+        \item Linear algebra
+        \item Statistical learning 
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Probability Theory}
+    Theory about the \alert{process by which our data is generated}. \pause 
+    \begin{itemize}
+        \item The signal and the noise: systematic and stochastic (random) elements of the data-generating process \vspace{2mm} \pause 
+        \item Two (compatible) interpretations of a stochastic process:
+        \begin{iitemize}
+            \item Truly random
+            \item Deterministic, but with unmodeled elements we cannot or do not care to measure
+        \end{iitemize} \pause 
+        \item End goals: to extract the signal and quantify the noise
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Calculus}
+Mathematics of functions describing \alert{how things change}. Important for many reasons: \pause 
+\begin{itemize}
+    \item A question we will often ask is \textit{how does x change with y}? 
+    
+    \begin{iitemize}
+        \item Useful for description, prediction, theory-building, and policy.
+    \end{iitemize}
+    \pause 
+    \item Much of data science is asking \textit{what model best fits the data?}
+    
+    \begin{iitemize}
+        \item \alert{``best fit''} is an optimization problem, and optimization is calculus
+    \end{iitemize}
+    \pause 
+    \item Needed for probability theory with continuous random variables
+
+    \begin{iitemize}
+        \item Functions map events to probabilities
+    \end{iitemize}
+\end{itemize}
+\end{frame}
+
+{
+\setbeamercolor{background canvas}{bg=white}
+\begin{frame}{Calculus}
+\includegraphics[width=\textwidth]{images/sales.png}
+\end{frame}
+}
+
+\begin{frame}{Linear Algebra}
+    How to manipulate \alert{vectors and matrices}...
+    \pause
+    \vspace{2mm}
+    \begin{multicols}{2}
+\begin{equation*}
+\begin{pmatrix}
+a_{1,1} & a_{1,2} & \cdots & a_{1,n} \\
+a_{2,1} & a_{2,2} & \cdots & a_{2,n} \\
+\vdots  & \vdots  & \ddots & \vdots  \\
+a_{m,1} & a_{m,2} & \cdots & a_{m,n} 
+\end{pmatrix}
+\end{equation*}
+\columnbreak
+\begin{center}
+    \includegraphics[width=.5\textwidth]{images/data2.png}
+\end{center}
+\end{multicols}
+ is how you manipulate your data. 
+\end{frame}
+
+\begin{frame}{Statistical Learning}
+    Putting it all together: 
+    \begin{itemize}
+        \item Combining theory about the data-generating process (probability)
+        \item with an understanding of how to manipulate functions (calculus) and data sets (linear algebra), 
+        \item we will \alert{fit models to data} 
+        \item in order to \alert{describe}, \alert{predict}, and \alert{theorize about} social phenomena. 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{An Iterative Workflow for Success}
+\begin{enumerate}
+    \item Do the reading before Monday lecture
+    \begin{iitemize}
+        \item But if it's very challenging, don't struggle. Skimming is ok. 
+    \end{iitemize}
+    \item Come to Monday lecture 
+    \begin{iitemize}
+        \item Listen to lecture \& ask questions
+        \item Attendance is mandatory
+    \end{iitemize}
+
+    \item Before your lab: Review the slides and do the reading again, this time carefully focusing on the parts covered in slides
+    \begin{iitemize}
+        \item I will never hold you accountable for material not mentioned or covered in slides.
+    \end{iitemize}
+
+    \item Come to lab
+    \begin{iitemize}
+        \item Attendance is also mandatory
+        \item Opportunity to ask more in-depth questions; we apply and extend concepts from lecture, often with code 
+    \end{iitemize}
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Assignments}
+    \begin{enumerate}
+        \item Four problem sets (60\%)
+        \begin{iitemize}
+            \item Deadlines evenly spaced throughout the semester
+            \item Work in assigned groups of 3 and type up one solution set per group 
+            \item Designed to take time and thought; please start early
+            \item Please type solutions neatly and show all work
+            \item A good opportunity to learn \LaTeX 
+        \end{iitemize}
+    \item In-lab exercise (15\%) 
+    \item In-class final exam (25\%) 
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Hertie School Grading Guidelines}
+In order to avoid grade inflation and grading inconsistency, we ask instructors to apply the following interpretation of our grading scale:
+\begin{itemize} \small 
+    \item course grades usually range from 70\% to 95\%
+    \item aim at a median of 85\% which is a good grade
+    \item only grade beyond 90\% if your expectations are greatly exceeded
+    \item only grade below 70\% if you are very disappointed
+    \item grades above 95\% and below 70\% should be exceptional (top / bottom 5\% of students)
+\end{itemize} 
+If we do not achieve this distribution naturally, we will curve the grades to get there at the end of the semester. 
+\end{frame}
+
+
+\begin{frame}{Coding in R}
+        \begin{itemize}
+            \item Although this is a conceptual class, supplementing math with code:
+            \begin{enumerate}
+                \item firms up understanding
+                \item connects concepts to real-world problems
+            \end{enumerate}
+            
+            \item But I am aware this is yet another skill to master, and will provide as much guidance as possible 
+            
+            \item You will not be assessed on the quality of your code here --- only your understanding of the ideas 
+            
+            \begin{itemize}
+                \item But it's always good to practice!
+            \end{itemize}
+        \end{itemize}
+\end{frame}
+
+\begin{frame}{Policies on AI Assistance}
+    \begin{itemize} \small 
+        \item  This is [in part] a coding class, and ChatGPT is a powerful coding assistant (try it if you haven't!). So it would be silly for us to ban its use. 
+        \item But, you need to use AI tools responsibly. 
+        \item \textbf{Allowable uses:} as a search engine, to produce code, to explain code, to explain concepts (but always be wary of mistakes!)
+        \begin{itemize}
+            \item You are ultimately responsible for understanding every line of your code and every explanation you give
+        \end{itemize}
+        \item \textbf{Forbidden uses:} To generate responses to open-ended questions verbatim
+        \begin{itemize}
+            \item This produces answers that are vague, annoying, and wrong. We recognize them immediately and we hate them.
+        \end{itemize}
+        \item Note that AI policies are specific to this class and other classes may differ. Always follow the professor's guidance. 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{ Let's put our challenges on the table}
+ \begin{enumerate} \small 
+     \item This is an ambitious class.
+     \begin{itemize} \footnotesize
+         \item Introductory probability, linear algebra, calculus, and statistics are \textit{each} one semester of university-level math
+         \item Thus the \textit{ideal} audience for this class has already had some exposure to these topics, and this is review 
+     \end{itemize}
+ \pause 
+ \item In practice, there will be a wide range of prior exposure to these concepts in this room
+ 
+        \begin{itemize} \footnotesize 
+            \item There is a path to success for everyone
+            \item \alert{Students with low exposure:} there will be \textit{clearly articulated} and \textit{achievable} minimal standards of success
+            \item \alert{Students with high exposure:} material is presented with a new data science/social science perspective, and there will be opportunities for more challenging work
+            \item What I need from you: \alert{communication}, \alert{patience}, \alert{hard work}, and \alert{mutual support}
+    \end{itemize}
+     \end{enumerate}
+\end{frame}
+
+\begin{frame}{}
+\vspace{5mm}
+\includegraphics[width=\textwidth]{images/IMG_6661.jpg}
+\end{frame}
+
+\begin{frame}{Getting Help}
+\vspace{2mm} 
+    \vspace{5mm}
+    \footnotesize  
+    \begin{tabular}{ll} 
+         \textbf{For issues relating to:} & \textbf{Please contact:} \\
+             \hline 
+         Attendance & Amanda Slater \\ 
+         Accommodations & Amanda Slater \\ 
+         Scheduling appointments with me during office hours & Amanda Slater \\
+         Questions about the material & Your TA \\
+         Grading questions & Your TA \\
+         General concerns about the course & Professor$^{*}$ \\
+         Lecture clarification or follow-up & Professor$^{*}$ \\ 
+         Research, further study & Professor$^{*}$
+    \end{tabular} \\
+    \vspace{5mm}
+    We all promise a \textbf{48-hour response time} (not including weekends). \\ \vspace{2mm}
+    {\scriptsize $^*$I am far more responsive to these questions in person, in a scheduled appointment during office hours, than over email. Office hours are every \textbf{Tuesday from 9.00 to 12.00} in my office, 3.15, or virtually if you prefer.}
+\end{frame}
+
+\section{Lecture I: Probability Theory}
+
+\begin{frame}{Reading}
+    \textbf{Blitzstein and Hwang}
+    \begin{itemize} \small 
+        \item Chapter 1 (p. 1-28)
+    %    \item Chapter 2 (p. 45-66)
+     %   \item Chapter 2, Example 2.7.1: The Monty Hall Problem
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Fundamentals}
+    Let $S$ be the sample space of an experiment, or the set of possible outcomes.
+    \begin{itemize} \small 
+        \item For one coin toss, $S = \{H, T\}$
+        \item For one roll of a six-sided die, $S = \{1, 2, 3, 4, 5, 6\}$
+    \end{itemize}
+     \pause 
+    Let $A, B \subseteq S$ be events. An \alert{event} is a subset of the sample space $S$.
+    \begin{iitemize} \small 
+         \item The \alert{union} of events $A \cup B$ is the event in which \textit{either} $A$ occurs or $B$ occurs. \pause 
+    \item The \alert{intersection} of events $A \cap B$ is the event in which \textit{both} $A$ occurs and $B$ occurs. \pause 
+    \item The \alert{complement} of the event $A$, called $A^c$, is the event in which $A$ does not occur.
+    \end{iitemize}
+\end{frame} 
+
+{
+\setbeamercolor{background canvas}{bg=white}
+\begin{frame}{Example: Pebble World}
+\begin{center}
+     \includegraphics[width=.8\textwidth]{images/pebble.png}
+ \end{center}
+Check your understanding: what is $A \cup B$? What is $A \cap B$? What is $A^c$? 
+\end{frame}
+}
+
+\begin{frame}{De Morgan's Laws}
+    \begin{enumerate}
+        \item $(A \cup B)^c = A^c \cap B^c$
+        \item $(A \cap B)^c = A^c \cup B^c$
+    \end{enumerate}
+    \vfill 
+(Take a moment to prove these to yourself on the previous slide.) 
+\end{frame}
+
+\begin{frame}{Building Some Further Notation}
+    \textbf{Example 1.2.2} A fair two-sided coin is flipped ten times.
+    \begin{itemize} \small 
+        \item One possible outcome: $HHTHHTTHTH$ \pause 
+        \item The sample space: \[S = \{(s_1, s_2, ..., s_{10}) : s_j \in \{0, 1\} \text{ for } 1 \leq j \leq 10\} \] 
+        where 0 represents $T$ and 1 represents $H$. \pause 
+        \item Let $A_1$ be the event that the first flip is Heads. This can be written:
+         \[A_1 = \{(1, s_2, ..., s_{10}) : s_j \in \{0, 1\} \text{ for } 2 \leq j \leq 10\} \] \pause 
+        \item More generally, let $A_n$ be the event that the $n^{th}$ flip is Heads 
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Building Some Further Notation}
+    \textbf{Example 1.2.2} A fair two-sided coin is flipped ten times.
+    \begin{itemize} \small 
+           \item Let $B$ be the event that at least one flip was Heads:
+ \[ B = \bigcup_{n=1}^{10} A_n = A_1 \cup A_2 \cup ... \cup A_{10} \]        
+ \item Let $C$ be the event that all flips were Heads: 
+  \[ C = \bigcap_{n=1}^{10} A_n = A_1 \cap A_2 \cap ... \cap A_{10} \]   
+    \item Let $D$ be the event that there were at least two consecutive Heads: 
+  \[ D = \bigcup_{n=1}^{9} (A_n \cap A_{n+1}) \]
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{On your own}
+    \begin{itemize}
+        \item Go through Example 1.2.3 
+        \item Study notation table on p. 6
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Naive Definition of Probability} 
+\[ P_{naive}(A) = \frac{|A|}{|S|} = \frac{\text{number of outcomes favorable to A}}{\text{total number of outcomes in $S$}} \]
+\\
+\pause 
+\vspace{10mm}
+In general, 
+\[ P_{naive} (A^c) = 1 - P_{naive}(A) \]
+\pause 
+\vspace{5mm}
+\\
+What is naive about $P_{naive}?$ \pause 
+\begin{itemize}
+    \item The assumption of equal probability on each outcome must be justified.
+\end{itemize}
+\end{frame}
+
+{
+\setbeamercolor{background canvas}{bg=white}
+\begin{frame}{Example: Pebble World}
+\begin{center}
+     \includegraphics[width=.8\textwidth]{images/pebble.png}
+ \end{center}
+What is $P_{naive}(A)$? What is $P_{naive}(B)$?  What is $P_{naive}(A \cup B)$? What is $P_{naive}(A^c)$? What is $P_{naive}((A \cup B)^c)$? 
+\end{frame}
+}
+
+\begin{frame}{Multiplication Rule}
+Consider a compound experiment consisting of two sub-experiments, Experiment A and Experiment B. If Experiment A has $a$ possible outcomes, and Experiment B has $b$ possible outcomes, then the compound experiment has $ab$ possible outcomes.
+\end{frame}
+
+{
+\setbeamercolor{background canvas}{bg=white}
+\begin{frame}{Multiplication Rule}
+\vspace{3mm}
+    \includegraphics[width=\textwidth]{images/tree.png}
+\end{frame}
+}
+
+\begin{frame}{Sampling with Replacement}
+    Imagine an urn with $n$ balls in it, labeled 1 through $n$. You pick $k$ balls from this urn. 
+    \begin{itemize}
+        \item Every ball has equal probability of being picked
+        \item Every time you pick a ball, you put it back in the urn before picking another one
+    \end{itemize}
+    \alert{By the multiplication rule, there are $n^k$ possible outcomes of this experiment.}
+\end{frame}
+
+\begin{frame}{Sampling without Replacement}
+    Imagine an urn with $n$ balls in it, labeled 1 through $n$. You pick $k$ balls from this urn. 
+    \begin{itemize}
+        \item Every ball has equal probability of being picked
+        \item Now, every time you pick a ball, you put it aside and do not return it to the urn
+    \end{itemize}
+    \alert{By the multiplication rule, there are $n * (n-1) * ... * (n-k+1)$ possible outcomes of this experiment.} 
+    \begin{itemize}
+        \item Unless $k>n$, in which case there are 0 possible outcomes.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Permutations and Factorials}
+    A \alert{permutation} of $1, 2, ..., n$ is an arrangement of them in some order.
+    \begin{itemize}
+        \item For instance, 3, 5, 1, 2, 4 is a permutation of 1, 2, 3, 4, 5. 
+    \end{itemize}
+    \vspace{5mm} \pause 
+    How many permutations are there of $1, 2, ..., n$?
+    \begin{itemize}
+        \item By the previous slide, with $k=n$, there are $n * (n-1) * ... * 1$ permutations, which can otherwise be expressed as $n!$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{The Birthday Problem}
+    Do we have two people with the same birthday in this room? \pause \\
+\vspace{5mm}
+What is the probability of that happening? 
+\pause
+\begin{itemize} \small 
+    \item \textbf{Tip:} sometimes it's easier to count complements
+    \item What's the probability of no matching birthdays? This amounts to sampling the days of the year without replacement: 
+    \begin{align*}
+        P(\text{no birthday match}) &= \frac{\text{number of ways to not repeat birthdays}}{\text{number of total possibilities}} \\
+        &= \frac{365 \cdot 364 \cdot \cdot \cdot (365 - k + 1)}{365^k} \\
+        P(\text{birthday match}) &= 1 - \frac{365 \cdot 364 \cdot \cdot \cdot (365 - k + 1)}{365^k}
+    \end{align*}
+\end{itemize}
+\end{frame}
+
+{
+\setbeamercolor{background canvas}{bg=white}
+\begin{frame}{The Birthday Problem}
+\includegraphics[width=\textwidth]{images/bday.png}
+\end{frame}
+}
+
+\begin{frame}{Leibniz's Mistake}
+    If we roll two fair dice, which is more likely: a sum of 11 or a sum of 12? \pause \\
+    \vspace{5mm}
+To get to a sum of 11:
+    \epsdice{5} \epsdice{6},  \epsdice{6} \epsdice{5}
+\\
+\pause \vspace{3mm}
+To get to a sum of 12:     \epsdice{6} \epsdice{6}
+\\
+\pause \vspace{3mm}
+By the multiplication rule, there are $6 \times 6 = 36$ possible outcomes
+\\
+\pause \vspace{3mm}
+So the probability of a sum of 11 is $\frac{2}{36}=\frac{1}{18}$, compared to $\frac{1}{36}$ for a sum of 12.
+\\
+\pause \vspace{3mm}
+\textbf{Tip:} In problems like this one, it helps to \alert{label your objects}.
+\end{frame}
+
+\begin{frame}{Combinations}
+But in other problems, we don't want to label objects. For instance, how many ways are there to form a two-person committee from a group of four? 
+\begin{itemize} \small 
+    \item We really don't care what chairs they sit in; we want to count any outcome with the same two people as one outcome
+\end{itemize}
+For this type of problem, we have the \alert{binomial coefficient}:
+\begin{itemize} \small 
+    \item For any nonnegative integers $k$ and $n$, the binomial coefficient $n\choose{k}$, read as ``$n$ choose $k$,'' is the number of subsets of size $k$ for a set of size $n$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{The Binomial Coefficient Formula}
+    For $k \leq n$, we have:
+    \begin{equation*}
+        {n\choose k} = \frac{n(n-1) \cdots (n-k+1)}{k!} = \frac{n!}{(n-k)! k!}
+    \end{equation*}
+For $k>n$, we have ${n \choose k} = 0$. \\ \vspace{5mm}
+\textbf{Proof:} See p. 16. \\
+\vspace{5mm}
+\textbf{Tip:} The middle expression may be easier to use for large $n$, e.g. ${100 \choose 2} = \frac{100 \cdot 99}{2!}$ as opposed to $\frac{100!}{98! \cdot 2!}$. 
+\end{frame}
+
+\begin{frame}{Permutations vs. Combinations}
+In general, when position matters, we call it a \alert{permutation}. When order does not matter, it's a \alert{combination}.
+    \\ \vspace{5mm} \pause
+\textbf{Practice on your own}:
+\begin{itemize}
+    \item \hyperlink{https://projects.iq.harvard.edu/sites/projects.iq.harvard.edu/files/stat110/files/strategic_practice_and_homework_1.pdf}{Strategic Practice}: Questions 1 and 2
+    \item End of Chapter 1 Exercises: 8, 24, 25, 28, and 34
+    \begin{itemize}
+        \item Solutions are available \href{https://projects.iq.harvard.edu/stat110/strategic-practice-problems}{here} (note that the numbering is a little off, but you'll find the question if you look for it) 
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Non-Naive Version of Probability}
+\small \vspace{2mm}
+    We are now ready to define a version of probability that does not assume equal probability on all outcomes, but should still look intuitively familiar. \\
+    \vspace{5mm}
+    We define a \alert{probability space} consisting of a sample space $S$ and a \alert{probability function} $P$ which takes an event $A \subseteq S$ as input and returns $P(A)$, a real number between 0 and 1, as output. The function $P$ must satisfy the following two axioms: 
+    \begin{itemize}
+        \item $P(\emptyset) = 0, P(S) = 1$.
+    \item If $A_1, A_2, ...$ are \alert{disjoint} (mutually exclusive) events, then $P \left( \bigcup_{j=1}^\infty A_j \right)  = \sum_{j=1}^\infty P(A_j) $.
+    \end{itemize}
+    Any function that satisfies these two axioms is a valid probability function. 
+\end{frame}
+
+\begin{frame}{Interpretation of Probability}
+    These are quite minimal requirements that don't tell us what a valid probability function \textit{means}. 
+    \begin{itemize}
+        \item \textbf{The Frequentist Perspective:} The long-run frequency over infinite repetitions of an experiment. 
+        \begin{itemize}
+            \item e.g., if you toss a fair coin infinite times, the long-run probability it comes up heads is 1/2
+        \end{itemize}
+        \item \textbf{The Bayesian Perspective:} A degree of belief about the event in question, even if it is impossible to repeat that event more than once.
+        \begin{itemize}
+            \item e.g., the probability that someone wins a particular election
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+\begin{frame}{Properties of Probability}
+   \begin{enumerate}
+        \item $P(A^c) = 1-P(A)$.
+        \item If $A \subseteq B$, then $P(A) \leq P(B)$.
+        \item $P(A \cup B) = P(A) + P(B) - P(A \cap B)$.
+    \end{enumerate}
+    \centering \vspace{5mm}
+    \includegraphics[width=.4\textwidth] {images/venn.png}
+\end{frame}
+\end{document}

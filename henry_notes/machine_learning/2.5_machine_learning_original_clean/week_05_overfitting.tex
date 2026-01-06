@@ -1,0 +1,350 @@
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}}
+{\large \bfseries ML Lecture Notes 2024 --- Henry Baker}
+\\ \hline
+\end{tabular}
+
+\vspace*{0.3cm}
+\begin{center}
+	{\Large \bfseries ML Lecture Notes: Wk 5 --- Benign Overfitting \& Kernels}
+	\vspace{2mm}
+
+\end{center}
+\vspace{0.4cm}
+
+\section{Recap}
+
+\begin{tcolorbox}
+Relationship between risk, loss, bias:
+    \begin{itemize}
+        \item Risk = expected loss
+        \item Loss function determines risk 
+        \item when we take MSE as our risk definition (L2 norm as loss function), then ouR risk (errors) decomposes nicely into bias and variance.
+        \item But this might not always be the case
+        
+    \end{itemize}
+\end{tcolorbox}
+
+The generalization OLS: how well the OLS estimator performs in terms of predicting new, unseen data. This performance is measured through the lens of bias and variance, as well as the risk or the expected prediction error. 
+
+\subsection{$p \ll n$}
+
+Many more observations than predictors: OLS works great, just add $n$ and risk rapidly approaches 0. \\
+
+It represents a more traditional case where OLS estimates are often unbiased and the estimators have the least variance among all linear unbiased estimators (thanks to the Gauss-Markov theorem).
+
+\begin{itemize}
+    \item $R(\hat{\beta}) - R(\hat{\beta^*}) = \frac{p}{n}\sigma^2$
+    \item The risk $R(\hat{\beta}) - R(\hat{\beta^*})$, which represents the difference in prediction error between the estimated coefficients ($\hat{\beta}$) and the true coefficients ($\beta^*$), rapidly approaches 0 as $n$ increases
+    \item NB: an assumption - requires that SVD of training $X$ = SVD of test $\Tilde{X}$ 
+    \begin{itemize}
+        \item implies that the geometry or structure of the data (in terms of its variance-covariance matrix) is consistent between training and testing sets. 
+        \item This is an idealized assumption and often not met in real scenarios, 
+        \item indicating that in practice, some form of regularization or model validation is necessary to ensure good generalization (ie that the rate of error reduction against $n$ given above does not hold).
+    \end{itemize}
+\end{itemize}
+
+\subsection{$p \gg n$}
+
+This scenario is more common in modern machine learning problems, where the dimensionality of the data (number of predictors) is much larger than the number of observations. This situation poses unique challenges for OLS, leading to overfitting and poor generalization if not addressed properly.
+
+\begin{itemize}
+    \item Risk (Expected error): $R(\hat{\beta}) - R(\hat{\beta^*}) \approx (1- \frac{n}{p}) \|\beta^*\|^2$\\
+    This can be decomposed into Bias + Variance:
+    \item Bias $\approx (1- \frac{n}{p}) \|\beta^*\|^2$ (very large)
+    \begin{itemize}
+        \item in high-dimensional settings, OLS estimates can be biased. 
+        \item This is contrary to the low-dimensional case. 
+        \item The bias can be very large because the model tries to fit the noise in the training data due to having too many degrees of freedom.
+    \end{itemize}
+    \item Variance $\approx \frac{n}{p}$ (Very small)
+    \begin{itemize}
+        \item because the model is highly constrained by the data—it has many predictors to "explain" the variability, leaving little room for the estimates to vary across different samples.
+    \end{itemize}
+    \item \textbf{On the margin, sample size doesn't help that much:} when $p$ is large, just boosting $n$ a bit (on the margin) does not help.
+    \begin{itemize}
+        \item prediction error doesn't significantly improve with more data because the model's complexity (number of parameters) is too high relative to the amount of available data. 
+        \item The approximation ($1-\frac{n}{p}$) shows that as the ratio of the number of observations to the number of predictors decreases, the benefit of additional data diminishes.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Implications}
+\begin{itemize}
+    \item The generalization of OLS is fundamentally affected by the ratio of predictors to observations. 
+    \item In low-dimensional settings ($p\ll n$ ), OLS generally performs well with risks decreasing as more data becomes available. 
+    \item However, in high-dimensional settings ($p \gg n$), traditional OLS struggles due to large bias and a lack of significant improvement from additional data. 
+    \item This has led to the development of techniques such as regularization (e.g., ridge regression, lasso) to address overfitting and improve model generalization in high-dimensional contexts. 
+    \item These methods introduce bias deliberately to reduce variance and improve the model's predictive performance on new data. \textcolor{red}{BUT THESE INTRO BIAS TO REDUCE VARIANCE.... SURELY THAT MAKES IT ALL WORSE???}
+\end{itemize}
+
+\section{Double Descent Puzzle}
+
+\begin{itemize}
+    \item As the complexity of deep neural networks increases, we eventually see decreases in test-error!
+    \item Intuitively, we might expect that at some point, increasing complexity could lead to overfitting, where the network memorizes the training data, including noise, resulting in poor generalization to unseen data (high test error).
+    \item This counterintuitive behavior suggests that very deep and complex networks have a regularizing effect that improves their ability to generalize, rather than merely memorizing the training data.
+    \item One explanation: \textbf{manifold hypothesis}: structure in high dimensional data makes it behave low dimensionality
+    \begin{itemize}
+        \item high-dimensional data (such as images, text, or audio) often lies on or near a much lower-dimensional manifold. 
+        \item A manifold is a mathematical space that might locally resemble Euclidean space but has a more complex, curved structure when viewed as a whole. 
+        \item For instance, the surface of the Earth is a two-dimensional manifold that exists in three-dimensional space.
+        \item the intrinsic dimensionality of the data is much lower than the ambient (high) dimensionality. 
+        \item This lower-dimensional structure implies that the data points are not randomly dispersed throughout the high-dimensional space but are constrained in a way that reflects meaningful relationships (e.g., similarities or categories) within the data.
+    \end{itemize}
+    \item Deep neural networks, especially those with high complexity, are exceptionally good at discovering and exploiting the low-dimensional manifolds in high-dimensional data spaces. 
+    \item Through the process of training, these networks learn to ignore the irrelevant dimensions (noise) and focus on the manifold's structure, effectively regularizing themselves. 
+    \item it is the underlying structure that gives us the ability to learn
+    \item This ability to recognize and adapt to the data's manifold structure is what enables complex DNNs to achieve lower test errors, as they're not merely fitting to noise but are capturing the underlying patterns that generalize well to unseen data.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_05_overfitting/double descent.png}
+    \caption{Double Descent}
+    \label{fig:w02-fig20}
+\end{figure}
+
+\section{Modern Analysis of OLS $k$ splits -> "Benign Overfitting"}
+
+= a sophisticated strategy for dealing with high-dimensional data in linear regression contexts.
+
+\begin{itemize}
+    \item Conceptually we are decomposing into 2 distinct parts to the problem, based on the dimensionality of the feature space):
+    \item $\beta^* = \left[\beta^*_{0:k}, \beta^*_{k:p}\right]$ where $k$ "splits" our features into low vs high dimensional parts
+    \item when $p\approx n$ this is the \textbf{interpolation threshold: 0 training error}
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_05_overfitting/interpolation_threshold.png}
+    \caption{Interpolation Threshold}
+    \label{fig:w02-fig21}
+\end{figure}
+
+\subsubsection{Low Dimensional Part: $\beta^*_{0:k}$}
+
+This part represents the coefficients of the first $k$ features in your model. The idea here is that these features are in a "low-dimensional" space relative to the total number of observations ($n$). \\
+
+In traditional statistical settings, having a lower number of features compared to the number of observations helps in achieving models that are generalizable and less prone to overfitting.
+
+\subsubsection{High Dimensional Part: $ \beta^*_{k+1:p}$}
+
+This part represents the coefficients of the features from $k+1$ to $p$ where $p$ is the total number of features. \\
+
+This segment of the model dwells in the "high-dimensional" space, especially when $p$ is close to, or exceeds, $n$\\.
+
+The concept of an "interpolation threshold" becomes particularly relevant when $p \approx n$. At or near this threshold, every observation can potentially be "perfectly" fit by the model, leading to a scenario where the training error can be zero.\\
+
+This is sometimes referred to as the model entering an "interpolation regime" or "overparameterized regime," where the number of parameters (or model complexity) is high enough to fit all training points perfectly.\\
+
+when models are sufficiently complex to enter the interpolation regime, they may still capture underlying patterns that are generalizable, rather than merely memorizing the training data\\
+
+In high-dimensional settings, the behavior of OLS and other statistical estimators needs to be reconsidered. Traditional assumptions and interpretations may not directly apply. For example, the bias-variance tradeoff, a cornerstone in understanding model performance, has nuances in high-dimensional contexts. Regularization techniques, dimensionality reduction strategies, and other methodological adaptations become crucial in managing the challenges posed by high-dimensional data.
+
+
+
+\subsubsection{How does this work? i.e. how is this conceptual split engineered? What is the mechanism?}
+When $p \gg n$, we cannot  estimate $\hat{\beta = (X^TX)^{-1}X^Ty}$.\\
+when $p > n$
+\begin{itemize}
+        \item the covariance matrix $X^T X$ is not invertible
+        \item the covariance matrix $X^TX$ has singularity problems 
+    \end{itemize}
+
+Instead, we take the SVD of $X$, which is guaranteed to exist:
+\[X\hat{\beta = UU^Ty}\]
+\begin{itemize}
+    \item NB: the above is specifically on OLD data $X$; you don't actually have to calculate the $\hat{\beta}$, instead SVD derives a linear project onto $X$ (or is this $y$???), which is similar to what regression does. So for any sample points, you don't have to derive the data(???)
+    \item We take the \textbf{pseudoinverse} of $X$ (?), leading to alternative formula:
+    \[X = V \Sigma^{-1}U^Yy\]
+    \item This circumvents the problem of $X^TX$ being singular.
+\end{itemize}
+
+Then, we truncate dimensions of $U$ associated with v small singular values = introduces a regularization-like approach:
+    \[\beta^* = \left[ \beta^*_{0:k}, \beta^*_{k:\infty}\right]\]
+ \begin{itemize}
+    \item by retaining only first $k$ singular values (and corresponding vectors), we essentially perform dimensionality reduction, focusing on the components of $X$ that capture the most variance in the data.
+\end{itemize}
+    
+This is a kind of practical application of the manifold hypothesis: 
+\begin{itemize}
+    \item that the essential info resides in lower-dimensional structure within the high-dimensional space.
+    \item that the first $k$ singular values explain everything important.
+\end{itemize}
+
+The decomposition of $\beta$ into low-dimensional and high-dimensional parts distinguishes between signal and noise in the data. 
+    \begin{itemize}
+        \item Features in the low-dimensional part may be associated with stronger signals \textit{(high structure)}, 
+        \item while the high-dimensional part may include features that add complexity but not necessarily predictive power, unless carefully managed. \textit{(There isn't much structure there; it doesn't explain much)}
+    \end{itemize}
+
+This works well / is possible for highly structured data. If highly structured: 
+\begin{itemize}
+    \item then the low dimensional values have high singular values, meaning they matter
+    \item we \textbf{reshuffle} the data using SVD, so that the most important components/features are at the front
+    \item SVD just allows us to look at out data so that each column is independent of all others, and the most important are queued first
+    \item SVD is central to the regression, it is doing the shuffling and splitting for us
+\end{itemize}
+
+\begin{tcolorbox}
+    So these are two complimentary formal approximations/interpretations of the mainifold hypothesis:
+    \begin{enumerate}
+        \item \textbf{Decomposition of $\beta^*$ (conceptual)} (into $\beta^*_{1:k}, \beta^*_{k+1:p}$) mirrors idea of splitting solution into parts that correspond to retained and discarded singular values.
+            \begin{itemize}
+                \item a prioritization of features or dimensions that are deemed most informative or relevant
+                \item the parts of the model residing in low dimensionality can behave like OLS when $p \ll n$
+            \end{itemize}
+        \item \textbf{Truncation of $U$ (actual mechanics)}: keeping only first $k$ singular values (and correpsonding columns of $U$ and $V$ implies approximating $X$ by its most significant components.
+        \begin{itemize}
+            \item this reduces complexity of the model, mitigating overfitting
+            \item by disregarding dimensions that contribute less to the variance in the data
+        \end{itemize}
+    \end{enumerate}
+
+    \textbf{the split is \textit{within the SVD}}
+\end{tcolorbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_05_overfitting/ksplit.png}
+    \caption{Enter Caption}
+    \label{fig:w02-fig22}
+\end{figure}
+
+*NB: for this to work, we have to make the the \textbf{assumption} that the high dimensional features behaves like white noise: moving in all directions $\rightarrow$ won't overly bias the data. \\
+
+In the context of regression, the SVD of $X$ allows us to rewrite the regression equation as $\beta^* = UU^Ty$. This has 2 benefits:
+\begin{itemize}
+    \item allows us to to run regression when $p>n$ (bypasses singularity of $X^TX$)
+    \item also allows us to do dimensionality reduction 
+\end{itemize}
+So SVD opens up double pathway for dealing with high dimensionality data effectively. \\
+
+The critical insight here is the role of SVD in enabling a systematic way to identify and retain the most informative aspects of the data while discarding the rest as noise. This technique leverages the inherent structure of the data, as revealed by the SVD, to make intelligent decisions about which dimensions (i.e., singular values and their corresponding vectors) are worth keeping. This approach not only helps in managing the curse of dimensionality but also in potentially enhancing the model's interpretability and generalizability by focusing on what truly matters in the data.
+
+\subsection{"Benign overfitting" for $p \gg n$}
+
+"Benign overfitting" suggests a scenario where, despite overfitting, a model can still generalize well on unseen data. \\
+
+This is how the split described above actually is operationalised.\\
+
+Risk is bounded by 1) residual variance and 2) a constant penalty:
+
+\begin{enumerate}
+    \item \textcolor{green}{residual variance} = inherent noise in the data that cannot be explained by the model.
+    \item \textcolor{purple}{a constant penalty} = reflects the complexity of the model. However, unlike traditional settings where complexity grows with more features, leading to increased risk of overfitting, here the penalty can remain manageable. This suggests that the additional complexity introduced by many features does not necessarily compromise the model's predictive performance
+\end{enumerate}
+
+this is risk???:
+$$\frac{\textcolor{green}{\sigma^2}}{\textcolor{purple}{c}}\left(\textcolor{red}{\frac{k^*}{n}} + \frac{n}{\textcolor{blue}{R_{k^*(\Sigma)}}}\right)$$
+
+Where:
+\begin{itemize}
+    \item \textcolor{green}{residual variance}
+    \item \textcolor{purple}{some constant penalty}
+    \item \textcolor{red}{the parametric rate: ie. the $\frac{p}{n}$ before} for the $0:k$ part
+    \item \textcolor{blue}{the effective number of dimensions on the $k:\infty$ part}. It decides the ideal split for us(??).
+    \begin{itemize}
+        \item $R_{k^*}(\Sigma)$ is a technical rank condition of $\Sigma$ - a measure of the spread of the singular values. 
+        \item It is a measure of the effective number of dimensions in this high-dimensional part
+        \item as each dimension is orthogonal in SVD, when we have a high number here, it means the high dimensional part moves in many different directions; ie. it looks random / it lacks structure.
+        \item this is the white noise assumption from earlier
+        \item if we have a lot of different dimensions, then we can effectively estimate 0 for the coefficients in this part
+        
+    \end{itemize}
+\end{itemize}
+
+
+
+\textit{NB: in low dimensional OLS risk is given as $\frac{p}{n}\sigma^2$; which is here given by the green and the red components.}
+
+\subsubsection{Parametric Rate for the $0:k$ part}
+
+The notion of a parametric rate being essentially maintained for the initial $0:k$ part of the model indicates that for the lower-dimensional, significant aspects of the model (those associated with the largest singular values), the traditional understanding of risk and generalization holds. \\
+
+This part of the model behaves in a predictable manner, where increasing model complexity (in a controlled fashion) does not unduly inflate the risk.\\
+
+??
+
+\subsubsection{Effective Number of Dimensions in the $k:\infty$ part}
+\begin{itemize}
+    \item so long as the high dimensional part of $X$ hits a lot of different directions, then it won't ruin the model.
+    \item This is influenced by the rank condition on $\Sigma$, which is a measure of the spread of the singular values. 
+    \item If $\Sigma$ (representing the structure of the data in feature space) has a wide range of singular values, this indicates a diverse spread in the directions covered by the features.
+    \item The spread of singular values $R^*(\Sigma)$ captures how well the high-dimensional space is 'utilized' by the data.
+    \item a broad spread suggests that the data, despite being high-dimensional, does not concentrate in a few directions but rather spans multiple dimensions effectively.
+\end{itemize}
+
+\begin{tcolorbox}
+    \subsubsection{Implications for High-Dimensional Models}
+    As long as the high-dimensional part of $X$ covers a wide array of directions, the risk of overfitting, though present, does not necessarily impair the model's ability to generalize. \\
+    
+    \textbf{Because the diversity in directions can help in distributing the model's complexity across many dimensions, rather than concentrating it in a way that makes the model sensitive to noise in the training data.}\\
+    
+    Benign overfitting offers a counterintuitive perspective where high-dimensional models can still perform well, provided that the data's structure and the model's complexity are managed appropriately. This underscores the importance of understanding the underlying geometry and distribution of the feature space in high-dimensional data analysis.
+\end{tcolorbox}
+
+\subsection{Demo}
+See script \\
+
+My notes:
+\begin{itemize}
+    \item the problem is that all the singular values are basically the same -> so we are not finding the structure -> so when we clip it aggressively, we haven't isolated the structure
+    \item the weighting: the high frequency features of the cosine function are weighted down -> we are saying we think the low dimensionality features are more important
+    \item now function: we are perfectly fitting to the white noise - the 1/c cost (???)...  the point is that it is fitting to the noise, but it is NOT ruining the structure...rather it is is finding the structure here
+    \item where the c constant comes from is deep maths, don't bother trying to work out where this comes form.
+    \item for the weighted features comparison:
+    \begin{itemize}
+        \item the dotted line is the minimal error: it is if you had 3 features
+        \item - if you had 
+        \item in the low dimensional case it doesn't matter if you do this feature weighting 
+        \item - in the higher dimensions it matters
+    \end{itemize}
+    \item by weighting the features you are putting in a preference for smoother functions
+    \item you are saying you prefer functions that use lower dimensionality features
+\end{itemize}
+
+\subsection{Takeaway from "Benign Overfitting"}
+
+\begin{redbox}
+    1) IF your data is well explained by low intrinsic dimension \\
+    2) AND the high dimensional part behaves like white noise (that the high dimensional points are pointing all different directions)\\
+    3) THEN your generalization in the interpolating regime can be "as if" you just ran the the parametric model on the intrinsic dimension.\\
+    + this happens automatically when you fit OLS with SVD
+\end{redbox}
+
+\begin{itemize}
+    \item In contexts where the feature space dimensionality $p\gg n$:
+    \item \textbf{Low Intrinsic Dimension if Key} -> model can generalise!
+    \begin{itemize}
+        \item despite existing in high-dimensional space $p$,
+        \item the meaningful variation can be captured by a much smaller number of dimensions $k$,
+        \item data's essential structure can be effectively summarized without resorting to the full complexity of the high-dimensional space.
+    \end{itemize}
+    \item \textbf{High-dimensional part as White Noise}:
+    \begin{itemize}
+        \item non-meaningful variance
+        \item adds randomness w/o affecting underlying patterns that the model aims to learn
+    \end{itemize}
+    \item \textbf{Generalization in the Interpolating Regime}
+    \begin{itemize}
+        \item where the model fits the training data perfectly ($p \gg n$): the ability to generalize \textbf{"as if"} the model were trained only on the intrinsic dimensions is a powerful outcome.
+        \item implies that despite the high-dimensional nature of the feature space, the model can achieve generalization performance comparable to what would be expected if it were operating in a lower-dimensional space defined by the data's intrinsic dimensions.
+        \item This phenomenon underscores the importance of the structure and quality of the data over sheer dimensionality.
+    \end{itemize}
+    \item \textbf{OLS with SVD as an Automatic Mechanism}
+    \begin{itemize}
+        \item fitting OLS using SVD does all this automatically.
+        \item SVD allows the model to effectively discern and leverage the intrinsic dimensionality of the data by focusing on the significant singular values and their corresponding singular vectors. 
+        \item method essentially filters out the "noise" represented by the lesser singular values
+        \item model benefits from the reduced complexity and enhanced generalization capability that comes from operating within the data's intrinsic dimensional space.
+    \end{itemize}
+\end{itemize}
+
+In summary, the ability to generalize well in high-dimensional settings, even when models fit the training data perfectly, is significantly influenced by the intrinsic dimensionality of the data and the distribution of variance across dimensions.
+
+
+
+

@@ -1,0 +1,148 @@
+\contentsline {chapter}{\numberline {1}Deep Learning in Public Policy}{7}{chapter.1}%
+\contentsline {section}{\numberline {1.1}ML vs DL}{8}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Universal Approximation Theorem}{8}{section.1.2}%
+\contentsline {section}{\numberline {1.3}What is DL}{8}{section.1.3}%
+\contentsline {chapter}{\numberline {2}Deep Neural Networks I}{11}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Overview}{11}{section.2.1}%
+\contentsline {section}{\numberline {2.2}High-level overview: How a neural network learns}{11}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Artificial Neurons (Hidden units)}{12}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Output layer (in a single-layered NN)}{15}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Single-layer NNs}{16}{subsection.2.2.3}%
+\contentsline {subsubsection}{Feed-forward NN}{20}{section*.2}%
+\contentsline {section}{\numberline {2.3}NNs basic components}{24}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Parameters \& hyperparameteters}{24}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Back propagation}{24}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Non linear activation functions:}{25}{subsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.3.4}Output layer activation function}{27}{subsection.2.3.4}%
+\contentsline {subsubsection}{Single output}{27}{section*.3}%
+\contentsline {subsubsection}{Multiclass classification}{27}{section*.4}%
+\contentsline {subsection}{\numberline {2.3.5}Loss function}{28}{subsection.2.3.5}%
+\contentsline {subsubsection}{Loss function for regression}{28}{section*.5}%
+\contentsline {subsubsection}{Loss function for K-class classification}{29}{section*.6}%
+\contentsline {section}{\numberline {2.4}Capacity of a NN (`expressiveness')}{31}{section.2.4}%
+\contentsline {subsubsection}{Universal Approximation Theorem}{33}{section*.7}%
+\contentsline {section}{\numberline {2.5}Gradient Descent}{34}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Calculating Loss \& Backpropagation}{36}{section.2.6}%
+\contentsline {subsection}{\numberline {2.6.1}Backpropagation process: }{36}{subsection.2.6.1}%
+\contentsline {subsection}{\numberline {2.6.2}Computing the Gradient in Backpropagation (step \#3)}{36}{subsection.2.6.2}%
+\contentsline {subsubsection}{Multivariate chain rule}{38}{section*.8}%
+\contentsline {subsubsection}{Gradient update}{42}{section*.9}%
+\contentsline {section}{\numberline {2.7}Bigger picture}{42}{section.2.7}%
+\contentsline {chapter}{\numberline {3}Deep Neural Networks II}{43}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Overview}{43}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Backpropagation (continued)}{43}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Reminder: single-layered NN}{43}{subsection.3.2.1}%
+\contentsline {subsubsection}{Architecture}{43}{section*.10}%
+\contentsline {subsubsection}{Formal Expression}{43}{section*.11}%
+\contentsline {subsubsection}{Partial derivative:}{44}{section*.12}%
+\contentsline {subsubsection}{Gradient update:}{46}{section*.13}%
+\contentsline {subsection}{\numberline {3.2.2}Multivariate chain rule}{46}{subsection.3.2.2}%
+\contentsline {section}{\numberline {3.3}Multiple Output Nodes ($k>1$)}{47}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Cross-Entropy Loss:}{48}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Gradient Calculation:}{50}{subsection.3.3.2}%
+\contentsline {subsubsection}{Multivariate Chain Rule}{50}{section*.14}%
+\contentsline {subsubsection}{Cross-Entropy's Loss Gradient (\textcolor {red}{simplifies!})}{50}{section*.15}%
+\contentsline {subsection}{\numberline {3.3.3}Two hidden layer NNs (Multilayer Perceptron)}{53}{subsection.3.3.3}%
+\contentsline {section}{\numberline {3.4}Vectorization}{54}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Basic concept}{55}{subsection.3.4.1}%
+\contentsline {subsubsection}{Scalar Multiplications}{55}{section*.16}%
+\contentsline {subsubsection}{Vector Multiplications}{55}{section*.17}%
+\contentsline {subsubsection}{Advantages of Vectorization (for computation)}{55}{section*.18}%
+\contentsline {subsection}{\numberline {3.4.2}Vectorizing the Neural Network}{55}{subsection.3.4.2}%
+\contentsline {subsubsection}{Single-Layer Neural Network:}{55}{section*.19}%
+\contentsline {subsubsection}{Vectorized Form:}{56}{section*.20}%
+\contentsline {subsubsection}{More Compact Representation:}{56}{section*.21}%
+\contentsline {subsubsection}{Matrix Representation of the Weight Matrices:}{57}{section*.22}%
+\contentsline {subsubsection}{Forward Pass: 2-Hidden-Layer Neural Network}{57}{section*.23}%
+\contentsline {subsubsection}{Forward Pass: L-Hidden-Layer Neural Network}{57}{section*.24}%
+\contentsline {subsection}{\numberline {3.4.3}Backpropagation Vectorized}{58}{subsection.3.4.3}%
+\contentsline {subsubsection}{Last Layer}{58}{section*.25}%
+\contentsline {subsubsection}{Other Layers}{60}{section*.26}%
+\contentsline {subsubsection}{Dimensions of the Gradient}{61}{section*.27}%
+\contentsline {paragraph}{Gradient with Respect to Weights:}{61}{section*.28}%
+\contentsline {paragraph}{Error Signal:}{62}{section*.29}%
+\contentsline {section}{\numberline {3.5}Minibatch Stochastic Gradient Descent}{63}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Stochastic Gradient Descent}{63}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Batch Gradient Descent}{64}{subsection.3.5.2}%
+\contentsline {paragraph}{Key Characteristics of Batch Gradient Descent:}{64}{section*.30}%
+\contentsline {paragraph}{Dimensions:}{64}{figure.3.7}%
+\contentsline {paragraph}{Cautions:}{65}{section*.33}%
+\contentsline {subsection}{\numberline {3.5.3}Introducing Mini-batches}{65}{subsection.3.5.3}%
+\contentsline {subsubsection}{Formation of Mini-batches}{65}{section*.34}%
+\contentsline {paragraph}{Example:}{65}{section*.35}%
+\contentsline {subsubsection}{Mini-batch Gradient Descent Algorithm}{65}{section*.36}%
+\contentsline {subsubsection}{Advantages of Using Mini-batches}{66}{section*.37}%
+\contentsline {section}{\numberline {3.6}Training Process}{67}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Generalization in Supervised Learning}{67}{subsection.3.6.1}%
+\contentsline {paragraph}{Cross-Validation:}{68}{section*.42}%
+\contentsline {subsection}{\numberline {3.6.2}Performance Metrics Common in Deep Learning}{69}{subsection.3.6.2}%
+\contentsline {subsubsection}{Binary Classification Metrics}{69}{section*.44}%
+\contentsline {subsubsection}{ROC AUC (Area Under the ROC Curve)}{71}{section*.45}%
+\contentsline {subsubsection}{Multi-Class Classification Metrics}{72}{section*.46}%
+\contentsline {subsection}{\numberline {3.6.3}Training Tips}{72}{subsection.3.6.3}%
+\contentsline {subsubsection}{Underfitting}{72}{section*.47}%
+\contentsline {subsubsection}{Overfitting}{73}{section*.48}%
+\contentsline {subsubsection}{Visualizing Features (parameters)}{73}{section*.49}%
+\contentsline {subsubsection}{Training Tips: Common Issues}{73}{section*.50}%
+\contentsline {section}{\numberline {3.7}Vanishing Gradient Problem}{74}{section.3.7}%
+\contentsline {subsection}{\numberline {3.7.1}Saturation}{74}{subsection.3.7.1}%
+\contentsline {subsection}{\numberline {3.7.2}Overcoming the Vanishing Gradient Problem}{76}{subsection.3.7.2}%
+\contentsline {chapter}{\numberline {4}Convolutional Neural Networks I}{81}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Challenges Solved by Convolutional Layers}{82}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Context: Fully Connected Layers}{82}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Convolutional Layers: Images and input features}{83}{subsection.4.1.2}%
+\contentsline {section}{\numberline {4.2}Properties of CNNs}{84}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Versatility}{85}{subsection.4.2.1}%
+\contentsline {section}{\numberline {4.3}Discrete Convolution Operations}{86}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Definition of Discrete Convolution}{86}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Example of Discrete Convolution}{86}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}Purpose}{87}{subsection.4.3.3}%
+\contentsline {section}{\numberline {4.4}Discrete Cross Correlation Operation}{87}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Using Convolutional Kernels as Weights}{87}{subsection.4.4.1}%
+\contentsline {section}{\numberline {4.5}Effect of Applying a Convolution}{88}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}Feature Detection}{88}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Non-linear Activation}{88}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}Example: Change from dark to light}{89}{subsection.4.5.3}%
+\contentsline {section}{\numberline {4.6}Padding}{89}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Pooling Layers}{90}{section.4.7}%
+\contentsline {subsection}{\numberline {4.7.1}Motivation: From Local to Global}{90}{subsection.4.7.1}%
+\contentsline {subsection}{\numberline {4.7.2}Max Pooling Operation}{91}{subsection.4.7.2}%
+\contentsline {subsection}{\numberline {4.7.3}Effect of Pooling: Reducing Dimensionality \& Local Translation Invariance}{91}{subsection.4.7.3}%
+\contentsline {subsection}{\numberline {4.7.4}Mathematical Formulation}{92}{subsection.4.7.4}%
+\contentsline {subsubsection}{Max Pooling}{93}{section*.67}%
+\contentsline {subsubsection}{Average Pooling}{93}{section*.68}%
+\contentsline {subsection}{\numberline {4.7.5}Pooling and Convolutions}{93}{subsection.4.7.5}%
+\contentsline {section}{\numberline {4.8}Convolutional Neural Networks}{93}{section.4.8}%
+\contentsline {subsection}{\numberline {4.8.1}Training a CNN}{97}{subsection.4.8.1}%
+\contentsline {chapter}{\numberline {5}Convolutional Neural Networks II}{101}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Labeled Data \& Augmentation}{101}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Data Augmentation: generating existing examples}{108}{subsection.5.1.1}%
+\contentsline {section}{\numberline {5.2}Modern CNN models}{111}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Object Detection}{128}{section.5.3}%
+\contentsline {chapter}{\numberline {6}Recurrent Neural Networks and Sequence Modeling}{143}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Intro to Sequence Modeling}{143}{section.6.1}%
+\contentsline {subsection}{\numberline {6.1.1}Characteristics of Sequential Data}{143}{subsection.6.1.1}%
+\contentsline {subsection}{\numberline {6.1.2}Challenges in Modeling Sequential Data}{145}{subsection.6.1.2}%
+\contentsline {subsection}{\numberline {6.1.3}Sequences in Public Policy – Time Series}{146}{subsection.6.1.3}%
+\contentsline {section}{\numberline {6.2}Examples of Sequence Modeling Tasks}{146}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Forecasting and Predicting Next Steps}{146}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Classification}{147}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Clustering}{148}{subsection.6.2.3}%
+\contentsline {subsection}{\numberline {6.2.4}Pattern Matching}{148}{subsection.6.2.4}%
+\contentsline {subsection}{\numberline {6.2.5}Anomaly Detection}{149}{subsection.6.2.5}%
+\contentsline {subsection}{\numberline {6.2.6}Motif Detection}{149}{subsection.6.2.6}%
+\contentsline {section}{\numberline {6.3}Sequence Modeling Techniques}{150}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Recurrent Neural Networks (RNN)}{150}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}Long Short-Term Memory (LSTM) Networks}{150}{subsection.6.3.2}%
+\contentsline {subsection}{\numberline {6.3.3}Gated Recurrent Units (GRU)}{151}{subsection.6.3.3}%
+\contentsline {subsection}{\numberline {6.3.4}Convolutional Neural Networks (CNNs) for Sequences}{151}{subsection.6.3.4}%
+\contentsline {subsection}{\numberline {6.3.5}Transformers and Self-Attention Mechanism}{151}{subsection.6.3.5}%
+\contentsline {subsection}{\numberline {6.3.6}Choosing a Model for Sequential Data}{151}{subsection.6.3.6}%
+\contentsline {section}{\numberline {6.4}Sequence Models}{156}{section.6.4}%
+\contentsline {paragraph}{Concatenation of \( h_{t-1} \) and \( x_t \)}{164}{section*.147}%
+\contentsline {paragraph}{Visual Representation of Dimensions}{164}{section*.148}%
+\contentsline {section}{\numberline {6.5}Example Task: Time Series Forecasting}{187}{section.6.5}%
+\contentsline {chapter}{\numberline {7}Natural Language Processing I}{191}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Introduction}{191}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Document Embedding}{193}{section.7.2}%
+\contentsline {subsubsection}{Probability and Vector Representation}{202}{section*.190}%

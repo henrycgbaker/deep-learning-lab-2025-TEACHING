@@ -1,0 +1,445 @@
+% Week 7a: Quantitative Fairness
+
+\section{Classification and Risk Scores}
+
+Binary classification learns a function $f: \mathcal{X} \rightarrow \{0, 1\}$ that maps feature vectors to class labels. However, most classifiers don't directly output hard decisions-they first produce a \textbf{risk score} that estimates the probability of the positive class, which is then thresholded to produce a classification.
+
+\subsection{Risk Scores and Estimation}
+
+\begin{greybox}[Risk Scores]
+A \textbf{risk score} $r(x)$ estimates the probability of the positive class:
+\begin{equation}
+r(x) \approx \mathbb{E}[Y \mid X = x] = P(Y = 1 \mid X = x)
+\end{equation}
+
+This expectation is the probability of the positive class conditioned on the features. Classification is regression ``hiding'' under the hood-logistic regression estimates $r(x)$, then we threshold to classify:
+\begin{equation}
+\hat{y}(x) = \mathbf{1}[r(x) > \tau]
+\end{equation}
+where $\tau$ is the decision threshold (often 0.5) and $\mathbf{1}[\cdot]$ is the indicator function.
+\end{greybox}
+
+\subsection{Ideal Model versus Reality}
+
+In an \textbf{ideal scenario} with perfect knowledge, we could define our classifier's action as:
+\[
+\hat{y}(x) = \mathbf{1}[\mathbb{E}[Y \mid X = x] > 0.5] =
+\begin{cases}
+1 & \text{if } \mathbb{E}[Y \mid X = x] > 0.5 \\
+0 & \text{otherwise}
+\end{cases}
+\]
+
+If the expected probability of $Y = 1$ given $X = x$ exceeds 0.5, we predict the positive class; otherwise, we predict 0.
+
+\textbf{The reality} is that we don't know $\mathbb{E}[Y \mid X = x]$ \textit{a priori}. We must estimate it from data. This estimation is where regression models are ``hiding'' under the hood of classification-specifically logistic regression in many binary classification tasks. Logistic regression models the probability that $Y = 1$ as a function of $X$, providing us with an estimate $\hat{r}(x) \approx \mathbb{E}[Y \mid X = x]$.
+
+\begin{bluebox}[Key Insight: Classification as Thresholded Regression]
+The risk score is a probability prediction from a regression model. It is the expectation (probability) of the positive class, conditioned on the features. Classification decisions arise from thresholding this continuous probability estimate.
+\end{bluebox}
+
+\section{Evaluating Classifiers}
+
+\subsection{Accuracy and Its Limitations}
+
+Accuracy is the most intuitive metric for classification, defined as the ratio of correct predictions to total predictions:
+\begin{equation}
+\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN} = \frac{1}{n}(TP + TN)
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $TP$ = True Positives (correctly predicted positive)
+    \item $TN$ = True Negatives (correctly predicted negative)
+    \item $FP$ = False Positives (incorrectly predicted positive)-Type I errors
+    \item $FN$ = False Negatives (incorrectly predicted negative)-Type II errors
+\end{itemize}
+
+\textbf{How accurate is accurate enough?} The required level of accuracy depends entirely on the application and its implications.
+
+\begin{redbox}
+Accuracy treats all errors as equally costly-it makes the implicit assumption that Type I and Type II errors are equivalently bad. In practice, this is rarely true:
+\begin{itemize}
+    \item \textbf{Medical diagnosis}: False negatives (missed disease) may be catastrophic-a patient goes untreated
+    \item \textbf{Spam filtering}: False positives (blocking legitimate email) are more annoying than false negatives (letting spam through)
+    \item \textbf{Criminal justice}: False positives (wrongly convicting innocent people) may carry different weight than false negatives (failing to convict guilty people)
+\end{itemize}
+
+\textbf{Accuracy for whom?} Different stakeholders bear different costs from different error types. A medical diagnostic test's false negatives have severe implications for patients, whereas false positives might burden the healthcare system with unnecessary costs.
+\end{redbox}
+
+\subsection{Cost-Sensitive Learning}
+
+Rather than treating all errors equally, we can assign explicit costs to different error types.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{figures/week_07_fairness_quant/confmatrix.png}
+    \caption{Confusion matrix with cost annotations. The cost matrix $c_{ij}$ weights different outcomes: $c_{00}$ and $c_{11}$ represent correct predictions (typically zero cost), while $c_{01}$ (false positive) and $c_{10}$ (false negative) represent errors with potentially different costs.}
+    \label{fig:confusion-matrix}
+\end{figure}
+
+\begin{greybox}[Cost-Sensitive Loss]
+Assign explicit costs to different error types:
+\begin{equation}
+\mathcal{L}_{\text{cost}} = \frac{1}{n}(FN \times c_{FN} + FP \times c_{FP}) = \frac{1}{n}(FN \times c_{10} + FP \times c_{01})
+\end{equation}
+
+The notation:
+\begin{itemize}
+    \item $c_{01}$ = cost of Type I error (false positive)-predicted 1, actual 0
+    \item $c_{10}$ = cost of Type II error (false negative)-predicted 0, actual 1
+\end{itemize}
+
+This forces you to \textbf{explicitly encode values}-what is the relative cost of a false positive versus a false negative? We want to achieve $c_{00}$ and $c_{11}$ (correct predictions), but we must decide how to balance $c_{10}$ and $c_{01}$ against each other.
+\end{greybox}
+
+This approach aims to minimise a weighted sum of errors, allowing for a more nuanced optimisation that reflects the actual costs (financial, ethical, etc.) associated with different errors. Libraries like scikit-learn implement this concept through mechanisms like ``class weights.''
+
+\subsection{Receiver Operating Characteristic (ROC) Curves}
+
+The ROC curve is a powerful tool for evaluating binary classification models. It provides a graphical representation of a classifier's ability to distinguish between classes at various threshold settings.
+
+\subsubsection{ROC Curve Construction}
+
+The ROC curve plots the True Positive Rate (TPR) against the False Positive Rate (FPR) at different threshold levels. Here, the risk score $\hat{r}(x)$ acts as the threshold-the point at which the predicted probability is considered sufficient to classify an observation into the positive class.
+
+\begin{greybox}[ROC Curve Components]
+At threshold $\tau$:
+\begin{align}
+\text{True Positive Rate (TPR)} &= \frac{TP}{TP + FN} \quad \text{(sensitivity, recall)} \\[0.5em]
+\text{False Positive Rate (FPR)} &= \frac{FP}{FP + TN} \quad \text{(1 - specificity)}
+\end{align}
+
+TPR measures how well we identify actual positives; FPR measures how often we incorrectly flag negatives as positive.
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_fairness_quant/ROC curve.png}
+    \caption{ROC curve interpretation. Bottom-left: nothing predicted positive (threshold = 1). Top-right: everything predicted positive (threshold = 0). Diagonal: random classifier (AUC = 0.5). Closer to the top-left corner indicates better performance.}
+    \label{fig:roc-curve}
+\end{figure}
+
+\subsubsection{Model Comparison with ROC Curves}
+
+If one model's ROC curve is consistently above another's across the entire FPR range, it indicates that the former model has a better balance of true positives and false positives for \textit{all} threshold settings. For any ``reasonable loss,'' that model is preferred.
+
+\begin{greybox}[Proper Scoring Rules]
+A ``reasonable'' loss function adheres to \textbf{Proper Scoring Rules}-criteria ensuring that predicted probabilities accurately reflect true underlying probabilities. Proper Scoring Rules encourage models to estimate true probabilities as accurately as possible (treating the problem like regression), rather than merely optimising for classifications. This approach aligns with treating classification as thresholded regression, where the goal is to accurately predict numerical probabilities rather than just discrete classes.
+\end{greybox}
+
+\subsubsection{Area Under the Curve (AUC)}
+
+\begin{bluebox}[Area Under Curve (AUC)]
+\begin{itemize}
+    \item \textbf{AUC = 1}: Perfect classifier
+    \item \textbf{AUC = 0.5}: Random classifier (no better than chance)
+    \item \textbf{AUC provides threshold-independent evaluation}-an aggregate measure of performance across all possible thresholds
+\end{itemize}
+
+\textbf{Important caveat}: AUC is an overall evaluation of a model, but often we are interested in specific regions of the curve (e.g., 95\%+ TPR). AUC tells you about performance over \textit{all} thresholds, which may not match your specific operational requirements.
+\end{bluebox}
+
+\begin{bluebox}[Model Selection Strategies]
+AUC allows us to select \textbf{both the model and the threshold}:
+\begin{itemize}
+    \item The model gives you the ROC curve
+    \item Each point on the curve corresponds to a threshold
+\end{itemize}
+
+\textbf{Threshold-led approach}:
+\begin{enumerate}
+    \item Specify constraints (e.g., ``cannot accept FPR $>$ 20\%'')
+    \item Restrict attention to the acceptable region of the x-axis
+    \item Choose the model with highest TPR in that constrained region
+\end{enumerate}
+
+\textbf{Model-led approach}:
+\begin{enumerate}
+    \item Compare AUC across models to select the best overall model
+    \item Then choose an appropriate threshold for your application
+\end{enumerate}
+\end{bluebox}
+
+\section{Discrimination in Classification}
+
+A fundamental problem in machine learning fairness is that features $X$ can encode sensitive information about group membership, either directly or indirectly.
+
+\subsection{How Discrimination Arises}
+
+\textbf{Explicit encoding}: Features directly encode sensitive attributes (race, gender, age). When features explicitly encode sensitive information, using these features in a model can lead to discriminatory outcomes. Models may learn to make decisions based on these sensitive attributes, perpetuating or exacerbating existing biases.
+
+\textbf{Implicit encoding}: Features correlate with sensitive attributes. Models can learn discriminatory patterns through features that are correlated with group membership, even when sensitive attributes are not directly included. For example, socioeconomic factors can predict race quite well despite not using race directly.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_07_fairness_quant/sensitive features.png}
+    \caption{Accumulation of slight predictivity: Groups A and B may be similar on any single feature, making group membership hard to predict from one feature alone. But with many features, each slightly predictive of group membership, we can predict group membership extremely well.}
+    \label{fig:sensitive-features}
+\end{figure}
+
+\subsection{Accumulation of Slight Predictivity}
+
+A set of features, each with only slight predictivity for a sensitive group, can collectively enable a model to classify individuals into groups with high accuracy. This phenomenon is related to \textbf{redundant encodings}-combinations of non-sensitive features can effectively encode sensitive information.
+
+\begin{redbox}
+\textbf{Redundant encodings}: Even if you remove the sensitive attribute from your feature set, combinations of other features can reconstruct it. Simply dropping race or gender from your model doesn't guarantee fairness-the model may learn to discriminate based on proxies that are highly correlated with the protected attribute.
+\end{redbox}
+
+\subsection{Approaches to Addressing Discrimination}
+
+Several strategies exist for addressing discrimination in classification:
+
+\begin{itemize}
+    \item \textbf{Fairness metrics and objectives}: Various metrics (demographic parity, equal opportunity, etc.) can guide evaluation and model adjustment
+    \item \textbf{Feature selection and engineering}: Carefully reviewing features to minimise encoding of sensitive information, directly or indirectly
+    \item \textbf{Bias mitigation techniques}: Pre-processing (alter training data), in-processing (adjust learning algorithm), and post-processing (modify predictions) methods
+    \item \textbf{Transparency and interpretability}: Understanding how models make decisions helps identify and address sources of bias
+\end{itemize}
+
+\section{Quantitative Fairness Criteria}
+
+We now formalise three major approaches to quantitative fairness. Each imposes different restrictions on the relationship between the risk score, sensitive attributes, and outcomes.
+
+\begin{bluebox}[Notation for Fairness Criteria]
+\begin{itemize}
+    \item $R$: Risk score-the model's output, e.g., $\hat{r}(x)$
+    \item $A$: Sensitive attribute-e.g., race, gender (binary: $A \in \{0, 1\}$)
+    \item $Y$: True outcome/label-e.g., good/bad job candidate
+    \item $\hat{Y}$: Predicted label-e.g., the decision to hire
+    \item $X$: Features of the prediction model
+\end{itemize}
+
+Our goal is to understand restrictions on $R$ which would lead to ``fair'' results.
+\end{bluebox}
+
+\subsection{Independence (Demographic Parity)}
+
+\begin{greybox}[Independence]
+\begin{equation}
+R \perp A
+\end{equation}
+
+\textbf{The risk score is independent of the sensitive attribute.} This implies the probability distribution of risk scores is identical across groups:
+\begin{equation}
+P(R \mid A = 0) = P(R \mid A = 1)
+\end{equation}
+
+\textbf{Implication}: Equal acceptance rates across groups. If we threshold $R$ to make decisions, the proportion of positive decisions will be the same for both groups.
+\end{greybox}
+
+Independence ensures that group membership doesn't affect the probability of receiving a positive prediction. Also called \textbf{demographic parity} or \textbf{statistical parity}.
+
+\subsubsection{Implications for Fairness}
+
+\textbf{Risk scores and group membership}: If the risk score is independent of the sensitive attribute, the model evaluates risk based solely on factors that do not include group membership. The decision-making process is ``fair'' in the sense that both groups receive positive predictions at equal rates.
+
+\textbf{Acceptance rates across groups}: A direct implication is that acceptance rates-the proportion of individuals from each group predicted to be in the positive class (e.g., receiving a loan, being hired)-should be the same across groups.
+
+\begin{bluebox}[Achieving Independence: Orthogonal Projection]
+One technique to enforce independence is to remove the influence of $A$ from predictors:
+\begin{enumerate}
+    \item Regress each predictor on the sensitive attribute $A$
+    \item Use the residuals from these regressions as new predictors
+\end{enumerate}
+
+This process doesn't remove $A$ itself but removes the portion of variation in each feature that corresponds to $A$. The residuals represent the original predictors with the influence of the sensitive attribute removed, so predictors become uncorrelated with $A$.
+
+This \textbf{partialling out} or \textbf{orthogonal projection} method aims to mitigate the impact of the sensitive attribute on predictions, reducing bias related to that attribute.
+\end{bluebox}
+
+\subsection{Separation (Equalised Odds)}
+
+\begin{greybox}[Separation]
+\begin{equation}
+R \perp A \mid Y
+\end{equation}
+
+\textbf{The risk score is independent of the sensitive attribute, within strata defined by the true outcome.} This implies:
+\begin{equation}
+P(R \mid A = 0, Y = y) = P(R \mid A = 1, Y = y) \quad \forall y \in \{0, 1\}
+\end{equation}
+
+\textbf{Implication}: Equal error rates across groups:
+\begin{align}
+\text{TPR}_{A=0} &= \text{TPR}_{A=1} \\
+\text{FPR}_{A=0} &= \text{FPR}_{A=1}
+\end{align}
+\end{greybox}
+
+Separation ensures that individuals with the same true outcome $Y$ are treated similarly regardless of group membership.
+
+\subsubsection{Equal Treatment Among Similarly Situated Individuals}
+
+The risk score for individuals within the same outcome category (e.g., actually good or actually bad candidates) should be independent of $A$. For example, men and women who are genuinely good candidates should receive similar risk scores, irrespective of gender.
+
+\textbf{Important}: This does \textit{not} imply that the proportions of good and bad candidates need to be the same between groups. Different base rates are allowed-what matters is equal treatment within outcome strata.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_fairness_quant/roc1.png}
+    \caption{Separation requires operating at the same point on the ROC curve for both groups. Only the intersection of ROC curves for different groups satisfies separation-we must select a threshold that achieves equal TPR and FPR across groups.}
+    \label{fig:roc-separation}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_fairness_quant/image.png}
+    \caption{When groups have different base rates (different proportions of actual positives), achieving equal error rates typically requires using different thresholds for each group.}
+    \label{fig:separation-thresholds}
+\end{figure}
+
+This approach to fairness-ensuring equal error rates across groups-aligns with the concept of \textbf{equalised odds}, a fairness criterion demanding that a classifier's TPR and FPR be equal across groups defined by a sensitive attribute.
+
+\subsection{Sufficiency (Calibration)}
+
+\begin{greybox}[Sufficiency]
+\begin{equation}
+Y \perp A \mid R
+\end{equation}
+
+\textbf{Outcome frequency given risk score is equal across groups.} Given the same risk score, the probability of a positive outcome is equal regardless of group membership:
+\begin{equation}
+P(Y = 1 \mid R = r, A = 0) = P(Y = 1 \mid R = r, A = 1)
+\end{equation}
+
+\textbf{Implication}: Each group is \textbf{well-calibrated}-predicted probabilities match actual outcome frequencies within each group.
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_07_fairness_quant/calibration.png}
+    \caption{Calibration: A model predicting 70\% probability should be correct approximately 70\% of the time, and this should hold for each group separately. A well-calibrated model has predicted probabilities that match observed frequencies.}
+    \label{fig:calibration}
+\end{figure}
+
+\subsubsection{Understanding Calibration}
+
+\textbf{Calibration} measures how well a model's predicted probabilities correspond to actual outcomes. A well-calibrated model means that if the model predicts an event with 70\% probability, that event should indeed happen approximately 70\% of the time.
+
+\textit{On average}, the risk score is right in each group. However:
+\begin{itemize}
+    \item This doesn't necessarily mean the model is perfect on an individual level
+    \item It indicates that, on balance, risk scores are reliable indicators of true risk \textit{within each group}
+    \item A model can satisfy sufficiency but still have room for improvement in accuracy and precision for individual predictions
+\end{itemize}
+
+\begin{redbox}
+Sufficiency (calibration) does not guarantee high individual-level accuracy. A model can be fair in terms of sufficiency-meaning predicted probabilities match observed frequencies for each group-while still making many incorrect individual predictions. Calibration is about aggregate behaviour, not individual precision.
+\end{redbox}
+
+\section{Impossibility Results}
+
+A central result in fairness research is that these three criteria cannot generally be satisfied simultaneously.
+
+\begin{redbox}
+\textbf{Impossibility theorem}: If the sensitive attribute $A$ is related to the outcome $Y$ (i.e., base rates differ between groups), you \textbf{cannot simultaneously satisfy}:
+\begin{itemize}
+    \item Independence AND Sufficiency
+    \item Independence AND Separation
+\end{itemize}
+
+These fairness criteria are \textbf{mutually exclusive} when groups have different base rates. You must choose which notion of fairness matters most for your application.
+\end{redbox}
+
+\subsection{Independence versus Sufficiency}
+
+\begin{greybox}[The Independence-Sufficiency Tradeoff]
+\textbf{Independence} ($R \perp A$): Risk score distribution is the same across groups, implying equal selection/acceptance rates.
+
+\textbf{Sufficiency} ($Y \perp A \mid R$): For any given risk score, outcome probabilities are equal across groups.
+
+When base rates differ:
+\begin{itemize}
+    \item \textbf{Good calibration $\Rightarrow$ unequal acceptance rates}: If the model accurately reflects differing distributions of risk between groups, acceptance rates will naturally differ
+    \item \textbf{Equal acceptance rates $\Rightarrow$ poor calibration}: Forcing equal acceptance rates means the model no longer accurately reflects the true risk distributions
+\end{itemize}
+\end{greybox}
+
+\subsection{Independence versus Separation}
+
+\begin{greybox}[The Independence-Separation Tradeoff]
+\textbf{Independence} ($R \perp A$): Equal acceptance rates across groups.
+
+\textbf{Separation} ($R \perp A \mid Y$): Equal error rates (TPR and FPR) across groups.
+
+When base rates differ:
+\begin{itemize}
+    \item \textbf{Equal acceptance rates $\Rightarrow$ unequal error rates}: The model disregards actual outcome distributions in favour of equalising decision rates, which can amplify disparities
+    \item \textbf{Equal error rates $\Rightarrow$ unequal acceptance rates}: The model adjusts predictions to compensate for differences in outcome distributions, leading to different acceptance rates
+\end{itemize}
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_fairness_quant/ROC curves for fairness.png}
+    \caption{Different fairness criteria lead to different operating points on ROC curves and therefore different models. The choice of fairness criterion determines which model and threshold combination is ``optimal.''}
+    \label{fig:roc-fairness}
+\end{figure}
+
+\section{Fairness is Not a Technical Problem}
+
+\begin{bluebox}[Key Insight]
+You cannot have it all. Reasonable quantitative measures of fairness conflict with one another. You must think through what matters in your particular case.
+
+Fairness is a problem of expressing the \textbf{values} that your system should embody-you have to explicitly encode those values (as we saw with cost-sensitive learning).
+\end{bluebox}
+
+\subsection{Different Criteria, Different Models}
+
+Each fairness criterion leads to a different model:
+
+\begin{itemize}
+    \item \textbf{Max profit}: No fairness constraints; pure accuracy optimisation. May deliver wildly different rates by group.
+    \item \textbf{Single threshold}: One threshold applied uniformly to all groups
+    \item \textbf{Independence}: Constrain to equal acceptance rates across groups
+    \item \textbf{Separation}: Constrain to equal error rates across groups
+\end{itemize}
+
+The ``right'' choice depends on context, values, and stakeholder considerations-not on technical optimisation alone.
+
+\subsection{POSIWID: The Purpose of a System is What it Does}
+
+\textbf{``The Purpose of a System is What it Does''} - Stafford Beer (management consultant and cybernetician)
+
+When dealing with complex systems, focus on the results they generate, not their stated intentions.
+
+Don't focus narrowly on ``the algorithm''-this causes you to ignore its wider purpose and get distracted by technical details. Instead, evaluate the larger system the algorithm is part of:
+\begin{itemize}
+    \item What outcomes does it produce in practice?
+    \item Who benefits and who is harmed?
+    \item What feedback loops does it create?
+    \item What institutional incentives shape its use?
+\end{itemize}
+
+\begin{redbox}
+Technical fairness metrics, while useful, cannot capture the full complexity of fairness in social contexts. A model that satisfies a formal fairness criterion may still cause harm when deployed in practice. Context matters: the same model might be appropriate in one setting and harmful in another.
+\end{redbox}
+
+\section{Summary}
+
+\begin{bluebox}[Key Concepts from Week 7a: Quantitative Fairness]
+\begin{enumerate}
+    \item \textbf{Risk scores}: Classification uses regression to estimate $P(Y=1 \mid X)$, then thresholds to produce decisions
+
+    \item \textbf{Cost-sensitive learning}: Explicitly encode the relative costs of different error types rather than treating all errors equally
+
+    \item \textbf{ROC curves}: Visualise TPR/FPR tradeoff across thresholds; AUC provides threshold-independent evaluation
+
+    \item \textbf{Implicit encoding}: Removing sensitive features doesn't prevent discrimination-proxies and redundant encodings can reconstruct protected attributes
+
+    \item \textbf{Three fairness criteria}:
+    \begin{itemize}
+        \item Independence (demographic parity): $R \perp A$ - equal acceptance rates
+        \item Separation (equalised odds): $R \perp A \mid Y$ - equal error rates
+        \item Sufficiency (calibration): $Y \perp A \mid R$ - calibrated predictions per group
+    \end{itemize}
+
+    \item \textbf{Impossibility}: These criteria conflict when base rates differ-you cannot satisfy all simultaneously
+
+    \item \textbf{Values matter}: Fairness requires explicit choices about which tradeoffs are acceptable, not just algorithmic optimisation
+
+    \item \textbf{POSIWID}: Evaluate systems by their actual outcomes, not stated intentions
+\end{enumerate}
+\end{bluebox}

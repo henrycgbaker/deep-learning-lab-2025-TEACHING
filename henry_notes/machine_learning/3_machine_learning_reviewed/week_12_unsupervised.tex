@@ -1,0 +1,537 @@
+% Week 12: Unsupervised Learning
+
+\section{Overview}
+
+\begin{bluebox}[Unsupervised Learning: Core Concepts]
+Unsupervised learning discovers structure in unlabelled data:
+\begin{enumerate}
+    \item \textbf{Principal Component Analysis (PCA)}: Linear dimensionality reduction via variance maximisation
+    \item \textbf{Embedding methods}: t-SNE and UMAP for visualisation of high-dimensional data
+    \item \textbf{Autoencoders}: Neural network-based representation learning
+\end{enumerate}
+The unifying theme is \textbf{compression}: finding low-dimensional representations that preserve meaningful structure.
+\end{bluebox}
+
+The fundamental challenge in unsupervised learning is that we have no labels to guide us-no ``correct answers'' against which to measure performance. Instead, we seek to discover inherent structure in the data itself. This week focuses on \textbf{dimensionality reduction}: given high-dimensional data $X \in \mathbb{R}^{n \times D}$, find a lower-dimensional representation $Z \in \mathbb{R}^{n \times L}$ (where $L \ll D$) that preserves the essential information.
+
+Why reduce dimensionality? Several reasons:
+\begin{itemize}
+    \item \textbf{Visualisation}: Human perception is limited to 2--3 dimensions; projecting data to 2D enables visual exploration
+    \item \textbf{Computational efficiency}: Many algorithms scale poorly with dimension; reducing $D$ accelerates training
+    \item \textbf{Noise reduction}: High-dimensional data often contains redundant or noisy features; compression can filter these out
+    \item \textbf{Feature learning}: The reduced representation may capture semantically meaningful factors of variation
+    \item \textbf{Curse of dimensionality}: In high dimensions, distances become less meaningful and data becomes sparse
+\end{itemize}
+
+\section{Principal Component Analysis}
+
+\subsection{Dimensionality Reduction as Optimisation}
+
+PCA frames dimensionality reduction as an optimisation problem. A key insight is that although unsupervised (no labels), the structure closely resembles supervised learning-some call it ``supervised learning in a trenchcoat!''
+
+\begin{greybox}[PCA as Self-Supervised Learning]
+\textbf{Central objective:}
+\[
+\hat{\theta} = \argmin_{\theta} \mathcal{L}(\theta)
+\]
+
+This familiar form from supervised learning becomes, for dimension reduction:
+\[
+\hat{\theta} = \argmin_{\theta} \frac{1}{n} \sum_{i=1}^{n} \left\| x_i - \text{decode}(\text{encode}(x_i, \theta), \theta) \right\|^2
+\]
+
+\textbf{Breaking down each component:}
+\begin{itemize}
+    \item \textbf{Point estimate $\hat{\theta}$}: The parameters we seek-in PCA, this is a matrix (the principal components)
+    \item \textbf{Loss function $\mathcal{L}(\theta)$}: Measures reconstruction error-how much information is lost when compressing and decompressing
+    \item \textbf{Optimisation $\argmin_{\theta}$}: Find parameters minimising this reconstruction error
+    \item $\text{encode}(x_i, \theta)$: Maps $x_i \in \mathbb{R}^D$ to latent representation $z_i \in \mathbb{R}^L$ with $L < D$
+    \item $\text{decode}(z_i, \theta)$: Reconstructs the original space from the latent representation
+\end{itemize}
+
+This is effectively \textbf{auto-supervised learning}-the input serves as its own target. We predict the input from itself, but through an information bottleneck that forces compression.
+\end{greybox}
+
+The key difference from supervised learning: instead of predicting labels $y_i$ from features $x_i$, we predict $x_i$ from $x_i$ itself, via a compressed intermediate representation. The bottleneck forces the model to identify the most important factors of variation.
+
+\subsection{Low-Dimensional Representation}
+
+\begin{greybox}[PCA Decomposition]
+\textbf{Goal:} Represent each vector $x_i \in \mathbb{R}^D$ in a lower-dimensional space.
+
+\textbf{Approximation:}
+\[
+x_i \approx \sum_{l=1}^{L} z_{il} w_l = W z_i
+\]
+
+where:
+\begin{itemize}
+    \item $x_i \in \mathbb{R}^D$ is the \textbf{original high-dimensional vector}
+    \item $z_i \in \mathbb{R}^L$ is the \textbf{latent representation}-the coordinates of $x_i$ in the reduced $L$-dimensional space
+    \item $w_l \in \mathbb{R}^D$ are the \textbf{principal components}-basis vectors (directions) capturing maximum variance
+    \item $W \in \mathbb{R}^{D \times L}$ is the matrix whose columns are the principal components
+\end{itemize}
+
+\textbf{Loss function (reconstruction error):}
+\begin{align*}
+    \mathcal{L}(W, Z) &= \frac{1}{n} \left\| X - WZ^\top \right\|_F^2 \\
+    &= \frac{1}{n} \sum_{i=1}^{n} \left\| x_i - Wz_i \right\|^2
+\end{align*}
+where $X$ is the $n \times D$ data matrix and $Z$ is the $n \times L$ matrix of latent representations. The Frobenius norm $\|\cdot\|_F$ measures the total squared error across all entries.
+\end{greybox}
+
+\textbf{Intuition:} PCA finds orthogonal directions (principal components) along which data varies most. The first principal component captures the direction of maximum variance; the second captures maximum variance orthogonal to the first; and so on. Projecting onto the first $L$ components provides the best $L$-dimensional linear approximation in the least-squares sense.
+
+Think of it geometrically: if your data lies roughly along an ellipsoid in high-dimensional space, PCA finds the axes of that ellipsoid, ordered by length. The longest axis (most variance) becomes PC1, the second-longest becomes PC2, etc.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_12_unsupervised/PCA.png}
+    \caption{PCA projection: data points (blue) in a 2D space projected onto the first principal component (red line). The principal component direction captures maximum variance; projections minimise the perpendicular (orthogonal) distance to this line. The residuals (dashed lines) represent the reconstruction error.}
+    \label{fig:pca}
+\end{figure}
+
+\subsection{Mathematical Derivation of PCA}
+
+\begin{greybox}[PCA via Eigendecomposition]
+Given centred data $X$ (zero mean), PCA can be derived as follows:
+
+\textbf{Step 1: Compute the covariance matrix}
+\[
+\Sigma = \frac{1}{n} X^\top X \in \mathbb{R}^{D \times D}
+\]
+
+\textbf{Step 2: Eigendecomposition}
+
+Find eigenvalues $\lambda_1 \geq \lambda_2 \geq \ldots \geq \lambda_D$ and corresponding eigenvectors $v_1, v_2, \ldots, v_D$:
+\[
+\Sigma v_l = \lambda_l v_l
+\]
+
+\textbf{Step 3: Select top $L$ components}
+
+The principal components are the eigenvectors corresponding to the $L$ largest eigenvalues:
+\[
+W = [v_1 \mid v_2 \mid \ldots \mid v_L] \in \mathbb{R}^{D \times L}
+\]
+
+\textbf{Step 4: Project data}
+
+The low-dimensional representation is:
+\[
+Z = X W \in \mathbb{R}^{n \times L}
+\]
+
+\textbf{Variance explained:}
+
+The proportion of variance explained by the first $L$ components is:
+\[
+\frac{\sum_{l=1}^{L} \lambda_l}{\sum_{l=1}^{D} \lambda_l}
+\]
+\end{greybox}
+
+\begin{redbox}
+\textbf{Centering is essential!} PCA assumes zero-mean data. If you don't centre your data (subtract the mean), the first principal component will point toward the mean rather than capturing variance. Always preprocess: $\tilde{X} = X - \bar{X}$.
+
+Additionally, if features have very different scales (e.g., one ranges 0--1, another 0--10000), PCA will be dominated by the high-variance feature. Consider standardising (dividing by standard deviation) when scales differ substantially.
+\end{redbox}
+
+\subsection{Terminology: Embeddings}
+
+\begin{greybox}[Embeddings]
+An \textbf{embedding} is a mapping from high-dimensional data to a lower-dimensional space that preserves relevant structure.
+
+Embeddings appear throughout machine learning:
+\begin{itemize}
+    \item \textbf{Word embeddings} (Word2Vec, GloVe): words $\to$ dense vectors capturing semantic relationships (``king'' - ``man'' + ``woman'' $\approx$ ``queen'')
+    \item \textbf{Graph embeddings}: nodes $\to$ vectors preserving graph structure (connected nodes map to nearby vectors)
+    \item \textbf{Image embeddings}: images $\to$ feature vectors from CNN intermediate layers
+    \item \textbf{Sentence embeddings}: sentences $\to$ vectors capturing meaning (BERT, sentence transformers)
+\end{itemize}
+
+PCA produces \textbf{linear} embeddings; neural methods (autoencoders, t-SNE) learn \textbf{non-linear} embeddings that can capture more complex manifold structure.
+\end{greybox}
+
+The term ``embedding'' emphasises that we're not just reducing dimensions but \textit{embedding} data into a space where geometric relationships (distances, angles) carry semantic meaning.
+
+\section{Neighbourhood Embeddings}
+
+PCA preserves \textbf{global} structure via linear projections-it maintains large-scale geometric relationships. However, for visualisation, we often want methods that preserve \textbf{local} structure-keeping nearby points together even if global distances are distorted. This is particularly useful for discovering clusters.
+
+\subsection{Stochastic Neighbour Embedding (SNE)}
+
+\begin{greybox}[SNE Probability Model]
+\textbf{Core idea:} Convert pairwise distances into probabilities representing ``neighbour'' relationships, then find a low-dimensional embedding where these neighbourhood probabilities are preserved.
+
+\textbf{Step 1: High-dimensional similarities}
+
+For each pair of points, compute the probability that $x_i$ would ``pick'' $x_j$ as a neighbour:
+\[
+p_{j|i} = \frac{\exp\left(-\frac{\|x_i - x_j\|^2}{2\sigma_i^2}\right)}{\sum_{k \neq i} \exp\left(-\frac{\|x_i - x_k\|^2}{2\sigma_i^2}\right)}
+\]
+
+This is a softmax over squared distances: points close to $x_i$ get high probability; distant points get low probability. The bandwidth $\sigma_i$ controls how ``local'' the neighbourhood is (set adaptively per point).
+
+\textbf{Step 2: Low-dimensional similarities}
+
+Define analogous probabilities in the embedding space:
+\[
+q_{j|i} = \frac{\exp\left(-\|z_i - z_j\|^2\right)}{\sum_{k \neq i} \exp\left(-\|z_i - z_k\|^2\right)}
+\]
+
+where $z_i, z_j \in \mathbb{R}^2$ (or $\mathbb{R}^3$) are the low-dimensional representations.
+
+\textbf{Step 3: Minimise divergence}
+
+Find embeddings $Z$ that make $Q$ as similar to $P$ as possible:
+\[
+\mathcal{L} = \sum_{i} D_{\text{KL}}(P_i \| Q_i) = \sum_{i} \sum_{j} p_{j|i} \log \frac{p_{j|i}}{q_{j|i}}
+\]
+
+The KL divergence penalises cases where $p_{j|i}$ is high but $q_{j|i}$ is low (nearby points in high dimensions that are far apart in the embedding).
+\end{greybox}
+
+\textbf{Interpretation:} We're asking: ``If I randomly selected neighbours for each point according to a Gaussian kernel, would the neighbourhood structure look the same in high and low dimensions?'' SNE optimises the embedding to make this true.
+
+\subsection{t-Distributed SNE (t-SNE)}
+
+\begin{greybox}[t-SNE: Addressing SNE's Limitations]
+\textbf{Problem with SNE:} The Gaussian distribution has light tails. This creates an asymmetric cost structure:
+\begin{itemize}
+    \item \textbf{Cheap:} Placing distant high-dimensional points close together in the embedding (low $p_{j|i}$ means small penalty even if $q_{j|i}$ is large)
+    \item \textbf{Expensive:} Separating nearby high-dimensional points in the embedding (high $p_{j|i}$ creates large penalty if $q_{j|i}$ is small)
+\end{itemize}
+
+This causes the ``crowding problem'': SNE tends to crush distant clusters together rather than spreading them out.
+
+\textbf{Solution:} Use the Student's t-distribution (with 1 degree of freedom, i.e., Cauchy distribution) for low-dimensional similarities:
+\[
+q_{j|i} = \frac{\left(1 + \|z_i - z_j\|^2\right)^{-1}}{\sum_{k \neq i} \left(1 + \|z_i - z_k\|^2\right)^{-1}}
+\]
+
+The t-distribution has \textbf{heavier tails} than the Gaussian. This means:
+\begin{itemize}
+    \item Distant points in high dimensions can be modelled as genuinely far apart in the embedding
+    \item The heavy tails allow more ``space'' for different clusters to spread out
+    \item Better cluster separation in visualisations
+\end{itemize}
+
+\textbf{Same objective function:}
+\[
+\mathcal{L} = \sum_{i} \sum_{j} p_{j|i} \log \frac{p_{j|i}}{q_{j|i}}
+\]
+\end{greybox}
+
+Why specifically 1 degree of freedom? The t-distribution with 1 d.f. (Cauchy) has tails that decay as $1/r^2$ in 2D, which matches the rate at which ``available area'' grows with distance. This creates a natural balance for 2D embeddings.
+
+\begin{redbox}
+\textbf{t-SNE Limitations:}
+\begin{itemize}
+    \item \textbf{Computational cost:} $O(N^2)$ complexity-every point interacts with every other point (an ``$N$-body problem''). Limits scalability to datasets with tens of thousands of points. (Barnes-Hut approximations can reduce this to $O(N \log N)$.)
+    \item \textbf{Non-parametric:} No learned function to embed new points; must re-run on entire dataset
+    \item \textbf{Hyperparameter sensitivity:} Results depend heavily on \textbf{perplexity} (effective number of neighbours), which must be tuned
+    \item \textbf{Primarily for visualisation:} The embedding doesn't preserve meaningful distances; only local neighbourhood structure is reliable
+    \item \textbf{Stochasticity:} Different runs give different results; always run multiple times
+\end{itemize}
+\end{redbox}
+
+\subsection{UMAP: Uniform Manifold Approximation and Projection}
+
+\begin{greybox}[UMAP: Efficient Manifold Learning]
+\textbf{Uniform Manifold Approximation and Projection} addresses t-SNE's limitations while achieving similar (often better) visualisation quality.
+
+\textbf{Key innovations:}
+\begin{enumerate}
+    \item \textbf{$k$-nearest neighbour graph}: Instead of computing all $O(N^2)$ pairwise distances, construct a sparse graph connecting each point to its $k$ nearest neighbours. This reduces complexity dramatically.
+
+    \item \textbf{Local metric adaptation}: Each point has its own distance scale, automatically adapting to varying local densities. Dense regions use small scales; sparse regions use large scales.
+
+    \item \textbf{Cross-entropy objective}: Optimises binary cross-entropy on edge existence (``is there an edge between $i$ and $j$?'') rather than KL divergence. This is more symmetric and computationally efficient.
+
+    \item \textbf{Theoretical foundation}: UMAP is grounded in topological data analysis and Riemannian geometry (though the practical algorithm doesn't require understanding these).
+\end{enumerate}
+
+\textbf{Result:} Near-linear scaling $O(N \log N)$ with dataset size while preserving both local and (to some extent) global structure. UMAP also produces a \textbf{parametric} model that can embed new points.
+\end{greybox}
+
+\textbf{UMAP's approach:} Rather than thinking about probability distributions over neighbours, UMAP thinks about \textbf{graph structures}. It builds a weighted graph in high dimensions (where edge weights reflect similarity) and then optimises a low-dimensional layout that preserves this graph structure.
+
+\subsubsection{Visual Intuition for UMAP}
+
+UMAP starts with a k-nearest neighbour graph to capture local relationships and then seeks to maintain these relationships in the low-dimensional space, ensuring that the manifold's geometry is preserved.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_12_unsupervised/embeddings1.png}
+    \caption{Original high-dimensional data projected to 2D, with colours indicating cluster membership. The goal is to find a 2D embedding that reveals this cluster structure.}
+    \label{fig:embedding1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_12_unsupervised/embeddings2.png}
+    \caption{UMAP constructs a $k$-nearest neighbour graph; shaded circles represent local neighbourhoods. Each point is connected to its closest neighbours, capturing local structure without computing all pairwise distances.}
+    \label{fig:embedding2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_12_unsupervised/embeddings3.png}
+    \caption{The embedding preserves neighbourhood structure: connected points in high dimensions remain close in the projection. The lines show how local connectivity is maintained.}
+    \label{fig:embedding3}
+\end{figure}
+
+\subsubsection{Handling Varying Local Density}
+
+Real data often exhibits different local structures-some regions are dense, others sparse. A global distance threshold would either miss structure in dense regions or create spurious connections in sparse regions.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_12_unsupervised/embeddings4.png}
+    \caption{UMAP adapts to varying local densities, using different distance scales in dense versus sparse regions. The varying shaded regions show how neighbourhood size adapts to local density, preserving structure in both dense and sparse areas.}
+    \label{fig:embedding4}
+\end{figure}
+
+UMAP handles this by giving each point its own distance scale, automatically determined by the distance to its $k$-th nearest neighbour. This local adaptation is crucial for real-world data with heterogeneous density.
+
+\begin{bluebox}[t-SNE/UMAP Interactive Demo]
+For building intuition about how t-SNE and UMAP behave with different hyperparameters and data structures, see:
+
+\texttt{https://pair-code.github.io/understanding-umap/}
+
+Experimenting with the perplexity (t-SNE) and n\_neighbours (UMAP) parameters on different datasets is highly recommended.
+\end{bluebox}
+
+\subsection{Comparing Dimensionality Reduction Methods}
+
+\begin{bluebox}[PCA vs t-SNE vs UMAP]
+\begin{tabular}{p{2cm}p{3.5cm}p{2.5cm}p{4cm}}
+\textbf{Method} & \textbf{Structure Preserved} & \textbf{Complexity} & \textbf{Use Case} \\
+\hline
+PCA & Global, linear & $O(D^2 n)$ & Pre-processing, interpretable axes, when linear structure suffices \\
+t-SNE & Local, non-linear & $O(n^2)$ & Visualisation (small--medium data), cluster discovery \\
+UMAP & Local + some global & $O(n \log n)$ & Visualisation (large data), preserves more global structure \\
+\end{tabular}
+\end{bluebox}
+
+\textbf{When to use which:}
+\begin{itemize}
+    \item \textbf{PCA}: When you need interpretable components, when data has linear structure, as a preprocessing step before other algorithms, when you need to embed new points easily
+    \item \textbf{t-SNE}: When you want beautiful cluster visualisations, when local structure matters more than global, for exploratory data analysis on moderately-sized datasets
+    \item \textbf{UMAP}: When t-SNE is too slow, when you want to preserve more global structure, when you need to embed new points, as a general-purpose alternative to t-SNE
+\end{itemize}
+
+\begin{redbox}
+\textbf{Interpreting t-SNE/UMAP plots:}
+\begin{itemize}
+    \item \textbf{Cluster sizes are meaningless}: A visually larger cluster doesn't mean more data points
+    \item \textbf{Distances between clusters are unreliable}: Two clusters appearing far apart may not be far in the original space
+    \item \textbf{Only local neighbourhoods are trustworthy}: Points that are close together in the embedding were likely close in high dimensions
+    \item \textbf{Run multiple times}: Results are stochastic; consistent patterns across runs are more reliable
+\end{itemize}
+\end{redbox}
+
+\section{Autoencoders}
+
+Autoencoders learn non-linear dimensionality reduction using neural networks. The key idea is \textbf{self-supervision}: predict the input from itself via a compressed intermediate representation. This extends PCA's linear compression to arbitrary non-linear transformations.
+
+\subsection{Architecture}
+
+\begin{greybox}[Autoencoder Architecture]
+An autoencoder consists of three parts:
+\begin{enumerate}
+    \item \textbf{Encoder} $f_\phi: \mathbb{R}^D \to \mathbb{R}^L$ compresses input to latent space
+    \item \textbf{Bottleneck} layer with $L < D$ dimensions-the learned representation
+    \item \textbf{Decoder} $g_\psi: \mathbb{R}^L \to \mathbb{R}^D$ reconstructs input from latent code
+\end{enumerate}
+
+\textbf{Objective:}
+\[
+\hat{\phi}, \hat{\psi} = \argmin_{\phi, \psi} \frac{1}{n} \sum_{i=1}^{n} \left\| x_i - g_\psi(f_\phi(x_i)) \right\|^2
+\]
+
+where $\phi$ and $\psi$ are the parameters (weights) of the encoder and decoder networks respectively.
+
+\textbf{Training via backpropagation:}
+\begin{enumerate}
+    \item Forward pass: $x_i \to z_i = f_\phi(x_i) \to \hat{x}_i = g_\psi(z_i)$
+    \item Compute loss: $\mathcal{L}_i = \|x_i - \hat{x}_i\|^2$
+    \item Backward pass: Compute gradients $\nabla_\phi \mathcal{L}$ and $\nabla_\psi \mathcal{L}$
+    \item Update: $\phi \leftarrow \phi - \eta \nabla_\phi \mathcal{L}$, $\psi \leftarrow \psi - \eta \nabla_\psi \mathcal{L}$
+\end{enumerate}
+
+The bottleneck forces the network to learn a compressed representation capturing the most important features for reconstruction.
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/week_12_unsupervised/autoencoder.png}
+    \caption{Autoencoder architecture: input is compressed through the encoder to a bottleneck layer (latent representation $z$), then reconstructed by the decoder. The bottleneck dimension $L$ is smaller than the input dimension $D$, forcing compression.}
+    \label{fig:autoencoder}
+\end{figure}
+
+\textbf{Intuition:} The encoder must learn to ``distil'' the input into a compressed code that retains enough information for the decoder to reconstruct. If $L$ is small, only the most important features can be preserved. The network learns which features matter most for reconstruction.
+
+\subsection{Relationship to PCA}
+
+\begin{greybox}[Linear Autoencoders Recover PCA]
+Under specific conditions, autoencoders are exactly equivalent to PCA:
+\begin{itemize}
+    \item Single hidden layer (one encoder layer, one decoder layer)
+    \item \textbf{Linear activations} (no non-linearities: no ReLU, sigmoid, etc.)
+    \item Mean squared error loss
+    \item Encoder and decoder share (transposed) weights
+\end{itemize}
+
+In this case, the encoder learns to project onto the principal component subspace, and the decoder learns to reconstruct from this projection. The learned weights span the same subspace as the top $L$ principal components.
+
+\textbf{With non-linearities}, autoencoders can learn \textbf{non-linear manifolds} that PCA cannot capture. A deep autoencoder with multiple hidden layers can learn hierarchical features, with each layer capturing increasingly abstract representations.
+\end{greybox}
+
+This equivalence is profound: it shows that PCA is a special case of autoencoders when we restrict to linear transformations. Adding non-linearities strictly increases expressiveness.
+
+\subsection{Bottleneck Dimension}
+
+\begin{redbox}
+\textbf{The bottleneck is crucial:}
+
+\textbf{If $L \geq D$:} The autoencoder can learn the identity function-simply copying inputs without learning meaningful structure. There's no compression, so no useful representation is learned.
+
+\textbf{If $L$ is too small:} The bottleneck may not have enough capacity to represent the data, leading to poor reconstructions and loss of important information.
+
+\textbf{Even with $L < D$:} An overly expressive network (too many layers, too many parameters) might learn trivial solutions or overfit to noise. Regularisation helps ensure meaningful representations:
+\begin{itemize}
+    \item Weight decay (L2 regularisation on weights)
+    \item Dropout in encoder/decoder
+    \item Early stopping based on validation reconstruction error
+\end{itemize}
+\end{redbox}
+
+Choosing the right bottleneck dimension $L$ is a hyperparameter. Strategies include:
+\begin{itemize}
+    \item Start with PCA variance analysis: if 95\% of variance is in 10 components, try $L \approx 10$
+    \item Monitor reconstruction quality on held-out data
+    \item For visualisation, $L = 2$ or $L = 3$
+\end{itemize}
+
+\subsection{Autoencoder Variants}
+
+Different regularisation strategies lead to different autoencoder variants, each suited to different tasks:
+
+\begin{greybox}[Denoising Autoencoders]
+\textbf{Idea:} Train the network to be robust to noise by corrupting inputs and asking it to reconstruct the \textit{clean} version.
+
+\textbf{Training procedure:}
+\begin{enumerate}
+    \item Add noise to input: $\tilde{x}_i = x_i + \epsilon$, where $\epsilon \sim \mathcal{N}(0, \sigma^2 I)$ (or use dropout noise, masking random features)
+    \item Train to reconstruct original: $\min \|x_i - g_\psi(f_\phi(\tilde{x}_i))\|^2$
+\end{enumerate}
+
+\textbf{Why it works:}
+\begin{itemize}
+    \item Forces representations to be invariant to small perturbations
+    \item Cannot simply memorise inputs (the noise varies each time)
+    \item Learns robust features that capture true structure, not noise
+    \item Particularly useful when data is noisy
+\end{itemize}
+\end{greybox}
+
+\begin{greybox}[Sparse Autoencoders]
+\textbf{Idea:} Encourage the latent representation to be \textbf{sparse}-most entries should be zero (or near-zero) for any given input.
+
+\textbf{Objective:}
+\[
+\mathcal{L} = \frac{1}{n}\sum_{i=1}^n \|x_i - g_\psi(f_\phi(x_i))\|^2 + \lambda \|z_i\|_1
+\]
+
+The L1 penalty $\|z_i\|_1 = \sum_l |z_{il}|$ encourages sparsity.
+
+\textbf{Why it's useful:}
+\begin{itemize}
+    \item Each latent dimension tends to represent a distinct ``feature'' of the data
+    \item Sparse representations are often more interpretable
+    \item Analogous to L1 regularisation in linear models (Lasso)
+    \item Can use $L > D$ if sparsity is enforced (overcomplete representations)
+\end{itemize}
+\end{greybox}
+
+\begin{greybox}[Variational Autoencoders (VAEs)]
+\textbf{Idea:} Make the autoencoder probabilistic by having the encoder output \textit{distribution parameters} rather than point estimates.
+
+\textbf{Architecture:}
+\begin{enumerate}
+    \item Encoder outputs parameters: $f_\phi(x_i) = (\mu_i, \sigma_i^2)$
+    \item Sample latent code: $z_i \sim \mathcal{N}(\mu_i, \text{diag}(\sigma_i^2))$
+    \item Decoder reconstructs: $\hat{x}_i = g_\psi(z_i)$
+\end{enumerate}
+
+\textbf{Objective (Evidence Lower Bound / ELBO):}
+\[
+\mathcal{L} = \underbrace{\mathbb{E}_{z \sim q_\phi(z|x)}[\log p_\psi(x|z)]}_{\text{reconstruction}} - \underbrace{D_{\text{KL}}(q_\phi(z|x) \| p(z))}_{\text{regularisation}}
+\]
+
+The KL term encourages the learned latent distribution $q_\phi(z|x)$ to be close to a standard normal prior $p(z) = \mathcal{N}(0, I)$.
+
+\textbf{Key property: Generation}
+
+Because the latent space is regularised to be Gaussian, we can \textbf{generate new data}:
+\begin{enumerate}
+    \item Sample $z \sim \mathcal{N}(0, I)$
+    \item Decode: $x_{\text{new}} = g_\psi(z)$
+\end{enumerate}
+
+This produces novel samples that look like the training data.
+\end{greybox}
+
+\begin{bluebox}[When to Use Each Variant]
+\begin{itemize}
+    \item \textbf{Standard autoencoder}: Feature learning, pre-training, anomaly detection (high reconstruction error $\Rightarrow$ anomaly)
+    \item \textbf{Denoising}: When data is noisy, when you want robust features, as a regularisation technique
+    \item \textbf{Sparse}: When you want interpretable, disentangled representations; feature extraction
+    \item \textbf{Variational (VAE)}: Generative modelling, sampling new data points, learning smooth latent spaces, semi-supervised learning
+\end{itemize}
+\end{bluebox}
+
+\subsection{Applications of Autoencoders}
+
+\textbf{Anomaly detection:} Train an autoencoder on ``normal'' data. At test time, compute reconstruction error for new samples. High reconstruction error indicates the sample is unlike the training data-potentially anomalous.
+
+\textbf{Pretraining:} Use the encoder from a trained autoencoder as initialisation for a supervised task. The encoder has learned useful features from unlabelled data.
+
+\textbf{Denoising:} Train a denoising autoencoder, then use it to clean noisy inputs (e.g., removing noise from images).
+
+\textbf{Compression:} The latent code $z$ is a compressed representation of $x$. This can be used for data compression (though specialised codecs typically outperform).
+
+\section{Summary}
+
+\begin{bluebox}[Week 12: Key Concepts]
+\textbf{Dimensionality Reduction:}
+\begin{itemize}
+    \item \textbf{PCA}: Linear projection maximising variance; optimal for Gaussian data; interpretable axes; equivalent to linear autoencoder
+    \item \textbf{Autoencoders}: Non-linear compression via neural networks; can learn complex manifold structure
+\end{itemize}
+
+\textbf{Visualisation Methods:}
+\begin{itemize}
+    \item \textbf{t-SNE}: Preserves local neighbourhood structure using heavy-tailed t-distribution; excellent for cluster discovery; $O(N^2)$
+    \item \textbf{UMAP}: Scalable alternative using $k$-NN graphs; preserves more global structure; $O(N \log N)$
+\end{itemize}
+
+\textbf{Core Principles:}
+\begin{itemize}
+    \item Unsupervised learning seeks structure without labels-the data is its own teacher
+    \item Compression (bottlenecks) forces models to identify and capture essential features
+    \item Linear methods (PCA) are interpretable but limited; non-linear methods capture complex structure
+    \item Choice of method depends on goal: interpretability vs flexibility, global vs local structure, visualisation vs downstream learning
+\end{itemize}
+
+\textbf{Connections:}
+\begin{itemize}
+    \item Linear autoencoder $\equiv$ PCA (under specific conditions)
+    \item VAE decoder enables generative modelling (connects to probabilistic graphical models)
+    \item Embeddings from unsupervised pre-training improve downstream supervised tasks (transfer learning)
+    \item t-SNE/UMAP reveal cluster structure that can guide further analysis or labelling
+\end{itemize}
+\end{bluebox}
+
+\textbf{The big picture:} Unsupervised learning is about finding structure. PCA finds linear structure (directions of variance). t-SNE/UMAP find neighbourhood structure (clusters). Autoencoders find reconstruction-relevant structure (features that matter for predicting the input). Each perspective reveals different aspects of the data, and combining them often provides the most insight.

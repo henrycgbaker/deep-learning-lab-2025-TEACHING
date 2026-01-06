@@ -1,0 +1,721 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {chapter}{\numberline {1}Week 1: Introduction to Deep Learning}{13}{chapter.1}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:week1}{{1}{13}{Week 1: Introduction to Deep Learning}{chapter.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {1.1}What is Deep Learning?}{13}{section.1.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1.1}{\ignorespaces Relationship between AI, machine learning, and deep learning. Deep learning is a subset of machine learning, which itself is a subset of artificial intelligence.}}{14}{figure.1.1}\protected@file@percent }
+\newlabel{fig:dl-venn}{{1.1}{14}{Relationship between AI, machine learning, and deep learning. Deep learning is a subset of machine learning, which itself is a subset of artificial intelligence}{figure.1.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1.1}Historical Context}{14}{subsection.1.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.2}Learning Paradigms}{15}{section.1.2}\protected@file@percent }
+\newlabel{sec:learning-paradigms}{{1.2}{15}{Learning Paradigms}{section.1.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {1.3}Machine Learning vs Deep Learning}{17}{section.1.3}\protected@file@percent }
+\newlabel{sec:ml-vs-dl}{{1.3}{17}{Machine Learning vs Deep Learning}{section.1.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.3.1}Feature Engineering vs Feature Learning}{17}{subsection.1.3.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1.2}{\ignorespaces Hierarchical feature learning in deep networks. Each layer builds increasingly abstract representations from the layer below.}}{18}{figure.1.2}\protected@file@percent }
+\newlabel{fig:rep-learning-1}{{1.2}{18}{Hierarchical feature learning in deep networks. Each layer builds increasingly abstract representations from the layer below}{figure.1.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.3.2}When to Use Which}{19}{subsection.1.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.4}Universal Approximation Theorem}{19}{section.1.4}\protected@file@percent }
+\newlabel{sec:uat}{{1.4}{19}{Universal Approximation Theorem}{section.1.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.4.1}Intuitive Statement}{20}{subsection.1.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.4.2}Implications and Limitations}{21}{subsection.1.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.4.3}Why Depth Matters}{21}{subsection.1.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.5}Representation Learning}{22}{section.1.5}\protected@file@percent }
+\newlabel{sec:representation-learning}{{1.5}{22}{Representation Learning}{section.1.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1.3}{\ignorespaces Deep networks learn hierarchical representations: raw pixels $\to $ edges $\to $ textures $\to $ parts $\to $ objects. Each layer builds on the representations learned by previous layers.}}{23}{figure.1.3}\protected@file@percent }
+\newlabel{fig:rep-learning-2}{{1.3}{23}{Deep networks learn hierarchical representations: raw pixels $\to $ edges $\to $ textures $\to $ parts $\to $ objects. Each layer builds on the representations learned by previous layers}{figure.1.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.5.1}Manifold Hypothesis}{24}{subsection.1.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.6}Modern Deep Learning Architectures}{24}{section.1.6}\protected@file@percent }
+\newlabel{sec:architectures}{{1.6}{24}{Modern Deep Learning Architectures}{section.1.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.6.1}Convolutional Neural Networks (CNNs)}{24}{subsection.1.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.6.2}Recurrent Neural Networks (RNNs)}{25}{subsection.1.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.6.3}Transformers}{25}{subsection.1.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1.7}Deep Learning in Policy Context}{25}{section.1.7}\protected@file@percent }
+\newlabel{sec:policy-context}{{1.7}{25}{Deep Learning in Policy Context}{section.1.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.7.1}Ethical Considerations}{26}{subsection.1.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.7.2}Transparency and Explainability}{26}{subsection.1.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.7.3}Safety and Robustness}{27}{subsection.1.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.7.4}Environmental Impact}{27}{subsection.1.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {2}Week 2: Deep Neural Networks I}{29}{chapter.2}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:week2}{{2}{29}{Week 2: Deep Neural Networks I}{chapter.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.1}Neural Network Fundamentals}{29}{section.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.1}Notation and Conventions}{29}{subsection.2.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.2}The Artificial Neuron}{31}{subsection.2.1.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.1}{\ignorespaces An artificial neuron computes a weighted sum of inputs, adds a bias, and applies a nonlinear activation function.}}{31}{figure.2.1}\protected@file@percent }
+\newlabel{fig:artificial-neuron}{{2.1}{31}{An artificial neuron computes a weighted sum of inputs, adds a bias, and applies a nonlinear activation function}{figure.2.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.3}Layers of Neurons}{32}{subsection.2.1.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.2}{\ignorespaces Hidden unit's connection to input activation. Each hidden unit receives all inputs.}}{32}{figure.2.2}\protected@file@percent }
+\newlabel{fig:hidden-layer}{{2.2}{32}{Hidden unit's connection to input activation. Each hidden unit receives all inputs}{figure.2.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1.4}Matrix Multiplication: How Forward Propagation Works}{32}{subsection.2.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.2}Single-Layer Neural Networks}{36}{section.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.3}{\ignorespaces A single-layer neural network with $d$ inputs, $H$ hidden units, and one output. Note: $W^{[1]}$ is a matrix; $w^{[2]}$ is a vector!}}{36}{figure.2.3}\protected@file@percent }
+\newlabel{fig:single-layer-nn}{{2.3}{36}{A single-layer neural network with $d$ inputs, $H$ hidden units, and one output. Note: $W^{[1]}$ is a matrix; $w^{[2]}$ is a vector!}{figure.2.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.1}Architecture}{37}{subsection.2.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.2}Matrix Formulation}{38}{subsection.2.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2.3}Output Layer for Different Tasks}{38}{subsection.2.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.3}Activation Functions}{39}{section.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.1}Purpose of Activation Functions}{39}{subsection.2.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.2}Common Activation Functions}{40}{subsection.2.3.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.4}{\ignorespaces Comparison of sigmoid and ReLU. ReLU is unbounded for positive inputs and exactly zero for negative inputs.}}{41}{figure.2.4}\protected@file@percent }
+\newlabel{fig:sigmoid-relu}{{2.4}{41}{Comparison of sigmoid and ReLU. ReLU is unbounded for positive inputs and exactly zero for negative inputs}{figure.2.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.5}{\ignorespaces The hyperbolic tangent function-a scaled and shifted sigmoid, zero-centred.}}{42}{figure.2.5}\protected@file@percent }
+\newlabel{fig:tanh}{{2.5}{42}{The hyperbolic tangent function-a scaled and shifted sigmoid, zero-centred}{figure.2.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.6}{\ignorespaces The Heaviside step function-the original ``activation'' but not differentiable.}}{42}{figure.2.6}\protected@file@percent }
+\newlabel{fig:heaviside}{{2.6}{42}{The Heaviside step function-the original ``activation'' but not differentiable}{figure.2.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3.3}Why ReLU Dominates}{42}{subsection.2.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.4}Output Layers and Loss Functions}{43}{section.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.1}Output Activations by Task}{43}{subsection.2.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.2}Softmax Function}{43}{subsection.2.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.7}{\ignorespaces Multi-class classification with $K$ output nodes. For $K$ output nodes, $W^{[2]}$ now has $K \times H$ dimensions; biases form a vector of $K$. Softmax ensures outputs sum to 1.}}{44}{figure.2.7}\protected@file@percent }
+\newlabel{fig:multiclass}{{2.7}{44}{Multi-class classification with $K$ output nodes. For $K$ output nodes, $W^{[2]}$ now has $K \times H$ dimensions; biases form a vector of $K$. Softmax ensures outputs sum to 1}{figure.2.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.8}{\ignorespaces The forward propagation process: input $\to $ hidden activations $\to $ output probabilities.}}{45}{figure.2.8}\protected@file@percent }
+\newlabel{fig:process}{{2.8}{45}{The forward propagation process: input $\to $ hidden activations $\to $ output probabilities}{figure.2.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4.3}Loss Functions}{45}{subsection.2.4.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.9}{\ignorespaces The $-\log (x)$ function: as predicted probability approaches 0, loss increases sharply; as it approaches 1, loss approaches 0.}}{48}{figure.2.9}\protected@file@percent }
+\newlabel{fig:log-loss}{{2.9}{48}{The $-\log (x)$ function: as predicted probability approaches 0, loss increases sharply; as it approaches 1, loss approaches 0}{figure.2.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.5}Capacity and Expressiveness}{49}{section.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.1}Linear Separability}{49}{subsection.2.5.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.10}{\ignorespaces Top: linearly separable data (a single linear decision boundary can separate the classes). Bottom: not linearly separable (XOR problem).}}{49}{figure.2.10}\protected@file@percent }
+\newlabel{fig:linear-sep}{{2.10}{49}{Top: linearly separable data (a single linear decision boundary can separate the classes). Bottom: not linearly separable (XOR problem)}{figure.2.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.11}{\ignorespaces Examples of linearly separable problems. A single neuron can learn decision boundaries that separate these classes.}}{50}{figure.2.11}\protected@file@percent }
+\newlabel{fig:linear-sep-examples}{{2.11}{50}{Examples of linearly separable problems. A single neuron can learn decision boundaries that separate these classes}{figure.2.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.2}How Hidden Layers Create Nonlinear Boundaries}{50}{subsection.2.5.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.12}{\ignorespaces Transformation of input features: hidden layers project data into a space where it becomes linearly separable.}}{50}{figure.2.12}\protected@file@percent }
+\newlabel{fig:feature-transform}{{2.12}{50}{Transformation of input features: hidden layers project data into a space where it becomes linearly separable}{figure.2.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2.13}{\ignorespaces A single-layer network with 4 hidden neurons can represent a non-linear function. Each neuron learns a linearly separable component; their combination creates complex boundaries.}}{51}{figure.2.13}\protected@file@percent }
+\newlabel{fig:nonlinear-boundary}{{2.13}{51}{A single-layer network with 4 hidden neurons can represent a non-linear function. Each neuron learns a linearly separable component; their combination creates complex boundaries}{figure.2.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5.3}Universal Approximation Theorem}{52}{subsection.2.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.6}Gradient Descent}{52}{section.2.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.1}Why Gradient Descent?}{53}{subsection.2.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.2}Gradient Descent Algorithm}{53}{subsection.2.6.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.14}{\ignorespaces Gradient descent on a 2D loss surface. The gradient is a vector of partial derivatives pointing uphill; we step in the opposite direction.}}{54}{figure.2.14}\protected@file@percent }
+\newlabel{fig:grad-descent}{{2.14}{54}{Gradient descent on a 2D loss surface. The gradient is a vector of partial derivatives pointing uphill; we step in the opposite direction}{figure.2.14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.3}Learning Rate}{56}{subsection.2.6.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.15}{\ignorespaces Even with fixed $\eta $, steps become smaller as we approach the minimum-the gradient magnitude decreases. As we get closer to the minimum, the functional values we plug in become smaller; the gradient evaluated at each successive point becomes smaller.}}{56}{figure.2.15}\protected@file@percent }
+\newlabel{fig:learning-rate}{{2.15}{56}{Even with fixed $\eta $, steps become smaller as we approach the minimum-the gradient magnitude decreases. As we get closer to the minimum, the functional values we plug in become smaller; the gradient evaluated at each successive point becomes smaller}{figure.2.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6.4}Stopping Criteria}{57}{subsection.2.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.7}Backpropagation}{57}{section.2.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.7.1}The Training Loop}{57}{subsection.2.7.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.16}{\ignorespaces The neural network training loop: forward pass $\to $ loss computation $\to $ backward pass $\to $ parameter update.}}{57}{figure.2.16}\protected@file@percent }
+\newlabel{fig:training-loop}{{2.16}{57}{The neural network training loop: forward pass $\to $ loss computation $\to $ backward pass $\to $ parameter update}{figure.2.16}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.7.2}The Chain Rule}{58}{subsection.2.7.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.17}{\ignorespaces Multivariate chain rule: to compute $\frac  {\partial f}{\partial w}$, sum over all paths from $w$ to $f$.}}{59}{figure.2.17}\protected@file@percent }
+\newlabel{fig:chain-rule}{{2.17}{59}{Multivariate chain rule: to compute $\frac {\partial f}{\partial w}$, sum over all paths from $w$ to $f$}{figure.2.17}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.7.3}Computing the Gradient}{59}{subsection.2.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.7.4}Worked Example: Backpropagation}{62}{subsection.2.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.7.5}Gradient Formulas for Common Cases}{63}{subsection.2.7.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.8}Parameters vs Hyperparameters}{64}{section.2.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2.9}The Bigger Picture}{65}{section.2.9}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2.18}{\ignorespaces Everything covered has been for a single-layer network with linear output. Real networks are deeper and use different output activations.}}{65}{figure.2.18}\protected@file@percent }
+\newlabel{fig:big-picture}{{2.18}{65}{Everything covered has been for a single-layer network with linear output. Real networks are deeper and use different output activations}{figure.2.18}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {3}Week 3: Deep Neural Networks II}{67}{chapter.3}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:week3}{{3}{67}{Week 3: Deep Neural Networks II}{chapter.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.1}Backpropagation (Continued)}{67}{section.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.1}Reminder: Single-Layer Network}{67}{subsection.3.1.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.1}{\ignorespaces Single-layer neural network with one hidden layer and single output.}}{68}{figure.3.1}\protected@file@percent }
+\newlabel{fig:single-layer-nn}{{3.1}{68}{Single-layer neural network with one hidden layer and single output}{figure.3.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.2}Gradient via Chain Rule}{68}{subsection.3.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1.3}Gradient Update}{69}{subsection.3.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.2}Multivariate Chain Rule}{69}{section.3.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.2}{\ignorespaces Computational graph for multivariate chain rule. Nodes represent variables; edges represent functional dependencies.}}{70}{figure.3.2}\protected@file@percent }
+\newlabel{fig:multivariate-chain}{{3.2}{70}{Computational graph for multivariate chain rule. Nodes represent variables; edges represent functional dependencies}{figure.3.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2.1}Worked Example}{70}{subsection.3.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.3}Multiple Output Nodes}{71}{section.3.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.3}{\ignorespaces Network with $K=2$ output nodes for binary classification.}}{71}{figure.3.3}\protected@file@percent }
+\newlabel{fig:multi-output}{{3.3}{71}{Network with $K=2$ output nodes for binary classification}{figure.3.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.1}Cross-Entropy Loss}{71}{subsection.3.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.2}Gradient for Multi-Class Classification}{72}{subsection.3.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3.3}Softmax + Cross-Entropy Simplification}{73}{subsection.3.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.4}Deeper Networks: Multilayer Perceptrons}{74}{section.3.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.4}{\ignorespaces Two-hidden-layer network (Multilayer Perceptron).}}{74}{figure.3.4}\protected@file@percent }
+\newlabel{fig:mlp}{{3.4}{74}{Two-hidden-layer network (Multilayer Perceptron)}{figure.3.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.1}Generic Gradient Form}{74}{subsection.3.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4.2}Full Expansion for Two Hidden Layers}{75}{subsection.3.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.5}Vectorisation}{75}{section.3.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.1}Scalar vs Vector Operations}{75}{subsection.3.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.2}Vectorised Neural Network}{76}{subsection.3.5.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.5}{\ignorespaces Vectorised network with dimension annotations.}}{77}{figure.3.5}\protected@file@percent }
+\newlabel{fig:vectorized}{{3.5}{77}{Vectorised network with dimension annotations}{figure.3.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.3}Compact Representation (Absorbing Biases)}{77}{subsection.3.5.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.6}{\ignorespaces Compact representation with biases absorbed into weight matrices.}}{77}{figure.3.6}\protected@file@percent }
+\newlabel{fig:vectorized-compact}{{3.6}{77}{Compact representation with biases absorbed into weight matrices}{figure.3.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5.4}General $L$-Layer Network}{78}{subsection.3.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.6}Vectorised Backpropagation}{78}{section.3.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6.1}Output Layer}{79}{subsection.3.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6.2}Hidden Layers (Recursive)}{80}{subsection.3.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6.3}Gradient Dimensions}{82}{subsection.3.6.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.7}{\ignorespaces Dimensions of gradients and error signals.}}{82}{figure.3.7}\protected@file@percent }
+\newlabel{fig:grad-dims}{{3.7}{82}{Dimensions of gradients and error signals}{figure.3.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.7}Mini-Batch Gradient Descent}{82}{section.3.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.7.1}Stochastic Gradient Descent (SGD)}{82}{subsection.3.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.7.2}Batch Gradient Descent}{83}{subsection.3.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.7.3}Vectorisation in Batch Gradient Descent}{83}{subsection.3.7.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.8}{\ignorespaces Batch gradient descent: forward pass dimensions showing how the full dataset $X \in \mathbb  {R}^{d \times n}$ propagates through the network.}}{83}{figure.3.8}\protected@file@percent }
+\newlabel{fig:batch-gd-dims}{{3.8}{83}{Batch gradient descent: forward pass dimensions showing how the full dataset $X \in \mathbb {R}^{d \times n}$ propagates through the network}{figure.3.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.7.4}Mini-Batch Gradient Descent}{84}{subsection.3.7.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.9}{\ignorespaces Comparison of convergence paths. Mini-batch has intermediate noise between SGD and batch GD. Mini-batch gradient descent generally allows for quicker updates compared to batch gradient descent, which processes the entire dataset before making an update. The fluctuations in mini-batch gradient descent can be beneficial as they introduce noise that may help escape local minima, providing a form of implicit regularisation.}}{86}{figure.3.9}\protected@file@percent }
+\newlabel{fig:minibatch-comparison}{{3.9}{86}{Comparison of convergence paths. Mini-batch has intermediate noise between SGD and batch GD. Mini-batch gradient descent generally allows for quicker updates compared to batch gradient descent, which processes the entire dataset before making an update. The fluctuations in mini-batch gradient descent can be beneficial as they introduce noise that may help escape local minima, providing a form of implicit regularisation}{figure.3.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.10}{\ignorespaces Mini-batch gradient descent in the loss landscape.}}{86}{figure.3.10}\protected@file@percent }
+\newlabel{fig:minibatch-landscape}{{3.10}{86}{Mini-batch gradient descent in the loss landscape}{figure.3.10}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.8}Training Process}{87}{section.3.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.8.1}Generalisation}{87}{subsection.3.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.8.2}Data Splits}{87}{subsection.3.8.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.11}{\ignorespaces Train/validation/test split: training data is used to fit the model, validation data for hyperparameter tuning, and test data remains untouched until final evaluation.}}{87}{figure.3.11}\protected@file@percent }
+\newlabel{fig:train-val-test}{{3.11}{87}{Train/validation/test split: training data is used to fit the model, validation data for hyperparameter tuning, and test data remains untouched until final evaluation}{figure.3.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.12}{\ignorespaces Training and validation error as functions of model complexity.}}{88}{figure.3.12}\protected@file@percent }
+\newlabel{fig:model-complexity}{{3.12}{88}{Training and validation error as functions of model complexity}{figure.3.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.8.3}Early Stopping}{88}{subsection.3.8.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.13}{\ignorespaces Early stopping: halt training when validation error starts increasing.}}{88}{figure.3.13}\protected@file@percent }
+\newlabel{fig:early-stopping}{{3.13}{88}{Early stopping: halt training when validation error starts increasing}{figure.3.13}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.9}Performance Metrics}{89}{section.3.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.9.1}Binary Classification Metrics}{89}{subsection.3.9.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.14}{\ignorespaces Precision vs recall visualised.}}{90}{figure.3.14}\protected@file@percent }
+\newlabel{fig:precision-recall}{{3.14}{90}{Precision vs recall visualised}{figure.3.14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.9.2}ROC and AUC}{91}{subsection.3.9.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.15}{\ignorespaces ROC curve showing trade-off between TPR and FPR at different thresholds. Particularly useful when dealing with imbalanced datasets.}}{91}{figure.3.15}\protected@file@percent }
+\newlabel{fig:roc-auc}{{3.15}{91}{ROC curve showing trade-off between TPR and FPR at different thresholds. Particularly useful when dealing with imbalanced datasets}{figure.3.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.9.3}Multi-Class Metrics}{93}{subsection.3.9.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3.10}Training Tips}{93}{section.3.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.10.1}Underfitting}{93}{subsection.3.10.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.10.2}Overfitting}{94}{subsection.3.10.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.10.3}Visualising Features}{94}{subsection.3.10.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.16}{\ignorespaces Good training: sparse, structured hidden unit activations across samples, indicating effective feature extraction.}}{94}{figure.3.16}\protected@file@percent }
+\newlabel{fig:good-training}{{3.16}{94}{Good training: sparse, structured hidden unit activations across samples, indicating effective feature extraction}{figure.3.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.17}{\ignorespaces Poor training: hidden units exhibiting strong correlations and ignoring input, showing less structured patterns.}}{95}{figure.3.17}\protected@file@percent }
+\newlabel{fig:poor-training}{{3.17}{95}{Poor training: hidden units exhibiting strong correlations and ignoring input, showing less structured patterns}{figure.3.17}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.10.4}Common Issues}{95}{subsection.3.10.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.18}{\ignorespaces Diverging training error indicates learning rate too high or bugs in backpropagation.}}{95}{figure.3.18}\protected@file@percent }
+\newlabel{fig:diverge}{{3.18}{95}{Diverging training error indicates learning rate too high or bugs in backpropagation}{figure.3.18}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.11}Vanishing Gradient Problem}{96}{section.3.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.11.1}Saturation of Sigmoid}{96}{subsection.3.11.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.19}{\ignorespaces Sigmoid function and its derivative. At the extremes, the gradient becomes flat (close to 0). Note: ReLU does not suffer from this issue.}}{96}{figure.3.19}\protected@file@percent }
+\newlabel{fig:vanishing-grad}{{3.19}{96}{Sigmoid function and its derivative. At the extremes, the gradient becomes flat (close to 0). Note: ReLU does not suffer from this issue}{figure.3.19}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.11.2}Solution 1: ReLU Activation}{98}{subsection.3.11.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.20}{\ignorespaces ReLU activation function.}}{98}{figure.3.20}\protected@file@percent }
+\newlabel{fig:relu}{{3.20}{98}{ReLU activation function}{figure.3.20}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.11.3}Solution 2: Batch Normalisation}{99}{subsection.3.11.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.11.4}Solution 3: Residual Networks (Skip Connections)}{99}{subsection.3.11.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3.21}{\ignorespaces Residual block with skip connection.}}{99}{figure.3.21}\protected@file@percent }
+\newlabel{fig:resnet}{{3.21}{99}{Residual block with skip connection}{figure.3.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.22}{\ignorespaces Skip connection bypassing one layer.}}{100}{figure.3.22}\protected@file@percent }
+\newlabel{fig:skip-connection}{{3.22}{100}{Skip connection bypassing one layer}{figure.3.22}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3.23}{\ignorespaces Comparison of VGG-19 (no skip connections), plain 34-layer network, and ResNet-34. The dotted lines represent shortcut connections that increase dimensions when needed.}}{101}{figure.3.23}\protected@file@percent }
+\newlabel{fig:resnet-comparison}{{3.23}{101}{Comparison of VGG-19 (no skip connections), plain 34-layer network, and ResNet-34. The dotted lines represent shortcut connections that increase dimensions when needed}{figure.3.23}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {4}Week 4: Convolutional Neural Networks I}{103}{chapter.4}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:week4}{{4}{103}{Week 4: Convolutional Neural Networks I}{chapter.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.1}Computer Vision Tasks}{103}{section.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.1}{\ignorespaces Common computer vision tasks: classification assigns one label to the whole image; detection locates objects with bounding boxes; segmentation classifies every pixel.}}{104}{figure.4.1}\protected@file@percent }
+\newlabel{fig:cv-tasks}{{4.1}{104}{Common computer vision tasks: classification assigns one label to the whole image; detection locates objects with bounding boxes; segmentation classifies every pixel}{figure.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1.1}Human vs Computer Perception}{104}{subsection.4.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Why Convolutional Layers?}{105}{section.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Challenge 1: Spatial Structure}{105}{subsection.4.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.2}{\ignorespaces Fully connected network: every neuron connects to every input. For images, this means flattening the 2D structure into a 1D vector.}}{105}{figure.4.2}\protected@file@percent }
+\newlabel{fig:fully-connected}{{4.2}{105}{Fully connected network: every neuron connects to every input. For images, this means flattening the 2D structure into a 1D vector}{figure.4.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}Challenge 2: Parameter Explosion}{106}{subsection.4.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.3}Challenge 3: Translation Invariance}{107}{subsection.4.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}Properties of CNNs}{107}{section.4.3}\protected@file@percent }
+\newlabel{sec:cnn-properties}{{4.3}{107}{Properties of CNNs}{section.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}Example: Cat Image Feature Detection}{108}{subsection.4.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Versatility Beyond Images}{109}{subsection.4.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}The Convolution Operation}{109}{section.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Discrete Convolution}{109}{subsection.4.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}Worked Example: Convolution with Kernel Flipping}{110}{subsection.4.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.3}Cross-Correlation: What CNNs Actually Compute}{110}{subsection.4.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.4}Effect of Convolution: Feature Detection}{111}{subsection.4.4.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.3}{\ignorespaces Convolution detecting transitions from dark to light. Note: this figure shows a cross-correlation operation (no kernel flipping), which is what CNNs actually compute.}}{111}{figure.4.3}\protected@file@percent }
+\newlabel{fig:convolution-example}{{4.3}{111}{Convolution detecting transitions from dark to light. Note: this figure shows a cross-correlation operation (no kernel flipping), which is what CNNs actually compute}{figure.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.5}Non-linear Activation}{112}{subsection.4.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.5}Padding}{112}{section.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.1}The Border Problem}{112}{subsection.4.5.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.4}{\ignorespaces Padding strategies: zero-padding adds zeros around the border; mirroring reflects pixel values; continuous extension repeats edge pixels.}}{112}{figure.4.4}\protected@file@percent }
+\newlabel{fig:padding}{{4.4}{112}{Padding strategies: zero-padding adds zeros around the border; mirroring reflects pixel values; continuous extension repeats edge pixels}{figure.4.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.2}Output Dimension Formula}{113}{subsection.4.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.3}Benefits of Zero-Padding}{113}{subsection.4.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.6}Pooling Layers}{114}{section.4.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.1}Motivation: From Local to Global}{114}{subsection.4.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.2}Max Pooling}{114}{subsection.4.6.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.5}{\ignorespaces Max pooling with $2 \times 2$ window and stride 2. Each $2 \times 2$ region is replaced by its maximum value, halving spatial dimensions.}}{114}{figure.4.5}\protected@file@percent }
+\newlabel{fig:max-pooling}{{4.5}{114}{Max pooling with $2 \times 2$ window and stride 2. Each $2 \times 2$ region is replaced by its maximum value, halving spatial dimensions}{figure.4.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.3}Local Translation Invariance}{116}{subsection.4.6.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.6}{\ignorespaces Pooling provides local translation invariance: small shifts in feature position don't change the pooled output.}}{116}{figure.4.6}\protected@file@percent }
+\newlabel{fig:translation-invariance}{{4.6}{116}{Pooling provides local translation invariance: small shifts in feature position don't change the pooled output}{figure.4.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.7}{\ignorespaces Example: Two slightly different inputs where the key feature (value 255) has shifted. Despite the shift, the max pooling output is identical-the same maximum is captured in each pooling window.}}{116}{figure.4.7}\protected@file@percent }
+\newlabel{fig:translation-invariance-2}{{4.7}{116}{Example: Two slightly different inputs where the key feature (value 255) has shifted. Despite the shift, the max pooling output is identical-the same maximum is captured in each pooling window}{figure.4.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.4}Pooling and Convolutions Together}{117}{subsection.4.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.7}Multi-Channel Convolutions}{117}{section.4.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.1}Multiple Input Channels}{117}{subsection.4.7.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.8}{\ignorespaces Colour image represented as a 3D tensor: height $\times $ width $\times $ channels. An RGB image is not three separate images but one unified representation where each pixel has three colour values.}}{117}{figure.4.8}\protected@file@percent }
+\newlabel{fig:multiple-channels}{{4.8}{117}{Colour image represented as a 3D tensor: height $\times $ width $\times $ channels. An RGB image is not three separate images but one unified representation where each pixel has three colour values}{figure.4.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.9}{\ignorespaces Two-channel convolution: convolve each channel with its corresponding kernel slice, then sum. Example calculation: $(1 \cdot 1 + 2 \cdot 2 + 4 \cdot 3 + 5 \cdot 4) + (0 \cdot 0 + 1 \cdot 1 + 3 \cdot 2 + 4 \cdot 3) = 37 + 19 = 56$.}}{118}{figure.4.9}\protected@file@percent }
+\newlabel{fig:channel-sum}{{4.9}{118}{Two-channel convolution: convolve each channel with its corresponding kernel slice, then sum. Example calculation: $(1 \cdot 1 + 2 \cdot 2 + 4 \cdot 3 + 5 \cdot 4) + (0 \cdot 0 + 1 \cdot 1 + 3 \cdot 2 + 4 \cdot 3) = 37 + 19 = 56$}{figure.4.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.2}Multiple Output Channels (Feature Maps)}{118}{subsection.4.7.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.10}{\ignorespaces 3 input channels, 2 output channels (2 filters). Each filter spans all 3 input channels and produces 1 output feature map.}}{119}{figure.4.10}\protected@file@percent }
+\newlabel{fig:3in-2out}{{4.10}{119}{3 input channels, 2 output channels (2 filters). Each filter spans all 3 input channels and produces 1 output feature map}{figure.4.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.11}{\ignorespaces Different filters detect different features. For example, one filter might detect eyes, another might detect edges. Pooling then aggregates these detections to answer ``is this feature present?'' rather than ``where exactly is this feature?''}}{120}{figure.4.11}\protected@file@percent }
+\newlabel{fig:2-out}{{4.11}{120}{Different filters detect different features. For example, one filter might detect eyes, another might detect edges. Pooling then aggregates these detections to answer ``is this feature present?'' rather than ``where exactly is this feature?''}{figure.4.11}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.8}CNN Architecture: LeNet}{120}{section.4.8}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.12}{\ignorespaces LeNet architecture: the convolutional encoder (left) extracts hierarchical features; the dense classifier (right) makes the final decision.}}{120}{figure.4.12}\protected@file@percent }
+\newlabel{fig:lenet}{{4.12}{120}{LeNet architecture: the convolutional encoder (left) extracts hierarchical features; the dense classifier (right) makes the final decision}{figure.4.12}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.9}Training CNNs}{122}{section.4.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.9.1}Backpropagation Through Convolutions}{122}{subsection.4.9.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.10}Feature Visualisation}{123}{section.4.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.10.1}What Does a CNN Learn?}{123}{subsection.4.10.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4.13}{\ignorespaces Feature visualisation in GoogLeNet showing the progression from simple edge detectors in early layers to complex object detectors in deeper layers.}}{123}{figure.4.13}\protected@file@percent }
+\newlabel{fig:features-1}{{4.13}{123}{Feature visualisation in GoogLeNet showing the progression from simple edge detectors in early layers to complex object detectors in deeper layers}{figure.4.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.14}{\ignorespaces Early layer features: simple edges, colour gradients, and basic orientation detectors. Source: \texttt  {distill.pub/2017/feature-visualization}}}{124}{figure.4.14}\protected@file@percent }
+\newlabel{fig:features-2}{{4.14}{124}{Early layer features: simple edges, colour gradients, and basic orientation detectors. Source: \texttt {distill.pub/2017/feature-visualization}}{figure.4.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.15}{\ignorespaces Deeper layer features: complex textures, patterns, and the beginnings of object parts. Source: \texttt  {distill.pub/2017/feature-visualization}}}{124}{figure.4.15}\protected@file@percent }
+\newlabel{fig:features-3}{{4.15}{124}{Deeper layer features: complex textures, patterns, and the beginnings of object parts. Source: \texttt {distill.pub/2017/feature-visualization}}{figure.4.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4.16}{\ignorespaces Progression across layers: from simple textures to recognisable object parts to full objects. This visualisation shows how CNNs build increasingly abstract representations.}}{125}{figure.4.16}\protected@file@percent }
+\newlabel{fig:features-4}{{4.16}{125}{Progression across layers: from simple textures to recognisable object parts to full objects. This visualisation shows how CNNs build increasingly abstract representations}{figure.4.16}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.10.2}Visualisation Techniques}{125}{subsection.4.10.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.10.3}Examples of Learned Features}{125}{subsection.4.10.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {5}Week 5: Convolutional Neural Networks II}{127}{chapter.5}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:week5}{{5}{127}{Week 5: Convolutional Neural Networks II}{chapter.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.1}Labelled Data and Augmentation}{127}{section.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.1}The Data Bottleneck}{127}{subsection.5.1.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces ImageNet: the dataset that enabled the deep learning revolution in computer vision.}}{128}{figure.5.1}\protected@file@percent }
+\newlabel{fig:imagenet}{{5.1}{128}{ImageNet: the dataset that enabled the deep learning revolution in computer vision}{figure.5.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.2}{\ignorespaces CIFAR-10: smaller benchmark dataset (60,000 images, 10 classes).}}{129}{figure.5.2}\protected@file@percent }
+\newlabel{fig:cifar}{{5.2}{129}{CIFAR-10: smaller benchmark dataset (60,000 images, 10 classes)}{figure.5.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.2}Common Datasets}{129}{subsection.5.1.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.3}{\ignorespaces Popular computer vision benchmark datasets.}}{129}{figure.5.3}\protected@file@percent }
+\newlabel{fig:datasets}{{5.3}{129}{Popular computer vision benchmark datasets}{figure.5.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.3}Data Labelling Strategies}{132}{subsection.5.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Self-Annotating Domain-Specific Data}{132}{section*.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.4}{\ignorespaces Annotation tools: LabelImg, VGG Image Annotator, and other open-source/paid tools for creating bounding boxes and polygons.}}{132}{figure.5.4}\protected@file@percent }
+\newlabel{fig:annotation}{{5.4}{132}{Annotation tools: LabelImg, VGG Image Annotator, and other open-source/paid tools for creating bounding boxes and polygons}{figure.5.4}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Considerations for Data Labelling}{132}{section*.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.5}{\ignorespaces Edge cases: What distinguishes a truck from a van? Such ambiguities must be resolved before annotation begins.}}{132}{figure.5.5}\protected@file@percent }
+\newlabel{fig:truck}{{5.5}{132}{Edge cases: What distinguishes a truck from a van? Such ambiguities must be resolved before annotation begins}{figure.5.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.4}Active Learning}{133}{subsection.5.1.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.6}{\ignorespaces Active learning workflow: model queries human for uncertain samples.}}{134}{figure.5.6}\protected@file@percent }
+\newlabel{fig:active-learning}{{5.6}{134}{Active learning workflow: model queries human for uncertain samples}{figure.5.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.5}Model-Assisted Labelling}{134}{subsection.5.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1.6}Data Augmentation}{135}{subsection.5.1.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.7}{\ignorespaces Common augmentation transformations: cropping, translation, rotation, scaling.}}{135}{figure.5.7}\protected@file@percent }
+\newlabel{fig:augmentation}{{5.7}{135}{Common augmentation transformations: cropping, translation, rotation, scaling}{figure.5.7}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Colour Augmentation}{137}{section*.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.8}{\ignorespaces Colour augmentation: adjusting brightness, contrast, saturation, and hue simulates different lighting conditions, making the model more robust to environmental variations.}}{137}{figure.5.8}\protected@file@percent }
+\newlabel{fig:colour-aug}{{5.8}{137}{Colour augmentation: adjusting brightness, contrast, saturation, and hue simulates different lighting conditions, making the model more robust to environmental variations}{figure.5.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.9}{\ignorespaces Colour channel manipulation on a cat image: this teaches the model to focus on structural details rather than relying on colour information.}}{137}{figure.5.9}\protected@file@percent }
+\newlabel{fig:colour-aug-cat}{{5.9}{137}{Colour channel manipulation on a cat image: this teaches the model to focus on structural details rather than relying on colour information}{figure.5.9}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Elastic Distortions}{138}{section*.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.10}{\ignorespaces Random elastic distortion applied to digit ``6''.}}{138}{figure.5.10}\protected@file@percent }
+\newlabel{fig:elastic}{{5.10}{138}{Random elastic distortion applied to digit ``6''}{figure.5.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.11}{\ignorespaces Smoothed random distortion: the distortion field specifies how each pixel is displaced, allowing simulation of slight alterations that mimic real-world handwriting variations.}}{138}{figure.5.11}\protected@file@percent }
+\newlabel{fig:smoothed-elastic}{{5.11}{138}{Smoothed random distortion: the distortion field specifies how each pixel is displaced, allowing simulation of slight alterations that mimic real-world handwriting variations}{figure.5.11}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.2}Modern CNN Architectures}{139}{section.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}VGG: Deep and Narrow (2014)}{139}{subsection.5.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Basic CNN Block vs VGG Block}{139}{section*.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.12}{\ignorespaces VGG block: multiple 3$\times $3 convolutions followed by pooling.}}{140}{figure.5.12}\protected@file@percent }
+\newlabel{fig:vgg-block}{{5.12}{140}{VGG block: multiple 3$\times $3 convolutions followed by pooling}{figure.5.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.13}{\ignorespaces VGG architecture: deep stack of small convolutions.}}{141}{figure.5.13}\protected@file@percent }
+\newlabel{fig:vgg}{{5.13}{141}{VGG architecture: deep stack of small convolutions}{figure.5.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.2}GoogLeNet: Inception Blocks (2014)}{141}{subsection.5.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.14}{\ignorespaces Inception block: parallel branches at different scales, with outputs concatenated along the channel dimension.}}{141}{figure.5.14}\protected@file@percent }
+\newlabel{fig:inception}{{5.14}{141}{Inception block: parallel branches at different scales, with outputs concatenated along the channel dimension}{figure.5.14}{}}
+\@writefile{toc}{\contentsline {subsubsection}{1$\times $1 Convolutions}{143}{section*.7}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.15}{\ignorespaces 1$\times $1 convolution: channel reduction/expansion without changing spatial dimensions.}}{144}{figure.5.15}\protected@file@percent }
+\newlabel{fig:1x1-conv}{{5.15}{144}{1$\times $1 convolution: channel reduction/expansion without changing spatial dimensions}{figure.5.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2.3}ResNet: Skip Connections (2015)}{146}{subsection.5.2.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.16}{\ignorespaces Residual block: the portion in dotted lines learns the residual mapping $g(x) = f(x) - x$.}}{147}{figure.5.16}\protected@file@percent }
+\newlabel{fig:residual-block}{{5.16}{147}{Residual block: the portion in dotted lines learns the residual mapping $g(x) = f(x) - x$}{figure.5.16}{}}
+\@writefile{toc}{\contentsline {subsubsection}{ResNet Block Variants}{148}{section*.8}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.17}{\ignorespaces Standard ResNet block: two 3$\times $3 convolutions with batch normalisation and skip connection, inspired by VGG blocks.}}{148}{figure.5.17}\protected@file@percent }
+\newlabel{fig:resnet-block}{{5.17}{148}{Standard ResNet block: two 3$\times $3 convolutions with batch normalisation and skip connection, inspired by VGG blocks}{figure.5.17}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Bottleneck ResNet Block}{148}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Global Average Pooling}{150}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{ResNet-18 Architecture}{151}{section*.11}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.18}{\ignorespaces ResNet-18 architecture with global average pooling.}}{151}{figure.5.18}\protected@file@percent }
+\newlabel{fig:resnet18}{{5.18}{151}{ResNet-18 architecture with global average pooling}{figure.5.18}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.3}Transfer Learning and Fine-Tuning}{152}{section.5.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.19}{\ignorespaces Fine-tuning: copy pretrained layers, replace output layer, train on target dataset.}}{153}{figure.5.19}\protected@file@percent }
+\newlabel{fig:fine-tuning}{{5.19}{153}{Fine-tuning: copy pretrained layers, replace output layer, train on target dataset}{figure.5.19}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.4}Object Detection}{155}{section.5.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.20}{\ignorespaces Object detection: classify and localise objects with bounding boxes.}}{155}{figure.5.20}\protected@file@percent }
+\newlabel{fig:object-detection}{{5.20}{155}{Object detection: classify and localise objects with bounding boxes}{figure.5.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.21}{\ignorespaces Object detection involves finding objects, drawing tight bounding boxes, and determining object classes.}}{155}{figure.5.21}\protected@file@percent }
+\newlabel{fig:object-detection-2}{{5.21}{155}{Object detection involves finding objects, drawing tight bounding boxes, and determining object classes}{figure.5.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.22}{\ignorespaces Detecting multiple objects of different classes in a single image.}}{156}{figure.5.22}\protected@file@percent }
+\newlabel{fig:multiple-objects}{{5.22}{156}{Detecting multiple objects of different classes in a single image}{figure.5.22}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.1}Bounding Box Representation}{156}{subsection.5.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.2}Basic Object Detection Workflow}{156}{subsection.5.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.23}{\ignorespaces Object detection pipeline: propose anchor boxes, predict classes and offsets, apply NMS.}}{156}{figure.5.23}\protected@file@percent }
+\newlabel{fig:detection-workflow}{{5.23}{156}{Object detection pipeline: propose anchor boxes, predict classes and offsets, apply NMS}{figure.5.23}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.3}Anchor Boxes}{157}{subsection.5.4.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.24}{\ignorespaces Anchor boxes: predefined boxes at various scales and aspect ratios, centred at grid points across the feature map.}}{157}{figure.5.24}\protected@file@percent }
+\newlabel{fig:anchor-boxes}{{5.24}{157}{Anchor boxes: predefined boxes at various scales and aspect ratios, centred at grid points across the feature map}{figure.5.24}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.25}{\ignorespaces Anchor boxes at different scales and aspect ratios provide coverage for objects of varying shapes.}}{158}{figure.5.25}\protected@file@percent }
+\newlabel{fig:anchor-boxes-2}{{5.25}{158}{Anchor boxes at different scales and aspect ratios provide coverage for objects of varying shapes}{figure.5.25}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.4}Class Prediction}{159}{subsection.5.4.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.26}{\ignorespaces Class prediction: for each anchor box, the model predicts class probabilities and confidence scores.}}{159}{figure.5.26}\protected@file@percent }
+\newlabel{fig:class-prediction}{{5.26}{159}{Class prediction: for each anchor box, the model predicts class probabilities and confidence scores}{figure.5.26}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.5}Intersection over Union (IoU)}{159}{subsection.5.4.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.27}{\ignorespaces IoU measures overlap between predicted and ground truth boxes.}}{159}{figure.5.27}\protected@file@percent }
+\newlabel{fig:iou}{{5.27}{159}{IoU measures overlap between predicted and ground truth boxes}{figure.5.27}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.6}Non-Maximum Suppression (NMS)}{160}{subsection.5.4.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.7}SSD: Single Shot MultiBox Detector}{161}{subsection.5.4.7}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.28}{\ignorespaces SSD architecture: base network (truncated VGG-16) with additional convolutional layers for multi-scale predictions.}}{161}{figure.5.28}\protected@file@percent }
+\newlabel{fig:ssd}{{5.28}{161}{SSD architecture: base network (truncated VGG-16) with additional convolutional layers for multi-scale predictions}{figure.5.28}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Multiscale Anchor Boxes}{162}{section*.12}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.29}{\ignorespaces Multi-scale anchor boxes on different feature maps: higher resolution maps detect smaller objects.}}{162}{figure.5.29}\protected@file@percent }
+\newlabel{fig:multiscale-anchors}{{5.29}{162}{Multi-scale anchor boxes on different feature maps: higher resolution maps detect smaller objects}{figure.5.29}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.30}{\ignorespaces Different feature maps at different scales with uniformly distributed anchor boxes enable bounding boxes at multiple scales.}}{162}{figure.5.30}\protected@file@percent }
+\newlabel{fig:anchor-boxes-4}{{5.30}{162}{Different feature maps at different scales with uniformly distributed anchor boxes enable bounding boxes at multiple scales}{figure.5.30}{}}
+\@writefile{toc}{\contentsline {subsubsection}{SSD Prediction}{163}{section*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{SSD Loss Function}{163}{section*.14}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.31}{\ignorespaces Smooth L1 loss (Huber loss): combines L2 stability for small errors with L1 robustness to outliers.}}{164}{figure.5.31}\protected@file@percent }
+\newlabel{fig:l1-loss}{{5.31}{164}{Smooth L1 loss (Huber loss): combines L2 stability for small errors with L1 robustness to outliers}{figure.5.31}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Hard Negative Mining}{166}{section*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4.8}Data Augmentation for Object Detection}{166}{subsection.5.4.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5.5}Semantic Segmentation}{167}{section.5.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.32}{\ignorespaces Image segmentation: dividing an image into constituent semantic regions.}}{167}{figure.5.32}\protected@file@percent }
+\newlabel{fig:image-segmentation}{{5.32}{167}{Image segmentation: dividing an image into constituent semantic regions}{figure.5.32}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.33}{\ignorespaces Semantic segmentation: classify every pixel into semantic categories (background, dog, cat, etc.).}}{167}{figure.5.33}\protected@file@percent }
+\newlabel{fig:semantic-seg}{{5.33}{167}{Semantic segmentation: classify every pixel into semantic categories (background, dog, cat, etc.)}{figure.5.33}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5.34}{\ignorespaces Instance segmentation distinguishes individual objects of the same class.}}{168}{figure.5.34}\protected@file@percent }
+\newlabel{fig:instance-seg}{{5.34}{168}{Instance segmentation distinguishes individual objects of the same class}{figure.5.34}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.1}Deep Learning for Semantic Segmentation}{168}{subsection.5.5.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.35}{\ignorespaces CNN feature maps for segmentation: many parallel feature maps (channels) each learn slightly different features. The network exploits these feature maps directly for pixel-wise classification.}}{169}{figure.5.35}\protected@file@percent }
+\newlabel{fig:semantic-seg-2}{{5.35}{169}{CNN feature maps for segmentation: many parallel feature maps (channels) each learn slightly different features. The network exploits these feature maps directly for pixel-wise classification}{figure.5.35}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.2}U-Net Architecture}{170}{subsection.5.5.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.36}{\ignorespaces U-Net: encoder-decoder architecture with skip connections, originally developed for biomedical image segmentation.}}{170}{figure.5.36}\protected@file@percent }
+\newlabel{fig:unet}{{5.36}{170}{U-Net: encoder-decoder architecture with skip connections, originally developed for biomedical image segmentation}{figure.5.36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5.3}Transposed Convolution (Up-Convolution)}{171}{subsection.5.5.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5.37}{\ignorespaces Transposed convolution increases spatial resolution by ``reversing'' the convolution operation.}}{171}{figure.5.37}\protected@file@percent }
+\newlabel{fig:upconv}{{5.37}{171}{Transposed convolution increases spatial resolution by ``reversing'' the convolution operation}{figure.5.37}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {6}Week 6: Recurrent Neural Networks and Sequence Modeling}{173}{chapter.6}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:week6}{{6}{173}{Week 6: Recurrent Neural Networks and Sequence Modeling}{chapter.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.1}Introduction to Sequence Modeling}{173}{section.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1.1}Characteristics of Sequential Data}{174}{subsection.6.1.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.1}{\ignorespaces Log files as time series data. Time series is sequential data indexed by time-often (but not necessarily) consisting of successive equally spaced data points. Sensor data might not be equally spaced, e.g., a motion sensor activates every time someone passes by.}}{176}{figure.6.1}\protected@file@percent }
+\newlabel{fig:log-files}{{6.1}{176}{Log files as time series data. Time series is sequential data indexed by time-often (but not necessarily) consisting of successive equally spaced data points. Sensor data might not be equally spaced, e.g., a motion sensor activates every time someone passes by}{figure.6.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1.2}Challenges in Modeling Sequential Data}{176}{subsection.6.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1.3}Time Series in Public Policy}{176}{subsection.6.1.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.2}{\ignorespaces Time series examples: market prices, sensor values, system logs.}}{176}{figure.6.2}\protected@file@percent }
+\newlabel{fig:time-series}{{6.2}{176}{Time series examples: market prices, sensor values, system logs}{figure.6.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.2}Sequence Modeling Tasks}{177}{section.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.1}Forecasting and Predicting Next Steps}{177}{subsection.6.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.3}{\ignorespaces Electricity load forecasting: predicting consumption patterns is crucial for grid management and energy planning.}}{177}{figure.6.3}\protected@file@percent }
+\newlabel{fig:load-forecasting}{{6.3}{177}{Electricity load forecasting: predicting consumption patterns is crucial for grid management and energy planning}{figure.6.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.4}{\ignorespaces Search query completion: predictive text algorithms anticipate the next words in a query based on previous user inputs.}}{178}{figure.6.4}\protected@file@percent }
+\newlabel{fig:search-query}{{6.4}{178}{Search query completion: predictive text algorithms anticipate the next words in a query based on previous user inputs}{figure.6.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.2}Classification}{178}{subsection.6.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.5}{\ignorespaces Non-Intrusive Load Monitoring (NILM): uses energy consumption patterns from electrical devices to classify which appliances are active based on their unique power signatures.}}{178}{figure.6.5}\protected@file@percent }
+\newlabel{fig:nilm}{{6.5}{178}{Non-Intrusive Load Monitoring (NILM): uses energy consumption patterns from electrical devices to classify which appliances are active based on their unique power signatures}{figure.6.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.6}{\ignorespaces Sound classification: identifying types of sounds (e.g., engine noise, sirens, or speech) from audio recordings by analysing frequency and amplitude patterns over time.}}{179}{figure.6.6}\protected@file@percent }
+\newlabel{fig:sound-classification}{{6.6}{179}{Sound classification: identifying types of sounds (e.g., engine noise, sirens, or speech) from audio recordings by analysing frequency and amplitude patterns over time}{figure.6.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.3}Clustering}{179}{subsection.6.2.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.7}{\ignorespaces Clusters of load profiles of industrial customers determined by k-Means clustering. By clustering load profiles, energy companies can group customers with similar usage patterns, helping them offer tailored tariffs or demand response strategies.}}{179}{figure.6.7}\protected@file@percent }
+\newlabel{fig:clustering}{{6.7}{179}{Clusters of load profiles of industrial customers determined by k-Means clustering. By clustering load profiles, energy companies can group customers with similar usage patterns, helping them offer tailored tariffs or demand response strategies}{figure.6.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.4}Pattern Matching}{179}{subsection.6.2.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.8}{\ignorespaces Pattern matching: finding heartbeat patterns in continuous signals. In medical data, pattern matching can locate heartbeat patterns within a continuous signal to monitor health conditions.}}{180}{figure.6.8}\protected@file@percent }
+\newlabel{fig:pattern-matching}{{6.8}{180}{Pattern matching: finding heartbeat patterns in continuous signals. In medical data, pattern matching can locate heartbeat patterns within a continuous signal to monitor health conditions}{figure.6.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.5}Anomaly Detection}{180}{subsection.6.2.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.9}{\ignorespaces Anomaly detection in time series: identifying unusual subsequences that deviate from expected patterns.}}{180}{figure.6.9}\protected@file@percent }
+\newlabel{fig:anomaly-detection}{{6.9}{180}{Anomaly detection in time series: identifying unusual subsequences that deviate from expected patterns}{figure.6.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2.6}Motif Detection}{180}{subsection.6.2.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.10}{\ignorespaces Motif detection: finding frequently recurring patterns within sequences.}}{181}{figure.6.10}\protected@file@percent }
+\newlabel{fig:motif-detection}{{6.10}{181}{Motif detection: finding frequently recurring patterns within sequences}{figure.6.10}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.3}Approaches to Sequence Modeling}{181}{section.6.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.11}{\ignorespaces Feature engineering vs end-to-end learning for sequences. The choice between approaches depends on data complexity, domain knowledge availability, and computational resources.}}{181}{figure.6.11}\protected@file@percent }
+\newlabel{fig:approaches}{{6.11}{181}{Feature engineering vs end-to-end learning for sequences. The choice between approaches depends on data complexity, domain knowledge availability, and computational resources}{figure.6.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3.1}Feature Engineering for Text: Bag-of-Words}{182}{subsection.6.3.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.12}{\ignorespaces Bag-of-Words representation: each sequence is mapped to a fixed-length vector indicating word occurrence, but the model loses information about word order.}}{182}{figure.6.12}\protected@file@percent }
+\newlabel{fig:bow}{{6.12}{182}{Bag-of-Words representation: each sequence is mapped to a fixed-length vector indicating word occurrence, but the model loses information about word order}{figure.6.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3.2}Feature Engineering for Load Forecasting}{183}{subsection.6.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3.3}Challenges in Raw Sequence Modeling}{183}{subsection.6.3.3}\protected@file@percent }
+\newlabel{fig:challenge1}{{6.3.3}{184}{Challenges in Raw Sequence Modeling}{subsection.6.3.3}{}}
+\newlabel{fig:challenge2}{{6.3.3}{184}{Challenges in Raw Sequence Modeling}{subsection.6.3.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.13}{\ignorespaces Challenges in raw sequence modeling: fixed-size requirements and multi-scale temporal dependencies.}}{184}{figure.6.13}\protected@file@percent }
+\newlabel{fig:challenge3}{{6.13}{184}{Challenges in raw sequence modeling: fixed-size requirements and multi-scale temporal dependencies}{figure.6.13}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.4}Recurrent Neural Networks (RNNs)}{185}{section.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4.1}Why Not Fully Connected Networks?}{185}{subsection.6.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.14}{\ignorespaces Fully connected networks require fixed input dimension.}}{185}{figure.6.14}\protected@file@percent }
+\newlabel{fig:fc-network}{{6.14}{185}{Fully connected networks require fixed input dimension}{figure.6.14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4.2}The Recurrence Mechanism}{186}{subsection.6.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.15}{\ignorespaces The recurrence relationship: hidden state updated at each step.}}{186}{figure.6.15}\protected@file@percent }
+\newlabel{fig:recurrence}{{6.15}{186}{The recurrence relationship: hidden state updated at each step}{figure.6.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4.3}Unrolling an RNN}{187}{subsection.6.4.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.16}{\ignorespaces Unrolled RNN: same network applied at each time step with shared parameters. Each copy of the network shares the same parameters and structure, and the hidden state $h_t$ at each time step is passed to the next time step.}}{187}{figure.6.16}\protected@file@percent }
+\newlabel{fig:unrolled-rnn}{{6.16}{187}{Unrolled RNN: same network applied at each time step with shared parameters. Each copy of the network shares the same parameters and structure, and the hidden state $h_t$ at each time step is passed to the next time step}{figure.6.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.17}{\ignorespaces Alternative view of an unrolled RNN showing the flow of information through time.}}{188}{figure.6.17}\protected@file@percent }
+\newlabel{fig:unrolled-rnn2}{{6.17}{188}{Alternative view of an unrolled RNN showing the flow of information through time}{figure.6.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.18}{\ignorespaces Key notation for RNN diagrams.}}{188}{figure.6.18}\protected@file@percent }
+\newlabel{fig:key-notation}{{6.18}{188}{Key notation for RNN diagrams}{figure.6.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4.4}Vanilla RNN Formulation}{188}{subsection.6.4.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.19}{\ignorespaces Vanilla RNN architecture: a single layer with recurrent connections.}}{188}{figure.6.19}\protected@file@percent }
+\newlabel{fig:vanilla-rnn}{{6.19}{188}{Vanilla RNN architecture: a single layer with recurrent connections}{figure.6.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.20}{\ignorespaces Vanilla RNN unit: the basic building block of recurrent networks.}}{189}{figure.6.20}\protected@file@percent }
+\newlabel{fig:vanilla-rnn-unit}{{6.20}{189}{Vanilla RNN unit: the basic building block of recurrent networks}{figure.6.20}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4.5}Short-Term Memory Problem}{192}{subsection.6.4.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.21}{\ignorespaces Short-term context: ``the clouds are in the \textit  {sky}'' - easy for RNNs.}}{192}{figure.6.21}\protected@file@percent }
+\newlabel{fig:short-term}{{6.21}{192}{Short-term context: ``the clouds are in the \textit {sky}'' - easy for RNNs}{figure.6.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.22}{\ignorespaces Long-term context: ``I grew up in France... I speak fluent \textit  {French}'' - difficult for vanilla RNNs.}}{193}{figure.6.22}\protected@file@percent }
+\newlabel{fig:long-term}{{6.22}{193}{Long-term context: ``I grew up in France... I speak fluent \textit {French}'' - difficult for vanilla RNNs}{figure.6.22}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4.6}Backpropagation Through Time (BPTT)}{194}{subsection.6.4.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.23}{\ignorespaces Computational graph for BPTT showing dependencies across time. Boxes represent variables (not shaded) or parameters (shaded), and circles represent operators. The loss $L$ depends on the $y$s and the $o$s (activations), which are themselves dependent on the previous hidden states ($h$s), which depend on 2 repeated weight matrices $W$.}}{194}{figure.6.23}\protected@file@percent }
+\newlabel{fig:bptt}{{6.23}{194}{Computational graph for BPTT showing dependencies across time. Boxes represent variables (not shaded) or parameters (shaded), and circles represent operators. The loss $L$ depends on the $y$s and the $o$s (activations), which are themselves dependent on the previous hidden states ($h$s), which depend on 2 repeated weight matrices $W$}{figure.6.23}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4.7}Output Layers and Vector Notation}{196}{subsection.6.4.7}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.24}{\ignorespaces RNN with hidden state showing the relationship between inputs, hidden states, and outputs.}}{196}{figure.6.24}\protected@file@percent }
+\newlabel{fig:vector-notation}{{6.24}{196}{RNN with hidden state showing the relationship between inputs, hidden states, and outputs}{figure.6.24}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.5}Long Short-Term Memory (LSTM)}{197}{section.6.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.25}{\ignorespaces LSTM architecture with gates and cell state.}}{198}{figure.6.25}\protected@file@percent }
+\newlabel{fig:lstm}{{6.25}{198}{LSTM architecture with gates and cell state}{figure.6.25}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.26}{\ignorespaces LSTM unit: the core building block showing the interaction between gates and states.}}{198}{figure.6.26}\protected@file@percent }
+\newlabel{fig:lstm-unit}{{6.26}{198}{LSTM unit: the core building block showing the interaction between gates and states}{figure.6.26}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5.1}Cell State and Hidden State}{199}{subsection.6.5.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.27}{\ignorespaces Cell state flows through time with minimal modification, acting as a memory highway.}}{200}{figure.6.27}\protected@file@percent }
+\newlabel{fig:cell-state}{{6.27}{200}{Cell state flows through time with minimal modification, acting as a memory highway}{figure.6.27}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.28}{\ignorespaces Cell state detail: the current state (both $h_t$ and $c_t$) depends on the current input value $x_t$, previous hidden state $h_{t-1}$, and previous cell state $c_{t-1}$.}}{200}{figure.6.28}\protected@file@percent }
+\newlabel{fig:cell-state-2}{{6.28}{200}{Cell state detail: the current state (both $h_t$ and $c_t$) depends on the current input value $x_t$, previous hidden state $h_{t-1}$, and previous cell state $c_{t-1}$}{figure.6.28}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5.2}The Three Gates}{200}{subsection.6.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Forget Gate}{200}{section*.16}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.29}{\ignorespaces Forget gate: sigmoid outputs 0 (forget) to 1 (retain).}}{201}{figure.6.29}\protected@file@percent }
+\newlabel{fig:forget-gate}{{6.29}{201}{Forget gate: sigmoid outputs 0 (forget) to 1 (retain)}{figure.6.29}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.30}{\ignorespaces Forget gate detail: the sigmoid function determines what fraction of each cell state component to retain.}}{201}{figure.6.30}\protected@file@percent }
+\newlabel{fig:forget-gate-2}{{6.30}{201}{Forget gate detail: the sigmoid function determines what fraction of each cell state component to retain}{figure.6.30}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Input Gate}{202}{section*.17}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.31}{\ignorespaces Input gate: controls addition of new information to the cell state.}}{202}{figure.6.31}\protected@file@percent }
+\newlabel{fig:input-gate}{{6.31}{202}{Input gate: controls addition of new information to the cell state}{figure.6.31}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.32}{\ignorespaces Input gate detail: the combination of $i_t$ and $\tilde  {c}_t$ determines what new information enters the cell state.}}{203}{figure.6.32}\protected@file@percent }
+\newlabel{fig:input-gate-2}{{6.32}{203}{Input gate detail: the combination of $i_t$ and $\tilde {c}_t$ determines what new information enters the cell state}{figure.6.32}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Output Gate}{204}{section*.18}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.33}{\ignorespaces Output gate: controls what cell state is exposed as the hidden state.}}{205}{figure.6.33}\protected@file@percent }
+\newlabel{fig:output-gate}{{6.33}{205}{Output gate: controls what cell state is exposed as the hidden state}{figure.6.33}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.6}Gated Recurrent Units (GRUs)}{207}{section.6.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.34}{\ignorespaces GRU architecture: simpler than LSTM with comparable performance.}}{207}{figure.6.34}\protected@file@percent }
+\newlabel{fig:gru}{{6.34}{207}{GRU architecture: simpler than LSTM with comparable performance}{figure.6.34}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.6.1}Limitations of LSTM and GRU}{210}{subsection.6.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6.7}Convolutional Neural Networks for Sequences}{210}{section.6.7}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.35}{\ignorespaces CNN for sequences: windows of data fed through convolutional layers.}}{211}{figure.6.35}\protected@file@percent }
+\newlabel{fig:cnn-sequence}{{6.35}{211}{CNN for sequences: windows of data fed through convolutional layers}{figure.6.35}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.7.1}1D Convolutions}{211}{subsection.6.7.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.36}{\ignorespaces 1D convolution operation on a sequence.}}{212}{figure.6.36}\protected@file@percent }
+\newlabel{fig:1d-conv}{{6.36}{212}{1D convolution operation on a sequence}{figure.6.36}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.37}{\ignorespaces Alternative view of 1D convolution showing the sliding window operation.}}{212}{figure.6.37}\protected@file@percent }
+\newlabel{fig:1d-conv-alt}{{6.37}{212}{Alternative view of 1D convolution showing the sliding window operation}{figure.6.37}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.7.2}Causal Convolutions}{213}{subsection.6.7.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.38}{\ignorespaces Causal convolutions: each output depends only on past inputs.}}{214}{figure.6.38}\protected@file@percent }
+\newlabel{fig:causal-conv}{{6.38}{214}{Causal convolutions: each output depends only on past inputs}{figure.6.38}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.7.3}Dilated Convolutions}{214}{subsection.6.7.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.39}{\ignorespaces Dilated convolutions: larger receptive field without more parameters.}}{214}{figure.6.39}\protected@file@percent }
+\newlabel{fig:dilated-conv}{{6.39}{214}{Dilated convolutions: larger receptive field without more parameters}{figure.6.39}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.8}Transformers (Preview)}{215}{section.6.8}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.40}{\ignorespaces Transformer architecture.}}{216}{figure.6.40}\protected@file@percent }
+\newlabel{fig:transformer}{{6.40}{216}{Transformer architecture}{figure.6.40}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.9}Time Series Forecasting}{218}{section.6.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.9.1}WaveNet and Temporal Convolutional Networks}{218}{subsection.6.9.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.41}{\ignorespaces WaveNet: dilated causal convolutions for audio generation.}}{218}{figure.6.41}\protected@file@percent }
+\newlabel{fig:wavenet}{{6.41}{218}{WaveNet: dilated causal convolutions for audio generation}{figure.6.41}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.42}{\ignorespaces TCN architecture with residual connections.}}{219}{figure.6.42}\protected@file@percent }
+\newlabel{fig:tcn}{{6.42}{219}{TCN architecture with residual connections}{figure.6.42}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.9.2}When to Use Deep Learning for Time Series}{219}{subsection.6.9.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6.43}{\ignorespaces Tree ensembles (random forests, gradient boosting) as intermediate step before deep learning.}}{221}{figure.6.43}\protected@file@percent }
+\newlabel{fig:tree-ensemble}{{6.43}{221}{Tree ensembles (random forests, gradient boosting) as intermediate step before deep learning}{figure.6.43}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {7}Week 7: Natural Language Processing I}{223}{chapter.7}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:week7}{{7}{223}{Week 7: Natural Language Processing I}{chapter.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.1}Text and Public Policy}{223}{section.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1.1}Example Applications}{224}{subsection.7.1.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.1}{\ignorespaces Climate risk disclosure identification in corporate reports.}}{225}{figure.7.1}\protected@file@percent }
+\newlabel{fig:climate-risk}{{7.1}{225}{Climate risk disclosure identification in corporate reports}{figure.7.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.2}Common NLP Tasks}{225}{section.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7.3}Text as Data}{225}{section.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7.4}Document Embeddings}{226}{section.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4.1}Bag of Words (BoW)}{226}{subsection.7.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.2}{\ignorespaces Bag of Words: document as unordered collection of word counts.}}{226}{figure.7.2}\protected@file@percent }
+\newlabel{fig:bow}{{7.2}{226}{Bag of Words: document as unordered collection of word counts}{figure.7.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7.3}{\ignorespaces Word occurrence matrix / count vectorisation.}}{226}{figure.7.3}\protected@file@percent }
+\newlabel{fig:bow-matrix}{{7.3}{226}{Word occurrence matrix / count vectorisation}{figure.7.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4.2}TF-IDF}{227}{subsection.7.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4.3}Word Embeddings (Preview)}{227}{subsection.7.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4.4}Visualising Document and Word Embeddings}{228}{subsection.7.4.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.4}{\ignorespaces \textbf  {Document embeddings}: Documents mapped to a space where similar topics cluster (e.g., government borrowings, energy markets).}}{228}{figure.7.4}\protected@file@percent }
+\newlabel{fig:doc-embeddings}{{7.4}{228}{\textbf {Document embeddings}: Documents mapped to a space where similar topics cluster (e.g., government borrowings, energy markets)}{figure.7.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7.5}{\ignorespaces \textbf  {Word embeddings}: Words like ``development'' and ``transactions'' are closer due to contextual similarity, indicating embeddings capture semantic meaning.}}{229}{figure.7.5}\protected@file@percent }
+\newlabel{fig:word-embeddings}{{7.5}{229}{\textbf {Word embeddings}: Words like ``development'' and ``transactions'' are closer due to contextual similarity, indicating embeddings capture semantic meaning}{figure.7.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.5}Text Preprocessing}{229}{section.7.5}\protected@file@percent }
+\newlabel{sec:preprocessing}{{7.5}{229}{Text Preprocessing}{section.7.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.5.1}Getting Text Ready for Analysis: NLP Pipelines}{229}{subsection.7.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.5.2}Further Preprocessing Techniques}{230}{subsection.7.5.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.6}{\ignorespaces Zipf's law: A common characteristic of word frequency distributions, where a small number of tokens occur very frequently, while a large number of tokens occur infrequently. The frequency of tokens decreases as their complexity (unigram, bigram, trigram) increases.}}{231}{figure.7.6}\protected@file@percent }
+\newlabel{fig:zipf}{{7.6}{231}{Zipf's law: A common characteristic of word frequency distributions, where a small number of tokens occur very frequently, while a large number of tokens occur infrequently. The frequency of tokens decreases as their complexity (unigram, bigram, trigram) increases}{figure.7.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.5.3}Simple NLP Pipeline for Document Classification}{231}{subsection.7.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7.6}Deep Learning for NLP: Architecture}{232}{section.7.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.7}{\ignorespaces NLP architecture: pretraining $\rightarrow $ architecture $\rightarrow $ application. Note: BERT-Attention are integrated.}}{232}{figure.7.7}\protected@file@percent }
+\newlabel{fig:dl-nlp}{{7.7}{232}{NLP architecture: pretraining $\rightarrow $ architecture $\rightarrow $ application. Note: BERT-Attention are integrated}{figure.7.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.7}Word Embeddings I: One-Hot Encoding}{234}{section.7.7}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.8}{\ignorespaces One-hot encoding: sparse, high-dimensional, no semantic similarity.}}{234}{figure.7.8}\protected@file@percent }
+\newlabel{fig:one-hot}{{7.8}{234}{One-hot encoding: sparse, high-dimensional, no semantic similarity}{figure.7.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.8}Word Embeddings II: Word2Vec}{235}{section.7.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.8.1}Skip-Gram and CBOW Models Overview}{236}{subsection.7.8.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.9}{\ignorespaces Skip-Gram model: $P(\text  {``the'', ``man'', ``his'', ``son''} \mid \text  {``loves''})$}}{236}{figure.7.9}\protected@file@percent }
+\newlabel{fig:skip-gram-intro}{{7.9}{236}{Skip-Gram model: $P(\text {``the'', ``man'', ``his'', ``son''} \mid \text {``loves''})$}{figure.7.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.8.2}Skip-Gram Model}{237}{subsection.7.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Probability and Vector Representation}{237}{section*.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Softmax and Conditional Probability}{237}{section*.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Objective Function}{239}{section*.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Training Process}{240}{section*.22}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.10}{\ignorespaces Prediction task: predict context words $w^{(t+j)}$ based on centre word $w^{(t)}$.}}{240}{figure.7.10}\protected@file@percent }
+\newlabel{fig:skipgram-task}{{7.10}{240}{Prediction task: predict context words $w^{(t+j)}$ based on centre word $w^{(t)}$}{figure.7.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7.11}{\ignorespaces Training pairs from ``the quick brown fox\ldots  ''}}{241}{figure.7.11}\protected@file@percent }
+\newlabel{fig:quick-brown-fox}{{7.11}{241}{Training pairs from ``the quick brown fox\ldots ''}{figure.7.11}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Network Architecture}{242}{section*.23}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.12}{\ignorespaces Skip-Gram model architecture. Input = centre word $v_i$; output = context word $u_j$; matrix $W$ of interest contains centre word vectors $v_c$ (we could also use the context word's representation in matrix $W'$ as $u_o$, but that's more customary for CBOW).}}{242}{figure.7.12}\protected@file@percent }
+\newlabel{fig:skip-gram-arch}{{7.12}{242}{Skip-Gram model architecture. Input = centre word $v_i$; output = context word $u_j$; matrix $W$ of interest contains centre word vectors $v_c$ (we could also use the context word's representation in matrix $W'$ as $u_o$, but that's more customary for CBOW)}{figure.7.12}{}}
+\@writefile{toc}{\contentsline {subsubsection}{Loss Function and Gradient Update}{246}{section*.24}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Negative Sampling}{249}{section*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.8.3}Continuous Bag of Words (CBOW) Model}{251}{subsection.7.8.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.13}{\ignorespaces In the CBOW architecture, the embeddings for the context words are represented by the weight matrix $W$.}}{252}{figure.7.13}\protected@file@percent }
+\newlabel{fig:cbow-arch}{{7.13}{252}{In the CBOW architecture, the embeddings for the context words are represented by the weight matrix $W$}{figure.7.13}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.9}Word Embeddings III: GloVe}{254}{section.7.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7.10}Word Embeddings IV: Contextual Embeddings}{254}{section.7.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7.11}Sentiment Analysis with RNNs}{255}{section.7.11}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.14}{\ignorespaces Sentiment analysis approach: combines a pretraining approach with DL architecture to perform the classification task.}}{255}{figure.7.14}\protected@file@percent }
+\newlabel{fig:sentiment}{{7.14}{255}{Sentiment analysis approach: combines a pretraining approach with DL architecture to perform the classification task}{figure.7.14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.11.1}Basic RNNs for Sentiment Analysis}{256}{subsection.7.11.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.15}{\ignorespaces RNN unrolled through time for sequence classification.}}{256}{figure.7.15}\protected@file@percent }
+\newlabel{fig:rnn-sentiment}{{7.15}{256}{RNN unrolled through time for sequence classification}{figure.7.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7.16}{\ignorespaces Character sequence modelling: [m,ac,h,i,n,e]}}{256}{figure.7.16}\protected@file@percent }
+\newlabel{fig:rnn-char}{{7.16}{256}{Character sequence modelling: [m,ac,h,i,n,e]}{figure.7.16}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.11.2}Challenges with Basic RNNs}{257}{subsection.7.11.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.11.3}Long Short-Term Memory (LSTM) and Gated Recurrent Units (GRU)}{257}{subsection.7.11.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.11.4}Bidirectional RNNs}{257}{subsection.7.11.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.17}{\ignorespaces Bidirectional RNN: forward and backward passes concatenated.}}{258}{figure.7.17}\protected@file@percent }
+\newlabel{fig:bidirectional}{{7.17}{258}{Bidirectional RNN: forward and backward passes concatenated}{figure.7.17}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.11.5}Pretraining Task: Masked Language Modelling}{258}{subsection.7.11.5}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7.1}{\ignorespaces Intuition-what comes later downstream is informative of the previous word.}}{259}{table.7.1}\protected@file@percent }
+\newlabel{tab:fill_in_the_blanks}{{7.1}{259}{Intuition-what comes later downstream is informative of the previous word}{table.7.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.11.6}Training with Sentiment Labels}{259}{subsection.7.11.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.11.7}Example: Sentiment Analysis on Movie Reviews}{259}{subsection.7.11.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7.12}Regularisation in Deep Learning}{260}{section.7.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.12.1}Weight Sharing}{260}{subsection.7.12.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.12.2}Weight Decay ($L_2$ Regularisation)}{261}{subsection.7.12.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.12.3}Dropout}{261}{subsection.7.12.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7.18}{\ignorespaces Network before dropout: all neurons active.}}{261}{figure.7.18}\protected@file@percent }
+\newlabel{fig:before-dropout}{{7.18}{261}{Network before dropout: all neurons active}{figure.7.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7.19}{\ignorespaces Network with dropout: random neurons zeroed.}}{262}{figure.7.19}\protected@file@percent }
+\newlabel{fig:after-dropout}{{7.19}{262}{Network with dropout: random neurons zeroed}{figure.7.19}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.12.4}Benefits of Regularisation}{264}{subsection.7.12.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {chapter}{\numberline {8}Week 8: NLP II - Attention and Transformers}{265}{chapter.8}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:week8}{{8}{265}{Week 8: NLP II - Attention and Transformers}{chapter.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.1}Encoder-Decoder Architecture}{265}{section.8.1}\protected@file@percent }
+\newlabel{sec:encoder-decoder}{{8.1}{265}{Encoder-Decoder Architecture}{section.8.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1.1}Machine Translation: A Motivating Example}{266}{subsection.8.1.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8.1}{\ignorespaces Word alignment between English and French (adapted from Brown et al., 1990). Note the crossing alignments: ``now'' at position 5 in English maps to ``maintenant'' at position 9 in French, while ``implemented'' maps to a multi-word phrase. These non-monotonic alignments are a key challenge in machine translation.}}{266}{figure.8.1}\protected@file@percent }
+\newlabel{fig:word-alignment}{{8.1}{266}{Word alignment between English and French (adapted from Brown et al., 1990). Note the crossing alignments: ``now'' at position 5 in English maps to ``maintenant'' at position 9 in French, while ``implemented'' maps to a multi-word phrase. These non-monotonic alignments are a key challenge in machine translation}{figure.8.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1.2}The Encoder-Decoder Framework}{267}{subsection.8.1.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8.2}{\ignorespaces Encoder-decoder architecture: the encoder compresses a variable-length input into a fixed-dimensional context vector, which the decoder expands into a variable-length output.}}{267}{figure.8.2}\protected@file@percent }
+\newlabel{fig:encoder-decoder-flow}{{8.2}{267}{Encoder-decoder architecture: the encoder compresses a variable-length input into a fixed-dimensional context vector, which the decoder expands into a variable-length output}{figure.8.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1.3}Autoencoder: A Special Case}{267}{subsection.8.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1.4}RNN-Based Encoder-Decoder}{268}{subsection.8.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1.5}Data Preprocessing for Machine Translation}{270}{subsection.8.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8.2}BLEU: Evaluating Machine Translation}{271}{section.8.2}\protected@file@percent }
+\newlabel{sec:bleu}{{8.2}{271}{BLEU: Evaluating Machine Translation}{section.8.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.3}The Attention Mechanism}{273}{section.8.3}\protected@file@percent }
+\newlabel{sec:attention}{{8.3}{273}{The Attention Mechanism}{section.8.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3.1}The Problem: Information Bottleneck}{273}{subsection.8.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3.2}Biological Inspiration}{273}{subsection.8.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3.3}Attention Cues: Volitional and Non-Volitional}{274}{subsection.8.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3.4}Queries, Keys, and Values}{274}{subsection.8.3.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8.3}{\ignorespaces The query-key-value attention mechanism. The query is compared to all keys to produce attention weights $\alpha _i$. Each key is paired with a value, and the output is a weighted sum of values.}}{275}{figure.8.3}\protected@file@percent }
+\newlabel{fig:qkv-attention}{{8.3}{275}{The query-key-value attention mechanism. The query is compared to all keys to produce attention weights $\alpha _i$. Each key is paired with a value, and the output is a weighted sum of values}{figure.8.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3.5}Attention Pooling}{276}{subsection.8.3.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3.6}Attention Scoring Functions}{276}{subsection.8.3.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8.4}Bahdanau Attention}{278}{section.8.4}\protected@file@percent }
+\newlabel{sec:bahdanau}{{8.4}{278}{Bahdanau Attention}{section.8.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.5}Multi-Head Attention}{279}{section.8.5}\protected@file@percent }
+\newlabel{sec:multihead}{{8.5}{279}{Multi-Head Attention}{section.8.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.6}Self-Attention}{281}{section.8.6}\protected@file@percent }
+\newlabel{sec:self-attention}{{8.6}{281}{Self-Attention}{section.8.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.7}Positional Encoding}{282}{section.8.7}\protected@file@percent }
+\newlabel{sec:positional-encoding}{{8.7}{282}{Positional Encoding}{section.8.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.8}The Transformer Architecture}{284}{section.8.8}\protected@file@percent }
+\newlabel{sec:transformer}{{8.8}{284}{The Transformer Architecture}{section.8.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.8.1}Transformer Encoder}{285}{subsection.8.8.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8.4}{\ignorespaces Transformer encoder block. Each layer contains multi-head self-attention followed by a position-wise feed-forward network, with residual connections and layer normalisation around each sub-layer. The encoder consists of $N$ identical stacked blocks.}}{285}{figure.8.4}\protected@file@percent }
+\newlabel{fig:transformer-encoder}{{8.4}{285}{Transformer encoder block. Each layer contains multi-head self-attention followed by a position-wise feed-forward network, with residual connections and layer normalisation around each sub-layer. The encoder consists of $N$ identical stacked blocks}{figure.8.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.8.2}Transformer Decoder}{286}{subsection.8.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.8.3}Transformer Variants}{287}{subsection.8.8.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8.9}BERT: Encoder-Only Transformer}{287}{section.8.9}\protected@file@percent }
+\newlabel{sec:bert}{{8.9}{287}{BERT: Encoder-Only Transformer}{section.8.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.10}Vision Transformer (ViT)}{289}{section.8.10}\protected@file@percent }
+\newlabel{sec:vit}{{8.10}{289}{Vision Transformer (ViT)}{section.8.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8.5}{\ignorespaces Vision Transformer (ViT) architecture. An image is divided into fixed-size patches, which are flattened and linearly projected to embeddings. A learnable \texttt  {[CLS]} token is prepended, positional embeddings are added, and the sequence is processed by a standard Transformer encoder. The \texttt  {[CLS]} token output is used for classification.}}{290}{figure.8.5}\protected@file@percent }
+\newlabel{fig:vit-architecture}{{8.5}{290}{Vision Transformer (ViT) architecture. An image is divided into fixed-size patches, which are flattened and linearly projected to embeddings. A learnable \texttt {[CLS]} token is prepended, positional embeddings are added, and the sequence is processed by a standard Transformer encoder. The \texttt {[CLS]} token output is used for classification}{figure.8.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.11}Computational Considerations}{291}{section.8.11}\protected@file@percent }
+\newlabel{sec:computational}{{8.11}{291}{Computational Considerations}{section.8.11}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.12}Summary: The Attention Revolution}{294}{section.8.12}\protected@file@percent }
+\newlabel{sec:summary}{{8.12}{294}{Summary: The Attention Revolution}{section.8.12}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8.13}Connections to Other Topics}{295}{section.8.13}\protected@file@percent }
+\newlabel{sec:connections}{{8.13}{295}{Connections to Other Topics}{section.8.13}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {9}Week 9: Large Language Models in Practice}{297}{chapter.9}\protected@file@percent }
+\@writefile{lof}{\addvspace {10\p@ }}
+\@writefile{lot}{\addvspace {10\p@ }}
+\newlabel{ch:week9}{{9}{297}{Week 9: Large Language Models in Practice}{chapter.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.1}AI Alignment}{297}{section.9.1}\protected@file@percent }
+\newlabel{sec:alignment}{{9.1}{297}{AI Alignment}{section.9.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1.1}Hallucinations}{298}{subsection.9.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1.2}Data-Based Bias}{299}{subsection.9.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1.3}Offensive and Illegal Content}{300}{subsection.9.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1.4}LLMs vs Chatbots: The Alignment Gap}{300}{subsection.9.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9.2}Post-Training: Aligning LLMs}{301}{section.9.2}\protected@file@percent }
+\newlabel{sec:post-training}{{9.2}{301}{Post-Training: Aligning LLMs}{section.9.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.2.1}The LLM Training Pipeline}{301}{subsection.9.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.2.2}LLM Inference: Behind the Scenes}{301}{subsection.9.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.2.3}Supervised Fine-Tuning (SFT)}{302}{subsection.9.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.2.4}Reinforcement Learning from Human Feedback (RLHF)}{303}{subsection.9.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9.3}The Bitter Lesson}{305}{section.9.3}\protected@file@percent }
+\newlabel{sec:bitter-lesson}{{9.3}{305}{The Bitter Lesson}{section.9.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.4}Reasoning Models}{307}{section.9.4}\protected@file@percent }
+\newlabel{sec:reasoning}{{9.4}{307}{Reasoning Models}{section.9.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.4.1}What Are Reasoning Models?}{307}{subsection.9.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.4.2}Performance Characteristics of LRMs}{307}{subsection.9.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.4.3}Training Reasoning Models}{309}{subsection.9.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9.5}Retrieval-Augmented Generation (RAG)}{309}{section.9.5}\protected@file@percent }
+\newlabel{sec:rag}{{9.5}{309}{Retrieval-Augmented Generation (RAG)}{section.9.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.5.1}Motivation}{309}{subsection.9.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.5.2}RAG Architecture}{310}{subsection.9.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.5.3}Document Retrieval Methods}{310}{subsection.9.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.5.4}Benefits and Limitations}{312}{subsection.9.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9.6}Fine-Tuning LLMs}{312}{section.9.6}\protected@file@percent }
+\newlabel{sec:finetuning}{{9.6}{312}{Fine-Tuning LLMs}{section.9.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.6.1}Openness of LLMs}{312}{subsection.9.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.6.2}Challenges in Fine-Tuning}{313}{subsection.9.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.6.3}Parameter-Efficient Fine-Tuning (PEFT)}{313}{subsection.9.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.6.4}LoRA: Low-Rank Adaptation}{314}{subsection.9.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.6.5}Fine-Tuning Proprietary Models}{315}{subsection.9.6.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9.7}Few-Shot Learning}{316}{section.9.7}\protected@file@percent }
+\newlabel{sec:fewshot}{{9.7}{316}{Few-Shot Learning}{section.9.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.8}Structured Outputs}{318}{section.9.8}\protected@file@percent }
+\newlabel{sec:structured}{{9.8}{318}{Structured Outputs}{section.9.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.8.1}JSON Schema}{319}{subsection.9.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.8.2}Chain-of-Thought with Structured Output}{320}{subsection.9.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9.9}Tool Calling}{320}{section.9.9}\protected@file@percent }
+\newlabel{sec:tools}{{9.9}{320}{Tool Calling}{section.9.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9.10}AI Agents}{323}{section.9.10}\protected@file@percent }
+\newlabel{sec:agents}{{9.10}{323}{AI Agents}{section.9.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.10.1}What Are AI Agents?}{323}{subsection.9.10.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.10.2}Examples of AI Agents}{324}{subsection.9.10.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.10.3}Agent Categorisation and Governance}{325}{subsection.9.10.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.10.4}Future Implications}{326}{subsection.9.10.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9.11}Summary}{328}{section.9.11}\protected@file@percent }
+\gdef \@abspage@last{329}

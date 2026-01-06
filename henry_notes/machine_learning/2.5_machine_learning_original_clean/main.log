@@ -1,0 +1,3931 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.12.30)  30 DEC 2025 17:29
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**main.tex
+(./main.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+(./preamble.tex (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/base/size11.clo
+File: size11.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count275
+\c@section=\count276
+\c@subsection=\count277
+\c@subsubsection=\count278
+\c@paragraph=\count279
+\c@subparagraph=\count280
+\c@figure=\count281
+\c@table=\count282
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen148
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks17
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/iftex/ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+))
+\Gm@cnth=\count283
+\Gm@cntv=\count284
+\c@Gm@tempcnt=\count285
+\Gm@bindingoffset=\dimen149
+\Gm@wd@mp=\dimen150
+\Gm@odd@mp=\dimen151
+\Gm@even@mp=\dimen152
+\Gm@layoutwidth=\dimen153
+\Gm@layoutheight=\dimen154
+\Gm@layouthoffset=\dimen155
+\Gm@layoutvoffset=\dimen156
+\Gm@dimlist=\toks18
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/base/inputenc.sty
+Package: inputenc 2024/02/08 v1.3d Input encoding file
+\inpenc@prehook=\toks19
+\inpenc@posthook=\toks20
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/multirow/multirow.sty
+Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
+\multirow@colwidth=\skip51
+\multirow@cntb=\count286
+\multirow@dima=\skip52
+\bigstrutjot=\dimen157
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/booktabs/booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen158
+\lightrulewidth=\dimen159
+\cmidrulewidth=\dimen160
+\belowrulesep=\dimen161
+\belowbottomsep=\dimen162
+\aboverulesep=\dimen163
+\abovetopsep=\dimen164
+\cmidrulesep=\dimen165
+\cmidrulekern=\dimen166
+\defaultaddspace=\dimen167
+\@cmidla=\count287
+\@cmidlb=\count288
+\@aboverulesep=\dimen168
+\@belowrulesep=\dimen169
+\@thisruleclass=\count289
+\@lastruleclass=\count290
+\@thisrulewidth=\dimen170
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 106.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen171
+\Gin@req@width=\dimen172
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/setspace/setspace.sty
+Package: setspace 2022/12/04 v6.7b set line spacing
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/tools/enumerate.sty
+Package: enumerate 2023/07/04 v3.00 enumerate extensions (DPC)
+\@enLab=\toks21
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count291
+\float@exts=\toks22
+\float@box=\box53
+\@float@everytoks=\toks23
+\@floatcapt=\box54
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
+Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
+\f@nch@headwidth=\skip53
+\f@nch@offset@elh=\skip54
+\f@nch@offset@erh=\skip55
+\f@nch@offset@olh=\skip56
+\f@nch@offset@orh=\skip57
+\f@nch@offset@elf=\skip58
+\f@nch@offset@erf=\skip59
+\f@nch@offset@olf=\skip60
+\f@nch@offset@orf=\skip61
+\f@nch@height=\skip62
+\f@nch@footalignment=\skip63
+\f@nch@widthL=\skip64
+\f@nch@widthC=\skip65
+\f@nch@widthR=\skip66
+\@temptokenb=\toks24
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2025/07/09 v2.17z AMS math features
+\@mathmargin=\skip67
+
+For additional information on amsmath, use the `?' option.
+(/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2024/11/17 v2.01 AMS text
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks25
+\ex@=\dimen173
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen174
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count292
+LaTeX Info: Redefining \frac on input line 233.
+\uproot@=\count293
+\leftroot@=\count294
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count295
+\DOTSCASE@=\count296
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+LaTeX Info: Redefining \cdots on input line 619.
+\Mathstrutbox@=\box55
+\strutbox@=\box56
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen175
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count297
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+LaTeX Info: Redefining \relbar on input line 969.
+LaTeX Info: Redefining \Relbar on input line 970.
+\c@MaxMatrixCols=\count298
+\dotsspace@=\muskip17
+\c@parentequation=\count299
+\dspbrk@lvl=\count300
+\tag@help=\toks26
+\row@=\count301
+\column@=\count302
+\maxfields@=\count303
+\andhelp@=\toks27
+\eqnshift@=\dimen176
+\alignsep@=\dimen177
+\tagshift@=\dimen178
+\tagwidth@=\dimen179
+\totwidth@=\dimen180
+\lineht@=\dimen181
+\@envbody=\toks28
+\multlinegap=\skip68
+\multlinetaggap=\skip69
+\mathdisplay@stack=\toks29
+LaTeX Info: Redefining \[ on input line 2950.
+LaTeX Info: Redefining \] on input line 2951.
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/tcolorbox/tcolorbox.sty
+Package: tcolorbox 2025/11/28 version 6.9.0 text color boxes
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex
+\pgfutil@everybye=\toks30
+\pgfutil@tempdima=\dimen182
+\pgfutil@tempdimb=\dimen183
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def
+\pgfutil@abb=\box57
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfrcs.code.tex (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/pgf.revision.tex)
+Package: pgfrcs 2025-08-29 v3.1.11a (3.1.11a)
+))
+Package: pgf 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/basiclayer/pgfcore.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
+Package: pgfsys 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
+\pgfkeys@pathtoks=\toks31
+\pgfkeys@temptoks=\toks32
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeyslibraryfiltered.code.tex
+\pgfkeys@tmptoks=\toks33
+))
+\pgf@x=\dimen184
+\pgf@y=\dimen185
+\pgf@xa=\dimen186
+\pgf@ya=\dimen187
+\pgf@xb=\dimen188
+\pgf@yb=\dimen189
+\pgf@xc=\dimen190
+\pgf@yc=\dimen191
+\pgf@xd=\dimen192
+\pgf@yd=\dimen193
+\w@pgf@writea=\write3
+\r@pgf@reada=\read2
+\c@pgf@counta=\count304
+\c@pgf@countb=\count305
+\c@pgf@countc=\count306
+\c@pgf@countd=\count307
+\t@pgf@toka=\toks34
+\t@pgf@tokb=\toks35
+\t@pgf@tokc=\toks36
+\pgf@sys@id@count=\count308
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
+File: pgf.cfg 2025-08-29 v3.1.11a (3.1.11a)
+)
+Driver file for pgf: pgfsys-pdftex.def
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-pdftex.def
+File: pgfsys-pdftex.def 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-common-pdf.def
+File: pgfsys-common-pdf.def 2025-08-29 v3.1.11a (3.1.11a)
+))) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.tex
+File: pgfsyssoftpath.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfsyssoftpath@smallbuffer@items=\count309
+\pgfsyssoftpath@bigbuffer@items=\count310
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.code.tex
+File: pgfsysprotocol.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 274.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
+Package: pgfcore 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex
+\pgfmath@dimen=\dimen194
+\pgfmath@count=\count311
+\pgfmath@box=\box58
+\pgfmath@toks=\toks37
+\pgfmath@stack@operand=\toks38
+\pgfmath@stack@operation=\toks39
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.trigonometric.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.random.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.comparison.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.base.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.round.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.misc.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integerarithmetics.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathcalc.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex
+\c@pgfmathroundto@lastzeros=\count312
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfint.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.code.tex
+File: pgfcorepoints.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@picminx=\dimen195
+\pgf@picmaxx=\dimen196
+\pgf@picminy=\dimen197
+\pgf@picmaxy=\dimen198
+\pgf@pathminx=\dimen199
+\pgf@pathmaxx=\dimen256
+\pgf@pathminy=\dimen257
+\pgf@pathmaxy=\dimen258
+\pgf@xx=\dimen259
+\pgf@xy=\dimen260
+\pgf@yx=\dimen261
+\pgf@yy=\dimen262
+\pgf@zx=\dimen263
+\pgf@zy=\dimen264
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathconstruct.code.tex
+File: pgfcorepathconstruct.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@path@lastx=\dimen265
+\pgf@path@lasty=\dimen266
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathusage.code.tex
+File: pgfcorepathusage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@shorten@end@additional=\dimen267
+\pgf@shorten@start@additional=\dimen268
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorescopes.code.tex
+File: pgfcorescopes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfpic=\box59
+\pgf@hbox=\box60
+\pgf@layerbox@main=\box61
+\pgf@picture@serial@count=\count313
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.code.tex
+File: pgfcoregraphicstate.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgflinewidth=\dimen269
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransformations.code.tex
+File: pgfcoretransformations.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@pt@x=\dimen270
+\pgf@pt@y=\dimen271
+\pgf@pt@temp=\dimen272
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorequick.code.tex
+File: pgfcorequick.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreobjects.code.tex
+File: pgfcoreobjects.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathprocessing.code.tex
+File: pgfcorepathprocessing.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorearrows.code.tex
+File: pgfcorearrows.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfarrowsep=\dimen273
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
+File: pgfcoreshade.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@max=\dimen274
+\pgf@sys@shading@range@num=\count314
+\pgf@shadingcount=\count315
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
+File: pgfcoreimage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.tex
+File: pgfcoreexternal.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfexternal@startupbox=\box62
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.code.tex
+File: pgfcorelayers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransparency.code.tex
+File: pgfcoretransparency.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.tex
+File: pgfcorepatterns.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex
+File: pgfcorerdf.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+))) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
+File: pgfmoduleshapes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfnodeparttextbox=\box63
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+File: pgfmoduleplot.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65.sty
+Package: pgfcomp-version-0-65 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@nodesepstart=\dimen275
+\pgf@nodesepend=\dimen276
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18.sty
+Package: pgfcomp-version-1-18 2025-08-29 v3.1.11a (3.1.11a)
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgffor.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/math/pgfmath.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex
+Package: pgffor 2025-08-29 v3.1.11a (3.1.11a)
+\pgffor@iter=\dimen277
+\pgffor@skip=\dimen278
+\pgffor@stack=\toks40
+\pgffor@toks=\toks41
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+Package: tikz 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers.code.tex
+File: pgflibraryplothandlers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@plot@mark@count=\count316
+\pgfplotmarksize=\dimen279
+)
+\tikz@lastx=\dimen280
+\tikz@lasty=\dimen281
+\tikz@lastxsaved=\dimen282
+\tikz@lastysaved=\dimen283
+\tikz@lastmovetox=\dimen284
+\tikz@lastmovetoy=\dimen285
+\tikzleveldistance=\dimen286
+\tikzsiblingdistance=\dimen287
+\tikz@figbox=\box64
+\tikz@figbox@bg=\box65
+\tikz@tempbox=\box66
+\tikz@tempbox@bg=\box67
+\tikztreelevel=\count317
+\tikznumberofchildren=\count318
+\tikznumberofcurrentchild=\count319
+\tikz@fig@count=\count320
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+File: pgfmodulematrix.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfmatrixcurrentrow=\count321
+\pgfmatrixcurrentcolumn=\count322
+\pgf@matrix@numberofcolumns=\count323
+)
+\tikz@expandcount=\count324
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarytopaths.code.tex
+File: tikzlibrarytopaths.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+))) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/tools/verbatim.sty
+Package: verbatim 2024-01-22 v1.5x LaTeX2e package for verbatim enhancements
+\every@verbatim=\toks42
+\verbatim@line=\toks43
+\verbatim@in@stream=\read3
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/environ/environ.sty
+Package: environ 2014/05/04 v0.3 A new way to define environments
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/trimspaces/trimspaces.sty
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count325
+)
+\tcb@titlebox=\box68
+\tcb@upperbox=\box69
+\tcb@lowerbox=\box70
+\tcb@phantombox=\box71
+\c@tcbbreakpart=\count326
+\c@tcblayer=\count327
+\c@tcolorbox@number=\count328
+\l__tcobox_tmpa_box=\box72
+\l__tcobox_tmpa_dim=\dimen288
+\tcb@temp=\box73
+\tcb@temp=\box74
+\tcb@temp=\box75
+\tcb@temp=\box76
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count329
+) (./main.aux)
+\openout1 = `main.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 11.
+LaTeX Font Info:    ... okay on input line 11.
+
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(71.13188pt, 455.24411pt, 71.13188pt)
+* v-part:(T,H,B)=(71.13188pt, 702.78308pt, 71.13188pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=455.24411pt
+* \textheight=702.78308pt
+* \oddsidemargin=-1.1381pt
+* \evensidemargin=-1.1381pt
+* \topmargin=-38.1381pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=11.0pt
+* \footskip=30.0pt
+* \marginparwidth=50.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+(/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
+)) (./week_01_history.tex
+LaTeX Font Info:    Trying to load font information for U+msa on input line 4.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 4.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+Underfull \hbox (badness 10000) in paragraph at lines 19--20
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 27--28
+
+ []
+
+[1
+
+{/Users/henrybaker/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]) [2] (./week_02_training.tex
+Underfull \hbox (badness 10000) in paragraph at lines 32--33
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 44--45
+
+ []
+
+[3
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 55--56
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 60--61
+
+ []
+
+[4]
+Underfull \hbox (badness 10000) in paragraph at lines 97--98
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 102--104
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 105--106
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 107--108
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 109--110
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 111--115
+
+ []
+
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 123--124
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 160--161
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 162--163
+
+ []
+
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 171--172
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 175--176
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 177--178
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 198--199
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 200--201
+
+ []
+
+[7] [8]
+Underfull \hbox (badness 10000) in paragraph at lines 247--248
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 252--253
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 274--275
+
+ []
+
+[9] [10]
+Underfull \hbox (badness 10000) in paragraph at lines 333--334
+
+ []
+
+
+Overfull \hbox (95.47943pt too wide) detected at line 351
+[]
+ []
+
+[11]
+Underfull \hbox (badness 10000) in paragraph at lines 359--360
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 361--362
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 363--364
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 365--366
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 367--368
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 382--384
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 396--397
+
+ []
+
+[12]
+Underfull \hbox (badness 10000) in paragraph at lines 411--414
+
+ []
+
+[13]
+Overfull \hbox (24.38367pt too wide) in paragraph at lines 436--437
+[]\T1/cmr/m/n/10.95 TL;DR: Het-eroskedas-tic-ity --> can es-ti-mate co-ef-fi-cient vari-ance us-ing $\OML/cmm/m/it/10.95 X[]XX[]\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 e[]\OT1/cmr/m/n/10.95 )\OML/cmm/m/it/10.95 X[]XX$ 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 461--462
+
+ []
+
+<figures/week_02_training/image.png, id=66, 542.025pt x 188.20313pt>
+File: figures/week_02_training/image.png Graphic file (type png)
+<use figures/week_02_training/image.png>
+Package pdftex.def Info: figures/week_02_training/image.png  used on input line 478.
+(pdftex.def)             Requested size: 341.43307pt x 118.5571pt.
+[14]
+Underfull \hbox (badness 10000) in paragraph at lines 493--494
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 501--502
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 503--504
+
+ []
+
+[15 <./figures/week_02_training/image.png>] [16]
+<figures/week_02_training/image_1.png, id=79, 552.56438pt x 416.30531pt>
+File: figures/week_02_training/image_1.png Graphic file (type png)
+<use figures/week_02_training/image_1.png>
+Package pdftex.def Info: figures/week_02_training/image_1.png  used on input line 580.
+(pdftex.def)             Requested size: 341.43307pt x 257.23636pt.
+<figures/week_02_training/image_2.png, id=80, 264.99pt x 194.97844pt>
+File: figures/week_02_training/image_2.png Graphic file (type png)
+<use figures/week_02_training/image_2.png>
+Package pdftex.def Info: figures/week_02_training/image_2.png  used on input line 595.
+(pdftex.def)             Requested size: 227.62206pt x 167.48479pt.
+ [17 <./figures/week_02_training/image_1.png>]
+<figures/week_02_training/image_3.png, id=85, 694.84593pt x 231.86626pt>
+File: figures/week_02_training/image_3.png Graphic file (type png)
+<use figures/week_02_training/image_3.png>
+Package pdftex.def Info: figures/week_02_training/image_3.png  used on input line 613.
+(pdftex.def)             Requested size: 341.43307pt x 113.93387pt.
+ [18 <./figures/week_02_training/image_3.png> <./figures/week_02_training/image_2.png>]
+<figures/week_02_training/image_4.png, id=92, 913.16156pt x 342.5297pt>
+File: figures/week_02_training/image_4.png Graphic file (type png)
+<use figures/week_02_training/image_4.png>
+Package pdftex.def Info: figures/week_02_training/image_4.png  used on input line 642.
+(pdftex.def)             Requested size: 341.43307pt x 128.072pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 665--666
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 669--670
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 671--672
+
+ []
+
+[19 <./figures/week_02_training/image_4.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 700--701
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 702--703
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 704--705
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 706--707
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 708--709
+
+ []
+
+[20]
+Underfull \hbox (badness 10000) in paragraph at lines 710--711
+
+ []
+
+) [21] (./week_03_highdim.tex
+<figures/week_03_highdim/reg-class.png, id=105, 496.85625pt x 237.13594pt>
+File: figures/week_03_highdim/reg-class.png Graphic file (type png)
+<use figures/week_03_highdim/reg-class.png>
+Package pdftex.def Info: figures/week_03_highdim/reg-class.png  used on input line 28.
+(pdftex.def)             Requested size: 341.43307pt x 162.95818pt.
+ [22
+
+ <./figures/week_03_highdim/reg-class.png>]
+<figures/week_03_highdim/choosing M.png, id=110, 469.755pt x 366.61969pt>
+File: figures/week_03_highdim/choosing M.png Graphic file (type png)
+<use figures/week_03_highdim/choosing M.png>
+Package pdftex.def Info: figures/week_03_highdim/choosing M.png  used on input line 58.
+(pdftex.def)             Requested size: 227.62206pt x 177.6481pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 65--66
+
+ []
+
+[23 <./figures/week_03_highdim/choosing M.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 86--87
+
+ []
+
+<figures/week_03_highdim/numerical_instability.png, id=115, 356.0803pt x 368.1253pt>
+File: figures/week_03_highdim/numerical_instability.png Graphic file (type png)
+<use figures/week_03_highdim/numerical_instability.png>
+Package pdftex.def Info: figures/week_03_highdim/numerical_instability.png  used on input line 95.
+(pdftex.def)             Requested size: 227.62206pt x 235.31853pt.
+[24]
+<figures/week_03_highdim/bias_variance_MSE.png, id=119, 581.92406pt x 346.29375pt>
+File: figures/week_03_highdim/bias_variance_MSE.png Graphic file (type png)
+<use figures/week_03_highdim/bias_variance_MSE.png>
+Package pdftex.def Info: figures/week_03_highdim/bias_variance_MSE.png  used on input line 114.
+(pdftex.def)             Requested size: 341.43307pt x 203.18604pt.
+ [25 <./figures/week_03_highdim/numerical_instability.png> <./figures/week_03_highdim/bias_variance_MSE.png>] [26] [27] [28]
+Underfull \hbox (badness 10000) in paragraph at lines 251--252
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 253--254
+
+ []
+
+[29] [30]
+Underfull \hbox (badness 10000) in paragraph at lines 302--303
+
+ []
+
+[31]
+Underfull \hbox (badness 10000) in paragraph at lines 329--330
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 334--335
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 336--337
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 353--354
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 355--356
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 357--358
+
+ []
+
+[32]
+Underfull \hbox (badness 10000) in paragraph at lines 379--380
+
+ []
+
+[33]
+Underfull \hbox (badness 10000) in paragraph at lines 410--411
+
+ []
+
+[34] [35]
+Underfull \hbox (badness 10000) in paragraph at lines 491--492
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 493--494
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 497--498
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 510--511
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 512--513
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 514--515
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 522--523
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 524--525
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 526--527
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 528--529
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 536--537
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 538--539
+
+ []
+
+[36]
+Overfull \vbox (16.27553pt too high) has occurred while \output is active []
+
+ [37]
+<figures/week_03_highdim/regularised_polynomial.png, id=166, 1079.53313pt x 416.30531pt>
+File: figures/week_03_highdim/regularised_polynomial.png Graphic file (type png)
+<use figures/week_03_highdim/regularised_polynomial.png>
+Package pdftex.def Info: figures/week_03_highdim/regularised_polynomial.png  used on input line 561.
+(pdftex.def)             Requested size: 455.24411pt x 175.55849pt.
+ [38 <./figures/week_03_highdim/regularised_polynomial.png>]) [39] (./week_04_generalization.tex
+<figures/week_04_generalization/LOOCV.png, id=174, 443.40656pt x 285.31593pt>
+File: figures/week_04_generalization/LOOCV.png Graphic file (type png)
+<use figures/week_04_generalization/LOOCV.png>
+Package pdftex.def Info: figures/week_04_generalization/LOOCV.png  used on input line 54.
+(pdftex.def)             Requested size: 227.62206pt x 146.47133pt.
+ [40
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 63--64
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 65--66
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 67--68
+
+ []
+
+[41 <./figures/week_04_generalization/LOOCV.png>] [42]
+Underfull \hbox (badness 10000) in paragraph at lines 131--132
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 141--142
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 143--144
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 145--146
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 162--163
+
+ []
+
+[43]
+Underfull \hbox (badness 10000) in paragraph at lines 182--183
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 184--185
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 187--188
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 189--190
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 191--192
+
+ []
+
+<figures/week_04_generalization/CV grouping.png, id=189, 895.09406pt x 249.18094pt>
+File: figures/week_04_generalization/CV grouping.png Graphic file (type png)
+<use figures/week_04_generalization/CV grouping.png>
+Package pdftex.def Info: figures/week_04_generalization/CV grouping.png  used on input line 200.
+(pdftex.def)             Requested size: 455.24411pt x 126.73459pt.
+[44] [45 <./figures/week_04_generalization/CV grouping.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 231--232
+
+ []
+
+[46] [47]
+Underfull \hbox (badness 10000) in paragraph at lines 306--307
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 308--309
+
+ []
+
+[48] [49]
+Underfull \hbox (badness 10000) in paragraph at lines 366--367
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 368--369
+
+ []
+
+[50]
+Underfull \hbox (badness 10000) in paragraph at lines 410--411
+
+ []
+
+[51]
+Underfull \hbox (badness 10000) in paragraph at lines 447--448
+
+ []
+
+<figures/week_04_generalization/venn diags.png, id=217, 753.5653pt x 214.55156pt>
+File: figures/week_04_generalization/venn diags.png Graphic file (type png)
+<use figures/week_04_generalization/venn diags.png>
+Package pdftex.def Info: figures/week_04_generalization/venn diags.png  used on input line 465.
+(pdftex.def)             Requested size: 455.24411pt x 129.61256pt.
+[52]
+Underfull \hbox (badness 10000) in paragraph at lines 470--471
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 472--473
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 496--497
+
+ []
+
+[53 <./figures/week_04_generalization/venn diags.png>] [54] [55]
+Underfull \hbox (badness 10000) in paragraph at lines 612--613
+
+ []
+
+[56]
+Underfull \hbox (badness 10000) in paragraph at lines 630--631
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 632--633
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 658--659
+
+ []
+
+[57]
+Underfull \hbox (badness 10000) in paragraph at lines 670--671
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 701--702
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 703--704
+
+ []
+
+<figures/week_04_generalization/shattering.png, id=238, 569.87906pt x 286.82156pt>
+File: figures/week_04_generalization/shattering.png Graphic file (type png)
+<use figures/week_04_generalization/shattering.png>
+Package pdftex.def Info: figures/week_04_generalization/shattering.png  used on input line 709.
+(pdftex.def)             Requested size: 227.62206pt x 114.56027pt.
+[58]
+<figures/week_04_generalization/shattering 2.png, id=242, 614.295pt x 275.52937pt>
+File: figures/week_04_generalization/shattering 2.png Graphic file (type png)
+<use figures/week_04_generalization/shattering 2.png>
+Package pdftex.def Info: figures/week_04_generalization/shattering 2.png  used on input line 718.
+(pdftex.def)             Requested size: 227.62206pt x 102.09561pt.
+<figures/week_04_generalization/shattering 3.png, id=243, 489.32813pt x 272.51813pt>
+File: figures/week_04_generalization/shattering 3.png Graphic file (type png)
+<use figures/week_04_generalization/shattering 3.png>
+Package pdftex.def Info: figures/week_04_generalization/shattering 3.png  used on input line 725.
+(pdftex.def)             Requested size: 227.62206pt x 126.76952pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 741--742
+
+ []
+
+[59 <./figures/week_04_generalization/shattering.png> <./figures/week_04_generalization/shattering 2.png> <./figures/week_04_generalization/shattering 3.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 747--748
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 749--750
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 751--752
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 759--760
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 761--762
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 763--764
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 765--766
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 767--768
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 769--770
+
+ []
+
+[60]
+Underfull \hbox (badness 10000) in paragraph at lines 801--802
+
+ []
+
+<figures/week_04_generalization/SVD1.png, id=253, 451.6875pt x 174.6525pt>
+File: figures/week_04_generalization/SVD1.png Graphic file (type png)
+<use figures/week_04_generalization/SVD1.png>
+Package pdftex.def Info: figures/week_04_generalization/SVD1.png  used on input line 808.
+(pdftex.def)             Requested size: 227.62206pt x 88.01625pt.
+<figures/week_04_generalization/SVD2.png, id=254, 402.75468pt x 361.35pt>
+File: figures/week_04_generalization/SVD2.png Graphic file (type png)
+<use figures/week_04_generalization/SVD2.png>
+Package pdftex.def Info: figures/week_04_generalization/SVD2.png  used on input line 815.
+(pdftex.def)             Requested size: 227.62206pt x 204.21826pt.
+[61 <./figures/week_04_generalization/SVD1.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 857--858
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 863--865
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 866--867
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 878--880
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 887--888
+
+ []
+
+[62 <./figures/week_04_generalization/SVD2.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 905--906
+
+ []
+
+[63]
+Underfull \hbox (badness 10000) in paragraph at lines 917--921
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 937--938
+
+ []
+
+[64]
+Underfull \hbox (badness 10000) in paragraph at lines 943--944
+
+ []
+
+
+Overfull \hbox (13.73929pt too wide) in paragraph at lines 973--974
+\T1/cmr/m/n/10.95 WORLD WE'VE BEEN IN SO FAR, WHERE IN-CREAS-ING COM-PLEX-ITY THROUG ADDING
+ []
+
+
+Overfull \hbox (24.71254pt too wide) in paragraph at lines 973--974
+\T1/cmr/m/n/10.95 LEARN-ING, AND WE GET THE DOU-BLE DE-SCENT - IE THE USUAL RULES/RELATIONSHIP
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 975--976
+
+ []
+
+[65]
+Underfull \hbox (badness 10000) in paragraph at lines 977--978
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 980--981
+
+ []
+
+<figures/week_04_generalization/low dim.png, id=273, 970.3753pt x 514.92375pt>
+File: figures/week_04_generalization/low dim.png Graphic file (type png)
+<use figures/week_04_generalization/low dim.png>
+Package pdftex.def Info: figures/week_04_generalization/low dim.png  used on input line 990.
+(pdftex.def)             Requested size: 455.24411pt x 241.57419pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 997--998
+
+ []
+
+[66 <./figures/week_04_generalization/low dim.png>]
+<figures/week_04_generalization/high dim.png, id=278, 1037.37563pt x 532.99126pt>
+File: figures/week_04_generalization/high dim.png Graphic file (type png)
+<use figures/week_04_generalization/high dim.png>
+Package pdftex.def Info: figures/week_04_generalization/high dim.png  used on input line 1023.
+(pdftex.def)             Requested size: 341.43307pt x 175.42409pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 1029--1030
+
+ []
+
+) [67 <./figures/week_04_generalization/high dim.png>] (./week_05_overfitting.tex
+Underfull \hbox (badness 10000) in paragraph at lines 34--35
+
+ []
+
+[68
+
+] [69]
+<figures/week_05_overfitting/double descent.png, id=290, 1179.65718pt x 269.50688pt>
+File: figures/week_05_overfitting/double descent.png Graphic file (type png)
+<use figures/week_05_overfitting/double descent.png>
+Package pdftex.def Info: figures/week_05_overfitting/double descent.png  used on input line 104.
+(pdftex.def)             Requested size: 455.24411pt x 104.00514pt.
+<figures/week_05_overfitting/interpolation_threshold.png, id=291, 622.57594pt x 282.30469pt>
+File: figures/week_05_overfitting/interpolation_threshold.png Graphic file (type png)
+<use figures/week_05_overfitting/interpolation_threshold.png>
+Package pdftex.def Info: figures/week_05_overfitting/interpolation_threshold.png  used on input line 121.
+(pdftex.def)             Requested size: 341.43307pt x 154.82436pt.
+ [70 <./figures/week_05_overfitting/double descent.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 128--129
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 134--135
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 138--139
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 140--141
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 142--143
+
+ []
+
+[71 <./figures/week_05_overfitting/interpolation_threshold.png>] [72]
+<figures/week_05_overfitting/ksplit.png, id=303, 1104.37593pt x 609.02531pt>
+File: figures/week_05_overfitting/ksplit.png Graphic file (type png)
+<use figures/week_05_overfitting/ksplit.png>
+Package pdftex.def Info: figures/week_05_overfitting/ksplit.png  used on input line 211.
+(pdftex.def)             Requested size: 455.24411pt x 251.04947pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 216--217
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 223--224
+
+ []
+
+[73 <./figures/week_05_overfitting/ksplit.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 229--230
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 231--232
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 265--266
+
+ []
+
+[74]
+Underfull \hbox (badness 10000) in paragraph at lines 267--268
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 282--283
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 284--285
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 290--291
+
+ []
+
+[75] [76]) [77] (./week_06_kernels.tex
+Underfull \hbox (badness 10000) in paragraph at lines 49--50
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 51--52
+
+ []
+
+[78
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 69--71
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 72--73
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 84--85
+
+ []
+
+<figures/week_06_kernels/dot product.png, id=324, 550.055pt x 184.69pt>
+File: figures/week_06_kernels/dot product.png Graphic file (type png)
+<use figures/week_06_kernels/dot product.png>
+Package pdftex.def Info: figures/week_06_kernels/dot product.png  used on input line 89.
+(pdftex.def)             Requested size: 341.43307pt x 114.64468pt.
+[79] [80 <./figures/week_06_kernels/dot product.png>]
+Overfull \vbox (20.00789pt too high) has occurred while \output is active []
+
+ [81]
+<figures/week_06_kernels/covariance issues.png, id=336, 500.62032pt x 350.81062pt>
+File: figures/week_06_kernels/covariance issues.png Graphic file (type png)
+<use figures/week_06_kernels/covariance issues.png>
+Package pdftex.def Info: figures/week_06_kernels/covariance issues.png  used on input line 205.
+(pdftex.def)             Requested size: 227.62206pt x 159.50667pt.
+ [82]
+Underfull \hbox (badness 10000) in paragraph at lines 213--214
+
+ []
+
+
+Overfull \hbox (14.81741pt too wide) in paragraph at lines 215--216
+\T1/cmr/m/n/10.95 THE HIGHER LEVEL OF AB-STRAC-TION IS TO THINK ABOUT SIM-I-LAR-ITY RATHER
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 219--220
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 221--222
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 228--229
+
+ []
+
+[83 <./figures/week_06_kernels/covariance issues.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 263--264
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 265--267
+
+ []
+
+[84]
+Underfull \hbox (badness 10000) in paragraph at lines 284--285
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 299--300
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 301--302
+
+ []
+
+
+Overfull \hbox (4.07327pt too wide) in paragraph at lines 316--317
+[]\T1/cmr/m/n/10.95 Kernels ef-fec-tively com-pute these dot prod-ucts in the trans-formed fea-ture space ($\OML/cmm/m/it/10.95 ^^^\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 x\OT1/cmr/m/n/10.95 )[]\OML/cmm/m/it/10.95 ^^^\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 x[]\OT1/cmr/m/n/10.95 )$\T1/cmr/m/n/10.95 )
+ []
+
+[85]
+Underfull \hbox (badness 10000) in paragraph at lines 341--342
+
+ []
+
+[86]
+Overfull \hbox (19.91786pt too wide) in paragraph at lines 357--358
+[]\T1/cmr/m/n/10.95 e.g: if $\OML/cmm/m/it/10.95 x$ \T1/cmr/m/n/10.95 is a 2D vec-tor: $\OT1/cmr/m/n/10.95 [\OML/cmm/m/it/10.95 x[]; x[]\OT1/cmr/m/n/10.95 ] \OMS/cmsy/m/n/10.95 !$ \T1/cmr/m/n/10.95 a pos-si-ble fea-ture ex-pan-sion could be $\OML/cmm/m/it/10.95 ^^^\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 x\OT1/cmr/m/n/10.95 ) = [\OML/cmm/m/it/10.95 x[]; x[]; x[]; x[]; x[] \OMS/cmsy/m/n/10.95 ^^A
+ []
+
+<figures/week_06_kernels/manifpulating_kernels.png, id=354, 1190.19656pt x 627.09282pt>
+File: figures/week_06_kernels/manifpulating_kernels.png Graphic file (type png)
+<use figures/week_06_kernels/manifpulating_kernels.png>
+Package pdftex.def Info: figures/week_06_kernels/manifpulating_kernels.png  used on input line 396.
+(pdftex.def)             Requested size: 455.24411pt x 239.85744pt.
+[87]
+Underfull \hbox (badness 10000) in paragraph at lines 401--402
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 424--425
+
+ []
+
+[88 <./figures/week_06_kernels/manifpulating_kernels.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 450--451
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 457--458
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 459--460
+
+ []
+
+[89]
+Underfull \hbox (badness 10000) in paragraph at lines 491--492
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 494--495
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 505--506
+
+ []
+
+[90]
+Underfull \hbox (badness 10000) in paragraph at lines 512--514
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 517--519
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 520--521
+
+ []
+
+[91]
+<figures/week_06_kernels/kernels.png, id=372, 618.05907pt x 447.92343pt>
+File: figures/week_06_kernels/kernels.png Graphic file (type png)
+<use figures/week_06_kernels/kernels.png>
+Package pdftex.def Info: figures/week_06_kernels/kernels.png  used on input line 551.
+(pdftex.def)             Requested size: 227.62206pt x 164.96358pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 565--566
+
+ []
+
+<figures/week_06_kernels/combining kernels.png, id=373, 1284.8pt x 354.32375pt>
+File: figures/week_06_kernels/combining kernels.png Graphic file (type png)
+<use figures/week_06_kernels/combining kernels.png>
+Package pdftex.def Info: figures/week_06_kernels/combining kernels.png  used on input line 571.
+(pdftex.def)             Requested size: 455.24411pt x 125.54521pt.
+[92 <./figures/week_06_kernels/kernels.png>]
+<figures/week_06_kernels/kernel_1.png, id=378, 1255.69125pt x 302.12875pt>
+File: figures/week_06_kernels/kernel_1.png Graphic file (type png)
+<use figures/week_06_kernels/kernel_1.png>
+Package pdftex.def Info: figures/week_06_kernels/kernel_1.png  used on input line 602.
+(pdftex.def)             Requested size: 455.24411pt x 109.53154pt.
+ [93 <./figures/week_06_kernels/combining kernels.png> <./figures/week_06_kernels/kernel_1.png>]
+<figures/week_06_kernels/kernel_2.png, id=384, 937.5025pt x 269.005pt>
+File: figures/week_06_kernels/kernel_2.png Graphic file (type png)
+<use figures/week_06_kernels/kernel_2.png>
+Package pdftex.def Info: figures/week_06_kernels/kernel_2.png  used on input line 621.
+(pdftex.def)             Requested size: 455.24411pt x 130.62323pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 643--644
+
+ []
+
+[94 <./figures/week_06_kernels/kernel_2.png>] [95]
+Underfull \hbox (badness 10000) in paragraph at lines 728--729
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 732--733
+
+ []
+
+[96]
+Underfull \hbox (badness 10000) in paragraph at lines 752--753
+
+ []
+
+<figures/week_06_kernels/vol_dim_table.png, id=395, 629.35126pt x 377.15906pt>
+File: figures/week_06_kernels/vol_dim_table.png Graphic file (type png)
+<use figures/week_06_kernels/vol_dim_table.png>
+Package pdftex.def Info: figures/week_06_kernels/vol_dim_table.png  used on input line 768.
+(pdftex.def)             Requested size: 227.62206pt x 136.4102pt.
+[97 <./figures/week_06_kernels/vol_dim_table.png>]
+<figures/week_06_kernels/vol_dim_graph.png, id=401, 491.58656pt x 370.38374pt>
+File: figures/week_06_kernels/vol_dim_graph.png Graphic file (type png)
+<use figures/week_06_kernels/vol_dim_graph.png>
+Package pdftex.def Info: figures/week_06_kernels/vol_dim_graph.png  used on input line 779.
+(pdftex.def)             Requested size: 227.62206pt x 171.50325pt.
+<figures/week_06_kernels/meme.png, id=402, 694.84593pt x 575.14874pt>
+File: figures/week_06_kernels/meme.png Graphic file (type png)
+<use figures/week_06_kernels/meme.png>
+Package pdftex.def Info: figures/week_06_kernels/meme.png  used on input line 794.
+(pdftex.def)             Requested size: 227.62206pt x 188.40428pt.
+) [98 <./figures/week_06_kernels/vol_dim_graph.png> <./figures/week_06_kernels/meme.png>] (./week_06_fairness_qual.tex
+Underfull \hbox (badness 10000) in paragraph at lines 18--19
+
+ []
+
+<figures/week_06_fairness_qual/context.png, id=408, 713.66624pt x 225.84375pt>
+File: figures/week_06_fairness_qual/context.png Graphic file (type png)
+<use figures/week_06_fairness_qual/context.png>
+Package pdftex.def Info: figures/week_06_fairness_qual/context.png  used on input line 24.
+(pdftex.def)             Requested size: 227.62206pt x 72.03024pt.
+<figures/week_06_fairness_qual/turkish example.png, id=409, 1134.2375pt x 604.2575pt>
+File: figures/week_06_fairness_qual/turkish example.png Graphic file (type png)
+<use figures/week_06_fairness_qual/turkish example.png>
+Package pdftex.def Info: figures/week_06_fairness_qual/turkish example.png  used on input line 33.
+(pdftex.def)             Requested size: 227.62206pt x 121.25505pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 44--46
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 51--54
+
+ []
+
+[99
+
+ <./figures/week_06_fairness_qual/context.png> <./figures/week_06_fairness_qual/turkish example.png>] [100]) [101] (./week_07_fairness_quant.tex
+Underfull \hbox (badness 10000) in paragraph at lines 19--20
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 40--42
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 43--44
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 45--46
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 50--51
+
+ []
+
+[102
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 66--67
+
+ []
+
+<figures/week_07_fairness_quant/confmatrix.png, id=425, 228.10219pt x 224.33812pt>
+File: figures/week_07_fairness_quant/confmatrix.png Graphic file (type png)
+<use figures/week_07_fairness_quant/confmatrix.png>
+Package pdftex.def Info: figures/week_07_fairness_quant/confmatrix.png  used on input line 77.
+(pdftex.def)             Requested size: 136.57462pt x 134.32321pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 94--95
+
+ []
+
+
+Overfull \hbox (6.73317pt too wide) in paragraph at lines 96--97
+[]\T1/cmr/m/n/10.95 Libraries like scikit-learn (sklearn) im-ple-ment this con-cept through mech-a-nisms like ^^Pclass weights.^^Q 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 100--101
+
+ []
+
+[103 <./figures/week_07_fairness_quant/confmatrix.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 102--103
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 105--106
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 107--108
+
+ []
+
+<figures/week_07_fairness_quant/ROC curve.png, id=431, 501.875pt x 486.81876pt>
+File: figures/week_07_fairness_quant/ROC curve.png Graphic file (type png)
+<use figures/week_07_fairness_quant/ROC curve.png>
+Package pdftex.def Info: figures/week_07_fairness_quant/ROC curve.png  used on input line 115.
+(pdftex.def)             Requested size: 227.62206pt x 220.7972pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 128--129
+
+ []
+
+[104 <./figures/week_07_fairness_quant/ROC curve.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 130--131
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 132--133
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 134--135
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 142--143
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 167--168
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 169--170
+
+ []
+
+[105]
+Underfull \hbox (badness 10000) in paragraph at lines 174--175
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 176--177
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 178--181
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 184--185
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 186--187
+
+ []
+
+<figures/week_07_fairness_quant/sensitive features.png, id=439, 1106.1325pt x 515.9275pt>
+File: figures/week_07_fairness_quant/sensitive features.png Graphic file (type png)
+<use figures/week_07_fairness_quant/sensitive features.png>
+Package pdftex.def Info: figures/week_07_fairness_quant/sensitive features.png  used on input line 192.
+(pdftex.def)             Requested size: 341.43307pt x 159.25096pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 199--200
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 201--202
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 203--204
+
+ []
+
+[106 <./figures/week_07_fairness_quant/sensitive features.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 224--225
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 245--246
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 247--248
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 250--251
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 252--253
+
+ []
+
+[107]
+<figures/week_07_fairness_quant/roc1.png, id=447, 568.1225pt x 536.0025pt>
+File: figures/week_07_fairness_quant/roc1.png Graphic file (type png)
+<use figures/week_07_fairness_quant/roc1.png>
+Package pdftex.def Info: figures/week_07_fairness_quant/roc1.png  used on input line 280.
+(pdftex.def)             Requested size: 227.62206pt x 214.75706pt.
+ [108]
+<figures/week_07_fairness_quant/image.png, id=451, 576.1525pt x 548.0475pt>
+File: figures/week_07_fairness_quant/image.png Graphic file (type png)
+<use figures/week_07_fairness_quant/image.png>
+Package pdftex.def Info: figures/week_07_fairness_quant/image.png  used on input line 289.
+(pdftex.def)             Requested size: 227.62206pt x 216.52238pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 298--300
+
+ []
+
+[109 <./figures/week_07_fairness_quant/roc1.png> <./figures/week_07_fairness_quant/image.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 305--306
+
+ []
+
+<figures/week_07_fairness_quant/calibration.png, id=458, 613.54219pt x 249.93375pt>
+File: figures/week_07_fairness_quant/calibration.png Graphic file (type png)
+<use figures/week_07_fairness_quant/calibration.png>
+Package pdftex.def Info: figures/week_07_fairness_quant/calibration.png  used on input line 311.
+(pdftex.def)             Requested size: 341.43307pt x 139.08861pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 326--327
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 328--329
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 330--331
+
+ []
+
+[110 <./figures/week_07_fairness_quant/calibration.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 343--344
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 359--360
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 361--362
+
+ []
+
+<figures/week_07_fairness_quant/ROC curves for fairness.png, id=463, 547.2947pt x 404.26031pt>
+File: figures/week_07_fairness_quant/ROC curves for fairness.png Graphic file (type png)
+<use figures/week_07_fairness_quant/ROC curves for fairness.png>
+Package pdftex.def Info: figures/week_07_fairness_quant/ROC curves for fairness.png  used on input line 373.
+(pdftex.def)             Requested size: 227.62206pt x 168.13501pt.
+[111]
+Underfull \hbox (badness 10000) in paragraph at lines 380--381
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 382--383
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 384--385
+
+ []
+
+) [112 <./figures/week_07_fairness_quant/ROC curves for fairness.png>] (./week_07_trees.tex
+Underfull \hbox (badness 10000) in paragraph at lines 19--20
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 21--22
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 23--24
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 25--26
+
+ []
+
+[113
+
+]
+<figures/week_07_trees/tree.png, id=474, 995.72pt x 576.1525pt>
+File: figures/week_07_trees/tree.png Graphic file (type png)
+<use figures/week_07_trees/tree.png>
+Package pdftex.def Info: figures/week_07_trees/tree.png  used on input line 56.
+(pdftex.def)             Requested size: 227.62206pt x 131.70348pt.
+ [114 <./figures/week_07_trees/tree.png>]
+<figures/week_07_trees/variance learners.png, id=479, 1278.7775pt x 981.6675pt>
+File: figures/week_07_trees/variance learners.png Graphic file (type png)
+<use figures/week_07_trees/variance learners.png>
+Package pdftex.def Info: figures/week_07_trees/variance learners.png  used on input line 139.
+(pdftex.def)             Requested size: 227.62206pt x 174.73027pt.
+ [115]
+<figures/week_07_trees/unique value.png, id=484, 290.58563pt x 272.51813pt>
+File: figures/week_07_trees/unique value.png Graphic file (type png)
+<use figures/week_07_trees/unique value.png>
+Package pdftex.def Info: figures/week_07_trees/unique value.png  used on input line 167.
+(pdftex.def)             Requested size: 227.62206pt x 213.47394pt.
+ [116 <./figures/week_07_trees/variance learners.png>]
+<figures/week_07_trees/thresholding.png, id=489, 557.08125pt x 215.30438pt>
+File: figures/week_07_trees/thresholding.png Graphic file (type png)
+<use figures/week_07_trees/thresholding.png>
+Package pdftex.def Info: figures/week_07_trees/thresholding.png  used on input line 184.
+(pdftex.def)             Requested size: 227.62206pt x 87.97311pt.
+ [117 <./figures/week_07_trees/unique value.png> <./figures/week_07_trees/thresholding.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 198--199
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 200--201
+
+ []
+
+<figures/week_07_trees/recursive greedy.png, id=495, 1359.0775pt x 889.3225pt>
+File: figures/week_07_trees/recursive greedy.png Graphic file (type png)
+<use figures/week_07_trees/recursive greedy.png>
+Package pdftex.def Info: figures/week_07_trees/recursive greedy.png  used on input line 214.
+(pdftex.def)             Requested size: 227.62206pt x 148.94377pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 225--226
+
+ []
+
+[118 <./figures/week_07_trees/recursive greedy.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 234--236
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 237--238
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 239--240
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 241--242
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 243--244
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 252--253
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 254--255
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 256--257
+
+ []
+
+[119]
+<figures/week_07_trees/placeholder.png, id=504, 1099.10625pt x 624.83438pt>
+File: figures/week_07_trees/placeholder.png Graphic file (type png)
+<use figures/week_07_trees/placeholder.png>
+Package pdftex.def Info: figures/week_07_trees/placeholder.png  used on input line 275.
+(pdftex.def)             Requested size: 227.62206pt x 129.39806pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 281--282
+
+ []
+
+[120 <./figures/week_07_trees/placeholder.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 331--332
+
+ []
+
+<figures/week_07_trees/pruning.png, id=509, 1174.3875pt x 907.39pt>
+File: figures/week_07_trees/pruning.png Graphic file (type png)
+<use figures/week_07_trees/pruning.png>
+Package pdftex.def Info: figures/week_07_trees/pruning.png  used on input line 337.
+(pdftex.def)             Requested size: 227.62206pt x 175.8673pt.
+[121 <./figures/week_07_trees/pruning.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 358--359
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 361--362
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 363--364
+
+ []
+
+<figures/week_07_trees/bagging.png, id=515, 1114.1625pt x 748.7975pt>
+File: figures/week_07_trees/bagging.png Graphic file (type png)
+<use figures/week_07_trees/bagging.png>
+Package pdftex.def Info: figures/week_07_trees/bagging.png  used on input line 381.
+(pdftex.def)             Requested size: 227.62206pt x 152.9789pt.
+[122]
+Underfull \hbox (badness 10000) in paragraph at lines 398--399
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--401
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 402--403
+
+ []
+
+<figures/week_07_trees/placeholder2.png, id=519, 1135.24126pt x 548.80031pt>
+File: figures/week_07_trees/placeholder2.png Graphic file (type png)
+<use figures/week_07_trees/placeholder2.png>
+Package pdftex.def Info: figures/week_07_trees/placeholder2.png  used on input line 407.
+(pdftex.def)             Requested size: 227.62206pt x 110.03445pt.
+<figures/week_07_trees/placeholder3.png, id=520, 1152.55594pt x 609.02531pt>
+File: figures/week_07_trees/placeholder3.png Graphic file (type png)
+<use figures/week_07_trees/placeholder3.png>
+Package pdftex.def Info: figures/week_07_trees/placeholder3.png  used on input line 413.
+(pdftex.def)             Requested size: 227.62206pt x 120.27885pt.
+[123 <./figures/week_07_trees/bagging.png> <./figures/week_07_trees/placeholder2.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 420--421
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 427--428
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 429--430
+
+ []
+
+<figures/week_07_trees/rand forest.png, id=526, 718.685pt x 447.6725pt>
+File: figures/week_07_trees/rand forest.png Graphic file (type png)
+<use figures/week_07_trees/rand forest.png>
+Package pdftex.def Info: figures/week_07_trees/rand forest.png  used on input line 438.
+(pdftex.def)             Requested size: 227.62206pt x 141.78264pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 443--444
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 447--449
+
+ []
+
+[124 <./figures/week_07_trees/placeholder3.png> <./figures/week_07_trees/rand forest.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 450--452
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 453--454
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 455--458
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 459--462
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 463--467
+
+ []
+
+) [125] (./week_08_boosting.tex
+Underfull \hbox (badness 10000) in paragraph at lines 21--22
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 23--24
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 28--29
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 30--31
+
+ []
+
+[126
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 52--53
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 55--56
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 80--81
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 83--84
+
+ []
+
+<figures/week_08_boosting/boosting.png, id=538, 879.285pt x 853.1875pt>
+File: figures/week_08_boosting/boosting.png Graphic file (type png)
+<use figures/week_08_boosting/boosting.png>
+Package pdftex.def Info: figures/week_08_boosting/boosting.png  used on input line 90.
+(pdftex.def)             Requested size: 386.96027pt x 375.46875pt.
+[127] [128 <./figures/week_08_boosting/boosting.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 119--120
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 121--122
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 123--124
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 125--126
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 135--136
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 137--138
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 142--143
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 150--151
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 154--155
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 157--158
+
+ []
+
+[129]
+Underfull \hbox (badness 10000) in paragraph at lines 172--173
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 174--175
+
+ []
+
+<figures/week_08_boosting/loss functions.png, id=550, 511.9125pt x 407.5225pt>
+File: figures/week_08_boosting/loss functions.png Graphic file (type png)
+<use figures/week_08_boosting/loss functions.png>
+Package pdftex.def Info: figures/week_08_boosting/loss functions.png  used on input line 196.
+(pdftex.def)             Requested size: 227.62206pt x 181.2008pt.
+[130 <./figures/week_08_boosting/loss functions.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 206--208
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 223--224
+
+ []
+
+[131]
+Underfull \hbox (badness 10000) in paragraph at lines 243--244
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 258--259
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 263--264
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 265--266
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 278--279
+
+ []
+
+[132]
+Underfull \hbox (badness 10000) in paragraph at lines 290--291
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 295--296
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 297--298
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 303--304
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 305--306
+
+ []
+
+[133] [134]
+Underfull \hbox (badness 10000) in paragraph at lines 387--388
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 389--390
+
+ []
+
+[135]
+Underfull \hbox (badness 10000) in paragraph at lines 412--413
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--433
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 434--435
+
+ []
+
+<figures/week_08_boosting/spam.png, id=573, 666.49pt x 859.21pt>
+File: figures/week_08_boosting/spam.png Graphic file (type png)
+<use figures/week_08_boosting/spam.png>
+Package pdftex.def Info: figures/week_08_boosting/spam.png  used on input line 438.
+(pdftex.def)             Requested size: 227.62206pt x 293.43858pt.
+<figures/week_08_boosting/number id.png, id=574, 626.34pt x 443.6575pt>
+File: figures/week_08_boosting/number id.png Graphic file (type png)
+<use figures/week_08_boosting/number id.png>
+Package pdftex.def Info: figures/week_08_boosting/number id.png  used on input line 447.
+(pdftex.def)             Requested size: 227.62206pt x 161.23297pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 458--459
+
+ []
+
+[136] [137 <./figures/week_08_boosting/spam.png> <./figures/week_08_boosting/number id.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 463--466
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 467--468
+
+ []
+
+<figures/week_08_boosting/partial dependency.png, id=583, 1306.8825pt x 491.8375pt>
+File: figures/week_08_boosting/partial dependency.png Graphic file (type png)
+<use figures/week_08_boosting/partial dependency.png>
+Package pdftex.def Info: figures/week_08_boosting/partial dependency.png  used on input line 473.
+(pdftex.def)             Requested size: 341.43307pt x 128.49013pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 482--483
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 484--485
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 486--487
+
+ []
+
+) [138 <./figures/week_08_boosting/partial dependency.png>] (./week_08_sampling.tex
+Underfull \hbox (badness 10000) in paragraph at lines 17--18
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 38--40
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 41--42
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 43--44
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 51--53
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 54--55
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 63--64
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 68--69
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 70--71
+
+ []
+
+[139
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 75--76
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 97--98
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 105--106
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 118--120
+
+ []
+
+[140]
+Underfull \hbox (badness 10000) in paragraph at lines 121--122
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 124--125
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 129--130
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 131--132
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 133--134
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 140--141
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 142--143
+
+ []
+
+[141]
+Underfull \hbox (badness 10000) in paragraph at lines 172--173
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 174--175
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 188--189
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 190--191
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 192--193
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 194--195
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 196--197
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 198--199
+
+ []
+
+[142]
+Underfull \hbox (badness 10000) in paragraph at lines 200--201
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 202--203
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 204--205
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 212--213
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 218--219
+
+ []
+
+[143]
+Underfull \hbox (badness 10000) in paragraph at lines 253--254
+
+ []
+
+[144]
+<figures/week_08_sampling/uncertaintysampling.png, id=607, 1296.845pt x 572.1375pt>
+File: figures/week_08_sampling/uncertaintysampling.png Graphic file (type png)
+<use figures/week_08_sampling/uncertaintysampling.png>
+Package pdftex.def Info: figures/week_08_sampling/uncertaintysampling.png  used on input line 287.
+(pdftex.def)             Requested size: 455.24411pt x 200.84476pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 293--294
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 295--296
+
+ []
+
+[145 <./figures/week_08_sampling/uncertaintysampling.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 320--321
+
+ []
+
+[146]
+Underfull \hbox (badness 10000) in paragraph at lines 346--347
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 348--349
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 354--355
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 360--361
+
+ []
+
+
+Overfull \hbox (5.19342pt too wide) in paragraph at lines 362--363
+[]\T1/cmr/bx/n/10.95 Empirical Risk Es-ti-mates Cal-cu-la-tion: \T1/cmr/m/n/10.95 The em-pir-i-cal risk is re-cal-cu-lated us-ing the reweighted
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 376--377
+
+ []
+
+[147]
+Underfull \hbox (badness 10000) in paragraph at lines 378--379
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 388--389
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 391--392
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 411--412
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 413--415
+
+ []
+
+[148]
+Underfull \hbox (badness 10000) in paragraph at lines 419--420
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 421--422
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 423--424
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 439--440
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 441--442
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 443--444
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 445--446
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 449--450
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 451--452
+
+ []
+
+[149]
+Underfull \hbox (badness 10000) in paragraph at lines 453--454
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 455--456
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 458--459
+
+ []
+
+<figures/week_08_sampling/Rff.png, id=625, 1445.4pt x 367.3725pt>
+File: figures/week_08_sampling/Rff.png Graphic file (type png)
+<use figures/week_08_sampling/Rff.png>
+Package pdftex.def Info: figures/week_08_sampling/Rff.png  used on input line 464.
+(pdftex.def)             Requested size: 455.24411pt x 115.70612pt.
+<figures/week_08_sampling/rff2.png, id=626, 337.26pt x 484.05844pt>
+File: figures/week_08_sampling/rff2.png Graphic file (type png)
+<use figures/week_08_sampling/rff2.png>
+Package pdftex.def Info: figures/week_08_sampling/rff2.png  used on input line 471.
+(pdftex.def)             Requested size: 227.62206pt x 326.70319pt.
+[150 <./figures/week_08_sampling/Rff.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 478--479
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 480--481
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 492--493
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 494--495
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 496--497
+
+ []
+
+[151 <./figures/week_08_sampling/rff2.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 515--516
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 517--518
+
+ []
+
+[152]
+Underfull \hbox (badness 10000) in paragraph at lines 544--545
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 546--547
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 552--553
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 574--575
+
+ []
+
+[153]
+Underfull \hbox (badness 10000) in paragraph at lines 586--587
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 588--589
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 594--595
+
+ []
+
+[154]
+Underfull \hbox (badness 10000) in paragraph at lines 603--604
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 609--610
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 611--612
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 626--627
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 628--629
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 630--631
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 632--633
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 634--635
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 636--637
+
+ []
+
+[155]
+Underfull \hbox (badness 10000) in paragraph at lines 654--655
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 677--678
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 679--680
+
+ []
+
+[156]
+Underfull \hbox (badness 10000) in paragraph at lines 712--713
+
+ []
+
+[157]
+<figures/week_08_sampling/AIPW.png, id=656, 1035.87pt x 361.35pt>
+File: figures/week_08_sampling/AIPW.png Graphic file (type png)
+<use figures/week_08_sampling/AIPW.png>
+Package pdftex.def Info: figures/week_08_sampling/AIPW.png  used on input line 718.
+(pdftex.def)             Requested size: 341.43307pt x 119.10251pt.
+ [158 <./figures/week_08_sampling/AIPW.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 753--754
+
+ []
+
+) [159] (./week_09_uncertainty.tex
+Underfull \hbox (badness 10000) in paragraph at lines 27--28
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 29--30
+
+ []
+
+[160
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 81--82
+
+ []
+
+
+Overfull \hbox (9.70128pt too wide) in paragraph at lines 85--85
+[]\T1/cmr/bx/n/14.4 Conceptual (Bayesian) Shift: Prob-a-bil-ity Dis-tri-bu-tions of Func-
+ []
+
+<figures/week_09_uncertainty/GP.png, id=667, 833.1125pt x 694.595pt>
+File: figures/week_09_uncertainty/GP.png Graphic file (type png)
+<use figures/week_09_uncertainty/GP.png>
+Package pdftex.def Info: figures/week_09_uncertainty/GP.png  used on input line 89.
+(pdftex.def)             Requested size: 227.62206pt x 189.76888pt.
+[161]
+Underfull \hbox (badness 10000) in paragraph at lines 95--96
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 97--98
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 109--110
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 113--114
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 115--116
+
+ []
+
+[162 <./figures/week_09_uncertainty/GP.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 120--121
+
+ []
+
+[163]
+Underfull \hbox (badness 10000) in paragraph at lines 184--185
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 191--192
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 193--194
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 199--200
+
+ []
+
+<figures/week_09_uncertainty/marginals and conditionals.png, id=679, 1023.825pt x 1011.78pt>
+File: figures/week_09_uncertainty/marginals and conditionals.png Graphic file (type png)
+<use figures/week_09_uncertainty/marginals and conditionals.png>
+Package pdftex.def Info: figures/week_09_uncertainty/marginals and conditionals.png  used on input line 205.
+(pdftex.def)             Requested size: 227.62206pt x 224.93893pt.
+[164] [165 <./figures/week_09_uncertainty/marginals and conditionals.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 253--254
+
+ []
+
+[166]
+Underfull \hbox (badness 10000) in paragraph at lines 287--289
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 290--291
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 306--307
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 308--309
+
+ []
+
+[167]
+Underfull \hbox (badness 10000) in paragraph at lines 310--311
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 319--320
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 337--338
+
+ []
+
+[168]
+Underfull \hbox (badness 10000) in paragraph at lines 350--351
+
+ []
+
+<figures/week_09_uncertainty/GP_2.png, id=696, 1148.29pt x 843.15pt>
+File: figures/week_09_uncertainty/GP_2.png Graphic file (type png)
+<use figures/week_09_uncertainty/GP_2.png>
+Package pdftex.def Info: figures/week_09_uncertainty/GP_2.png  used on input line 356.
+(pdftex.def)             Requested size: 341.43307pt x 250.6955pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 360--361
+
+ []
+
+[169 <./figures/week_09_uncertainty/GP_2.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 362--363
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 364--365
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 366--367
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 372--373
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 374--375
+
+ []
+
+<figures/week_09_uncertainty/GP variance.png, id=702, 1312.905pt x 437.635pt>
+File: figures/week_09_uncertainty/GP variance.png Graphic file (type png)
+<use figures/week_09_uncertainty/GP variance.png>
+Package pdftex.def Info: figures/week_09_uncertainty/GP variance.png  used on input line 390.
+(pdftex.def)             Requested size: 341.43307pt x 113.80913pt.
+[170]
+Underfull \hbox (badness 10000) in paragraph at lines 409--410
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 411--412
+
+ []
+
+[171 <./figures/week_09_uncertainty/GP variance.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 430--431
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 459--460
+
+ []
+
+[172]
+Underfull \hbox (badness 10000) in paragraph at lines 477--478
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 493--494
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 516--517
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 518--519
+
+ []
+
+[173]
+Underfull \hbox (badness 10000) in paragraph at lines 553--554
+
+ []
+
+[174]
+Underfull \hbox (badness 10000) in paragraph at lines 556--557
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 574--575
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 576--577
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 594--595
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 596--597
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 598--599
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 600--601
+
+ []
+
+[175]) [176] (./week_10_neural_nets.tex
+Underfull \hbox (badness 10000) in paragraph at lines 19--20
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 21--22
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 29--30
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 31--32
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 33--34
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 45--47
+
+ []
+
+[177
+
+]
+<figures/week_10_neural_nets/peceptron.png, id=729, 1765.59625pt x 2258.4375pt>
+File: figures/week_10_neural_nets/peceptron.png Graphic file (type png)
+<use figures/week_10_neural_nets/peceptron.png>
+Package pdftex.def Info: figures/week_10_neural_nets/peceptron.png  used on input line 69.
+(pdftex.def)             Requested size: 227.62206pt x 291.16046pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 84--85
+
+ []
+
+<figures/week_10_neural_nets/XOR.png, id=730, 517.935pt x 349.305pt>
+File: figures/week_10_neural_nets/XOR.png Graphic file (type png)
+<use figures/week_10_neural_nets/XOR.png>
+Package pdftex.def Info: figures/week_10_neural_nets/XOR.png  used on input line 90.
+(pdftex.def)             Requested size: 211.97308pt x 142.96013pt.
+[178 <./figures/week_10_neural_nets/peceptron.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 104--105
+
+ []
+
+<figures/week_10_neural_nets/infinite hyperplane.png, id=735, 1260.71pt x 946.53625pt>
+File: figures/week_10_neural_nets/infinite hyperplane.png Graphic file (type png)
+<use figures/week_10_neural_nets/infinite hyperplane.png>
+Package pdftex.def Info: figures/week_10_neural_nets/infinite hyperplane.png  used on input line 108.
+(pdftex.def)             Requested size: 227.62206pt x 170.88911pt.
+[179 <./figures/week_10_neural_nets/XOR.png> <./figures/week_10_neural_nets/infinite hyperplane.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 117--118
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 119--120
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 129--131
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 137--138
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 156--157
+
+ []
+
+[180]
+Underfull \hbox (badness 10000) in paragraph at lines 158--159
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 160--161
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 164--165
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 166--167
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 175--176
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 177--178
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 179--180
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 181--182
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 183--184
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 185--186
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 196--197
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 198--199
+
+ []
+
+[181]
+Underfull \hbox (badness 10000) in paragraph at lines 200--201
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 212--213
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 216--217
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 218--219
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 231--232
+
+ []
+
+[182]
+Underfull \hbox (badness 10000) in paragraph at lines 249--250
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 255--256
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 262--264
+
+ []
+
+<figures/week_10_neural_nets/activation functions1.png, id=751, 624.3325pt x 399.4925pt>
+File: figures/week_10_neural_nets/activation functions1.png Graphic file (type png)
+<use figures/week_10_neural_nets/activation functions1.png>
+Package pdftex.def Info: figures/week_10_neural_nets/activation functions1.png  used on input line 286.
+(pdftex.def)             Requested size: 341.43307pt x 218.47801pt.
+[183]
+<figures/week_10_neural_nets/activation function 2.png, id=755, 618.31pt x 407.5225pt>
+File: figures/week_10_neural_nets/activation function 2.png Graphic file (type png)
+<use figures/week_10_neural_nets/activation function 2.png>
+Package pdftex.def Info: figures/week_10_neural_nets/activation function 2.png  used on input line 293.
+(pdftex.def)             Requested size: 341.43307pt x 225.03972pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 300--301
+
+ []
+
+[184 <./figures/week_10_neural_nets/activation functions1.png> <./figures/week_10_neural_nets/activation function 2.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 313--314
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 319--320
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 321--322
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 323--324
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 325--326
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 327--328
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 329--330
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 339--341
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 342--343
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 348--349
+
+ []
+
+[185]
+Underfull \hbox (badness 10000) in paragraph at lines 360--361
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 370--371
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 372--373
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 383--384
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 385--386
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 387--388
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 389--390
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 396--397
+
+ []
+
+<figures/week_10_neural_nets/Back propagation.png, id=764, 1507.6325pt x 337.26pt>
+File: figures/week_10_neural_nets/Back propagation.png Graphic file (type png)
+<use figures/week_10_neural_nets/Back propagation.png>
+Package pdftex.def Info: figures/week_10_neural_nets/Back propagation.png  used on input line 402.
+(pdftex.def)             Requested size: 317.95963pt x 71.12515pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 416--417
+
+ []
+
+[186]
+Underfull \hbox (badness 10000) in paragraph at lines 437--438
+
+ []
+
+[187 <./figures/week_10_neural_nets/Back propagation.png>]
+<figures/week_10_neural_nets/MLP.png, id=773, 1507.6325pt x 337.26pt>
+File: figures/week_10_neural_nets/MLP.png Graphic file (type png)
+<use figures/week_10_neural_nets/MLP.png>
+Package pdftex.def Info: figures/week_10_neural_nets/MLP.png  used on input line 452.
+(pdftex.def)             Requested size: 341.43307pt x 76.37425pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 476--478
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 479--480
+
+ []
+
+[188 <./figures/week_10_neural_nets/MLP.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 524--525
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 526--527
+
+ []
+
+<figures/week_10_neural_nets/backpror algo.png, id=778, 1254.18562pt x 579.66562pt>
+File: figures/week_10_neural_nets/backpror algo.png Graphic file (type png)
+<use figures/week_10_neural_nets/backpror algo.png>
+Package pdftex.def Info: figures/week_10_neural_nets/backpror algo.png  used on input line 534.
+(pdftex.def)             Requested size: 341.43307pt x 157.80316pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 547--548
+
+ []
+
+[189 <./figures/week_10_neural_nets/backpror algo.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 561--562
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 565--566
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 578--579
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 580--581
+
+ []
+
+[190] [191]
+<figures/week_10_neural_nets/MLP Recipe.png, id=789, 1127.71312pt x 595.47469pt>
+File: figures/week_10_neural_nets/MLP Recipe.png Graphic file (type png)
+<use figures/week_10_neural_nets/MLP Recipe.png>
+Package pdftex.def Info: figures/week_10_neural_nets/MLP Recipe.png  used on input line 653.
+(pdftex.def)             Requested size: 432.48051pt x 228.36346pt.
+ [192]
+Underfull \hbox (badness 10000) in paragraph at lines 660--661
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 668--669
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 670--671
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 672--673
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 684--685
+
+ []
+
+[193 <./figures/week_10_neural_nets/MLP Recipe.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 686--687
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 719--720
+
+ []
+
+[194] [195] [196]
+Underfull \hbox (badness 10000) in paragraph at lines 833--834
+
+ []
+
+<figures/week_10_neural_nets/univerasal expression.png, id=807, 1264.725pt x 405.515pt>
+File: figures/week_10_neural_nets/univerasal expression.png Graphic file (type png)
+<use figures/week_10_neural_nets/univerasal expression.png>
+Package pdftex.def Info: figures/week_10_neural_nets/univerasal expression.png  used on input line 839.
+(pdftex.def)             Requested size: 432.48051pt x 138.66528pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 847--848
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 849--850
+
+ []
+
+[197 <./figures/week_10_neural_nets/univerasal expression.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 851--852
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 853--854
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 855--856
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 862--863
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 864--865
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 866--867
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 873--874
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 875--876
+
+ []
+
+<figures/week_10_neural_nets/MLP is a GP.png, id=812, 1318.9275pt x 977.6525pt>
+File: figures/week_10_neural_nets/MLP is a GP.png Graphic file (type png)
+<use figures/week_10_neural_nets/MLP is a GP.png>
+Package pdftex.def Info: figures/week_10_neural_nets/MLP is a GP.png  used on input line 881.
+(pdftex.def)             Requested size: 227.62206pt x 168.71982pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 886--887
+
+ []
+
+[198]
+Underfull \hbox (badness 10000) in paragraph at lines 892--893
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 894--895
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 896--897
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 898--899
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 910--911
+
+ []
+
+[199 <./figures/week_10_neural_nets/MLP is a GP.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 935--936
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 937--938
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 952--953
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 965--966
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 967--968
+
+ []
+
+[200]
+Underfull \hbox (badness 10000) in paragraph at lines 986--987
+
+ []
+
+<figures/week_10_neural_nets/gradient clipping.png, id=825, 907.39pt x 222.8325pt>
+File: figures/week_10_neural_nets/gradient clipping.png Graphic file (type png)
+<use figures/week_10_neural_nets/gradient clipping.png>
+Package pdftex.def Info: figures/week_10_neural_nets/gradient clipping.png  used on input line 992.
+(pdftex.def)             Requested size: 341.43307pt x 83.8476pt.
+[201 <./figures/week_10_neural_nets/gradient clipping.png>] [202]
+<figures/week_10_neural_nets/nonsaturating activation functions.png, id=833, 610.28pt x 407.5225pt>
+File: figures/week_10_neural_nets/nonsaturating activation functions.png Graphic file (type png)
+<use figures/week_10_neural_nets/nonsaturating activation functions.png>
+Package pdftex.def Info: figures/week_10_neural_nets/nonsaturating activation functions.png  used on input line 1058.
+(pdftex.def)             Requested size: 227.62206pt x 151.99974pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 1072--1073
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1074--1075
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1076--1077
+
+ []
+
+[203 <./figures/week_10_neural_nets/nonsaturating activation functions.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 1084--1085
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1086--1087
+
+ []
+
+[204] [205]
+<figures/week_10_neural_nets/regularization.png, id=845, 1160.335pt x 515.9275pt>
+File: figures/week_10_neural_nets/regularization.png Graphic file (type png)
+<use figures/week_10_neural_nets/regularization.png>
+Package pdftex.def Info: figures/week_10_neural_nets/regularization.png  used on input line 1168.
+(pdftex.def)             Requested size: 227.62206pt x 101.20769pt.
+) [206 <./figures/week_10_neural_nets/regularization.png>] (./week_11_neural_nets_ii.tex [207
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 86--87
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--93
+
+ []
+
+[208]
+Underfull \hbox (badness 10000) in paragraph at lines 149--150
+
+ []
+
+[209]
+Underfull \hbox (badness 10000) in paragraph at lines 181--182
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 183--184
+
+ []
+
+<figures/week_11_neural_nets_ii/gradient_clipping_2.png, id=859, 795.97375pt x 190.7125pt>
+File: figures/week_11_neural_nets_ii/gradient_clipping_2.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/gradient_clipping_2.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/gradient_clipping_2.png  used on input line 206.
+(pdftex.def)             Requested size: 341.43307pt x 81.80397pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 212--213
+
+ []
+
+[210 <./figures/week_11_neural_nets_ii/gradient_clipping_2.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 214--215
+
+ []
+
+<figures/week_11_neural_nets_ii/activation function.png, id=864, 610.28pt x 407.5225pt>
+File: figures/week_11_neural_nets_ii/activation function.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/activation function.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/activation function.png  used on input line 220.
+(pdftex.def)             Requested size: 341.43307pt x 228.00583pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 235--237
+
+ []
+
+[211 <./figures/week_11_neural_nets_ii/activation function.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 248--250
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 264--266
+
+ []
+
+[212]
+Underfull \hbox (badness 10000) in paragraph at lines 294--295
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 296--297
+
+ []
+
+[213]
+<figures/week_11_neural_nets_ii/dropout.png, id=876, 310.15875pt x 123.46124pt>
+File: figures/week_11_neural_nets_ii/dropout.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/dropout.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/dropout.png  used on input line 380.
+(pdftex.def)             Requested size: 227.62206pt x 90.60632pt.
+ [214]
+Overfull \hbox (0.6178pt too wide) in paragraph at lines 388--389
+ \T1/cmr/bx/n/10.95 Train-ing with Dropout:[] \T1/cmr/m/n/10.95 Dur-ing each train-ing it-er-a-tion, some neu-rons are ran-domly "dropped
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 406--407
+
+ []
+
+[215 <./figures/week_11_neural_nets_ii/dropout.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 419--420
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 424--425
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 433--434
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 435--436
+
+ []
+
+[216]
+<figures/week_11_neural_nets_ii/convolution.png, id=887, 942.52126pt x 288.07625pt>
+File: figures/week_11_neural_nets_ii/convolution.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/convolution.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/convolution.png  used on input line 454.
+(pdftex.def)             Requested size: 227.62206pt x 69.57048pt.
+<figures/week_11_neural_nets_ii/convolution 2.png, id=888, 525.965pt x 284.06125pt>
+File: figures/week_11_neural_nets_ii/convolution 2.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/convolution 2.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/convolution 2.png  used on input line 463.
+(pdftex.def)             Requested size: 227.62206pt x 122.9328pt.
+ [217 <./figures/week_11_neural_nets_ii/convolution 2.png> <./figures/week_11_neural_nets_ii/convolution.png>]
+<figures/week_11_neural_nets_ii/convolution 4.png, id=895, 597.23125pt x 77.28876pt>
+File: figures/week_11_neural_nets_ii/convolution 4.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/convolution 4.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/convolution 4.png  used on input line 498.
+(pdftex.def)             Requested size: 227.62206pt x 29.45729pt.
+<figures/week_11_neural_nets_ii/convolution 5.png, id=896, 419.5675pt x 43.16125pt>
+File: figures/week_11_neural_nets_ii/convolution 5.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/convolution 5.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/convolution 5.png  used on input line 513.
+(pdftex.def)             Requested size: 227.62206pt x 23.41537pt.
+<figures/week_11_neural_nets_ii/convolution 6.png, id=897, 801.99625pt x 244.915pt>
+File: figures/week_11_neural_nets_ii/convolution 6.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/convolution 6.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/convolution 6.png  used on input line 525.
+(pdftex.def)             Requested size: 227.62206pt x 69.51pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 532--533
+
+ []
+
+[218 <./figures/week_11_neural_nets_ii/convolution 6.png> <./figures/week_11_neural_nets_ii/convolution 4.png> <./figures/week_11_neural_nets_ii/convolution 5.png>]
+<figures/week_11_neural_nets_ii/Screenshot 2024-08-28 at 14.50.46.png, id=904, 668.4975pt x 246.9225pt>
+File: figures/week_11_neural_nets_ii/Screenshot 2024-08-28 at 14.50.46.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/Screenshot 2024-08-28 at 14.50.46.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/Screenshot 2024-08-28 at 14.50.46.png  used on input line 562.
+(pdftex.def)             Requested size: 227.62206pt x 84.07686pt.
+ [219 <./figures/week_11_neural_nets_ii/Screenshot 2024-08-28 at 14.50.46.png>]
+<figures/week_11_neural_nets_ii/padding.png, id=909, 362.35374pt x 238.8925pt>
+File: figures/week_11_neural_nets_ii/padding.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/padding.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/padding.png  used on input line 593.
+(pdftex.def)             Requested size: 227.62206pt x 150.06927pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 606--607
+
+ []
+
+<figures/week_11_neural_nets_ii/padding 2.png, id=910, 519.9425pt x 172.645pt>
+File: figures/week_11_neural_nets_ii/padding 2.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/padding 2.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/padding 2.png  used on input line 612.
+(pdftex.def)             Requested size: 227.62206pt x 75.5794pt.
+[220 <./figures/week_11_neural_nets_ii/padding.png> <./figures/week_11_neural_nets_ii/padding 2.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 629--630
+
+ []
+
+<figures/week_11_neural_nets_ii/pooling.png, id=916, 436.63126pt x 189.70876pt>
+File: figures/week_11_neural_nets_ii/pooling.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/pooling.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/pooling.png  used on input line 651.
+(pdftex.def)             Requested size: 227.62206pt x 98.89806pt.
+[221 <./figures/week_11_neural_nets_ii/pooling.png>]
+<figures/week_11_neural_nets_ii/CNN hierarchy.png, id=921, 1467.4825pt x 525.965pt>
+File: figures/week_11_neural_nets_ii/CNN hierarchy.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/CNN hierarchy.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/CNN hierarchy.png  used on input line 685.
+(pdftex.def)             Requested size: 341.43307pt x 122.37387pt.
+ [222 <./figures/week_11_neural_nets_ii/CNN hierarchy.png>] [223] [224]
+<figures/week_11_neural_nets_ii/attention.png, id=933, 1426.32875pt x 1503.6175pt>
+File: figures/week_11_neural_nets_ii/attention.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/attention.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/attention.png  used on input line 821.
+(pdftex.def)             Requested size: 227.62206pt x 239.9413pt.
+ [225]
+Underfull \hbox (badness 10000) in paragraph at lines 840--841
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 842--843
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 844--845
+
+ []
+
+[226 <./figures/week_11_neural_nets_ii/attention.png>]
+<figures/week_11_neural_nets_ii/attention 2.png, id=941, 969.6225pt x 544.0325pt>
+File: figures/week_11_neural_nets_ii/attention 2.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/attention 2.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/attention 2.png  used on input line 884.
+(pdftex.def)             Requested size: 341.43307pt x 191.5681pt.
+ [227 <./figures/week_11_neural_nets_ii/attention 2.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 953--955
+
+ []
+
+[228]
+Underfull \hbox (badness 10000) in paragraph at lines 978--979
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 986--987
+
+ []
+
+[229] [230]
+<figures/week_11_neural_nets_ii/self-attention.png, id=956, 2136.98375pt x 909.3975pt>
+File: figures/week_11_neural_nets_ii/self-attention.png Graphic file (type png)
+<use figures/week_11_neural_nets_ii/self-attention.png>
+Package pdftex.def Info: figures/week_11_neural_nets_ii/self-attention.png  used on input line 1071.
+(pdftex.def)             Requested size: 341.43307pt x 145.28455pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 1077--1078
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1096--1097
+
+ []
+
+[231 <./figures/week_11_neural_nets_ii/self-attention.png>]) [232] (./week_12_unsupervised.tex [233
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 87--88
+
+ []
+
+[234]
+Underfull \hbox (badness 10000) in paragraph at lines 119--120
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 121--122
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--127
+
+ []
+
+<figures/week_12_unsupervised/PCA.png, id=970, 1003.75pt x 401.5pt>
+File: figures/week_12_unsupervised/PCA.png Graphic file (type png)
+<use figures/week_12_unsupervised/PCA.png>
+Package pdftex.def Info: figures/week_12_unsupervised/PCA.png  used on input line 133.
+(pdftex.def)             Requested size: 3869.57494pt x 1548.2058pt.
+
+Overfull \hbox (3414.33083pt too wide) in paragraph at lines 133--134
+ [][] 
+ []
+
+[235]
+Overfull \vbox (909.82274pt too high) has occurred while \output is active []
+
+ [236 <./figures/week_12_unsupervised/PCA.png>] [237]
+<figures/week_12_unsupervised/embeddings1.png, id=982, 685.56125pt x 393.47pt>
+File: figures/week_12_unsupervised/embeddings1.png Graphic file (type png)
+<use figures/week_12_unsupervised/embeddings1.png>
+Package pdftex.def Info: figures/week_12_unsupervised/embeddings1.png  used on input line 242.
+(pdftex.def)             Requested size: 227.62206pt x 130.638pt.
+ [238]
+<figures/week_12_unsupervised/embeddings2.png, id=986, 685.56125pt x 393.47pt>
+File: figures/week_12_unsupervised/embeddings2.png Graphic file (type png)
+<use figures/week_12_unsupervised/embeddings2.png>
+Package pdftex.def Info: figures/week_12_unsupervised/embeddings2.png  used on input line 249.
+(pdftex.def)             Requested size: 227.62206pt x 130.638pt.
+<figures/week_12_unsupervised/embeddings3.png, id=987, 685.56125pt x 393.47pt>
+File: figures/week_12_unsupervised/embeddings3.png Graphic file (type png)
+<use figures/week_12_unsupervised/embeddings3.png>
+Package pdftex.def Info: figures/week_12_unsupervised/embeddings3.png  used on input line 256.
+(pdftex.def)             Requested size: 227.62206pt x 130.638pt.
+<figures/week_12_unsupervised/embeddings4.png, id=988, 685.56125pt x 393.47pt>
+File: figures/week_12_unsupervised/embeddings4.png Graphic file (type png)
+<use figures/week_12_unsupervised/embeddings4.png>
+Package pdftex.def Info: figures/week_12_unsupervised/embeddings4.png  used on input line 267.
+(pdftex.def)             Requested size: 227.62206pt x 130.638pt.
+ [239 <./figures/week_12_unsupervised/embeddings1.png> <./figures/week_12_unsupervised/embeddings2.png> <./figures/week_12_unsupervised/embeddings3.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 280--281
+
+ []
+
+<figures/week_12_unsupervised/autoencoder.png, id=995, 574.145pt x 533.995pt>
+File: figures/week_12_unsupervised/autoencoder.png Graphic file (type png)
+<use figures/week_12_unsupervised/autoencoder.png>
+Package pdftex.def Info: figures/week_12_unsupervised/autoencoder.png  used on input line 286.
+(pdftex.def)             Requested size: 227.62206pt x 211.70386pt.
+[240 <./figures/week_12_unsupervised/embeddings4.png> <./figures/week_12_unsupervised/autoencoder.png>] [241]) [242] (./main.aux)
+ ***********
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+ ***********
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 17886 strings out of 469519
+ 390864 string characters out of 5469078
+ 728381 words of memory out of 5000000
+ 46195 multiletter control sequences out of 15000+600000
+ 653060 words of font info for 108 fonts, out of 8000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 103i,16n,121p,829b,668s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm0600.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm0800.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbi1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecti1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm0900.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1440.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1200.600pk></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on main.pdf (242 pages, 16817138 bytes).
+PDF statistics:
+ 1624 PDF objects out of 1728 (max. 8388607)
+ 631 compressed objects within 7 object streams
+ 0 named destinations out of 1000 (max. 500000)
+ 523 words of extra memory for PDF output out of 10000 (max. 10000000)
+

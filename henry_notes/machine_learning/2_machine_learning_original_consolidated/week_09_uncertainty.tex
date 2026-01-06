@@ -1,0 +1,635 @@
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf ML Lecture Notes 2024 \\ Henry Baker}
+\hline 
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf ML Lecture Notes: Wk 9 \\ Uncertainty }
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\begin{tcolorbox}
+    2 ways to formalise predictive uncertainty:
+    \begin{enumerate}
+        \item \textbf{Gaussian Process} - assume a model, get a Bayesian probabilistic model for your data
+        \item \textbf{Conformal Inference} - assume nothing about your model, get a particular measure of uncertainty about your predictions for future points.
+    \end{enumerate}
+\end{tcolorbox}
+
+\section{A Primer on Gaussian Processes (GPs)}
+
+A Gaussian process is a collection of random variables, any finite number of which have a joint Gaussian distribution. This means that every finite set of points sampled from a GP can be described by a mean vector and a covariance matrix, creating a multivariate Gaussian distribution.\\
+
+GPs are characterized by their mean function (often assumed to be zero in practice) and a covariance function or kernel, which describes the relationship or similarity between different points in the input space.\\
+
+A GP is a probabilistic model that's used in scenarios where we want to make predictions about uncertain quantities. It's essentially a way to define a 'space' of possible functions that could fit our data, and then, using the observed data, we find the most likely function from this space.
+
+\begin{tcolorbox}
+    \textbf{Intuition:}
+
+     Given some data points, a GP helps you predict where other points might lie, along with how certain it is about those predictions.
+\end{tcolorbox}
+
+At its core, a Gaussian process generalizes the Gaussian probability distribution (bell curve). A single Gaussian distribution defines the probability of a single random variable. In contrast, a GP deals with functions, which you can think of as an infinite collection of random variables, one for each input point.
+
+\subsection{Components}
+A GP is fully specified by its mean function and a covariance function (a kernel).
+\begin{enumerate}
+    \item \textbf{Mean Function ($m(x)$}
+    \begin{itemize}
+        \item Describes the average value of the function you're trying to predict at point $x$.
+        \item commonly set to zero since the GP can model the data well without specifying a mean function, thanks to the flexibility of the covariance function.
+        \item setting to 0 is just a simplification, saying that before seeing any data, we don't prefer one function's value over another.
+    \end{itemize}
+    \item \textbf{Covariance Function / Kernel ($k(x, x')$} -  embodies our assumptions about the function we want to learn.
+    \begin{itemize}
+        \item A function that defines the covariance between any two points $x$ and $x'$ in the input space.
+        \item It encapsulates assumptions about the function such as smoothness, periodicity, and how quickly it can vary.
+        \item It answers questions like: How does the output value at one point (say, temperature at one location) relate to the output at another point (temperature at a nearby location)? Do we expect smooth variations or abrupt changes? Are there repeating patterns?
+        \item choice of the kernel function is critical and heavily influences the model's performance. It determines the shape and smoothness of the functions in our 'function space.
+        \begin{itemize}
+            \item Squared Exponential Kernel: Assumes the function is very smooth. Close points will have similar values.
+            \item Periodic Kernel: Assumes the function repeats itself over time.
+            \item Linear Kernel: Assumes the function has a linear relationship.
+        \end{itemize}
+        The GP uses the kernel to measure the similarity between points. Points that are 'close' according to the kernel will have similar outputs.
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Inference:} When you want to make a prediction at a new point, the GP looks at the points you've already observed and uses the kernel to weigh their influence on the new point. It combines these influences to give you \textbf{not just a single predicted value, but a probability distribution for that value}.
+
+\subsection{Properties}
+\begin{itemize}
+    \item \textbf{Non-parametric} - don't assume a fixed form of the function being modeled; instead define a distribution over possible functions that fit the data.
+    \item \textbf{Incorporation of prior knowledge} - through choice of kernel; e.g. if we know the target function is smooth, we might choose a squared exponential kernel.
+    \item \textbf{Uncertainty Quantification} -  built-in measure of uncertainty: places where we don't have much data will have wider confidence intervals, reflecting that we're less sure about those areas. Crucial for applications like optimization, where understanding the confidence in predictions can guide decision-making.
+    \item \textbf{Flexibility} -  ability to work well with a small amount of data, thanks to the strong prior assumptions encoded in the kernel. Particularly good when you have a small amount of data but believe that the data has a rich structure.
+\end{itemize}
+
+\subsection{The Challenge}
+
+Main downside is computational. For $n$ data points, GP inference can require operations that scale with $n^3$, which becomes prohibitive for large $n$. This is because it involves inverting a large matrix that grows with the number of data points.
+
+\subsection{Summary}
+
+a Gaussian process is like a very smart, very flexible line that we fit through data. It doesn't just go straight, or curve in preset ways like traditional lines or curves. It can adopt an infinite number of shapes, guided by the properties of the data and the assumptions we encode in the kernel. \\
+
+Plus, it gives us a shaded area that grows and shrinks, showing where we can trust its predictions and where we're guessing.
+
+\section{Conceptual (Bayesian) Shift: Probability Distributions of Functions}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_09_uncertainty/GP.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{The Idea}
+Probability distributions, commonly applied to random variables, can also be extended to functions.\\
+
+\textbf{Hypothesis class} $\mathcal{H}$ - the set of all functions that your algorithm can possibly learn. Each element $f$ of this set $\mathcal{H}$ is a candidate function for the 'true' function you aim to discover.\\
+
+\textbf{Prob Distribution Over Functions} - Instead of picking one single function as our guess, we can take a probabilistic approach and assign a probability distribution over the entire hypothesis class.
+\begin{itemize}
+    \item Every function $f$ in $\mathcal{H}$ is assigned a prob $p(f)$ that reflects our belief in how likely it is to be the true function.
+\end{itemize}
+= Bayesian.
+\begin{itemize}
+    \item Bayesian approach allows us to update our beliefs about the functions' probabilities as we observe more data.
+\end{itemize}
+
+\subsection{Ridge Regression as applied example}
+RR can be thought of as putting a probability distribution over the coefficients $\beta$ of linear functions.\\
+
+$$p(f) = p(\beta)$$
+
+In RR coefficients $\beta$ close to zero are considered more likely than large $\beta$ values. This reflects a prior belief that the true relationship is likely to be simple (with small coefficients) rather than complex (with large coefficients).\\
+
+We're effectively placing a Gaussian (or normal) prior on the coefficients $\beta$: functions that correspond to these coefficients inherit this probability distribution, meaning we're indirectly placing a distribution on functions.\\
+
+we express our prior belief about the simplicity of the function by assuming a probability distribution over the function's parameters, which by extension, is a distribution over the space of possible functions.
+
+\subsection{Conceptual Shift}
+Thinking about probabilities not just in terms of random variables but in terms of entire functions. \\
+
+In this framework, supervised learning now involves updating our beliefs about which functions are likely to be good explanations for the data, rather than searching for a single 'best' function. This perspective allows for a more nuanced understanding of model selection and the inherent uncertainties in the process of learning from data.
+
+\section{Gaussian Processes}
+\begin{redbox}
+    when the goal is not just to make predictions, but also to understand the uncertainty associated with those predictions.
+\end{redbox}
+
+\subsection{The Process}
+
+\begin{enumerate}
+    \item \textbf{Prior Distribution over Functions in $\mathcal{H}$} - this prior encapsulates our beliefs about the functions before observing any data. 
+    \item \textbf{Condition on Observed Data} - We then update our beliefs (i.e., condition our prior) based on the data we've observed. 
+    \begin{itemize}
+        \item observed data: $y=f(x) + \epsilon$
+        \item assumed to be normally distributed, with mean 0, and variance $\sigma^2$: $\epsilon ~ N(0, \sigma^2$
+    \end{itemize}
+    \item \textbf{Gaussian Process Model} - GPs model any \textcolor{blue}{collection of function values (labels)} as a multivariate normal distribution, with \textcolor{green}{means} and \textcolor{red}{covariances}.
+    \begin{itemize}
+        \item if you take any set of points from the function $f$, their corresponding outputs will be distributed according to a multivariate Gaussian.
+        \item How to construct a prob distribution: you need to derive a \textcolor{green}{mean $\mu$} and \textcolor{red}{covariance $K$} based on inputs $X$: these two measures allow you to construct a prob distribution rather than just a point estimate.
+    \end{itemize}
+    \item \textbf{Conditional Distribution} - distribution of observed and predicted values is jointly Gaussian:
+        \[
+        \begin{bmatrix}
+        \textcolor{blue}{y} \\
+        \textcolor{blue}{y_*}
+        \end{bmatrix}
+        \sim \mathcal{N}\left(
+        \begin{bmatrix}
+        \textcolor{green}{\mu_X} \\
+        \textcolor{green}{\mu_*}
+        \end{bmatrix},
+        \begin{bmatrix}
+        \textcolor{red}{K_{X,X} + \sigma^2 I} & \textcolor{red}{K_{X,*}} \\
+        \textcolor{red}{K_{*,X}} & \textcolor{red}{K_{*,*}}
+        \end{bmatrix}
+        \right)
+        \]
+    where:
+    \begin{itemize}
+        \item $y$ = \textbf{observed training points}
+        \item $y_*$ = \textbf{predictions (test points)}
+        \item $K_{X,X}$ = \textbf{covariance matrix of the training points}
+        \item $K_{X,*}$ = \textbf{covariance between the training and test points}
+        \begin{itemize}
+            \item $K_{X,X}$ and $K_{X,*}$ tell how much the function values at the training points inform us about the function values at the test points.
+        \end{itemize}
+        \item $K_{*,*}$ = \textbf{covariance among the test points themselves} 
+        \begin{itemize}
+            \item how much we expect the function values at one test point to vary with the function values at another test point, before seeing the data.
+        \end{itemize}
+        \item $\sigma^2 I$ \textbf{noise associated with the training data observations} - adds variance to the observed data to account for noise.
+    \end{itemize}
+
+    \item \textbf{Bayesian Optimization} - GPs can be applied to continuous optimization problems via Bayesian Optimization: a GP is used to model the function we're optimizing, and an acquisition function is used to make decisions about where to sample next, considering both the GP's predictions and the uncertainty around those predictions.
+\end{enumerate}
+
+\begin{redbox}
+= any collection of labels are distributed multi-variate normal, With means and covariances
+\end{redbox}
+
+\begin{tcolorbox}
+    \textbf{Conditional Normality Assumption:}\\
+    
+    The fundamental assumption in Gaussian Processes (GPs) is that all points are conditionally normal; this means that for any set of inputs, the corresponding outputs will follow a multivariate normal distribution. We fit the GP model by conditioning on observed data, effectively updating our beliefs about the function we're modeling in light of new evidence.
+\end{tcolorbox}
+
+\subsection{Applications for Sampling \& Decision Making}
+
+In contrast to bandit algorithms, which are designed for making discrete choices, Bayesian optimization is an approach for making continuous choices. This optimization often involves GPs due to their ability to model the uncertainty in function values effectively.\\
+
+The GP learns from the data, and we utilize an acquisition function to determine the next point to sample. This acquisition function balances exploitation, where we sample points in regions with high predicted values (suggesting high reward or low cost), against exploration, where we sample points in regions with high uncertainty (where there's more to learn about the function's behavior).\\
+
+Bayesian optimization with GPs is a sequential, iterative process. At each iteration, the GP model incorporates new observations, and the acquisition function determines the most informative next sample point based on the current model. This strategy is particularly advantageous for optimizing functions that are costly to evaluate because it strives to achieve the best possible results with as few evaluations as possible, thereby conserving resources and time.
+
+\subsection{Fit a model by condition on data: output statistics}
+
+Making predictions using a Gaussian Process model after the model has been conditioned on observed data, (training set $\mathcal{D}$).\\
+
+When we condition on the data, we update our belief about the distribution of functions based on the evidence provided $\mathcal{D}$
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_09_uncertainty/marginals and conditionals.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsubsection{Predictive Distribution} for outputs $y^*$ at new input points $X^*$, given observed data $\mathcal{D}$): is a normal distribution, with mean $\mu^*$ and variance $\Sigma^*$:
+
+$$p(f_*|X_*, \mathcal{D} ~ \mathcal{N}(\mu_*, \Sigma_*)$$
+
+To construct this predictive distribution, we need:
+\begin{enumerate}
+    \item Mean $\mu^*$
+    \item Variance $\Sigma_*$
+\end{enumerate}
+
+\subsubsection{Mean $\mu^*$:}
+    $$\mu_* = m(X_*) + K_{X,*}^TK_{X,X} (\sigma^2 I)^{-1}(y_* - m(X_*))$$
+    Where, you take the
+    \begin{itemize}
+        \item $m(X^*)$= mean function at new input points ($X^*$). It represents our \textbf{prior mean} for these points. It provides a baseline expectation for the function's output before considering the observed data.
+        \item Then adjust based on:
+        \begin{itemize}
+            \item \( K_{X,*} \): \textbf{ covariance matrix between the training inputs \( X \) and the test inputs \( X_* \)}
+            \begin{itemize}
+                \item It measures how much each of the new input points $X_*$ is expected to covary with the training inputs.
+                \item Essentially, it captures the influence of the observed data on the predictions at new points based on the similarity (as defined by the kernel) between the training and new input points.
+                \item reflects how changes in the training inputs inform the outputs at the test inputs.
+            \end{itemize}
+    
+            \item  \( K_{X,X}^{-1}(\sigma^2 I)^{-1} \): \textbf{inverse of the covariance matrix of the training inputs \( X \), scaled by noise \( \sigma^2 \)}, accounting for the uncertainty due to noise in the observed outputs.
+            \begin{itemize}
+                \item  inverse covariance matrix of the training inputs $X$ (often regularized by adding $\sigma^2 I$ to ensure it's invertible) reflects how the training points relate to each other. 
+                \item serves as a normalization factor that weights the influence of each training point based on its relationship to the rest of the training data.
+            \end{itemize}
+            \item  \((y_* - m(X)) \): \textbf{difference between the observed outputs \( y \) and the prior mean function evaluated at the training points \( m(X) \).}
+            \begin{itemize}
+                \item represents how the actual observations deviate from our prior beliefs.
+            \end{itemize}
+            \item $\sigma^2 I$ = \textbf{noise in the observations}
+            \begin{itemize}
+                \item is added to the diagonal of $K_{X,X}$ before inversion. 
+                \item It accounts for the uncertainty in the observed outputs $y$ due to noise, ensuring that the model does not overfit the training data by assuming the observed outputs are perfectly accurate.
+            \end{itemize}
+        \end{itemize}
+    \end{itemize}
+
+\textbf{Interpretation of the mean $\mu_*$}
+
+represents our best guess for the function's output at the new input points \( X_* \), adjusted for the information gained from the observed data \( \mathcal{D} \). \\
+
+This adjustment adjusts the prior mean \( m(X_*) \) based on
+\begin{enumerate}
+    \item how similar (according to the kernel) the new inputs \( X_* \) are to the training inputs \( X \) 
+    \item how the observed outputs \( y \) deviate from what the mean function predicts for the training data. 
+\end{enumerate}
+
+This results in a prediction that is informed by both the prior knowledge encoded in the mean function and the observed data, weighted by the similarities between input points.
+
+
+    
+\subsubsection{Variance $\Sigma_*$:} \textit{reflects our uncertainty re: predictions}
+$$\Sigma_* = K_{*,*} - K_{X,*}^TK_{X,X} (\sigma^2 I)^{-1}K_{X,*}$$
+Where, you take the
+\begin{itemize}
+    \item $K_{*,*}$ = \textbf{covariance matrix of the test points} - how much we expect the function values at one test point to vary with the function values at another test point, before seeing the data.
+    \item $ K_{X,*}^TK_{X,X}\cdot$ = a term based on how the test and training points relate to each other / how much the function values at the training points inform us about the function values at the test points.
+    \item \textbf{$\sigma^2 I$ = Noise Term} - This represents the noise associated with the training data observations. It's added to the diagonal of the covariance matrix of the training points, which ensures that we're accounting for the uncertainty in our measurements of the function's output.
+\end{itemize}
+
+\begin{tcolorbox}
+    Intuitive Step-by-step:
+    \begin{enumerate}
+        \item \textbf{Start With Test Covariance:} We begin with our initial uncertainty about the function values at the test points, which is the covariance matrix of the function values at the test points itself, denoted as \( K_{*,*} \). This represents our best guess about how the function values might vary together before we consider the data.
+    
+        \item \textbf{Adjust by Training-Test Relationship:} We then adjust this by how much the test points are expected to vary with the training points, represented by the covariance matrix between the training points and the test points, denoted as \( K_{X,*} \). Specifically, we're looking at the covariance between our test predictions and the actual observed training data.
+        
+        \item \textbf{Apply Noise Adjustment:} The term \( (K + \sigma^2 I)^{-1} \) adjusts for the uncertainty in our training data due to noise. This adjustment is essential because it prevents us from being too confident in our predictions when our observations are noisy.
+        
+        \item \textbf{Subtract to Get Final Variance:} The subtraction essentially narrows down our initial uncertainty by removing the part that can be explained by the relationship with the training data. The result, \( \Sigma_{*} \), is a matrix that gives us variances and covariances of the predictions.
+    \end{enumerate}
+\end{tcolorbox}
+
+\textbf{Interpretation of $\Sigma_*$}
+The diagonal elements of $\Sigma_*$ give us the variances at each test point. A higher variance indicates greater uncertainty in the prediction at that point.\\
+
+Off-diagonal elements represent covariances between the predictions at different test points. These help understand how the uncertainty about one prediction relates to the uncertainty about another.\\
+
+$\Sigma_*$ captures what we don't know about our test predictions after taking into account what we do know from the training data and the model's structure (as specified by the covariance function).
+
+This computed variance $\Sigma_*$  is what allows GPs not just to make predictions, but to provide a confidence measure for those predictions, which is invaluable in decision-making processes where uncertainty needs to be considered.
+
+\begin{redbox}
+    \begin{enumerate}
+    GPs makes predictions that are:
+        \item informed by the observed data 
+        \item carry a measure of uncertainty.
+    \end{enumerate}
+\end{redbox}
+
+\subsection{GP as probabilistic reinterpretation of KRR}
+
+Note to self: these calculations are VERY similar to how we reconcptualised Kernel Ridge Regression as being about how similar units are to each other, with similarity measures defined by a kernel.\\
+
+The GP goes a step further by taking the KRR idea of modeling similarities (via the kernel) between points, then uses it to define a distribution over functions. Instead of merely providing a single point estimate for the predictions (as in KRR), a GP provides a joint probability distribution for all possible predictions. This distribution is defined by means (which can be seen as the point predictions) and variances/covariances (which encode the uncertainty and the relationships between different predictions).\\
+
+The construction of a GP involves computing a mean and a covariance matrix from the data, informed by the chosen kernel. \\
+
+A GP can be conceptualized as a probabilistic reinterpretation of kernelized ridge regression, where the emphasis is on the entire distribution of possible outcomes rather than just the expected value, allowing for the modeling of uncertainty and the correlation of predictions.
+
+\subsection{When we assume mean function to be 0 -> identical to KRR}
+
+When the mean function in a GP model is set to zero, and the model is conditioned on observed data points, the resulting posterior mean function of the GP can be seen as equivalent to the solution provided by KRR.
+
+\subsubsection{Gaussian Processes and Kernel Ridge Regression:}
+\textbf{Gaussian Process:} In a GP, when we assume a zero mean function, the focus shifts entirely to the covariance (kernel) function to model the data. When we The GP predicts new outputs \( f_* \) based on observed data (\( \mathcal{D} \)) and inputs \( X_* \) as a multivariate normal distribution with mean \( \mu_* \) and covariance \( \Sigma_* \).\\
+
+\textbf{Kernel Ridge Regression:} KRR is a form of ridge regression that uses a kernel to map input data into a higher-dimensional space, where linear regression is then applied. The regularization in KRR adds a penalty for large weights in the solution, similar to how the noise term \( \sigma^2 I \) regularizes the GP's covariance matrix.
+
+\subsubsection{Connecting GPs and KRR:}
+\textbf{Posterior Mean Function}: When conditioning a GP (with a zero mean function) on observed data, the posterior mean for the outputs \( f_* \) at new inputs \( X_* \) is given by:
+
+\[
+\mu_* = K_{X,*}^T (K_{X,X} + \sigma^2 I)^{-1} f
+\]
+
+This formula directly parallels the solution in KRR, where:
+\begin{itemize}
+    \item \( K_{X,*} \) is the covariance between the training inputs and new inputs.
+    \item \( K_{X,X} \) is the covariance among the training inputs.
+    \item \( \sigma^2 I \) represents the noise term, analogous to the regularization in KRR.
+\end{itemize}
+
+\textbf{Intuition:} The essence here is that both GP (with zero mean) and KRR use the kernel to measure similarities between points and regularize these relationships to predict new values. The GP’s posterior mean incorporates the observed data (similarly to how KRR does) by weighting the influence of each training point based on the kernel-defined similarity and regularization term. Essentially, data points that are 'similar' (according to the kernel) to the test points have a greater influence on the prediction.\\
+
+\textcolor{red}{HERE IS WHERE GPs EXTEND KRR - BY NOT ONLY COMPUTING THE MEANS OF THE DISTRIBUTIONS, BUT ALSO ALSO COMPUTING THE COVARIANCE \( \Sigma_* \) WHICH QUANTIFIES UNCERTAINTY - THIS ALLOWS GPs TO BUILD A FULL POSTERIOR PREDICTIVE DISTRIBUTION (BEYOND KRR'S POINT ESTIMATE)}
+\begin{itemize}
+    \item \textcolor{red}{In KRR, you get point estimates of the function at new inputs. These estimates are based on a deterministic function learned from the data.}
+    \item \textcolor{red}{GPs, on the other hand, provide a full probabilistic model. For any set of inputs, a GP gives you a mean prediction and a covariance matrix:}
+    \begin{itemize}
+        \item \textcolor{red}{the diagonal elements of $\Sigma_*$ give the variances at each predicted point, representing the model's confidence in its own predictions.} 
+        \item \textcolor{red}{The off-diagonal elements represent the covariances between predictions at different points, indicating how much the uncertainty in one prediction is correlated with the uncertainty in another.}
+    \end{itemize}
+    \item \textcolor{red}{his additional information from $\Sigma_*$ is particularly valuable when you need to make decisions under uncertainty, as it provides insight into the reliability of the predictions and how they might vary together. For instance, in Bayesian optimization, the uncertainty (quantified by $\Sigma_*$) is used to balance exploration and exploitation when choosing the next points to evaluate.}
+\end{itemize}
+
+\textbf{Posterior Predictive Distribution:} To obtain the full posterior predictive distribution in a GP, including the uncertainty of the predictions, we also compute \( \Sigma_* \), which reflects the variance and covariance of the predictions. If one desires to include the observational noise in the predictive distribution, \( \sigma^2 I \) is added to the diagonal of \( \Sigma_* \), mirroring how in KRR, predictions are made within the context of inherent data noise.\\
+
+In summary, assuming a zero mean function in a GP and conditioning on data leads to a posterior mean that is conceptually and mathematically similar to the solution obtained through KRR. This connection beautifully illustrates how GPs extend the principles of kernel methods and regularization from KRR to a probabilistic framework, enabling not just predictions but also quantification of uncertainty around those predictions.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_09_uncertainty/GP_2.png}
+    \caption{progression of GP as more data points observed: all of the function values that are not consistent with that point at $X_*$ get thrown out / down weighted}
+    \label{fig:enter-label}
+\end{figure}
+(a) No Data Points: The first plot (top left) shows several functions \textbf{sampled from a GP prior}. Without any observed data, the functions are quite varied, reflecting the high level of \textbf{uncertainty} about the true function form. The GP prior gives us a wide distribution of possible functions that could fit future observed data.\\
+
+(b) One Data Point ($N=1$): The second plot (top right) introduces a single observed data point, as indicated by the 'x' marker. The shaded area represents the confidence interval, or the uncertainty around the predicted function values. Notice how the uncertainty (the width of the shaded area) is smallest near the observed data point and grows as we move away from it. The blue lines are \textbf{functions that are drawn from the posterior distribution of functions given the observed data}. They \textbf{all go through the observed data point} due to the high certainty about the function value at that point.\\
+
+(c) Two Data Points ($N=2$): The third plot (bottom left) now includes two observed data points. The confidence interval is narrower around the observed points where the model is more certain, and wider in areas far from these points where the model has more uncertainty. The sample functions from the GP reflect this by varying less near the observed points and more in areas with no data.\\
+
+(d) Four Data Points ($N=4$): The final plot (bottom right) shows the situation after observing four data points. The confidence interval has tightened significantly around these points, indicating a much stronger belief in the function values there. The sample functions from the GP pass through all the observed points and have less variance around them, illustrating that the GP has learned the trend from the data and has less uncertainty where the data is dense.\\
+
+This illustrates the GP's capability to both interpolate and extrapolate based on the data, providing a probabilistic framework for regression that naturally incorporates uncertainty.
+
+\subsection{GPs have Good Variance Properties}
+
+\textbf{Increase in Variance Away from Data:} As a test point gets further from the observed (training) data points, the GP model's uncertainty about the prediction at that test point increases. This is reflected in an increase in variance. As the prediction moves further away from where we have data, the model has to rely more on extrapolation, which is inherently less certain.\\
+
+\textbf{Dependence on Kernel:} The rate at which the variance increases as we move away from the data depends on the choice of the kernel function in the GP. Some kernels will cause the variance to increase rapidly, while others might result in a more gradual increase.\\ 
+
+\textbf{Contrast w/ other methods:}
+\begin{itemize}
+    \item linear regression or polynomial regression, provide point estimates without a measure of uncertainty, so there's no concept of increased variance with distance from the training data. 
+    \item Even within the subset of methods that do provide some measure of uncertainty, such as some Bayesian methods, they may not always show an increase in variance with distance from the data points
+\end{itemize}
+
+Variance property of GPs is extremely valuable in
+\begin{enumerate}
+    \item quantifying the reliability of predictions (eg for policy / decision making)
+    \item guiding decisions in areas like active learning and Bayesian optimization, where you need to weigh the benefit of exploring unknown regions against exploiting known areas.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_09_uncertainty/GP variance.png}
+    \caption{crosses = training data; every point on $x$ axis = a potential test point. Can see certainty follows training data}
+    \label{fig:enter-label}
+\end{figure}
+\^\^\^ Two GP regressions with different hyperparameters for the kernel, and how these affect the GP's mean predictions and confidence intervals.
+\begin{itemize}
+    \item solid blue line is the GP's mean prediction of the function that generated the data. 
+    \item shaded area represents the confidence interval / indication of the uncertainty of the GP's predictions. 
+    \item RHS: confidence intervals are consistently wider across the entire range of inputs - due to both the larger length-scale, indicating that observations influence the prediction over a larger range, and the higher noise variance, which indicates less confidence in the precision of the observations.
+\end{itemize}
+
+\subsection{Posterior of the function vs Posterior Predictive}
+distinction between two types of uncertainties that can be modeled with GPs
+\begin{enumerate}
+    \item Uncertainty of the function itself (posterior of the function)
+    \item Uncertainty in future observations (posterior predictive)
+\end{enumerate}
+
+\subsubsection{Posterior of the Function}
+The uncertainty in the function values that the GP has learned based on the observed data.\\
+
+It's about the shapes or forms the true function could take within the bounds of the data and prior assumptions (encoded in the kernel).\\
+
+\textbf{Credible interval:} a range of values for the function at a given point that, given the prior and observed data, are believed to contain the true function value with a certain probability. 
+\begin{itemize}
+    \item A 90\% credible interval for the conditional mean would mean that there is a 90\% probability that the true function value lies within that interval.
+\end{itemize}
+
+\subsubsection{Posterior Predictive}
+ reflects the uncertainty about future observations (labels) that would be seen if we were to sample new data from the function at new input points.
+
+\textbf{Prediction Interval:} a range of values that are believed to contain the true observed labels with a certain probability, taking into account the noise in the observations. 
+\begin{itemize}
+    \item If we say there's a 90\% prediction interval, we mean that there's a 90\% probability that a future observation will fall within this interval.
+\end{itemize}
+
+\subsection{Implication for Kernels}
+
+Adding the noise variance to the kernel is a methodological step for shifting from a focus on the posterior of the function -> posterior predictive.
+
+When we're interested in the posterior predictive distribution, which includes the variability due to noise, we add the noise variance term ($\sigma^2_y$) to the diagonal of the kernel covariance matrix $K$.\\
+
+This adjustment accounts for the additional uncertainty that comes from noisy observations when making predictions about future observed labels.
+
+\subsection{Web Demo}
+http://www.infinitecuriosity.org/vizgp/
+
+\subsection{Takeaways}
+GPs
+\begin{enumerate}
+    \item are a prob distribution over functions
+    \item create new distributions by conditioning on data
+    \item have good variance properties
+\end{enumerate}
+
+Flexible models that provide extremely well behaved estimates
+of uncertainty
+• Scaling them to large datasets is challenging, and an active
+area of ML research
+• GPs are commonly used as part of Bayesian Optimization:
+• Learn a GP as a response function
+• Choose an acquisition function that manages exploration/exploitation
+• Sample new units at which to measure outcomes
+• It’s one particular form of the larger RL paradigm
+
+\section{Conformal Inference}
+
+\subsection{A primer on Comformal Inference}
+
+Create rigorous prediction intervals (for future observations) that are valid under a certain confidence level, regardless of the underlying distribution of the data.\\
+
+It is based on the idea of nonconformity measures that assess how well new observations conform to past observations.
+
+\begin{enumerate}
+    \item \textbf{Nonconformity Measure} - define a nonconformity measure, which is a function that assigns a score to each example based on how different or "nonconforming" it is relative to a set of examples. 
+    \begin{itemize}
+        \item  in a regression setting, a nonconformity score might be the absolute residual of each point — how far away the actual y value is from the predicted y value.
+    \end{itemize}
+    \item \textbf{Train} - train your model on a proper training set as usual.
+    \item \textbf{Calibration} - apply your model to a separate calibration set and calculate nonconformity scores for each point in this set. These scores indicate how well the model's predictions match the actual values.
+    \item \textbf{Prediction Interval} - When you have a new point you'd like to predict, you use your model to predict it, and then you use your nonconformity measure and the scores from the calibration set to determine how "strange" this new prediction is. 
+    \begin{itemize}
+        \item You calculate a prediction interval for the new point that, if the method is correctly calibrated, will contain the true value with a specified probability (such as 95%).
+    \end{itemize}
+    \item \textbf{Validity} - Under mild conditions, conformal prediction intervals are provably valid, meaning that if you say you’re 95\% confident the true value lies within the interval, it will indeed lie within the interval 95\% of the time in the long run.
+\end{enumerate}
+
+Distribution free! Does not rely under assumptions about the underlying distribution of the data.\\
+
+A way to generate prediction intervals that are theoretically guaranteed to contain the true prediction a certain percentage of the time (known as the coverage probability). Adds interpretability / reliability.
+
+\subsection{Process}
+
+\textbf{Set Target Coverage Probability}
+\begin{itemize}
+    \item choose a significance level $\alpha$ which is related to the desired coverage probability (eg $\alpha = 0.05$ for 95\% coverage).
+    \item this gives prediction interval ($l, u$) we will be calculating, such that $P(l \leq \textcolor{green}{y} \leq u) \leq \textcolor{red}{1-\alpha}$
+    \begin{itemize}
+        \item a 'prediction' interval for \textcolor{green}{future prediction}
+        \item for a given \textcolor{red}{level of confidence}
+    \end{itemize}
+\end{itemize}
+
+$\alpha$ corresponds to the Type I error rate (false positive)\\
+
+
+\textbf{Calculate Prediction Interval based on Target Coverage Probability}
+\begin{enumerate}
+    \item \textbf{Heuristic Notion of Uncertainty} -  identifying a measure that reflects the confidence in your predictions.
+    \item \textbf{Score Function $s(x,y)$} - heuristic from step 1 is formalized into a score function. 
+    \begin{itemize}
+        \item score function assigns a numerical value indicating the error or nonconformity of the predicted value $f(x)$ relative to the true value $y$
+        \item $s(x,y)= |y-\hat{f}(x)|$ is a common choice (where larger score = worse)
+    \end{itemize}
+    \item \textbf{Quantile $T_q$} -  calculate the $(1-\frac{\alpha}{2}$ quantile of these scores based on your calibration of validation data
+    \begin{itemize}
+        \item This quantile represents the threshold that a certain proportion (e.g., 95\% for a 5\% significance level) of the scores fall below.
+        \item \textcolor{red}{compute $\hat{q}$ as the $\frac{\lceil (n+1)(1-\alpha)\rceil}{n}$ quantile of yur data} 
+    \end{itemize}
+    \item \textbf{Prediction Set $\mathcal{C}(X_{test})$} - use quantile to form a prediction set:   
+    $$\mathcal{C}(X_{test} = \{ y:s(X_{test}, y) \leq \hat{q}\}$$ 
+    Any valye $y$ that when paired by $X_{test}$ results in a score $s(X_{test}, y)$ less than or equal to $T_q$ is included in the set\\
+    This set is computed using out-of-sample data to ensure it accurately reflects the model's ability to generalize.
+\end{enumerate}
+
+\subsection{Example}
+We have DGP $y=\beta X + \epsilon$, where $\epsilon$ is very non-normal.\\
+
+We can 'conformalise' our predictions, $\hat{y} = \hat{\beta}X$ to get a brediction interval that is still valid (ie has 95\% coverage) no matter what - it might not be  a good interval (i.e. not tight at all), but it is valid.\\
+
+The tightness of this interval will depend on the appropriateness of the score function and the variability of the data.
+
+\subsubsection{Steps for Conformal Inference}
+\begin{enumerate}
+    \item \textbf{Fit Your Model:} First, fit the linear model to your data, $y=\beta X$, even though you know the error distribution is non-normal. \textbf{Initial (Incorrect) Assumption:} Temporarily assume that $\epsilon \sim \mathcal{N}(0,\sigma^2)$ ), acknowledging that this assumption is incorrect but necessary for the next step.
+
+    \item \textbf{Calculate Nonconformity Scores:} Define your nonconformity score $s(x,y)$ as the standardized absolute residuals. This score represents how unusual or 'nonconforming' each observation is relative to the model prediction. It’s calculated by dividing the absolute residual by an estimate of the standard deviation of the residuals, $\sigma$:
+    $$s(x,y)= \frac{|y - \hat{y}|}{\hat{\sigma}}$$
+    $$s(x,y)= \frac{|y - \beta X|}{\hat{\sigma}}$$
+    where 
+    \begin{itemize}
+        \item $\hat{y}$ is the prediction from your linear model
+        \item $\hat{\sigma}$ is the estimated standard deviation of the residuals
+    \end{itemize}
+
+    \item \textbf{Adjust for Heteroskedasticity:} If you suspect that the residuals are heteroskedastic (the variance of the residuals changes with $X$), then you need to model $\hat{\sigma(X)}$. 
+    \begin{itemize}
+        \item You can train a separate model that predicts the standard deviation of the residuals for each $X$, thus allowing for different variances at different points in the predictor space.
+    \end{itemize}
+    
+    \item \textbf{Determine the Prediction Interval:} Using the nonconformity scores from your calibration or validation set, calculate the appropriate quantile for your desired coverage probability (e.g., the 95th percentile for a 95\% prediction interval). 
+    \begin{itemize}
+        \item for each new $X$ value where you predict $y$, need to compute a range around the predicted value $\hat{y} = \beta X$ that corresponds to the quantil of the nonconformity score.
+    \end{itemize}
+
+    \item \textbf{Form Prediction Interval:} conformal prediction interval for a new observation at $X_{new}$ would be: 
+    $$\mathcal{C}(X_{new}) = \hat{y} \pm \text{quantile value}$$
+\end{enumerate}
+
+The key property of conformal prediction intervals is their validity: if you create a 90\% prediction interval using this method, then, in the long run, 90\% of the true $y$ values will fall within the intervals you produce, regardless of the underlying distribution of $\epsilon$
+
+\subsection{Marginal vs Conditional Coverage}
+
+Our guarnatee from conformal inference is marginal. We might want it to be conditional.\\
+
+
+\textbf{Marginal Coverage}\\
+
+The coverage guarantee is \textbf{averaged over all points} in the test set. For example:
+  
+  \begin{center}
+  \begin{tabular}{|c|c|c|c|}
+  \hline
+  \( X \) & \( f(X) \) & \( (l, u) \) & \( P(y \in (l, u)) \) \\
+  \hline
+  1 & 0.1 & \( (0, 0.2) \) & 99\% \\
+  2 & 0.2 & \( (0.1, 0.3) \) & 90\% \\
+  3 & 0.3 & (0.2, 0.4) & 81\% \\
+  \hline
+   & & Overall: & 90\% \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  Even though for some \( X \) the probability of \( y \) falling in the interval is much higher than the target \( 1 - \alpha \), overall, when averaged across all points, the coverage meets the target rate.\\
+
+\textbf{Conditional Coverage}\\
+
+This refers to the desired property where the \textbf{coverage guarantee holds within subgroups} defined by \( X \). For each value of \( X \), the interval would correctly contain the true \( y \) 90\% of the time.
+  
+  \begin{center}
+  \begin{tabular}{|c|c|c|c|}
+  \hline
+  \( X \) & \( f(X) \) & \( (l, u) \) & \( P(y \in (l, u)) \) \\
+  \hline
+  1 & 0.1 & \( (0.02, 0.18) \) & 90\% \\
+  2 & 0.2 & \( (0.1, 0.3) \) & 90\% \\
+  3 & 0.2 & \( (0.18, 0.42) \) & 90\% \\
+  \hline
+   & & Overall: & 90\% \\
+  \hline
+  \end{tabular}
+  \end{center}
+
+  Here, each value of \( X \) has a tailored interval that maintains the coverage rate specifically for that value.\\
+
+\textbf{However, achieving conditional coverage is much more complex} because it requires intervals that adapt to the distribution of \( y \) at each \( X \) value, accounting for all potential variations within the data. \\
+
+The challenge with conditional coverage is how to define and measure "similarity" or "closeness" in \( X \) values and how to adjust intervals accordingly to maintain the desired coverage rate within each subgroup.\\
+
+There isn't a straightforward method to achieve exact conditional coverage in all cases. Conformal inference typically provides marginal coverage guarantees, and while there are advanced methods attempting to approach conditional coverage, it remains an active area of research. \\
+
+\section{Uncertainty Takeaways}
+
+\textbf{Motivations/purposes} - with good measures of uncertainty you can:
+\begin{itemize}
+  \item \textbf{Improved Decision Making}: Understanding the uncertainty can improve decision-making in uncertain environments. For instance, in Thompson sampling, the variance of predictions is used to balance exploration and exploitation in multi-armed bandit problems.
+  
+  \item \textbf{Outlier Detection}: A good measure of uncertainty can help in identifying outliers by flagging data points that have high uncertainty in their predictions, which could indicate that they deviate significantly from the pattern captured by the model.
+  
+  \item \textbf{Active Learning}: In active learning, models can use uncertainty estimates to determine which new data points would be most informative to learn from if they were labeled. This is especially useful in scenarios where labeling data is expensive or time-consuming.
+\end{itemize}
+
+\textbf{Tools / How?} - 2 tools!
+\begin{itemize}
+  \item \textbf{Gaussian Processes (GPs)}: excellent, but computational expensiv e
+    \begin{itemize}
+      \item \textbf{Versatility}: GPs can provide various types of uncertainty measures, not just for the predictions but also for the function that generates the data. This includes both the posterior of the function and the posterior predictive distribution.
+      \item \textbf{Challenges}: While GPs are powerful, they struggle with scaling to very large datasets due to their computational complexity, which typically involves matrix operations that are cubic in the number of data points.
+    \end{itemize}
+  
+  \item \textbf{Conformal Inference}: extremely scalable, but only gives us preciction intervals, and only gives us marginal guarantees
+not the conditional intervals
+    \begin{itemize}
+      \item \textbf{Scalability}: Conformal inference is highly scalable and can be applied to very large datasets.
+      \item \textbf{Limitations}: It primarily provides prediction intervals with marginal coverage guarantees. While these intervals are valid under the model's assumptions, conformal inference does not typically give conditional coverage, which would ensure that the coverage guarantee holds within specific subgroups of the data.
+      \item \textbf{Compatibility}: A major advantage of conformal inference is that it can be applied on top of any predictive model, from simple linear regressions to complex machine learning models.
+    \end{itemize}
+\end{itemize}
+
+\textbf{GPs} are powerful for smaller datasets where the modeling of detailed uncertainties is crucial, while \textbf{conformal inference} shines in providing scalable and model-agnostic prediction intervals.
+
+
+
+
+

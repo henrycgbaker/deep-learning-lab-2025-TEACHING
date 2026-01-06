@@ -1,0 +1,842 @@
+% =============================================================================
+% Week 10: Optimisation
+% =============================================================================
+
+\chapter{Week 10: Optimisation}
+\label{ch:week10}
+
+\begin{bluebox}[Learning Objectives]
+By the end of this chapter, you should be able to:
+\begin{itemize}
+    \item Find critical points of functions using first derivatives
+    \item Apply the second derivative test to classify critical points in one variable
+    \item Construct and interpret the Hessian matrix for multivariable functions
+    \item Use eigenvalue analysis of the Hessian to classify critical points
+    \item Formulate constrained optimisation problems using Lagrange multipliers
+    \item State and interpret the Karush-Kuhn-Tucker (KKT) conditions for inequality constraints
+    \item Implement gradient descent and understand its convergence properties
+    \item Connect optimisation techniques to Maximum Likelihood Estimation
+\end{itemize}
+\end{bluebox}
+
+\textbf{Prerequisites:} This chapter assumes familiarity with differentiation rules: product, quotient, and chain rules (from \cref{ch:week4}), partial derivatives and the gradient vector, eigenvalues and eigenvectors of matrices, and Maximum Likelihood Estimation (from \cref{ch:week4}).
+
+% =============================================================================
+\section{Why Optimisation Matters}
+\label{sec:why-optimisation}
+% =============================================================================
+
+Optimisation is the mathematical foundation of modern data science and machine learning. Almost every learning algorithm can be framed as finding parameters that minimise (or maximise) some objective function:
+
+\begin{itemize}
+    \item \textbf{Maximum Likelihood Estimation:} Maximise the probability of observed data
+    \item \textbf{Linear regression:} Minimise the sum of squared residuals
+    \item \textbf{Neural networks:} Minimise a loss function via gradient descent
+    \item \textbf{Support Vector Machines:} Maximise the margin subject to constraints
+    \item \textbf{Portfolio optimisation:} Maximise returns subject to risk constraints
+\end{itemize}
+
+This chapter develops the mathematical machinery for finding optima, starting with single-variable calculus and building to constrained multivariable problems.
+
+% =============================================================================
+\section{Unconstrained Optimisation: Single Variable}
+\label{sec:unconstrained-single}
+% =============================================================================
+
+We begin with the simplest case: finding maxima and minima of a function $f : \mathbb{R} \to \mathbb{R}$.
+
+\subsection{Critical Points and the First Derivative}
+
+\begin{definition}[Critical Point]
+\label{def:critical-point}
+A point $x = c$ is a \textbf{critical point} of $f$ if either:
+\begin{enumerate}
+    \item $f'(c) = 0$ (the derivative is zero), or
+    \item $f'(c)$ does not exist (but $f(c)$ is defined)
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Fermat's Theorem]
+\label{thm:fermat}
+If $f$ has a local maximum or minimum at $c$, and $f'(c)$ exists, then $f'(c) = 0$.
+\end{theorem}
+
+\begin{intuition}[Why Critical Points?]
+At a local maximum or minimum, the tangent line must be horizontal. A positive slope means we could increase $f$ by moving right; a negative slope means we could increase $f$ by moving left. Only at a zero slope is there no improving direction.
+\end{intuition}
+
+\begin{warning}[Converse is False]
+Not every critical point is an extremum. The function $f(x) = x^3$ has $f'(0) = 0$, but $x = 0$ is an inflection point, not a maximum or minimum. We need additional tests to classify critical points.
+\end{warning}
+
+\subsection{The Second Derivative Test}
+
+The second derivative tells us about the curvature of a function, which determines whether a critical point is a maximum, minimum, or neither.
+
+\begin{definition}[Concavity]
+\label{def:concavity}
+A function $f$ is:
+\begin{itemize}
+    \item \textbf{Concave up} on an interval if $f''(x) > 0$ on that interval (curves upward like a cup)
+    \item \textbf{Concave down} on an interval if $f''(x) < 0$ on that interval (curves downward like a cap)
+\end{itemize}
+\end{definition}
+
+\begin{theorem}[Second Derivative Test (Single Variable)]
+\label{thm:second-derivative-test-1d}
+Suppose $f''$ is continuous near $c$ and $f'(c) = 0$. Then:
+\begin{enumerate}
+    \item If $f''(c) > 0$, then $f$ has a local minimum at $c$
+    \item If $f''(c) < 0$, then $f$ has a local maximum at $c$
+    \item If $f''(c) = 0$, the test is inconclusive
+\end{enumerate}
+\end{theorem}
+
+\begin{bluebox}[Second Derivative Test Summary]
+At a critical point where $f'(c) = 0$:
+\begin{align*}
+    f''(c) > 0 &\implies \text{local minimum (concave up: cup catches the point)} \\
+    f''(c) < 0 &\implies \text{local maximum (concave down: cap covers the point)} \\
+    f''(c) = 0 &\implies \text{inconclusive (need higher-order tests)}
+\end{align*}
+\end{bluebox}
+
+\begin{intuition}[Physical Intuition]
+Think of $f''(c)$ as measuring how the slope is changing at $c$:
+\begin{itemize}
+    \item $f''(c) > 0$: the slope is increasing. Since $f'(c) = 0$, the slope goes from negative to positive --- we're at a minimum.
+    \item $f''(c) < 0$: the slope is decreasing. Since $f'(c) = 0$, the slope goes from positive to negative --- we're at a maximum.
+\end{itemize}
+\end{intuition}
+
+\begin{example}[Classifying Critical Points]
+\label{ex:classifying-critical-1d}
+Consider $f(x) = x^4 - 4x^3 + 4x^2$.
+
+\textbf{Step 1: Find critical points.}
+\[
+f'(x) = 4x^3 - 12x^2 + 8x = 4x(x^2 - 3x + 2) = 4x(x - 1)(x - 2)
+\]
+Setting $f'(x) = 0$: critical points at $x = 0$, $x = 1$, and $x = 2$.
+
+\textbf{Step 2: Compute second derivative.}
+\[
+f''(x) = 12x^2 - 24x + 8
+\]
+
+\textbf{Step 3: Classify each critical point.}
+\begin{align*}
+    f''(0) &= 8 > 0 \quad \Rightarrow \quad \text{local minimum} \\
+    f''(1) &= 12 - 24 + 8 = -4 < 0 \quad \Rightarrow \quad \text{local maximum} \\
+    f''(2) &= 48 - 48 + 8 = 8 > 0 \quad \Rightarrow \quad \text{local minimum}
+\end{align*}
+\end{example}
+
+% =============================================================================
+\section{The Gradient Vector}
+\label{sec:gradient}
+% =============================================================================
+
+For functions of multiple variables, the gradient generalises the concept of derivative.
+
+\begin{definition}[Gradient]
+\label{def:gradient}
+For a scalar function $f : \mathbb{R}^n \to \mathbb{R}$, the \textbf{gradient} is the vector of partial derivatives:
+\[
+\nabla f = \begin{pmatrix}
+    \frac{\partial f}{\partial x_1} \\[6pt]
+    \frac{\partial f}{\partial x_2} \\[6pt]
+    \vdots \\[6pt]
+    \frac{\partial f}{\partial x_n}
+\end{pmatrix}
+\]
+\end{definition}
+
+\begin{bluebox}[Properties of the Gradient]
+The gradient $\nabla f(\mathbf{x})$ at a point $\mathbf{x}$:
+\begin{enumerate}
+    \item Points in the direction of steepest ascent of $f$
+    \item Has magnitude equal to the rate of steepest ascent
+    \item Is perpendicular to level curves/surfaces of $f$
+\end{enumerate}
+The negative gradient $-\nabla f$ points in the direction of steepest descent.
+\end{bluebox}
+
+\begin{example}[Gradient of a Quadratic Form]
+\label{ex:gradient-quadratic}
+Consider $f(\mathbf{z}) = \mathbf{z}^T \mathbf{z}$ where $\mathbf{z} \in \mathbb{R}^m$. This is the squared Euclidean norm.
+
+Expanding: $f(\mathbf{z}) = z_1^2 + z_2^2 + \cdots + z_m^2$.
+
+The gradient is:
+\[
+\nabla_{\mathbf{z}} f(\mathbf{z}) = \begin{pmatrix}
+    \frac{\partial f}{\partial z_1} \\[6pt]
+    \frac{\partial f}{\partial z_2} \\[6pt]
+    \vdots \\[6pt]
+    \frac{\partial f}{\partial z_m}
+\end{pmatrix} = \begin{pmatrix}
+    2z_1 \\
+    2z_2 \\
+    \vdots \\
+    2z_m
+\end{pmatrix} = 2\mathbf{z}
+\]
+
+This is analogous to the univariate result $\frac{d}{dx}(x^2) = 2x$: the gradient of $\|\mathbf{z}\|^2$ is $2\mathbf{z}$.
+\end{example}
+
+\begin{rigour}[Gradient of Matrix-Valued Functions]
+When $f : \mathbb{R}^{m \times n} \to \mathbb{R}$ takes a matrix $\mathbf{A}$ as input and outputs a scalar, the gradient is itself a matrix of the same shape:
+\[
+\nabla_{\mathbf{A}} f(\mathbf{A}) = \begin{pmatrix}
+    \frac{\partial f}{\partial A_{11}} & \frac{\partial f}{\partial A_{12}} & \cdots & \frac{\partial f}{\partial A_{1n}} \\[6pt]
+    \frac{\partial f}{\partial A_{21}} & \frac{\partial f}{\partial A_{22}} & \cdots & \frac{\partial f}{\partial A_{2n}} \\[6pt]
+    \vdots & \vdots & \ddots & \vdots \\[6pt]
+    \frac{\partial f}{\partial A_{m1}} & \frac{\partial f}{\partial A_{m2}} & \cdots & \frac{\partial f}{\partial A_{mn}}
+\end{pmatrix}
+\]
+The $(i, j)$-entry is $(\nabla_{\mathbf{A}} f)_{ij} = \frac{\partial f}{\partial A_{ij}}$: the rate of change of the output with respect to each input element.
+\end{rigour}
+
+% =============================================================================
+\section{The Hessian Matrix}
+\label{sec:hessian}
+% =============================================================================
+
+The Hessian matrix generalises the second derivative to multiple dimensions. It captures the curvature of a function in all directions.
+
+\begin{definition}[Hessian Matrix]
+\label{def:hessian}
+For a twice-differentiable function $f : \mathbb{R}^n \to \mathbb{R}$, the \textbf{Hessian matrix} is the $n \times n$ matrix of second-order partial derivatives:
+\[
+\mathbf{H}(f) = \nabla^2 f = \begin{pmatrix}
+    \frac{\partial^2 f}{\partial x_1^2} & \frac{\partial^2 f}{\partial x_1 \partial x_2} & \cdots & \frac{\partial^2 f}{\partial x_1 \partial x_n} \\[6pt]
+    \frac{\partial^2 f}{\partial x_2 \partial x_1} & \frac{\partial^2 f}{\partial x_2^2} & \cdots & \frac{\partial^2 f}{\partial x_2 \partial x_n} \\[6pt]
+    \vdots & \vdots & \ddots & \vdots \\[6pt]
+    \frac{\partial^2 f}{\partial x_n \partial x_1} & \frac{\partial^2 f}{\partial x_n \partial x_2} & \cdots & \frac{\partial^2 f}{\partial x_n^2}
+\end{pmatrix}
+\]
+The $(i, j)$-entry is $H_{ij} = \frac{\partial^2 f}{\partial x_i \partial x_j}$.
+\end{definition}
+
+\begin{rigour}[Symmetry of the Hessian]
+If $f$ has continuous second partial derivatives (which is typically the case in applications), then by Schwarz's theorem:
+\[
+\frac{\partial^2 f}{\partial x_i \partial x_j} = \frac{\partial^2 f}{\partial x_j \partial x_i}
+\]
+Therefore the Hessian is a symmetric matrix: $\mathbf{H} = \mathbf{H}^T$.
+\end{rigour}
+
+\subsection{The Second Derivative Test in Multiple Variables}
+
+For multivariable functions, we classify critical points using the eigenvalues of the Hessian.
+
+\begin{theorem}[Second Derivative Test (Multivariable)]
+\label{thm:second-derivative-test-nd}
+Let $f : \mathbb{R}^n \to \mathbb{R}$ be twice continuously differentiable, and suppose $\mathbf{c}$ is a critical point where $\nabla f(\mathbf{c}) = \mathbf{0}$. Let $\mathbf{H}$ be the Hessian evaluated at $\mathbf{c}$. Then:
+\begin{enumerate}
+    \item If all eigenvalues of $\mathbf{H}$ are positive, then $\mathbf{c}$ is a local minimum
+    \item If all eigenvalues of $\mathbf{H}$ are negative, then $\mathbf{c}$ is a local maximum
+    \item If $\mathbf{H}$ has both positive and negative eigenvalues, then $\mathbf{c}$ is a saddle point
+    \item If any eigenvalue is zero, the test is inconclusive
+\end{enumerate}
+\end{theorem}
+
+\begin{bluebox}[Hessian Classification Summary]
+At a critical point $\mathbf{c}$ where $\nabla f(\mathbf{c}) = \mathbf{0}$:
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Eigenvalues of $\mathbf{H}$} & \textbf{Classification} \\
+\midrule
+All $\lambda_i > 0$ (positive definite) & Local minimum \\
+All $\lambda_i < 0$ (negative definite) & Local maximum \\
+Mixed signs (indefinite) & Saddle point \\
+Any $\lambda_i = 0$ (semidefinite) & Inconclusive \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{bluebox}
+
+\begin{intuition}[Why Eigenvalues?]
+The eigenvalues of the Hessian measure the curvature of $f$ in the directions of the eigenvectors. A positive eigenvalue means the function curves upward in that direction; negative means it curves downward. For a minimum, we need upward curvature in all directions.
+\end{intuition}
+
+\subsection{Special Case: Two Variables}
+
+For functions of two variables $f(x, y)$, there is a simpler criterion using the determinant.
+
+\begin{theorem}[Second Derivative Test for $f(x, y)$]
+\label{thm:second-derivative-test-2d}
+Let $(a, b)$ be a critical point of $f(x, y)$. Define:
+\[
+D = \det(\mathbf{H}) = \frac{\partial^2 f}{\partial x^2} \cdot \frac{\partial^2 f}{\partial y^2} - \left( \frac{\partial^2 f}{\partial x \partial y} \right)^2
+\]
+evaluated at $(a, b)$. Let $f_{xx} = \frac{\partial^2 f}{\partial x^2}$ at $(a, b)$. Then:
+\begin{enumerate}
+    \item If $D > 0$ and $f_{xx} > 0$: local minimum
+    \item If $D > 0$ and $f_{xx} < 0$: local maximum
+    \item If $D < 0$: saddle point
+    \item If $D = 0$: inconclusive
+\end{enumerate}
+\end{theorem}
+
+\begin{rigour}[Why $D$?]
+For a $2 \times 2$ symmetric matrix, the eigenvalues satisfy:
+\begin{align*}
+    \lambda_1 + \lambda_2 &= \text{Tr}(\mathbf{H}) = f_{xx} + f_{yy} \\
+    \lambda_1 \cdot \lambda_2 &= \det(\mathbf{H}) = f_{xx} f_{yy} - f_{xy}^2
+\end{align*}
+When $D > 0$, the eigenvalues have the same sign. When $D < 0$, they have opposite signs (saddle). The sign of $f_{xx}$ determines whether both are positive (minimum) or both negative (maximum).
+\end{rigour}
+
+\begin{example}[Classifying Critical Points in Two Variables]
+\label{ex:classifying-critical-2d}
+Consider $f(x, y) = x^3 - 3xy + y^3$.
+
+\textbf{Step 1: Find critical points.}
+\begin{align*}
+    \frac{\partial f}{\partial x} &= 3x^2 - 3y = 0 \implies y = x^2 \\
+    \frac{\partial f}{\partial y} &= -3x + 3y^2 = 0 \implies x = y^2
+\end{align*}
+Substituting $y = x^2$ into $x = y^2$: $x = (x^2)^2 = x^4$, so $x^4 - x = 0$, giving $x(x^3 - 1) = 0$.
+
+Critical points: $(0, 0)$ and $(1, 1)$.
+
+\textbf{Step 2: Compute Hessian.}
+\[
+\mathbf{H} = \begin{pmatrix}
+    \frac{\partial^2 f}{\partial x^2} & \frac{\partial^2 f}{\partial x \partial y} \\[6pt]
+    \frac{\partial^2 f}{\partial y \partial x} & \frac{\partial^2 f}{\partial y^2}
+\end{pmatrix} = \begin{pmatrix}
+    6x & -3 \\
+    -3 & 6y
+\end{pmatrix}
+\]
+
+\textbf{Step 3: Classify each critical point.}
+
+At $(0, 0)$: $\mathbf{H} = \begin{pmatrix} 0 & -3 \\ -3 & 0 \end{pmatrix}$, $D = (0)(0) - (-3)^2 = -9 < 0 \Rightarrow$ saddle point.
+
+At $(1, 1)$: $\mathbf{H} = \begin{pmatrix} 6 & -3 \\ -3 & 6 \end{pmatrix}$, $D = (6)(6) - (-3)^2 = 36 - 9 = 27 > 0$ and $f_{xx} = 6 > 0 \Rightarrow$ local minimum.
+\end{example}
+
+% =============================================================================
+\section{Constrained Optimisation: Lagrange Multipliers}
+\label{sec:lagrange}
+% =============================================================================
+
+Often we want to optimise a function subject to constraints. For example, maximising utility subject to a budget constraint, or finding the closest point on a surface to a given point.
+
+\subsection{The Geometric Intuition}
+
+Consider minimising $f(x, y) = x + y$ subject to $x^2 + y^2 = 1$ (the unit circle).
+
+\begin{figure}[H]
+    \centering
+    % TODO: Add figure showing level curves of f tangent to constraint circle
+    \caption{Minimising $f(x, y) = x + y$ subject to $x^2 + y^2 = 1$. The minimum occurs at $\left(-\frac{1}{\sqrt{2}}, -\frac{1}{\sqrt{2}}\right)$ where a level curve of $f$ is tangent to the constraint circle.}
+    \label{fig:lagrange-geometry}
+\end{figure}
+
+\begin{intuition}[Why Tangency?]
+Level curves of $f(x, y) = x + y$ are lines of the form $x + y = c$. As we decrease $c$, these lines move toward the lower-left. The minimum value of $c$ for which the line still touches the circle is where the line is tangent to the circle. At tangency, the gradient of $f$ and the gradient of the constraint point in the same (or opposite) direction.
+\end{intuition}
+
+\subsection{The Method of Lagrange Multipliers}
+
+\begin{definition}[The Lagrangian]
+\label{def:lagrangian}
+For the constrained optimisation problem
+\[
+\text{optimise } f(\mathbf{x}) \quad \text{subject to } g(\mathbf{x}) = 0
+\]
+the \textbf{Lagrangian} is:
+\begin{equation}
+\label{eq:lagrangian}
+\mathcal{L}(\mathbf{x}, \lambda) = f(\mathbf{x}) - \lambda \cdot g(\mathbf{x})
+\end{equation}
+where $\lambda$ is called the \textbf{Lagrange multiplier}.
+\end{definition}
+
+\begin{theorem}[Lagrange Multiplier Theorem]
+\label{thm:lagrange}
+Suppose $\mathbf{x}^*$ is a local extremum of $f$ subject to $g(\mathbf{x}) = 0$, and $\nabla g(\mathbf{x}^*) \neq \mathbf{0}$. Then there exists $\lambda^* \in \mathbb{R}$ such that:
+\[
+\nabla f(\mathbf{x}^*) = \lambda^* \nabla g(\mathbf{x}^*)
+\]
+Equivalently, the gradients $\nabla_{\mathbf{x}} \mathcal{L}$ and $\nabla_{\lambda} \mathcal{L}$ both vanish at $(\mathbf{x}^*, \lambda^*)$.
+\end{theorem}
+
+\begin{bluebox}[Procedure for Lagrange Multipliers]
+To solve $\text{optimise } f(x, y) \text{ subject to } g(x, y) = 0$:
+\begin{enumerate}
+    \item Form the Lagrangian: $\mathcal{L}(x, y, \lambda) = f(x, y) - \lambda \cdot g(x, y)$
+    \item Compute the first-order conditions:
+    \[
+    \frac{\partial \mathcal{L}}{\partial x} = 0, \quad \frac{\partial \mathcal{L}}{\partial y} = 0, \quad \frac{\partial \mathcal{L}}{\partial \lambda} = 0 \quad \text{(recovers the constraint)}
+    \]
+    \item Solve this system of equations for $x$, $y$, and $\lambda$
+    \item Classify the solutions (e.g., using bordered Hessian or direct evaluation)
+\end{enumerate}
+\end{bluebox}
+
+\begin{remark}[The Sign Convention]
+Different textbooks use different conventions for the Lagrangian:
+\begin{itemize}
+    \item $\mathcal{L} = f - \lambda g$ (used here)
+    \item $\mathcal{L} = f + \lambda g$ (also common)
+\end{itemize}
+The sign of $\lambda$ differs, but the method works identically. Be consistent within a problem.
+\end{remark}
+
+\subsection{Worked Examples}
+
+\begin{example}[Maximising $xy$ Subject to a Linear Constraint]
+\label{ex:lagrange-linear}
+Maximise $f(x, y) = xy$ subject to $g(x, y) = x + y - 10 = 0$.
+
+\textbf{Step 1: Form the Lagrangian.}
+\[
+\mathcal{L}(x, y, \lambda) = xy - \lambda(x + y - 10)
+\]
+
+\textbf{Step 2: First-order conditions.}
+\begin{align*}
+    \frac{\partial \mathcal{L}}{\partial x} &= y - \lambda = 0 \implies \lambda = y \\
+    \frac{\partial \mathcal{L}}{\partial y} &= x - \lambda = 0 \implies \lambda = x \\
+    \frac{\partial \mathcal{L}}{\partial \lambda} &= -(x + y - 10) = 0 \implies x + y = 10
+\end{align*}
+
+\textbf{Step 3: Solve.} From the first two equations: $x = y$. Substituting into the constraint: $2x = 10$, so $x = 5$.
+
+\textbf{Solution:} $(x^*, y^*) = (5, 5)$ with $f(5, 5) = 25$.
+
+\textbf{Step 4: Verify this is a maximum.} On the line $x + y = 10$, we can write $y = 10 - x$, so $f = x(10 - x) = 10x - x^2$. This is a downward parabola, confirming $(5, 5)$ is a maximum.
+\end{example}
+
+\begin{example}[Minimising a Quadratic Subject to a Linear Constraint]
+\label{ex:lagrange-quadratic}
+Minimise $f(x, y) = x^2 + 3y^2$ subject to $g(x, y) = x + 2y - 5 = 0$.
+
+\textbf{Step 1: Form the Lagrangian.}
+\[
+\mathcal{L}(x, y, \lambda) = x^2 + 3y^2 - \lambda(x + 2y - 5)
+\]
+
+\textbf{Step 2: First-order conditions.}
+\begin{align*}
+    \frac{\partial \mathcal{L}}{\partial x} &= 2x - \lambda = 0 \implies x = \frac{\lambda}{2} \\
+    \frac{\partial \mathcal{L}}{\partial y} &= 6y - 2\lambda = 0 \implies y = \frac{\lambda}{3} \\
+    \frac{\partial \mathcal{L}}{\partial \lambda} &= -(x + 2y - 5) = 0 \implies x + 2y = 5
+\end{align*}
+
+\textbf{Step 3: Solve.} Substituting $x = \frac{\lambda}{2}$ and $y = \frac{\lambda}{3}$ into the constraint:
+\[
+\frac{\lambda}{2} + 2 \cdot \frac{\lambda}{3} = 5 \implies \frac{3\lambda + 4\lambda}{6} = 5 \implies \frac{7\lambda}{6} = 5 \implies \lambda = \frac{30}{7}
+\]
+Therefore:
+\[
+x^* = \frac{\lambda}{2} = \frac{15}{7}, \quad y^* = \frac{\lambda}{3} = \frac{10}{7}
+\]
+
+\textbf{Solution:} $(x^*, y^*) = \left(\frac{15}{7}, \frac{10}{7}\right)$ with $f\left(\frac{15}{7}, \frac{10}{7}\right) = \frac{225}{49} + 3 \cdot \frac{100}{49} = \frac{225 + 300}{49} = \frac{525}{49} = \frac{75}{7}$.
+
+\textbf{Verification:} Since $f(x, y) = x^2 + 3y^2$ is a convex function (sum of squares) and the constraint is linear, any critical point is a global minimum.
+\end{example}
+
+\begin{example}[Finding Extrema on a Circle]
+\label{ex:lagrange-circle}
+Find the maximum and minimum of $f(x, y) = x^2 + y^2$ subject to $g(x, y) = x^2 + y^2 - 4 = 0$.
+
+\textbf{Step 1: Form the Lagrangian.}
+\[
+\mathcal{L}(x, y, \lambda) = x^2 + y^2 - \lambda(x^2 + y^2 - 4)
+\]
+
+\textbf{Step 2: First-order conditions.}
+\begin{align*}
+    \frac{\partial \mathcal{L}}{\partial x} &= 2x - 2\lambda x = 2x(1 - \lambda) = 0 \\
+    \frac{\partial \mathcal{L}}{\partial y} &= 2y - 2\lambda y = 2y(1 - \lambda) = 0 \\
+    \frac{\partial \mathcal{L}}{\partial \lambda} &= -(x^2 + y^2 - 4) = 0 \implies x^2 + y^2 = 4
+\end{align*}
+
+\textbf{Step 3: Solve.} From the first two equations, either $(1 - \lambda) = 0$ or both $x = 0$ and $y = 0$.
+
+If $x = y = 0$: this violates the constraint $x^2 + y^2 = 4$.
+
+Therefore $\lambda = 1$, and any point on the circle $x^2 + y^2 = 4$ is a critical point.
+
+\textbf{Analysis:} The objective function $f(x, y) = x^2 + y^2$ is constant on the constraint set (equal to 4 everywhere). This makes sense: we're measuring the distance from the origin, and every point on the circle is the same distance away!
+
+\textbf{Observation:} This example shows that Lagrange multipliers give us all critical points, but when the objective is constant on the constraint, every point is both a maximum and a minimum.
+\end{example}
+
+% =============================================================================
+\section{Optimisation as Eigenvalue Problems}
+\label{sec:eigenvalue-optimisation}
+% =============================================================================
+
+Some constrained optimisation problems reduce to finding eigenvalues and eigenvectors.
+
+\begin{example}[Maximising a Quadratic Form on the Unit Sphere]
+\label{ex:rayleigh}
+Consider the problem:
+\[
+\max_{\mathbf{x} \in \mathbb{R}^n} \mathbf{x}^T \mathbf{A} \mathbf{x} \quad \text{subject to} \quad \|\mathbf{x}\|^2 = \mathbf{x}^T \mathbf{x} = 1
+\]
+where $\mathbf{A} \in \mathbb{R}^{n \times n}$ is symmetric.
+
+\textbf{Step 1: Form the Lagrangian.}
+\[
+\mathcal{L}(\mathbf{x}, \lambda) = \mathbf{x}^T \mathbf{A} \mathbf{x} - \lambda(\mathbf{x}^T \mathbf{x} - 1)
+\]
+
+\textbf{Step 2: First-order condition.} Taking the gradient with respect to $\mathbf{x}$:
+\[
+\nabla_{\mathbf{x}} \mathcal{L} = 2\mathbf{A}\mathbf{x} - 2\lambda \mathbf{x} = \mathbf{0}
+\]
+This gives:
+\[
+\mathbf{A}\mathbf{x} = \lambda \mathbf{x}
+\]
+This is the eigenvalue equation! The critical points are the eigenvectors of $\mathbf{A}$, and the Lagrange multipliers are the eigenvalues.
+
+\textbf{Step 3: Find the optimum.} If $\mathbf{x}$ is an eigenvector with eigenvalue $\lambda$, then:
+\[
+\mathbf{x}^T \mathbf{A} \mathbf{x} = \mathbf{x}^T (\lambda \mathbf{x}) = \lambda \mathbf{x}^T \mathbf{x} = \lambda
+\]
+(using $\|\mathbf{x}\| = 1$).
+
+\textbf{Conclusion:} The maximum is $\lambda_{\max}$ (the largest eigenvalue), achieved at the corresponding eigenvector. The minimum is $\lambda_{\min}$.
+\end{example}
+
+\begin{bluebox}[Rayleigh Quotient]
+For a symmetric matrix $\mathbf{A}$:
+\[
+\lambda_{\min} \leq \frac{\mathbf{x}^T \mathbf{A} \mathbf{x}}{\mathbf{x}^T \mathbf{x}} \leq \lambda_{\max}
+\]
+for all non-zero $\mathbf{x}$. The bounds are achieved by the corresponding eigenvectors.
+\end{bluebox}
+
+\begin{intuition}[Why Eigenvalues?]
+Eigenvectors are the directions along which a matrix acts by pure scaling. The eigenvalues tell us how much. When optimising a quadratic form, we're asking: In which direction does $\mathbf{A}$ stretch the most? The answer is the eigenvector with the largest eigenvalue.
+\end{intuition}
+
+% =============================================================================
+\section{Inequality Constraints: KKT Conditions}
+\label{sec:kkt}
+% =============================================================================
+
+In practice, constraints are often inequalities rather than equalities. For example, ``budget cannot exceed \$1000'' rather than ``budget equals \$1000''.
+
+\begin{definition}[Standard Constrained Optimisation Problem]
+\label{def:standard-constrained}
+The standard form with inequality constraints is:
+\begin{align*}
+    \text{minimise} \quad & f(\mathbf{x}) \\
+    \text{subject to} \quad & g_i(\mathbf{x}) \leq 0, \quad i = 1, \ldots, m \\
+    & h_j(\mathbf{x}) = 0, \quad j = 1, \ldots, p
+\end{align*}
+\end{definition}
+
+\begin{theorem}[Karush-Kuhn-Tucker (KKT) Conditions]
+\label{thm:kkt}
+For a local minimum $\mathbf{x}^*$ of the above problem (under suitable regularity conditions), there exist multipliers $\mu_i^* \geq 0$ and $\lambda_j^*$ such that:
+\begin{enumerate}
+    \item \textbf{Stationarity:} $\displaystyle \nabla f(\mathbf{x}^*) + \sum_{i=1}^{m} \mu_i^* \nabla g_i(\mathbf{x}^*) + \sum_{j=1}^{p} \lambda_j^* \nabla h_j(\mathbf{x}^*) = \mathbf{0}$
+    \item \textbf{Primal feasibility:} $g_i(\mathbf{x}^*) \leq 0$ and $h_j(\mathbf{x}^*) = 0$
+    \item \textbf{Dual feasibility:} $\mu_i^* \geq 0$
+    \item \textbf{Complementary slackness:} $\mu_i^* g_i(\mathbf{x}^*) = 0$ for all $i$
+\end{enumerate}
+\end{theorem}
+
+\begin{intuition}[Complementary Slackness]
+The condition $\mu_i^* g_i(\mathbf{x}^*) = 0$ means: for each inequality constraint, either:
+\begin{itemize}
+    \item The constraint is \textbf{active}: $g_i(\mathbf{x}^*) = 0$ (the constraint binds), and $\mu_i^*$ can be positive
+    \item The constraint is \textbf{inactive}: $g_i(\mathbf{x}^*) < 0$ (the constraint has slack), and $\mu_i^* = 0$
+\end{itemize}
+Intuitively: we only ``pay attention'' to constraints that are actually binding at the optimum.
+\end{intuition}
+
+\begin{bluebox}[KKT for Convex Problems]
+When $f$ is convex, all $g_i$ are convex, and all $h_j$ are affine (linear), the KKT conditions are not just necessary but also \emph{sufficient} for global optimality. This makes convex optimisation particularly tractable.
+\end{bluebox}
+
+% =============================================================================
+\section{Gradient Descent}
+\label{sec:gradient-descent}
+% =============================================================================
+
+When we cannot solve $\nabla f = \mathbf{0}$ analytically, we turn to iterative numerical methods. Gradient descent is the workhorse of modern machine learning.
+
+\subsection{The Algorithm}
+
+\begin{definition}[Gradient Descent]
+\label{def:gradient-descent}
+To minimise $f : \mathbb{R}^n \to \mathbb{R}$, gradient descent iterates:
+\begin{equation}
+\label{eq:gradient-descent}
+\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} - \alpha \nabla f(\mathbf{x}^{(k)})
+\end{equation}
+where $\alpha > 0$ is the \textbf{learning rate} (or step size).
+\end{definition}
+
+\begin{bluebox}[Gradient Descent Algorithm]
+\textbf{Input:} Starting point $\mathbf{x}^{(0)}$, learning rate $\alpha$, tolerance $\epsilon$
+
+\textbf{Repeat:}
+\begin{enumerate}
+    \item Compute gradient: $\mathbf{g} = \nabla f(\mathbf{x}^{(k)})$
+    \item Update: $\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} - \alpha \mathbf{g}$
+    \item Check convergence: if $\|\mathbf{g}\| < \epsilon$, stop
+\end{enumerate}
+
+\textbf{Output:} Approximate minimiser $\mathbf{x}^{(k)}$
+\end{bluebox}
+
+\begin{intuition}[Why Negative Gradient?]
+The gradient $\nabla f$ points uphill --- in the direction of steepest increase. To minimise, we go downhill by following $-\nabla f$. Each step reduces the function value (for small enough $\alpha$), gradually descending toward a minimum.
+\end{intuition}
+
+\subsection{Choosing the Learning Rate}
+
+The learning rate $\alpha$ is critical:
+
+\begin{warning}[Learning Rate Pitfalls]
+\begin{itemize}
+    \item \textbf{Too large:} Steps overshoot the minimum, causing oscillation or divergence
+    \item \textbf{Too small:} Convergence is extremely slow; may get stuck in flat regions
+\end{itemize}
+\end{warning}
+
+\begin{figure}[H]
+    \centering
+    % TODO: Add figure showing effect of learning rate
+    \caption{Effect of learning rate on gradient descent convergence.}
+    \label{fig:learning-rate}
+\end{figure}
+
+\begin{rigour}[Convergence Guarantee]
+For a function $f$ with $L$-Lipschitz gradient (i.e., $\|\nabla f(\mathbf{x}) - \nabla f(\mathbf{y})\| \leq L\|\mathbf{x} - \mathbf{y}\|$), gradient descent with step size $\alpha \leq 1/L$ converges. If $f$ is also convex, convergence is to a global minimum.
+\end{rigour}
+
+\subsection{Variants of Gradient Descent}
+
+Modern machine learning uses several variants:
+
+\begin{itemize}
+    \item \textbf{Stochastic Gradient Descent (SGD):} Uses a random subset of data to estimate the gradient; much faster for large datasets
+
+    \item \textbf{Momentum:} Accumulates past gradients to smooth out updates:
+    \[
+    \mathbf{v}^{(k+1)} = \beta \mathbf{v}^{(k)} + \nabla f(\mathbf{x}^{(k)}), \quad \mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} - \alpha \mathbf{v}^{(k+1)}
+    \]
+
+    \item \textbf{Adam:} Adaptive learning rates per parameter, combining momentum with RMSprop
+
+    \item \textbf{Newton's method:} Uses second-order information (Hessian) for faster convergence near minima
+\end{itemize}
+
+% =============================================================================
+\section{Application: Portfolio Optimisation}
+\label{sec:portfolio}
+% =============================================================================
+
+We now work through a complete example of constrained optimisation in finance.
+
+\subsection{Problem Setup}
+
+Consider a portfolio with two assets, A and B, with:
+\begin{itemize}
+    \item Expected returns: $r_A$ and $r_B$
+    \item Portfolio weights: $w_A$ and $w_B$ (fractions invested in each asset)
+    \item Variance-covariance matrix of returns:
+    \[
+    \boldsymbol{\Sigma} = \begin{pmatrix}
+        \sigma_A^2 & \sigma_{AB} \\
+        \sigma_{AB} & \sigma_B^2
+    \end{pmatrix}
+    \]
+\end{itemize}
+
+\textbf{Objective:} Maximise expected return while penalising variance (risk aversion).
+
+\textbf{Constraint:} Weights must sum to 1 (fully invested): $w_A + w_B = 1$.
+
+\subsection{Formulating the Problem}
+
+The expected return is:
+\[
+\E[\text{portfolio return}] = w_A r_A + w_B r_B
+\]
+
+The portfolio variance is:
+\begin{align*}
+    \Var(w_A r_A + w_B r_B) &= w_A^2 \Var(r_A) + w_B^2 \Var(r_B) + 2w_A w_B \Cov(r_A, r_B) \\
+    &= w_A^2 \sigma_A^2 + w_B^2 \sigma_B^2 + 2w_A w_B \sigma_{AB}
+\end{align*}
+
+With risk aversion parameter $\gamma \geq 0$, we maximise:
+\[
+f(w_A, w_B) = w_A r_A + w_B r_B - \gamma \left( w_A^2 \sigma_A^2 + w_B^2 \sigma_B^2 + 2w_A w_B \sigma_{AB} \right)
+\]
+
+\subsection{Worked Example with Specific Values}
+
+\begin{example}[Portfolio Optimisation]
+\label{ex:portfolio}
+Suppose the variance-covariance matrix is:
+\[
+\boldsymbol{\Sigma} = \begin{pmatrix}
+    1 & 0.5 \\
+    0.5 & 2
+\end{pmatrix}
+\]
+So $\sigma_A^2 = 1$, $\sigma_B^2 = 2$, and $\sigma_{AB} = 0.5$.
+
+\textbf{Step 1: Form the Lagrangian.}
+\[
+\mathcal{L}(w_A, w_B, \lambda) = w_A r_A + w_B r_B - \gamma(w_A^2 + 2w_B^2 + w_A w_B) - \lambda(w_A + w_B - 1)
+\]
+
+\textbf{Step 2: First-order conditions.}
+\begin{align*}
+    \frac{\partial \mathcal{L}}{\partial w_A} &= r_A - 2\gamma w_A - \gamma w_B - \lambda = 0 \\
+    \frac{\partial \mathcal{L}}{\partial w_B} &= r_B - 4\gamma w_B - \gamma w_A - \lambda = 0 \\
+    \frac{\partial \mathcal{L}}{\partial \lambda} &= -(w_A + w_B - 1) = 0
+\end{align*}
+
+\textbf{Step 3: Solve the system.} From the first two equations:
+\begin{align*}
+    r_A - 2\gamma w_A - \gamma w_B &= \lambda \\
+    r_B - 4\gamma w_B - \gamma w_A &= \lambda
+\end{align*}
+Subtracting:
+\begin{align*}
+    (r_A - r_B) - 2\gamma w_A + 4\gamma w_B - \gamma w_B + \gamma w_A &= 0 \\
+    (r_A - r_B) - \gamma w_A + 3\gamma w_B &= 0
+\end{align*}
+Combined with $w_A + w_B = 1$ (so $w_A = 1 - w_B$):
+\begin{align*}
+    (r_A - r_B) - \gamma(1 - w_B) + 3\gamma w_B &= 0 \\
+    (r_A - r_B) - \gamma + \gamma w_B + 3\gamma w_B &= 0 \\
+    (r_A - r_B) - \gamma + 4\gamma w_B &= 0
+\end{align*}
+\[
+w_B^* = \frac{\gamma - (r_A - r_B)}{4\gamma} = \frac{1}{4} - \frac{r_A - r_B}{4\gamma}
+\]
+And:
+\[
+w_A^* = 1 - w_B^* = \frac{3}{4} + \frac{r_A - r_B}{4\gamma}
+\]
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item If $r_A = r_B$ (equal expected returns): $w_A^* = 3/4$, $w_B^* = 1/4$. We favour Asset A because it has lower variance ($\sigma_A^2 = 1 < 2 = \sigma_B^2$).
+    \item If $r_A > r_B$: We allocate more to Asset A.
+    \item As $\gamma \to \infty$ (extreme risk aversion): Weights converge to the minimum-variance portfolio.
+    \item As $\gamma \to 0$ (risk-neutral): The penalty term vanishes; we invest entirely in the higher-return asset.
+\end{itemize}
+\end{example}
+
+% =============================================================================
+\section{Connection to Maximum Likelihood Estimation}
+\label{sec:mle-connection}
+% =============================================================================
+
+Maximum Likelihood Estimation (\cref{ch:week4}) is fundamentally an optimisation problem: we seek parameters $\theta$ that maximise the likelihood (or equivalently, the log-likelihood).
+
+\begin{bluebox}[MLE as Optimisation]
+For i.i.d.\ data $x_1, \ldots, x_n$ from a distribution with parameter $\theta$:
+\[
+\hat{\theta}_{\text{MLE}} = \arg\max_{\theta} \ell(\theta) = \arg\max_{\theta} \sum_{i=1}^{n} \ln f(x_i; \theta)
+\]
+\end{bluebox}
+
+The techniques from this chapter apply directly:
+
+\begin{enumerate}
+    \item \textbf{First derivative (score function):} Set $\frac{d\ell}{d\theta} = 0$ to find critical points
+
+    \item \textbf{Second derivative test:} Verify $\frac{d^2 \ell}{d\theta^2} < 0$ to confirm a maximum
+
+    \item \textbf{Hessian for multiple parameters:} When estimating $\boldsymbol{\theta} = (\theta_1, \ldots, \theta_p)$, the observed Fisher information is the negative Hessian:
+    \[
+    \mathbf{I}(\boldsymbol{\theta}) = -\nabla^2 \ell(\boldsymbol{\theta})
+    \]
+
+    \item \textbf{Gradient descent:} When the MLE has no closed form (e.g., logistic regression, neural networks), we use gradient ascent on $\ell(\boldsymbol{\theta})$.
+\end{enumerate}
+
+\begin{example}[Gradient Ascent for MLE]
+\label{ex:gradient-ascent-mle}
+For logistic regression with parameters $\boldsymbol{\beta}$, the log-likelihood has no closed-form maximiser. We use gradient ascent:
+\[
+\boldsymbol{\beta}^{(k+1)} = \boldsymbol{\beta}^{(k)} + \alpha \nabla_{\boldsymbol{\beta}} \ell(\boldsymbol{\beta}^{(k)})
+\]
+Note the plus sign: we're ascending to maximise, not descending.
+\end{example}
+
+% =============================================================================
+\section{Summary}
+\label{sec:summary}
+% =============================================================================
+
+\begin{bluebox}[Key Concepts in Optimisation]
+\textbf{Unconstrained Optimisation:}
+\begin{itemize}
+    \item Find critical points: $\nabla f = \mathbf{0}$
+    \item Classify using Hessian eigenvalues: all positive $\Rightarrow$ min, all negative $\Rightarrow$ max, mixed $\Rightarrow$ saddle
+\end{itemize}
+
+\textbf{Constrained Optimisation:}
+\begin{itemize}
+    \item Form Lagrangian: $\mathcal{L} = f - \lambda g$
+    \item Solve: $\nabla \mathcal{L} = \mathbf{0}$
+    \item KKT conditions extend to inequality constraints
+\end{itemize}
+
+\textbf{Numerical Methods:}
+\begin{itemize}
+    \item Gradient descent: $\mathbf{x}^{(k+1)} = \mathbf{x}^{(k)} - \alpha \nabla f$
+    \item Learning rate selection is critical
+\end{itemize}
+\end{bluebox}
+
+% =============================================================================
+\section{Practice Exercises}
+\label{sec:exercises}
+% =============================================================================
+
+\subsection*{Unconstrained Optimisation}
+
+\begin{enumerate}
+    \item Find and classify all critical points of $f(x) = x^4 - 8x^2 + 3$.
+
+    \item For $f(x, y) = x^2 + y^2 - 2x - 4y + 5$, find the critical point and determine whether it is a maximum, minimum, or saddle point.
+
+    \item Compute the Hessian of $f(x, y, z) = x^2 + y^2 + z^2 - xy$ and determine its definiteness.
+\end{enumerate}
+
+\subsection*{Constrained Optimisation}
+
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item Find the point on the line $2x + 3y = 6$ closest to the origin. (Hint: Minimise $x^2 + y^2$ subject to the constraint.)
+
+    \item A rectangular box with no top is to have a volume of 32 cubic metres. Find the dimensions that minimise the surface area.
+
+    \item Use Lagrange multipliers to find the maximum of $f(x, y) = x^2 y$ subject to $x^2 + y^2 = 3$.
+\end{enumerate}
+
+\subsection*{Gradient Descent}
+
+\begin{enumerate}
+    \setcounter{enumi}{6}
+    \item Implement gradient descent to minimise $f(x) = (x - 3)^2 + 1$ starting from $x_0 = 0$ with learning rate $\alpha = 0.1$. How many iterations are needed to reach within 0.01 of the minimum?
+
+    \item For $f(x, y) = x^2 + 4y^2$, compute the gradient and write out the gradient descent update rule.
+\end{enumerate}

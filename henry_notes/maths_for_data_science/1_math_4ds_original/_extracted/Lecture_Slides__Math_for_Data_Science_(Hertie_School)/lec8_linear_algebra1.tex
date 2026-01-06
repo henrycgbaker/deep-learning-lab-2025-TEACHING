@@ -1,0 +1,328 @@
+ %\documentclass[xcolor=dvipsnames]{beamer}
+\documentclass[xcolor=dvipsnames,handout]{beamer}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\usepackage{etex}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epsfig}
+\usepackage[english]{babel}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{fancyvrb}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{caption}
+%\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{epsdice}
+
+\hypersetup{
+    colorlinks = true
+}
+
+\definecolor{newred}{RGB}{127,0,0}
+\let\iitemize=\itemize \let\endiitemize=\enditemize \renewenvironment{itemize}{\iitemize \vspace{1mm} \itemsep2mm}{\endiitemize}
+\let\eenumerate=\enumerate \let\endeenumerate=\endenumerate \renewenvironment{enumerate}{\eenumerate \vspace{1mm} \itemsep2mm}{\endeenumerate}
+% == theme & colors
+\mode<presentation>
+{
+
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usecolortheme{beaver}
+  \setbeamercovered{invisible} %or transparent
+  \metroset{block=fill}
+  \setbeamercolor{block title example}{fg=gray!40!black}
+  \setbeamercolor{itemize item}{fg=gray!40!black} 
+  \setbeamercolor{title}{fg=newred} 
+}
+
+      
+\setbeamercolor{background canvas}{bg=white}
+
+
+% === tikz for pictures ===
+\usepackage{tikz}
+\usepackage[latin1]{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning}
+\usetikzlibrary{decorations.pathreplacing}
+\tikzstyle{doublearr}=[latex-latex, black, line width=0.5pt]
+
+% === if you want more than one slides on one page ===
+\usepackage{pgfpages}
+
+
+
+\title{Mathematics for Data Science}
+\subtitle[]{Lecture 8: Linear Algebra (Basics)} 
+\author[Asya Magazinnik]{Asya Magazinnik}
+\institute{Hertie School}
+\date{\today}
+
+\renewcommand\r{\right}
+\renewcommand\l{\left}
+% \newcommand\sign{{\rm sign}}
+
+%% == change spacing for itemize
+%\let\oldframe\frame
+%\renewcommand{\frame}[1][1]{
+%\oldframe[#1]
+%\let\olditemize\itemize
+%\renewcommand\itemize{\olditemize\addtolength{\itemsep}{.25\baselineskip}}
+%}
+
+
+
+\def\insertnavigation#1{\relax}
+% \usefonttheme{serif}
+\usepackage[all]{xy}
+\usepackage{geometry,colortbl,wrapfig}
+\usepackage{tikz}  
+\usepackage{graphicx,setspace,subfigure}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\newcommand{\Ex}{\textsc{Example  }}
+\newcommand{\series}{\sum_{n=1}^{\infty}} 
+\newcommand{\ball}[1]{B( #1)} 
+\newcommand{\inner}[1]{\ensuremath{\langle #1 \rangle}}
+\newcommand{\e}{\epsilon}
+\newcommand{\grad}{\nabla}
+\newcommand{\pa}{\pause \item}
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+\newcommand{\R}{\mathbb{R}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+\newcommand{\matr}[1]{\bm{#1}}     % ISO complying version
+
+
+
+\newcommand{\indep}{{\bot\negthickspace\negthickspace\bot}}
+
+\begin{document}
+
+\subject{Talks}
+\AtBeginSection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection,currentsubsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+
+\frame[plain]{
+  \titlepage
+  \addtocounter{framenumber}{-1}
+}
+
+
+\begin{frame}{Data Structures}
+\begin{enumerate}
+\vspace{2mm}
+    \item Scalar: $x = 1$
+    \pause 
+    \item Vector: $\matr{x} = \left[ \begin{array}{c}
+         x_1 \\
+         x_2 \\
+         \cdots \\
+         x_n
+    \end{array} \right] $     
+    \pause
+    \item Matrix: $\matr{A} = \left[ \begin{array}{cccc}
+         a_{11} &  a_{12} & \cdots & a_{1n} \\
+         a_{21} &  a_{22} & \cdots & a_{2n} \\
+         \cdots \\
+         a_{m1} &  a_{m2} & \cdots & a_{mn}
+    \end{array} \right] $ \\
+    \vspace{2mm}
+        A generic element of this matrix is $a_{ij}$. (\textbf{Note:} this is exactly how indexing works in \texttt{R}: \texttt{df[i,j]})
+    \pause 
+    \item Tensor: an array of matrices with elements $a_{ijk}$
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Compact Notation for Generic Objects}
+    \begin{enumerate}
+    \item Scalar: $x \in \mathbb{R}^1$ 
+    \item Vector: $\matr{x} \in \mathbb{R}^n$
+    \item Matrix: $\matr{X} \in \mathbb{R}^{m \times  n}$ \\
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Transpose of a Matrix}
+    \[ \matr{A} = \left[ \begin{array}{ccc}
+         a_{11} &  a_{12} & a_{13} \\
+         a_{21} &  a_{22} & a_{23} 
+    \end{array} \right] \] 
+    \[ \matr{A}^T = \left[ \begin{array}{cccc}
+         a_{11} &  a_{21} \\
+         a_{12} &  a_{22} \\
+         a_{13} &  a_{23} 
+    \end{array} \right] 
+    \]
+\end{frame}
+
+\begin{frame}{Transpose of a Vector}
+   \[ \matr{x} = \left[ \begin{array}{c}
+         x_1 \\
+         x_2 \\
+         \cdots \\
+         x_n
+    \end{array} \right] \]
+
+    \[ \matr{x}^T = [ x_1 \; \; x_2 \; \; \cdots \; \; x_n] \]
+    \vspace{5mm}
+    \\
+    \pause \textbf{Note:} In general, a vector can always be treated as a matrix with 1 column. (For that matter, a scalar is a matrix with 1 row and 1 column.) 
+\end{frame}
+
+\begin{frame}{Adding Matrices}
+      \[ \left[ \begin{array}{ccc}
+         1 &  2 & 3 \\
+         4 &  5 & 6 
+    \end{array} \right]  +  \left[ \begin{array}{ccc}
+         1 &  2 & 1 \\
+         1 &  1 & 0 
+    \end{array} \right]  = \left[ \begin{array}{ccc}
+         2 &  4 & 4 \\
+         5 &  6 & 6 
+    \end{array} \right]\] 
+    \\ 
+    \vspace{5mm}
+    \textbf{Note:} To add two matrices, they must have the same dimensions.
+\end{frame}
+
+\begin{frame}{Multiplying a Matrix by a Scalar}
+    \[ \matr{A} = \left[ \begin{array}{ccc}
+         a_{11} &  a_{12} & a_{13} \\
+         a_{21} &  a_{22} & a_{23} 
+    \end{array} \right] \] 
+
+    \[ c \matr{A} =  \left[ \begin{array}{ccc}
+         c * a_{11} &  c* a_{12} & c * a_{13} \\
+         c * a_{21} &  c * a_{22} & c* a_{23} 
+    \end{array} \right] \] 
+\end{frame}
+
+\begin{frame}{Multiplying Matrices}
+     \[  \left[ \begin{array}{ccc}
+         a_{11} &  a_{12} & a_{13} \\
+         a_{21} &  a_{22} & a_{23} 
+    \end{array} \right]   \left[ \begin{array}{cc}
+         b_{11} & b_{12} \\
+         b_{21} & b_{22} \\
+         b_{31} & b_{32}
+    \end{array} \right]  = \]
+    \[ 
+         \left[ \begin{array}{cc}
+         a_{11} b_{11} + a_{12} b_{21} + a_{13} b_{31} &   a_{11} b_{12} + a_{12} b_{22} + a_{13} b_{32} \\ 
+           a_{21} b_{11} + a_{22} b_{21} + a_{23} b_{31} &   a_{21} b_{12} + a_{22} b_{22} + a_{23} b_{32}
+    \end{array} \right] 
+    \] 
+    \\ \vspace{5mm} \pause 
+    \textbf{Note:} To multiply matrices, they must be \alert{conformable}: $m \times n$ and $n \times p$, for an output of $m \times p$.
+    \\ \vspace{3mm}
+    Thus, in matrix multiplication, \alert{order matters}.
+\end{frame} 
+
+\begin{frame}{Multiplying Vectors}
+\[ \matr{a}^T \matr{b} = [a_1 \; \; a_2 \; \;  a_3 ] \left[ \begin{array}{c} b_1 \\ b_2 \\ b_3 \end{array} \right]  = a_1 b_1 + a_2 b_2 + a_3 b_3 \]
+\end{frame}
+
+
+\begin{frame}{Transpose Facts}
+\[ (\matr{A}^T)^T = \matr{A} \]
+\[ (\matr{A + B})^T = \matr{A}^T + \matr{B}^T \]
+\[ (\matr{AB})^T = \matr{B}^T \matr{A}^T \]
+\[ \matr{a}^T \matr{b} = \matr{b}^T \matr{a} \]
+\end{frame}
+
+
+\begin{frame}{Systems of Equations}
+    We now know enough linear algebra notation to represent a system of equations:
+    \begin{align*}
+    a_{11} x_1 + a_{12} x_2 + ... + a_{1n} x_n &= b_1 \\
+a_{21} x_1 + a_{22} x_2 + ... + a_{2n} x_n &= b_2 \\
+\cdots  \\
+a_{m1} x_1 + a_{m2} x_2 + ... + a_{mn} x_n &= b_n 
+    \end{align*}
+ in matrix notation as: 
+    \[ \matr{Ax} = \matr{b} \]
+    \[ \left[ \begin{array}{cccc}
+         a_{11} &  a_{12} & \cdots & a_{1n} \\
+         a_{21} &  a_{22} & \cdots & a_{2n} \\
+         \cdots \\
+         a_{m1} &  a_{m2} & \cdots & a_{mn}
+    \end{array} \right]
+\left[    \begin{array}{c}
+         x_1 \\
+         x_2 \\
+         \cdots \\
+         x_n
+    \end{array} \right] = \left[    \begin{array}{c}
+         b_1 \\
+         b_2 \\
+         \cdots \\
+         b_m
+    \end{array} \right] \] 
+\end{frame}
+
+\begin{frame}{The Identity Matrix}
+The Identity Matrix $\matr{I}_n$ is a matrix of size $n \times n$ with 1's across the main diagonal and 0's everywhere else. 
+    \[ \matr{I}_3 =  \left[ \begin{array}{ccc}
+       1 & 0 & 0 \\
+       0 & 1 & 0 \\
+       0 & 0 & 1
+    \end{array} \right]
+    \]
+    \vspace{3mm}
+    
+The identity matrix is useful for many reasons: 
+\begin{itemize}
+    \item It takes a vector $\matr{x}_n$ to itself: $\matr{I}_n \matr{x}_n = \matr{x}_n$
+        \item It takes a matrix $\matr{A}_{m \times n}$ to itself: $\matr{I}_m \matr{A}_{m \times n} = \matr{A}_{m \times n}$ and $\matr{A}_{m \times n}\matr{I}_n  = \matr{A}_{m \times n}$ 
+
+    \item It defines the \alert{inverse} of a matrix: $\matr{A}^{-1} \matr{A} = \matr{I}_n$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{The Inverse of a Matrix}
+    The \alert{inverse} of a matrix is defined such that
+    \[ \matr{A}^{-1} \matr{A} = \matr{I}_n \] 
+    \begin{itemize} \small 
+        \item The inverse does not always exist; only square matrices may have an inverse (and sometimes they still don't) 
+        \item We have several different algorithms to find it when it does exist
+        \item However, it's mainly a theoretical tool and doesn't often need to be computed directly 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{The Vector Norm}
+    The \alert{norm} of a vector is a measure of its magnitude or distance from 0.
+    \begin{align*}
+        |\matr{x}|_1 &= \sum_i |x_i| \\
+        |\matr{x}|_2 &= \sqrt{\sum_i x_i^2} \\ 
+        |\matr{x}|_\infty &= \max_i |x_i| 
+    \end{align*}
+\end{frame}
+\end{document}

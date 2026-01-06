@@ -1,0 +1,104 @@
+% Week 1: Deep Learning in Public Policy
+\chapter{Deep Learning in Public Policy}
+\label{ch:week1}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_1/DL_venn.png}
+    \caption{Enter Caption}
+    \label{fig:dl-venn}
+\end{figure}
+
+In DL, we are interested in finding the relationship $Y = f(X) + \epsilon$.\\
+
+Statistics
+\begin{itemize}
+    \item Descriptive
+    \item Inferential
+\end{itemize}
+
+Machine Learning
+\begin{itemize}
+    \item Predictive
+    \item Leveraging CS techniques
+    \item Large datasets
+\end{itemize}
+
+\vspace{.2cm}
+
+\noindent\rule{\textwidth}{0.4pt}
+
+\vspace{.3cm}
+
+\textbf{Supervised} - for each observation $x_i$ there is an associated response measurement $y_i$.\\
+
+\textbf{Unsupervised} - finding patters in data w/o a response $y_i$. - eg clustering; topic modeling; GPT \& all generative models.\\
+
+\textbf{Reinforcement learning} - Finding the optimal policy based on states and actions that maximizes a reward; games, robotics, engineering control\\
+
+\vspace{.2cm}
+
+\noindent\rule{\textwidth}{0.4pt}
+
+\section{ML vs DL}
+
+\textbf{ML}:
+\begin{itemize}
+    \item SVMs
+    \item Random Forests
+    \item ...
+    \item NNs
+\end{itemize}
+
+\textbf{DL}:
+\begin{itemize}
+    \item Deep/multlayered NNs
+\end{itemize}
+
+\noindent\rule{\textwidth}{0.4pt}
+\\
+
+\section{Universal Approximation Theorem}
+
+Posits a single-layer neural network as the universal approximator.\\
+
+Universal Approximation Theorem (Hornik, 1991):\\
+
+\textit{"A single hidden layer neural network with a linear output unit can approximate any continuous function arbitrarily well, given enough hidden units"}
+\begin{itemize}
+    \item This applies for sigmoid, tanh and many other activation functions.
+    \item However, this does not mean that there is learning algorithm that can find the necessary parameter values.
+\end{itemize}
+
+In plain terms: \textit{in theory}, single hidden layer neural networks are very good at approximating any function... but they may not learn well \textit{in practice}. In contrast, deep learning models, perform well in practice. \\
+
+The question is \textbf{why} is DL so successful? Empirically it is the case, but we lack mathematical theory for why.
+
+\section{What is DL}
+
+\begin{itemize}
+    \item Traditional ML often relies on \textbf{feature extraction and engineering on the raw data} input (scaling, clustering, categorical encoding, domain knowledge-based features...)
+    \item DL handles that within the model itself; it introduces representations of high-dimensional data by expressing them in terms of simpler representations \textbf{(DL does representation learning / feature learning)}.
+    \item Still, not all feature engineering is useless in DL (e.g. tokenisation etc in NLP ???)
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_1/representation learning.png}
+    \label{fig:rep-learning-1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/week_1/representation learning_2.png}
+    \label{fig:rep-learning-2}
+\end{figure}
+\end{itemize}
+
+Some modern deep learning:
+\begin{itemize}
+    \item Computer vision w/ convolutional layers
+    \item Sequence modeling w/ feedback connections (LTSM)
+    \item Language modeling w/ attention
+\end{itemize}
+
+... the lecture goes on to cover i) basics of DL in policy context, ii) policy for DL.

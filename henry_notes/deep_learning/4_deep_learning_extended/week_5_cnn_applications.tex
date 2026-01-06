@@ -1,0 +1,2290 @@
+% Week 5: Convolutional Neural Networks II
+\chapter{Week 5: Convolutional Neural Networks II}
+\label{ch:week5}
+
+\begin{quickref}[Chapter Overview]
+\textbf{Core goal:} Understand modern CNN architectures, training strategies, and applications beyond classification.
+
+\textbf{Key topics:}
+\begin{itemize}
+    \item Data labelling strategies and augmentation techniques
+    \item Modern architectures: VGG, GoogLeNet (Inception), ResNet, DenseNet, EfficientNet
+    \item Transfer learning: feature extraction vs fine-tuning
+    \item Object detection: R-CNN family, YOLO, SSD
+    \item Semantic segmentation: FCN, U-Net
+\end{itemize}
+
+\textbf{Key concepts:}
+\begin{itemize}
+    \item 1$\times$1 convolutions for channel manipulation
+    \item Residual connections: $f(x) = g(x) + x$
+    \item IoU (Intersection over Union): $J(\mathcal{A}, \mathcal{B}) = \frac{|\mathcal{A} \cap \mathcal{B}|}{|\mathcal{A} \cup \mathcal{B}|}$
+    \item Transposed convolution for upsampling
+\end{itemize}
+\end{quickref}
+
+%==============================================================================
+\section{Labelled Data and Augmentation}
+\label{sec:week5-data}
+%==============================================================================
+
+Deep learning's success in computer vision hinges on a simple but often overlooked fact: \textit{the quality and quantity of training data matters as much as the architecture itself}. This section explores the practical realities of building effective training datasets-from the labelling process itself to clever techniques for artificially expanding datasets through augmentation.
+
+\subsection{The Data Bottleneck}
+
+Before diving into techniques, let us understand why data is such a critical constraint in deep learning.
+
+\textbf{The fundamental trade-off}: Traditional machine learning models (decision trees, SVMs, gradient boosting like XGBoost) work remarkably well on smaller datasets because they have relatively few parameters and incorporate strong inductive biases. Deep neural networks, by contrast, have millions of parameters-they can learn incredibly complex patterns, but only if they see enough examples to avoid simply memorising the training data.
+
+Deep neural networks only outperform traditional ML models (e.g., XGBoost) in \textbf{big data regimes}. Think of it this way: a model with 10 million parameters trying to learn from 1,000 images has an average of only 0.0001 images per parameter-far too few to learn meaningful patterns. The model will instead memorise the training set perfectly (achieving near-zero training error) while failing catastrophically on new images (high test error). This is the essence of overfitting.
+
+\textbf{Why images specifically?} Historically, labelled image data was the key bottleneck for computer vision. Unlike text data (which can sometimes be scraped from the web with implicit labels) or structured data (which organisations naturally collect), images require explicit human annotation. Someone must look at each image and declare ``this is a cat'' or ``this region contains a tumour.'' This is expensive, time-consuming, and often requires domain expertise.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_5/imagenet.png}
+    \caption{ImageNet: the dataset that enabled the deep learning revolution in computer vision.}
+    \label{fig:imagenet}
+\end{figure}
+
+\begin{rigour}[Key Datasets: ImageNet and the Deep Learning Revolution]
+\textbf{ImageNet} (Li Fei-Fei et al., 2009) fundamentally changed what was possible in computer vision:
+\begin{itemize}
+    \item $\sim$1 million images across 1000 classes (approximately 1,000 images per class)
+    \item 224$\times$224 resolution (relatively high resolution for its time), hierarchically organised following WordNet structure
+    \item Labelled via Amazon Mechanical Turk-a crowdsourcing platform that enabled large-scale, cost-effective annotation for the first time
+    \item Enabled breakthrough CNN performance: AlexNet (2012) achieved 15.3\% top-5 error, dramatically outperforming traditional methods at 26.2\%
+\end{itemize}
+
+\textbf{Why ImageNet mattered}: Before ImageNet, the largest widely-used image dataset was CIFAR-100 with only 60,000 images across 100 classes. ImageNet was roughly 15$\times$ larger with 10$\times$ more classes. This scale made deep learning viable-enough data existed to train models with millions of parameters without catastrophic overfitting.
+
+\textbf{The ImageNet moment}: The 2012 ImageNet Large Scale Visual Recognition Challenge (ILSVRC) is often cited as the ``big bang'' of the deep learning revolution. When AlexNet (a deep CNN) won by a massive margin, the computer vision community took notice. Within a few years, virtually all competitive approaches were based on deep learning.
+
+\textbf{Modern scale}: The trend toward larger datasets continues. LAION-5B contains \textit{billions} of image-text pairs scraped from the web, supporting the training of models like Stable Diffusion and CLIP. We have moved from millions to billions of training examples.
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_5/cifar-10.png}
+    \caption{CIFAR-10: smaller benchmark dataset (60,000 images, 10 classes).}
+    \label{fig:cifar}
+\end{figure}
+
+\subsection{Common Datasets}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_5/other common datasets.png}
+    \caption{Popular computer vision benchmark datasets.}
+    \label{fig:datasets}
+\end{figure}
+
+\begin{quickref}[Dataset Summary]
+\begin{tabular}{llll}
+\textbf{Dataset} & \textbf{Size} & \textbf{Classes} & \textbf{Task} \\
+\hline
+MNIST & 70,000 & 10 & Digit recognition (28$\times$28 grayscale) \\
+Fashion-MNIST & 70,000 & 10 & Clothing classification (28$\times$28) \\
+LFW & 13,233 & 5,749 & Face recognition/verification \\
+patch\_camelyon & 327,680 & 2 & Medical (metastasis detection) \\
+DOTA & 11,268 & 18 & Aerial object detection \\
+COCO & 330,000 & 80 & Detection/segmentation/captioning \\
+\end{tabular}
+\end{quickref}
+
+\begin{rigour}[Dataset Details]
+Understanding what makes each dataset useful helps you choose the right benchmark for your problem:
+
+\textbf{MNIST (Modified National Institute of Standards and Technology):}
+\begin{itemize}
+    \item One of the most well-known datasets in computer vision, consisting of handwritten digits
+    \item $n = 70,000$ grayscale images of size 28$\times$28 pixels, $K = 10$ classes (digits 0--9)
+    \item Widely used for benchmarking classification algorithms and teaching
+    \item Now considered ``solved''-modern methods achieve $>$99.7\% accuracy
+\end{itemize}
+
+\textbf{Fashion-MNIST (Zalando):}
+\begin{itemize}
+    \item Designed as a drop-in replacement for MNIST with more complexity
+    \item $n = 70,000$ examples, $K = 10$ classes (T-shirts, trousers, pullovers, dresses, coats, sandals, shirts, sneakers, bags, ankle boots)
+    \item Same 28$\times$28 format but represents more complex real-world objects
+    \item Harder than MNIST: state-of-the-art is around 96\% accuracy
+\end{itemize}
+
+\textbf{Labeled Faces in the Wild (LFW, UMass Amherst):}
+\begin{itemize}
+    \item Focuses on face recognition tasks in unconstrained environments
+    \item $n = 13,233$ images of $K = 5,749$ unique people (highly imbalanced-most people have only one image)
+    \item Used for face verification (``are these two images the same person?''), clustering, and recognition
+\end{itemize}
+
+\textbf{patch\_camelyon (Veeling et al.):}
+\begin{itemize}
+    \item Medical imaging dataset of histopathologic lymph node scans
+    \item $n = 327,680$ image patches, $K = 2$ classes (metastatic vs normal tissue)
+    \item Widely used in medical image analysis for metastasis detection
+    \item Demonstrates that deep learning can match expert pathologists in certain tasks
+\end{itemize}
+
+\textbf{DOTA (Dataset for Object Detection in Aerial Images):}
+\begin{itemize}
+    \item Large-scale dataset for object detection in aerial/satellite images
+    \item $n = 11,268$ images with 1,793,658 object instances
+    \item $K = 18$ categories including vehicles, buildings, planes, ships
+    \item Objects appear at various scales and orientations-much harder than ground-level photos
+\end{itemize}
+
+\textbf{COCO (Microsoft, Common Objects in Context):}
+\begin{itemize}
+    \item One of the most comprehensive datasets for detection, segmentation, and captioning
+    \item $n = 330,000$ images (over 200,000 labelled), 1.5 million object instances
+    \item $K = 80$ object categories, 91 ``stuff'' categories (sky, grass, road, etc.)
+    \item Includes 5 captions per image and keypoint annotations for 250,000 people
+    \item The standard benchmark for object detection and instance segmentation
+\end{itemize}
+\end{rigour}
+
+\subsection{Data Labelling Strategies}
+
+Creating a labelled dataset is often the most time-consuming and expensive part of a machine learning project. Understanding the options and trade-offs helps you make informed decisions about how to allocate your annotation budget.
+
+\subsubsection{Self-Annotating Domain-Specific Data}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_5/data annotation.png}
+    \caption{Annotation tools: LabelImg, VGG Image Annotator, and other open-source/paid tools for creating bounding boxes and polygons.}
+    \label{fig:annotation}
+\end{figure}
+
+Numerous tools are available for image annotation, both open-source and commercial. Modern tools often include \textbf{assistance features} such as model predictions or automated bounding box suggestions that can dramatically speed up the labelling process. For example, tools like Segment Anything Model (SAM) can suggest object boundaries with just a single click.
+
+\subsubsection{Who Labels the Data?}
+
+The choice of who performs annotation significantly impacts both cost and quality:
+
+\begin{rigour}[Who Labels the Data?]
+\begin{itemize}
+    \item \textbf{Project Team / Researchers}: Label data themselves-highest quality but most expensive in terms of researcher time. Best for small datasets where domain expertise is critical.
+    \item \textbf{Trained Research Assistants}: More efficient than researchers, especially for domain-specific contexts where some training is needed. Good balance of quality and cost.
+    \item \textbf{Crowdsourcing Platforms}: Tools like Amazon Mechanical Turk, Scale AI, or Labelbox enable large-scale labelling at relatively low cost. Quality varies significantly depending on task complexity.
+\end{itemize}
+
+\textbf{Key insight}: There are huge differences in quality depending on the task. Some tasks can be effectively translated to work with crowdsourcing (``Is there a cat in this image?''), while others fundamentally cannot (``Does this histopathology slide show evidence of metastasis?''). Matching the annotation approach to the task is essential.
+\end{rigour}
+
+\subsubsection{Considerations for Data Labelling}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/truck.png}
+    \caption{Edge cases: What distinguishes a truck from a van? Such ambiguities must be resolved before annotation begins.}
+    \label{fig:truck}
+\end{figure}
+
+Before beginning annotation, you must make many decisions that will affect the quality and usefulness of your dataset. The image above illustrates a common challenge: categorical boundaries are often fuzzy in the real world.
+
+\begin{quickref}[Labelling Best Practices]
+\begin{enumerate}
+    \item \textbf{Define annotation scheme} before starting-don't change mid-process. Changing class definitions partway through creates inconsistencies that are difficult to resolve.
+    \item \textbf{Pilot test} with small subset to train annotators. This surfaces edge cases and ambiguities before you've invested significant effort.
+    \item \textbf{Resolve edge cases} explicitly with annotators. Document decisions in a labelling guide that all annotators reference.
+    \item \textbf{Measure inter-annotator agreement} (Cohen's Kappa or similar metrics). If two annotators frequently disagree, your class definitions may be ambiguous.
+    \item \textbf{Quality vs quantity trade-off}: Crowdsourcing works for simple, unambiguous tasks; experts are needed for domain-specific or nuanced tasks.
+    \item \textbf{Consider publishing} the dataset to enable other researchers to use and extend the work-this also subjects your labelling to community scrutiny.
+\end{enumerate}
+\end{quickref}
+
+\subsection{Active Learning}
+
+When labelling budget is limited, we want to spend it wisely. \textbf{Active learning} is a strategy where the model itself helps decide which examples are most worth labelling next.
+
+The intuition is simple: if a model is already confident about an example's class, labelling it provides little new information. But if the model is uncertain-perhaps giving 50/50 odds between two classes-then labelling that example provides maximum information gain. By strategically selecting uncertain examples, we can train an effective model with fewer labels.
+
+\begin{rigour}[Active Learning]
+Active learning involves continuous annotation \textit{while the model is being trained}:
+\begin{enumerate}
+    \item \textbf{Bootstrap}: Train initial model on small labelled set (perhaps randomly sampled)
+    \item \textbf{Query}: Model identifies uncertain examples from a pool of unlabelled data (queries the ``teacher'')
+    \item \textbf{Label}: Human annotator labels these difficult cases
+    \item \textbf{Retrain}: Update model with expanded dataset
+    \item \textbf{Repeat}: Continue the cycle, focusing on edge cases where the model struggles
+\end{enumerate}
+
+\textbf{Uncertainty measures}: Common ways to identify ``uncertain'' examples include:
+\begin{itemize}
+    \item \textbf{Entropy}: High entropy in the predicted class distribution indicates uncertainty
+    \item \textbf{Margin sampling}: Small gap between the top two predicted class probabilities
+    \item \textbf{Committee disagreement}: If an ensemble of models disagree, the example is ambiguous
+\end{itemize}
+
+\textbf{Advantage}: Reduces total labelling effort by focusing on informative examples. Studies show active learning can achieve equivalent accuracy with 30--50\% fewer labels than random sampling.
+
+\textbf{Risk}: May oversample edge cases, distorting the training distribution. If the initial training set lacks sufficient typical examples, active learning may repeatedly focus on edge-case adjacent instances, pulling more of them from the unlabelled set. This can distort the training set by overrepresenting less relevant examples. The model becomes expert at edge cases but may underperform on common cases.
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_5/Screenshot 2024-10-23 at 20.27.35.png}
+    \caption{Active learning workflow: model queries human for uncertain samples.}
+    \label{fig:active-learning}
+\end{figure}
+
+\begin{redbox}
+\textbf{Active learning vs online learning:} Active learning involves human-in-the-loop querying. Online learning passively incorporates new labelled data as it arrives-no active selection.
+\end{redbox}
+
+\subsection{Model-Assisted Labelling}
+
+Models can be integrated into the annotation pipeline to accelerate labelling:
+
+\begin{quickref}[Model-Assisted Labelling]
+\textbf{Fast segmentation workflow:}
+\begin{enumerate}
+    \item Annotator clicks inside an object (single point)
+    \item Model suggests object boundaries automatically
+    \item Annotator makes manual corrections if needed
+\end{enumerate}
+
+\textbf{Benefits:}
+\begin{itemize}
+    \item Dramatically reduces annotation time for segmentation tasks
+    \item Particularly valuable for complex boundaries (e.g., cell outlines)
+    \item Model improves as more data is labelled (virtuous cycle)
+\end{itemize}
+
+\textbf{Note:} Unlike active learning, model-assisted labelling focuses on \textit{speeding up} annotation rather than \textit{selecting which samples} to annotate.
+\end{quickref}
+
+\subsection{Data Augmentation}
+\label{sec:augmentation}
+
+What if we could expand our training set without collecting and labelling new images? This is the promise of \textbf{data augmentation}-a powerful technique that generates additional training examples by applying transformations to existing images.
+
+\textbf{The core insight}: Many transformations preserve the semantic content of an image. A horizontally flipped photo of a cat is still a photo of a cat. A slightly rotated image of a stop sign is still a stop sign. A photo taken in different lighting conditions shows the same object. By systematically applying such transformations, we can artificially multiply our training data.
+
+\textbf{Why does this help?} Data augmentation serves two purposes:
+\begin{enumerate}
+    \item \textbf{Regularisation}: By showing the model many variations of the same image, we prevent it from overfitting to incidental details (like exact pixel positions or specific lighting).
+    \item \textbf{Invariance learning}: We explicitly teach the model that certain transformations should not change the prediction. A model trained with horizontal flips learns that mirror images have the same label.
+\end{enumerate}
+
+Data augmentation generates additional training examples via transformations, improving generalisation without collecting new data. The key insight is that augmented images should be semantically equivalent-a horizontally flipped cat is still a cat.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{images/week_5/data augmentation.png}
+    \caption{Common augmentation transformations.}
+    \label{fig:augmentation}
+\end{figure}
+
+\subsubsection{Geometric Augmentation}
+
+Geometric augmentations change where things appear in the image without changing what they are. The most common include:
+\begin{itemize}
+    \item \textbf{Translation}: Shifting the image left/right/up/down
+    \item \textbf{Rotation}: Rotating the image by some angle
+    \item \textbf{Scaling}: Zooming in or out
+    \item \textbf{Flipping}: Mirror reflections (horizontal is most common)
+    \item \textbf{Shearing}: Slanting the image
+    \item \textbf{Cropping}: Taking a portion of the image
+\end{itemize}
+
+These can all be expressed mathematically as coordinate transformations-we are remapping which input pixel appears at each output location.
+
+\begin{rigour}[Geometric Augmentation: Formal Description]
+Let $I: \mathbb{R}^2 \to \mathbb{R}^C$ be an image with $C$ channels. Geometric transformations can be expressed as coordinate mappings that specify, for each output pixel location, where to sample from the input image.
+
+\textbf{Translation} by offset $(t_x, t_y)$:
+\[
+I'(x, y) = I(x - t_x, y - t_y)
+\]
+
+\textbf{Rotation} by angle $\theta$ about the centre:
+\[
+I'(x, y) = I(x \cos\theta + y \sin\theta, -x \sin\theta + y \cos\theta)
+\]
+
+\textbf{Scaling} by factors $(s_x, s_y)$:
+\[
+I'(x, y) = I(x/s_x, y/s_y)
+\]
+
+\textbf{Horizontal flip}:
+\[
+I'(x, y) = I(W - x, y)
+\]
+where $W$ is the image width.
+
+\textbf{Shearing} with parameter $k$:
+\[
+I'(x, y) = I(x + ky, y) \quad \text{(horizontal shear)}
+\]
+
+\textbf{Affine transformation} (general form):
+\[
+\begin{pmatrix} x' \\ y' \end{pmatrix} = \begin{pmatrix} a & b \\ c & d \end{pmatrix} \begin{pmatrix} x \\ y \end{pmatrix} + \begin{pmatrix} t_x \\ t_y \end{pmatrix}
+\]
+\end{rigour}
+
+\subsubsection{Colour Augmentation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_5/colour augmentation 1.png}
+    \caption{Colour channel manipulation on a cat image: this teaches the model to focus on structural details rather than relying on colour information.}
+    \label{fig:colour-aug-cat}
+\end{figure}
+
+Colour augmentations modify the appearance of images without changing their geometric structure. These are particularly important because:
+\begin{itemize}
+    \item Real-world images are taken under varying lighting conditions (sunny, cloudy, indoor, outdoor)
+    \item Camera sensors and post-processing differ between devices
+    \item We usually want our model to recognise objects regardless of colour variations
+\end{itemize}
+
+By training with colour-augmented images, the model learns to focus on shape and structure rather than relying too heavily on colour cues.
+
+\begin{rigour}[Colour Augmentation: Formal Description]
+Let $I(x, y) = (R, G, B)^T$ be an RGB pixel value at position $(x, y)$.
+
+\textbf{Brightness adjustment} by factor $\beta$:
+\[
+I'(x, y) = \text{clip}(I(x, y) + \beta, 0, 255)
+\]
+
+\textbf{Contrast adjustment} by factor $\alpha$ (around mean $\mu$):
+\[
+I'(x, y) = \text{clip}(\alpha (I(x, y) - \mu) + \mu, 0, 255)
+\]
+
+\textbf{Saturation adjustment}: Convert to HSV space, multiply S channel by factor $s$, convert back.
+
+\textbf{Hue shift}: In HSV space, add offset $\delta$ to H channel (modulo 360).
+
+\textbf{PCA colour augmentation} (AlexNet): Add multiples of principal components of RGB pixel covariance:
+\[
+I' = I + \sum_{i=1}^{3} \alpha_i \lambda_i \mathbf{p}_i
+\]
+where $\mathbf{p}_i$ are eigenvectors, $\lambda_i$ eigenvalues of RGB covariance, and $\alpha_i \sim \mathcal{N}(0, 0.1)$.
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_5/colour augmentation 2.png}
+    \caption{Colour augmentation: adjusting brightness, contrast, saturation, and hue simulates different lighting conditions, making the model more robust to environmental variations.}
+    \label{fig:colour-aug}
+\end{figure}
+
+\subsubsection{Elastic Distortion}
+
+Elastic distortion is a more sophisticated augmentation technique that introduces smooth, spatially-varying deformations. Think of it as gently warping the image as if it were printed on a flexible rubber sheet.
+
+This technique is particularly useful for character recognition (like handwriting in MNIST) where the same letter or digit can be written in many slightly different ways. Rather than collecting thousands of handwriting samples, we can take a smaller set and artificially introduce the kinds of variations we might see in real handwriting.
+
+\begin{rigour}[Elastic Distortion]
+Elastic distortion applies smooth, spatially-varying displacement fields:
+\begin{enumerate}
+    \item Generate random displacement fields $\Delta x(i,j), \Delta y(i,j)$ from uniform distribution
+    \item Convolve with Gaussian kernel $G_\sigma$ to create smooth fields:
+    \[
+    \Delta x' = G_\sigma * \Delta x, \quad \Delta y' = G_\sigma * \Delta y
+    \]
+    \item Scale by intensity parameter $\alpha$:
+    \[
+    I'(x, y) = I(x + \alpha \Delta x'(x,y), \, y + \alpha \Delta y'(x,y))
+    \]
+\end{enumerate}
+
+\textbf{Parameters:}
+\begin{itemize}
+    \item $\sigma$: Controls smoothness (larger = smoother distortions)
+    \item $\alpha$: Controls intensity (larger = more distortion)
+\end{itemize}
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/random_distortion.png}
+    \caption{Random elastic distortion applied to digit ``6''.}
+    \label{fig:elastic}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/Smoothed random distortion.png}
+    \caption{Smoothed random distortion: the distortion field specifies how each pixel is displaced. The smoothing (via Gaussian convolution) ensures the deformation is gentle and continuous, mimicking natural handwriting variations rather than producing jagged artifacts.}
+    \label{fig:smoothed-elastic}
+\end{figure}
+
+\subsubsection{Advanced Augmentation Techniques}
+
+Modern augmentation techniques go beyond simple geometric and colour transforms. These methods often involve combining images or their parts in creative ways, pushing the boundaries of what ``semantically equivalent'' means.
+
+The key insight behind these techniques is that neural networks can learn from ``impossible'' images-blends of multiple objects, images with regions removed, or composites of different scenes. While these augmented images may look strange to humans, they provide valuable training signal that improves generalisation.
+
+\begin{rigour}[Cutout (DeVries \& Taylor, 2017)]
+\textbf{Cutout} randomly masks out square regions of the input image during training.
+
+\textbf{Procedure:}
+\begin{enumerate}
+    \item Sample a random centre point $(c_x, c_y)$ uniformly in the image
+    \item Mask a square region of size $s \times s$ centred at $(c_x, c_y)$:
+    \[
+    I'(x, y) = \begin{cases}
+    0 & \text{if } |x - c_x| < s/2 \text{ and } |y - c_y| < s/2 \\
+    I(x, y) & \text{otherwise}
+    \end{cases}
+    \]
+\end{enumerate}
+
+\textbf{Intuition}: Forces the network to use the entire context of the image rather than relying on a single discriminative region. If the model has learned to classify ``dog'' by looking only at the nose, masking the nose forces it to learn other features.
+
+\textbf{Typical parameters}: Mask size $s$ is usually 16--32 pixels for CIFAR-10 (32$\times$32 images).
+\end{rigour}
+
+\begin{rigour}[Mixup (Zhang et al., 2018)]
+\textbf{Mixup} creates new training examples by linearly interpolating between pairs of images and their labels.
+
+Given two training examples $(x_i, y_i)$ and $(x_j, y_j)$:
+\begin{align}
+\tilde{x} &= \lambda x_i + (1 - \lambda) x_j \\
+\tilde{y} &= \lambda y_i + (1 - \lambda) y_j
+\end{align}
+where $\lambda \sim \text{Beta}(\alpha, \alpha)$ with hyperparameter $\alpha > 0$.
+
+\textbf{Key properties:}
+\begin{itemize}
+    \item Labels are \textit{soft} (convex combinations of one-hot vectors)
+    \item Creates ``virtual'' training examples that lie between real examples
+    \item Encourages linear behaviour between training examples
+    \item Regularisation effect: smoother decision boundaries
+\end{itemize}
+
+\textbf{Typical parameter}: $\alpha = 0.2$ (produces $\lambda$ close to 0 or 1 most often).
+\end{rigour}
+
+\begin{rigour}[CutMix (Yun et al., 2019)]
+\textbf{CutMix} combines Cutout and Mixup: instead of zeroing a region (Cutout) or blending entire images (Mixup), it pastes a patch from one image onto another.
+
+Given images $(x_i, y_i)$ and $(x_j, y_j)$:
+\begin{align}
+\tilde{x} &= \mathbf{M} \odot x_i + (1 - \mathbf{M}) \odot x_j \\
+\tilde{y} &= \lambda y_i + (1 - \lambda) y_j
+\end{align}
+where:
+\begin{itemize}
+    \item $\mathbf{M} \in \{0, 1\}^{H \times W}$ is a binary mask
+    \item $\lambda = 1 - \frac{r_w \cdot r_h}{W \cdot H}$ is the area ratio
+    \item $(r_x, r_y, r_w, r_h)$ defines a random bounding box
+\end{itemize}
+
+\textbf{Advantage over Cutout}: No information is lost-the masked region contains useful signal from another image, not zeros.
+
+\textbf{Advantage over Mixup}: More localised blending; the model sees complete object parts rather than ghostly overlays.
+\end{rigour}
+
+\begin{quickref}[Augmentation Comparison]
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Method} & \textbf{Image Operation} & \textbf{Label Operation} \\
+\hline
+Cutout & Zero out region & Unchanged \\
+Mixup & Blend two images & Blend two labels \\
+CutMix & Paste patch from another image & Blend by area ratio \\
+\end{tabular}
+\end{center}
+
+\textbf{Empirical findings:} CutMix typically outperforms both Cutout and Mixup on ImageNet classification, especially for localisation tasks.
+\end{quickref}
+
+\begin{redbox}
+\textbf{Critical:} Apply augmentation \textbf{only to training data}. Test set must remain unaugmented to provide valid evaluation.
+
+\textbf{Domain-specific considerations:}
+\begin{itemize}
+    \item \textbf{Medical imaging}: Vertical flips may be inappropriate (anatomy has orientation)
+    \item \textbf{Satellite imagery}: Rotation by 90$^\circ$ typically fine; arbitrary rotations may not be
+    \item \textbf{Text/documents}: Geometric transforms often invalid; colour augmentation may help
+    \item \textbf{Object detection}: Augmentations must preserve/transform bounding boxes
+\end{itemize}
+\end{redbox}
+
+\begin{rigour}[Why Data Augmentation is Powerful]
+Understanding why augmentation works helps guide its application:
+\begin{itemize}
+    \item \textbf{Improves Generalisation}: Models, particularly deep CNNs, tend to overfit small datasets. Data augmentation introduces controlled variation, effectively regularising the model by preventing it from memorising specific pixel patterns.
+    \item \textbf{Cost-Effective}: Generates more training data without additional data collection-especially valuable when collecting new data is expensive (e.g., medical imaging, satellite data, rare events).
+    \item \textbf{Improved Robustness}: By introducing varied versions of the same object, models become more robust to real-world scenarios such as changes in lighting, orientation, or occlusion.
+    \item \textbf{Versatility}: Modern deep learning frameworks (PyTorch, TensorFlow) provide various augmentation techniques that can be composed together to simulate diverse conditions with minimal code.
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[CNN Architecture Recap]
+Before moving to modern architectures, recall the key insight from basic CNNs:
+\begin{itemize}
+    \item \textbf{Convolution and pooling layers} are responsible for \textit{feature extraction}-they learn hierarchical representations from edges $\to$ textures $\to$ parts $\to$ objects
+    \item \textbf{Fully connected layers} are the \textit{prediction} component, learning patterns from extracted features
+    \item Modern CNNs are \textbf{deep and narrow}: many small filters stacked sequentially, whereas older architectures (like LeNet) were wider and shallower
+\end{itemize}
+\end{quickref}
+
+%==============================================================================
+\section{Modern CNN Architectures}
+\label{sec:week5-architectures}
+%==============================================================================
+
+The evolution of CNN architectures from 2012 onwards represents one of the most rapid periods of progress in machine learning. Each new architecture introduced key innovations that addressed limitations of its predecessors. Understanding these architectures provides insight into fundamental design principles that remain relevant today.
+
+Why study older architectures? Even though newer models like Vision Transformers have emerged, the principles from VGG, Inception, and ResNet-modular design, multi-scale processing, skip connections-appear throughout modern deep learning. These architectures also remain the standard backbone for transfer learning in many applications.
+
+\begin{quickref}[Architecture Evolution Timeline]
+\begin{center}
+\begin{tabular}{llll}
+\textbf{Year} & \textbf{Architecture} & \textbf{Depth} & \textbf{Key Innovation} \\
+\hline
+2012 & AlexNet & 8 & ReLU, dropout, GPU training \\
+2014 & VGG & 16--19 & Small filters, deep stacking \\
+2014 & GoogLeNet & 22 & Inception modules \\
+2015 & ResNet & 50--152 & Skip connections \\
+2017 & DenseNet & 121--264 & Dense connectivity \\
+2019 & EfficientNet & Variable & Compound scaling \\
+\end{tabular}
+\end{center}
+\end{quickref}
+
+\subsection{VGG: Deep and Narrow (2014)}
+
+VGG (Visual Geometry Group, Oxford) asked a simple but profound question: \textit{what happens if we make a CNN much deeper while keeping its structure extremely simple?}
+
+\subsubsection{The Intuition Behind VGG}
+
+Before VGG, CNN architectures were designed with a mix of different filter sizes (3$\times$3, 5$\times$5, 7$\times$7, even 11$\times$11 in AlexNet). VGG's key insight was that this complexity was unnecessary-you could achieve better results with a much simpler design:
+
+\begin{enumerate}
+    \item \textbf{Use only 3$\times$3 filters}: The smallest filter that can capture spatial patterns (up, down, left, right, and centre).
+    \item \textbf{Stack many layers}: Instead of one large filter, use multiple small filters in sequence.
+    \item \textbf{Organise into blocks}: Group convolutions together, only pooling at the end of each block.
+\end{enumerate}
+
+The genius of this approach is that \textit{multiple small filters can achieve the same receptive field as one large filter, but with fewer parameters and more non-linearity}. We will see exactly why below.
+
+VGG introduced the concept of \textbf{blocks}-repeated patterns of layers-enabling much deeper networks with a simple, uniform architecture.
+
+\subsubsection{Basic CNN Block vs VGG Block}
+
+A basic CNN block from earlier architectures (like LeNet or simple CNNs) consists of three components:
+\begin{enumerate}
+    \item A \textbf{convolutional layer} with padding to maintain spatial resolution
+    \item A \textbf{non-linearity}, typically ReLU, to introduce non-linear transformation
+    \item A \textbf{pooling layer}, such as max-pooling, to downsample feature maps
+\end{enumerate}
+
+\textbf{Problem with this approach}: With many pooling layers, resolution reduces too quickly, causing loss of spatial information. If you pool after every convolution, a $224 \times 224$ input becomes $1 \times 1$ after just 8 pooling layers (each halves the size). You lose all spatial structure before the network has had a chance to learn complex patterns.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{images/week_5/VGG_block.png}
+    \caption{VGG block: multiple 3$\times$3 convolutions followed by pooling. Note that pooling only occurs once per block, not after every convolution.}
+    \label{fig:vgg-block}
+\end{figure}
+
+\subsubsection{Why 3$\times$3 Filters?}
+
+This is one of the most important insights in CNN architecture design. Consider what happens when we stack two 3$\times$3 convolutions versus using a single 5$\times$5 convolution:
+
+\begin{rigour}[VGG Design Philosophy]
+\textbf{Core principle}: Use only 3$\times$3 convolutions throughout the network.
+
+\textbf{VGG block structure:}
+\begin{enumerate}
+    \item Multiple 3$\times$3 convolutions with same padding (preserves spatial size)
+    \item ReLU activation after each convolution
+    \item 2$\times$2 max pooling with stride 2 (halves spatial dimensions)
+\end{enumerate}
+
+\textbf{Why 3$\times$3?} Consider the receptive field:
+\begin{itemize}
+    \item One 5$\times$5 conv: receptive field = 5$\times$5, parameters = $25C^2$
+    \item Two 3$\times$3 convs: receptive field = 5$\times$5, parameters = $2 \times 9C^2 = 18C^2$
+    \item Three 3$\times$3 convs: receptive field = 7$\times$7, parameters = $27C^2$ (vs $49C^2$ for 7$\times$7)
+\end{itemize}
+
+\textbf{Benefits of stacked small filters:}
+\begin{itemize}
+    \item Fewer parameters for same receptive field
+    \item More non-linearities (ReLU after each conv)
+    \item More expressive power through composition
+\end{itemize}
+\end{rigour}
+
+\begin{rigour}[VGG-16 Architecture Details]
+\textbf{Configuration} (input: $224 \times 224 \times 3$):
+
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Block} & \textbf{Layers} & \textbf{Output Shape} \\
+\hline
+Input & - & $224 \times 224 \times 3$ \\
+Block 1 & 2$\times$ Conv3-64, MaxPool & $112 \times 112 \times 64$ \\
+Block 2 & 2$\times$ Conv3-128, MaxPool & $56 \times 56 \times 128$ \\
+Block 3 & 3$\times$ Conv3-256, MaxPool & $28 \times 28 \times 256$ \\
+Block 4 & 3$\times$ Conv3-512, MaxPool & $14 \times 14 \times 512$ \\
+Block 5 & 3$\times$ Conv3-512, MaxPool & $7 \times 7 \times 512$ \\
+FC & 4096, 4096, 1000 & 1000 \\
+\end{tabular}
+\end{center}
+
+\textbf{Parameter count:}
+\begin{itemize}
+    \item Convolutional layers: $\sim$15 million parameters
+    \item First FC layer alone: $7 \times 7 \times 512 \times 4096 = 102$ million parameters
+    \item \textbf{Total}: $\sim$138 million parameters
+\end{itemize}
+
+\textbf{Observation}: The fully connected layers dominate the parameter count. This motivates global average pooling (used in later architectures).
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.2\linewidth]{images/week_5/VGG.png}
+    \caption{VGG architecture: deep stack of small convolutions.}
+    \label{fig:vgg}
+\end{figure}
+
+\begin{quickref}[VGG Impact]
+\begin{itemize}
+    \item Established ``deep and narrow'' as the dominant paradigm
+    \item Commonly used as pretrained feature extractor
+    \item Simple, uniform architecture easy to understand and modify
+    \item Demonstrated that depth matters (VGG-19 outperforms VGG-16)
+\end{itemize}
+\end{quickref}
+
+\subsection{GoogLeNet: Inception Modules (2014)}
+
+While VGG showed that depth matters, GoogLeNet (Google) explored a different question: \textit{what if we process the same input at multiple scales simultaneously?}
+
+\subsubsection{The Multi-Scale Intuition}
+
+Consider how you recognise objects in images. Sometimes you need fine-grained details (the texture of fur to identify a cat), and sometimes you need broader context (the overall shape of the animal). Different features are salient at different scales.
+
+Traditional CNNs make a choice: use 3$\times$3 filters (local detail) or 5$\times$5 filters (broader context). But why choose? GoogLeNet's Inception module (named after the movie ``Inception'' where characters explore deeper levels of dreams) processes the input through \textit{multiple filter sizes in parallel}, then combines the results.
+
+The Inception module essentially says: ``Let's try all reasonable approaches and concatenate the results. The network will learn which scales matter for which features.''
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{images/week_5/google_inception.png}
+    \caption{Inception block: parallel branches at different scales, with outputs concatenated along the channel dimension. This allows the network to capture features at multiple spatial resolutions simultaneously.}
+    \label{fig:inception}
+\end{figure}
+
+\begin{rigour}[Inception Module Design]
+\textbf{Motivation}: Different regions of an image may have salient features at different scales. Rather than choosing a single filter size, apply multiple sizes in parallel and let the network learn which is most useful.
+
+\textbf{Four parallel branches:}
+\begin{enumerate}
+    \item 1$\times$1 convolution (point-wise features)
+    \item 1$\times$1 conv $\rightarrow$ 3$\times$3 conv (local features)
+    \item 1$\times$1 conv $\rightarrow$ 5$\times$5 conv (broader context)
+    \item 3$\times$3 max pool $\rightarrow$ 1$\times$1 conv (pooled features)
+\end{enumerate}
+
+Outputs are \textbf{concatenated} along the channel dimension.
+
+\textbf{Key insights:}
+\begin{itemize}
+    \item 1$\times$1 convolutions before expensive operations reduce computation
+    \item Network can ``choose'' which scale is relevant for each feature
+    \item Width (parallel paths) provides expressiveness without extreme depth
+\end{itemize}
+\end{rigour}
+
+\begin{redbox}
+\textbf{Concatenation vs summing in multi-branch architectures:}
+
+\textbf{Summing} (as in ResNet): Element-wise addition requires matching dimensions. Used for residual connections where input and output represent the ``same'' information plus learned refinements.
+
+\textbf{Concatenation} (as in Inception/GoogLeNet): Stacks feature maps along the channel dimension. Used when branches extract \textit{different types} of features (different scales, different operations) that should be preserved separately.
+
+\textit{Example:} If three branches produce outputs of size $H \times W$ with 32, 64, and 128 channels respectively, concatenation yields $H \times W \times 224$ channels. The number of output channels per branch is a hyperparameter controlling each branch's capacity.
+\end{redbox}
+
+\subsubsection{1$\times$1 Convolutions: The Workhorse of Modern CNNs}
+\label{sec:1x1-conv}
+
+The 1$\times$1 convolution seems almost paradoxical at first. How can a convolution with a 1-pixel kernel-which cannot capture any spatial patterns-be useful?
+
+The key insight is that 1$\times$1 convolutions work \textit{across channels}, not across space. At each spatial location, a 1$\times$1 convolution takes the vector of all channel values at that pixel and transforms it into a new vector. It is essentially applying a small neural network independently to each pixel position.
+
+\textbf{What does a 1$\times$1 convolution actually do?}
+\begin{itemize}
+    \item \textbf{Channel reduction}: Compress 256 channels down to 64, reducing computation for subsequent layers
+    \item \textbf{Channel expansion}: Increase channels after a bottleneck
+    \item \textbf{Cross-channel learning}: Learn which combinations of input features are most informative
+    \item \textbf{Adding non-linearity}: Each 1$\times$1 conv is followed by ReLU, adding expressiveness
+\end{itemize}
+
+Think of it this way: if you have 256 feature maps (channels), a 1$\times$1 convolution learns which \textit{combinations} of these features are useful, producing a new set of feature maps that are learned mixtures of the originals.
+
+\begin{rigour}[1$\times$1 Convolution: Mathematical Definition]
+A 1$\times$1 convolution applies a linear transformation across channels at each spatial location.
+
+For input $X \in \mathbb{R}^{H \times W \times C_{\text{in}}}$ with filter bank $W \in \mathbb{R}^{1 \times 1 \times C_{\text{in}} \times C_{\text{out}}}$:
+\[
+O_{i,j,k} = \sigma\left(\sum_{c=1}^{C_{\text{in}}} X_{i,j,c} \cdot W_{1,1,c,k} + b_k\right)
+\]
+
+\textbf{Equivalently}: At each spatial location $(i,j)$, the 1$\times$1 conv performs:
+\[
+\mathbf{o}_{i,j} = \sigma(\mathbf{W}^T \mathbf{x}_{i,j} + \mathbf{b})
+\]
+where $\mathbf{x}_{i,j} \in \mathbb{R}^{C_{\text{in}}}$ is the channel vector at position $(i,j)$, and $\mathbf{W} \in \mathbb{R}^{C_{\text{in}} \times C_{\text{out}}}$.
+
+\textbf{This is exactly a fully connected layer applied independently to each spatial location.}
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_5/1x1 convolution.png}
+    \caption{1$\times$1 convolution: channel reduction/expansion.}
+    \label{fig:1x1-conv}
+\end{figure}
+
+\begin{quickref}[1$\times$1 Convolution Uses]
+\begin{enumerate}
+    \item \textbf{Channel reduction}: Compress 256 channels to 64 before expensive 3$\times$3 conv
+    \item \textbf{Channel expansion}: Increase channels after bottleneck
+    \item \textbf{Adding non-linearity}: Cross-channel interaction with ReLU
+    \item \textbf{Feature recombination}: Learn optimal channel combinations
+\end{enumerate}
+\end{quickref}
+
+\begin{rigour}[1$\times$1 Convolution: Worked Example]
+Consider an input feature map of size $4 \times 4 \times 3$ (height $\times$ width $\times$ channels). We want to reduce the number of channels from 3 to 2.
+
+\textbf{Setup:}
+\begin{itemize}
+    \item Input: $I \in \mathbb{R}^{4 \times 4 \times 3}$ - each spatial position has 3 channel values
+    \item We need 2 kernels (one per output channel), each of size $1 \times 1 \times 3$
+    \item Kernel weights: $W_1 = [0.5, 0.3, 0.2]$, $W_2 = [0.1, 0.2, 0.7]$
+\end{itemize}
+
+\textbf{Computation for output channel $k$:}
+\[
+O_{i,j,k} = \sum_{c=1}^{3} I_{i,j,c} \cdot W_{c,k}
+\]
+
+\textbf{Example - top-left pixel} with values $[1, 2, 3]$ across channels:
+\begin{align*}
+O_{1,1,1} &= (1 \times 0.5) + (2 \times 0.3) + (3 \times 0.2) = 0.5 + 0.6 + 0.6 = 1.7 \\
+O_{1,1,2} &= (1 \times 0.1) + (2 \times 0.2) + (3 \times 0.7) = 0.1 + 0.4 + 2.1 = 2.6
+\end{align*}
+
+After applying ReLU: $O' = \max(0, O)$ (no change here since values are positive).
+
+\textbf{Result:} Output is $4 \times 4 \times 2$ - spatial dimensions preserved, channels reduced from 3 to 2.
+
+\textbf{Key insight:} Each output channel is a learned linear combination of all input channels at each spatial location, followed by non-linearity.
+\end{rigour}
+
+\begin{rigour}[Computational Savings from 1$\times$1 Bottlenecks]
+Consider processing a $56 \times 56 \times 256$ feature map with a 3$\times$3 convolution producing 256 output channels.
+
+\textbf{Direct approach:}
+\[
+\text{FLOPs} = 56 \times 56 \times 256 \times 3 \times 3 \times 256 \approx 1.8 \times 10^9
+\]
+
+\textbf{Bottleneck approach} (reduce to 64 channels, then expand):
+\begin{align*}
+\text{1$\times$1 reduce:} &\quad 56 \times 56 \times 256 \times 64 \approx 51 \times 10^6 \\
+\text{3$\times$3 conv:} &\quad 56 \times 56 \times 64 \times 9 \times 64 \approx 116 \times 10^6 \\
+\text{1$\times$1 expand:} &\quad 56 \times 56 \times 64 \times 256 \approx 51 \times 10^6 \\
+\text{Total:} &\quad \approx 218 \times 10^6
+\end{align*}
+
+\textbf{Savings}: $1.8 \times 10^9 / 218 \times 10^6 \approx 8\times$ fewer FLOPs.
+\end{rigour}
+
+\subsection{ResNet: Skip Connections (2015)}
+
+ResNet (Microsoft Research) is arguably the most influential CNN architecture ever published. It introduced a simple but revolutionary idea: \textit{skip connections} that allow information to bypass layers entirely.
+
+\subsubsection{The Problem: Deeper Is Not Always Better}
+
+By 2015, the trend in CNN design was clear: deeper networks perform better. VGG showed that going from 11 to 19 layers improved accuracy. The natural next step was to go even deeper-50, 100, 1000 layers. But something strange happened.
+
+ResNet's authors (He et al.) observed the \textbf{degradation problem}: adding more layers to a network can actually \textit{decrease training accuracy}, even without overfitting. This is deeply counterintuitive. A 56-layer network should be able to represent anything a 20-layer network can-just set the extra 36 layers to be identity mappings (pass input through unchanged). Yet in practice, the 56-layer network performs \textit{worse} on the training set.
+
+This cannot be overfitting (where training error is low but test error is high). Here, training error itself is higher. The problem is \textbf{optimisation difficulty}-gradient-based training simply cannot find good solutions for very deep networks.
+
+\subsubsection{The Solution: Make Identity Easy}
+
+ResNet's insight was that the identity mapping, while mathematically simple, is hard for a neural network to learn. If you want a layer to pass input through unchanged, every weight must be set precisely so that the output equals the input. This is a complex function to learn from data.
+
+The solution is elegant: instead of asking layers to learn $f(x)$ directly, ask them to learn $f(x) - x$-the \textit{residual} or difference from identity. Then add $x$ back at the end. If the optimal transformation is close to identity (which is often the case for deep networks), learning ``do almost nothing'' (output near zero) is much easier than learning ``copy input exactly.''
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/residual block.png}
+    \caption{Residual block: the portion in dotted lines learns the residual $g(x) = f(x) - x$. The skip connection adds the original input back, so the block outputs $f(x) = g(x) + x$.}
+    \label{fig:residual-block}
+\end{figure}
+
+\begin{rigour}[The Degradation Problem]
+\textbf{Observation}: A 56-layer plain network has \textit{higher training error} than a 20-layer network.
+
+\textbf{This cannot be overfitting}: Overfitting would show low training error but high test error. Here, training error itself is higher.
+
+\textbf{Hypothesis}: Deep networks are hard to optimise. Even though a 56-layer network could theoretically copy the 20-layer solution (with remaining layers as identity), gradient-based optimisation fails to find this solution.
+
+\textbf{Solution}: Make identity mappings easy to learn by restructuring what the network learns.
+\end{rigour}
+
+\begin{rigour}[Residual Learning]
+Instead of learning the desired mapping $f(x)$ directly, learn the \textbf{residual}:
+\[
+f(x) = g(x) + x
+\]
+
+where $g(x)$ is the output of the convolutional layers (the ``residual block'').
+
+\textbf{Reframing}: The layers learn $g(x) = f(x) - x$, the \textit{difference} from identity.
+
+\textbf{Key insight}: If the optimal transformation is close to identity, learning $g(x) \approx 0$ is easier than learning $f(x) \approx x$. Pushing weights toward zero is simpler than learning to copy input.
+
+\textbf{Gradient flow}: The skip connection provides a ``gradient highway''-during backpropagation:
+\[
+\frac{\partial L}{\partial x} = \frac{\partial L}{\partial f} \cdot \frac{\partial f}{\partial x} = \frac{\partial L}{\partial f} \cdot \left(\frac{\partial g}{\partial x} + 1\right)
+\]
+
+The additive term $+1$ ensures gradients flow even if $\frac{\partial g}{\partial x}$ is small.
+\end{rigour}
+
+\begin{redbox}
+\textbf{Dimension matching:} For the addition $g(x) + x$ to work, both tensors must have the same shape. When channel dimensions differ (e.g., after downsampling), use a 1$\times$1 convolution on the skip connection:
+\[
+f(x) = g(x) + W_s x
+\]
+where $W_s$ is a learned projection matrix. This is called a \textbf{projection shortcut}.
+\end{redbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{images/week_5/ResNet block.png}
+    \caption{Standard ResNet block: two 3$\times$3 convolutions with skip connection.}
+    \label{fig:resnet-block}
+\end{figure}
+
+\subsubsection{Bottleneck ResNet Block}
+
+For deeper networks (ResNet-50+), bottleneck blocks reduce computation while maintaining expressiveness:
+
+\begin{rigour}[Bottleneck Block Design]
+\begin{enumerate}
+    \item \textbf{1$\times$1 conv}: Reduce channels (e.g., 256 $\rightarrow$ 64)
+    \item \textbf{3$\times$3 conv}: Process at reduced dimension
+    \item \textbf{1$\times$1 conv}: Restore channels (e.g., 64 $\rightarrow$ 256)
+    \item \textbf{Add skip connection}: $\text{output} = \text{block}(x) + x$
+\end{enumerate}
+
+\textbf{Computational justification}: The expensive 3$\times$3 convolution operates on 64 channels instead of 256, reducing FLOPs by $\approx 16\times$ for that layer.
+
+\textbf{Architectural choice}: ResNet-50 uses bottleneck blocks; ResNet-18/34 use basic blocks (two 3$\times$3 convs).
+\end{rigour}
+
+\begin{quickref}[Bottleneck Block: Step-by-Step Example]
+\textbf{Input:} $56 \times 56 \times 256$ feature map
+
+\textbf{Step 1 - Channel Reduction (1$\times$1 conv):}
+\begin{itemize}
+    \item Apply 64 filters of size $1 \times 1 \times 256$
+    \item Output: $56 \times 56 \times 64$
+    \item Channels reduced by factor of 4
+\end{itemize}
+
+\textbf{Step 2 - Spatial Processing (3$\times$3 conv):}
+\begin{itemize}
+    \item Apply 64 filters of size $3 \times 3 \times 64$ with padding
+    \item Output: $56 \times 56 \times 64$
+    \item Now operating on 64 channels instead of 256 (much cheaper!)
+\end{itemize}
+
+\textbf{Step 3 - Channel Restoration (1$\times$1 conv):}
+\begin{itemize}
+    \item Apply 256 filters of size $1 \times 1 \times 64$
+    \item Output: $56 \times 56 \times 256$
+    \item Matches original input dimensions for residual addition
+\end{itemize}
+
+\textbf{Step 4 - Residual Connection:}
+\begin{itemize}
+    \item Add original input: $\text{Output} = \text{Block}(x) + x$
+    \item Final output: $56 \times 56 \times 256$
+\end{itemize}
+
+\textbf{Computational savings:} The 3$\times$3 conv operates on 64 channels rather than 256, reducing FLOPs by approximately 16$\times$ for that layer.
+\end{quickref}
+
+\subsubsection{Global Average Pooling}
+
+Remember the observation about VGG: the fully connected layers contained 102 million of the 138 million total parameters. These FC layers are expensive, prone to overfitting, and break spatial invariance. ResNet popularised \textbf{global average pooling} (GAP) as a much better alternative.
+
+The idea is simple: instead of flattening the final feature maps and connecting everything to everything (fully connected), just take the \textit{average} of each feature map. This produces one number per channel-a vector that summarises the ``global presence'' of each learned feature.
+
+\begin{rigour}[Global Average Pooling (GAP)]
+Instead of flattening feature maps into a fully connected layer:
+\[
+\text{GAP}(c) = \frac{1}{H \times W} \sum_{i=1}^{H} \sum_{j=1}^{W} x_{i,j,c}
+\]
+
+For a $7 \times 7 \times 512$ feature map, GAP produces a $1 \times 1 \times 512$ vector (or equivalently, a 512-dimensional vector).
+
+\textbf{Benefits}:
+\begin{itemize}
+    \item \textbf{No learnable parameters}: Reduces overfitting
+    \item \textbf{Dramatic parameter reduction}: See worked example below
+    \item \textbf{Interpretability}: Each channel becomes a ``class detector''
+    \item \textbf{Spatial invariance}: Summarises regardless of where features appear
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[GAP Worked Example]
+\textbf{Input:} Final conv layer output of size $7 \times 7 \times 512$
+\begin{itemize}
+    \item 512 feature maps (channels)
+    \item Each feature map is $7 \times 7 = 49$ spatial positions
+\end{itemize}
+
+\textbf{GAP operation:} For each of the 512 channels, compute the mean of all 49 values:
+\[
+\text{GAP}(c) = \frac{1}{49} \sum_{i=1}^{7} \sum_{j=1}^{7} x_{i,j,c}
+\]
+
+\textbf{Output:} $1 \times 1 \times 512$ (or equivalently, a 512-dimensional vector)
+
+\textbf{Parameter comparison:}
+\begin{itemize}
+    \item \textit{Without GAP} (flatten + FC to 1000 classes): $7 \times 7 \times 512 \times 1000 = 25,088,000$ parameters
+    \item \textit{With GAP} (512-d vector + FC to 1000 classes): $512 \times 1000 = 512,000$ parameters
+    \item \textbf{Reduction: 49$\times$ fewer parameters}
+\end{itemize}
+
+\textbf{Interpretation:} Each of the 512 channels learns to be a ``detector'' for different features. GAP summarises each detector's global activation, which feeds directly into classification.
+\end{quickref}
+
+\subsubsection{ResNet-18 Architecture}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_5/resnet18.png}
+    \caption{ResNet-18 architecture with global average pooling.}
+    \label{fig:resnet18}
+\end{figure}
+
+\begin{rigour}[ResNet-18 Structure]
+\textbf{ResNet-18} is a commonly used variant, small enough to train quickly yet powerful enough for many tasks:
+\begin{itemize}
+    \item An initial 7$\times$7 convolutional layer followed by 3$\times$3 max-pooling
+    \item 4 stages, each consisting of residual blocks:
+    \begin{itemize}
+        \item Stage 1: 2 blocks with 64 channels
+        \item Stage 2: 2 blocks with 128 channels
+        \item Stage 3: 2 blocks with 256 channels
+        \item Stage 4: 2 blocks with 512 channels
+    \end{itemize}
+    \item Each residual block has two 3$\times$3 convolutional layers with skip connections
+    \item Global average pooling after the final stage
+    \item A final fully-connected layer for classification
+\end{itemize}
+
+\textbf{Layer count}: $1 + 2 \times (2 + 2 + 2 + 2) + 1 = 18$ layers with learnable weights (the ``18'' in ResNet-18).
+
+\textbf{Why it's popular}: ResNet-18 offers an excellent trade-off between accuracy and efficiency. It is small enough to fit on modest GPUs and train in reasonable time, yet deep enough to benefit from residual learning. It is often the go-to architecture for prototyping and transfer learning.
+\end{rigour}
+
+\begin{quickref}[ResNet Summary]
+\begin{itemize}
+    \item Skip connections enable training of very deep networks (100+ layers)
+    \item Residual learning (learning the difference from identity) is easier than direct mapping
+    \item Identity mapping is always preserved, ensuring performance doesn't degrade with depth
+    \item Widely used as pretrained backbone for transfer learning
+    \item Variants: ResNet-18 (11M params), ResNet-34 (21M), ResNet-50 (25M), ResNet-101 (44M), ResNet-152 (60M)
+\end{itemize}
+\end{quickref}
+
+\begin{quickref}[VGG vs GoogLeNet vs ResNet: Design Philosophy Comparison]
+\begin{itemize}
+    \item \textbf{VGG}: \textit{Simplicity through uniformity}. Use only 3$\times$3 convolutions throughout. Deep stacks of identical blocks. Easy to understand and implement, but computationally expensive.
+    \item \textbf{GoogLeNet}: \textit{Efficiency through multi-scale processing}. Use parallel branches at different scales within each block. More complex architecture, but fewer parameters than VGG through careful use of 1$\times$1 convolutions.
+    \item \textbf{ResNet}: \textit{Depth through skip connections}. Keep it simple like VGG, but add skip connections to enable much deeper networks. Best of both worlds: simple design, extreme depth.
+\end{itemize}
+
+All three demonstrated that depth and architectural innovation could dramatically improve performance. These design principles-modular blocks, multi-scale processing, skip connections-remain fundamental to modern architectures including Vision Transformers.
+\end{quickref}
+
+\subsection{DenseNet: Dense Connectivity (2017)}
+
+DenseNet extends the skip connection idea: instead of connecting only to the previous layer, each layer connects to \textit{all} preceding layers.
+
+\begin{rigour}[DenseNet Architecture]
+In a dense block, layer $\ell$ receives feature maps from all preceding layers:
+\[
+x_\ell = H_\ell([x_0, x_1, \ldots, x_{\ell-1}])
+\]
+
+where $[\cdot]$ denotes concatenation along the channel dimension, and $H_\ell$ is a composite function (BN-ReLU-Conv).
+
+\textbf{Key differences from ResNet:}
+\begin{itemize}
+    \item \textbf{Concatenation} instead of addition
+    \item \textbf{Feature reuse}: All previous features directly accessible
+    \item \textbf{Growth rate $k$}: Each layer adds $k$ new feature maps
+\end{itemize}
+
+\textbf{Channel count}: After $\ell$ layers in a dense block with initial channels $k_0$:
+\[
+\text{Channels} = k_0 + k \cdot \ell
+\]
+
+\textbf{Transition layers}: Between dense blocks, use 1$\times$1 conv + pooling to reduce dimensions.
+\end{rigour}
+
+\begin{quickref}[DenseNet Benefits]
+\begin{itemize}
+    \item \textbf{Stronger gradient flow}: Direct connections to all previous layers
+    \item \textbf{Feature reuse}: Later layers can access early features directly
+    \item \textbf{Parameter efficiency}: Fewer parameters than ResNet for similar accuracy
+    \item \textbf{Implicit regularisation}: Dense connections reduce overfitting
+\end{itemize}
+
+\textbf{Typical configurations}: DenseNet-121 (8M params), DenseNet-169 (14M), DenseNet-201 (20M).
+\end{quickref}
+
+\subsection{EfficientNet: Compound Scaling (2019)}
+
+EfficientNet introduced a principled approach to scaling CNNs along three dimensions simultaneously.
+
+\begin{rigour}[Compound Scaling]
+Traditional scaling approaches adjust one dimension:
+\begin{itemize}
+    \item \textbf{Depth}: More layers (e.g., ResNet-18 $\to$ ResNet-152)
+    \item \textbf{Width}: More channels per layer
+    \item \textbf{Resolution}: Higher input resolution
+\end{itemize}
+
+\textbf{Key insight}: These dimensions are interdependent. Doubling resolution may require more layers (depth) to process the additional detail, and more channels (width) to capture the extra information.
+
+\textbf{Compound scaling rule}:
+\begin{align}
+\text{depth}: \quad d &= \alpha^\phi \\
+\text{width}: \quad w &= \beta^\phi \\
+\text{resolution}: \quad r &= \gamma^\phi
+\end{align}
+
+Subject to constraint: $\alpha \cdot \beta^2 \cdot \gamma^2 \approx 2$ (approximately doubles FLOPs).
+
+\textbf{EfficientNet-B0 baseline}: Designed via neural architecture search (NAS), then scaled using $\phi = 0, 1, 2, \ldots, 7$ to create B0--B7.
+\end{rigour}
+
+\begin{quickref}[EfficientNet Key Results]
+\begin{itemize}
+    \item EfficientNet-B0: 5.3M parameters, 77.1\% ImageNet top-1
+    \item EfficientNet-B7: 66M parameters, 84.3\% ImageNet top-1
+    \item \textbf{8$\times$ smaller and 6$\times$ faster} than best previous models at similar accuracy
+\end{itemize}
+
+\textbf{Practical recommendation}: Start with EfficientNet-B0 or B1 for most applications; scale up if accuracy is insufficient and compute budget allows.
+\end{quickref}
+
+%==============================================================================
+\section{Transfer Learning and Fine-Tuning}
+\label{sec:week5-transfer}
+%==============================================================================
+
+Training a modern CNN from scratch requires enormous computational resources and massive datasets. ImageNet has 1.2 million images-but what if you only have 1,000 images of your target domain? Training a model with millions of parameters on 1,000 examples would result in catastrophic overfitting.
+
+\textbf{Transfer learning} offers an elegant solution: rather than starting from random weights, start from a model that has already learned useful features on a large dataset. The key insight is that many visual features are \textit{universal}-edge detectors, texture patterns, and basic shape primitives are useful regardless of whether you're classifying cats, cars, or cancer cells.
+
+\subsection{Why Transfer Learning Works}
+
+Consider what happens in different layers of a CNN trained on ImageNet:
+\begin{itemize}
+    \item \textbf{Early layers} (conv1, conv2) learn \textit{generic} features: edge detectors at various orientations, colour blobs, simple textures. These features are useful for almost any visual task.
+    \item \textbf{Middle layers} learn \textit{intermediate} features: combinations of edges forming corners, junctions, texture patterns. Still fairly generic.
+    \item \textbf{Late layers} learn \textit{task-specific} features: dog faces, car wheels, bird wings. These are specific to ImageNet's 1000 classes.
+\end{itemize}
+
+The insight is that even if your target task (say, classifying medical images) has nothing to do with ImageNet (cats, dogs, cars), the early and middle layer features are still valuable. Edge detection is edge detection, whether you're looking at a cat's whiskers or cellular boundaries in a histology image.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{images/week_5/fine tuning.png}
+    \caption{Fine-tuning: copy pretrained layers, replace output layer, train on target dataset. Early layers contain generic features that transfer well; late layers are adapted to the new task.}
+    \label{fig:fine-tuning}
+\end{figure}
+
+\begin{rigour}[Transfer Learning: Formal Framework]
+Let $\mathcal{D}_S = \{(x_i^S, y_i^S)\}$ be the source dataset and $\mathcal{D}_T = \{(x_i^T, y_i^T)\}$ be the target dataset.
+
+\textbf{Traditional learning}: Train model $f_\theta$ from random initialisation on $\mathcal{D}_T$.
+
+\textbf{Transfer learning}:
+\begin{enumerate}
+    \item Pretrain $f_{\theta^*}$ on source domain: $\theta^* = \arg\min_\theta \mathcal{L}_S(f_\theta, \mathcal{D}_S)$
+    \item Initialise target model with $\theta^*$ (possibly partially)
+    \item Fine-tune on target domain: $\theta^{**} = \arg\min_\theta \mathcal{L}_T(f_\theta, \mathcal{D}_T)$ starting from $\theta^*$
+\end{enumerate}
+
+\textbf{Assumption}: Features learned on $\mathcal{D}_S$ are useful for $\mathcal{D}_T$. This holds when:
+\begin{itemize}
+    \item Source and target share similar low-level features (edges, textures)
+    \item Source dataset is large and diverse (e.g., ImageNet)
+    \item Target task is related (both involve natural images)
+\end{itemize}
+\end{rigour}
+
+\subsection{Feature Extraction vs Fine-Tuning}
+
+There are two main strategies for using pretrained models, differing in which parameters are updated. The choice depends primarily on how much target data you have and how similar your domain is to ImageNet.
+
+Think of it as a spectrum:
+\begin{itemize}
+    \item \textbf{Feature extraction} (freeze everything): Use the pretrained CNN as a fixed feature generator. Only train a new classifier on top.
+    \item \textbf{Fine-tuning} (update some or all): Start from pretrained weights, but allow gradient updates to adapt the features to your domain.
+\end{itemize}
+
+The key trade-off: more flexibility (updating more layers) requires more data to avoid overfitting. With limited data, freezing layers acts as strong regularisation.
+
+\begin{rigour}[Feature Extraction]
+\textbf{Approach}: Use pretrained network as a fixed feature extractor.
+
+\textbf{Procedure}:
+\begin{enumerate}
+    \item Load pretrained model (e.g., ResNet-50)
+    \item Remove final classification layer
+    \item \textbf{Freeze all pretrained weights} (no gradient updates)
+    \item Add new classification head for target task
+    \item Train only the new head on target data
+\end{enumerate}
+
+\textbf{When to use}:
+\begin{itemize}
+    \item Very small target dataset ($<$1000 images)
+    \item Limited computational resources
+    \item Source and target domains are similar
+\end{itemize}
+
+\textbf{Computational cost}: Very low-only training a small classifier.
+\end{rigour}
+
+\begin{rigour}[Fine-Tuning]
+\textbf{Approach}: Initialise with pretrained weights, then update all (or some) parameters.
+
+\textbf{Procedure}:
+\begin{enumerate}
+    \item Load pretrained model
+    \item Replace final classification layer
+    \item Optionally freeze early layers
+    \item Train with \textbf{small learning rate} (e.g., $10^{-4}$ or $10^{-5}$)
+\end{enumerate}
+
+\textbf{Strategies by target dataset size}:
+
+\begin{center}
+\begin{tabular}{ll}
+\textbf{Target Data} & \textbf{Strategy} \\
+\hline
+Very small ($<$1K) & Feature extraction only \\
+Small (1K--10K) & Fine-tune top layers, freeze early \\
+Medium (10K--100K) & Fine-tune all with small LR \\
+Large ($>$100K) & Fine-tune all, possibly from scratch \\
+\end{tabular}
+\end{center}
+
+\textbf{Discriminative learning rates}: Use smaller learning rates for early layers (which learn generic features) and larger rates for later layers (which learn task-specific features).
+\end{rigour}
+
+\begin{quickref}[Transfer Learning Decision Guide]
+\begin{enumerate}
+    \item \textbf{Is the target domain similar to ImageNet?}
+    \begin{itemize}
+        \item Yes $\to$ Transfer learning will likely help significantly
+        \item No $\to$ Transfer learning may still help (especially early layers)
+    \end{itemize}
+    \item \textbf{How much target data do you have?}
+    \begin{itemize}
+        \item Little data $\to$ Freeze more layers, regularise heavily
+        \item Lots of data $\to$ Fine-tune more/all layers
+    \end{itemize}
+    \item \textbf{What's your compute budget?}
+    \begin{itemize}
+        \item Limited $\to$ Feature extraction (fast)
+        \item Flexible $\to$ Fine-tuning (better accuracy)
+    \end{itemize}
+\end{enumerate}
+\end{quickref}
+
+\begin{redbox}
+\textbf{Transfer learning works even across very different domains.}
+
+\textit{Example - Digital pathology:} A model pretrained on ImageNet (containing everyday objects like animals, vehicles, furniture) can be successfully fine-tuned for medical imaging tasks such as identifying lesions in tissue samples.
+
+\textbf{Why does this work?} ImageNet contains virtually no medical images, but the early layers learn generic visual features:
+\begin{itemize}
+    \item Edge detectors, texture patterns, colour gradients
+    \item Local contrast and boundary detection
+    \item Hierarchical shape primitives
+\end{itemize}
+
+These low-level features transfer remarkably well. The fine-tuning process adapts the higher layers to recognise domain-specific patterns (e.g., cellular structures, tissue abnormalities) while retaining the useful generic features.
+
+\textbf{Empirical evidence}: Transfer from ImageNet consistently outperforms training from scratch, even for domains as different as satellite imagery, medical scans, and artwork classification.
+\end{redbox}
+
+\subsection{Domain Adaptation}
+
+When source and target domains differ significantly, standard transfer learning may be insufficient.
+
+\begin{rigour}[Domain Shift]
+\textbf{Domain shift} occurs when the distribution of source data $P_S(X, Y)$ differs from target $P_T(X, Y)$.
+
+\textbf{Types of shift}:
+\begin{itemize}
+    \item \textbf{Covariate shift}: $P_S(X) \neq P_T(X)$ but $P(Y|X)$ same
+    \item \textbf{Label shift}: $P_S(Y) \neq P_T(Y)$ but $P(X|Y)$ same
+    \item \textbf{Concept shift}: $P_S(Y|X) \neq P_T(Y|X)$
+\end{itemize}
+
+\textbf{Example}: Training on studio photos (clean backgrounds, good lighting) but deploying on user-uploaded photos (varied conditions).
+\end{rigour}
+
+\begin{quickref}[Domain Adaptation Strategies]
+\begin{itemize}
+    \item \textbf{Data augmentation}: Simulate target domain characteristics
+    \item \textbf{Domain-adversarial training}: Learn features that are invariant to domain
+    \item \textbf{Self-training}: Use model's confident predictions on unlabelled target data
+    \item \textbf{Style transfer}: Transform source images to look like target domain
+\end{itemize}
+
+\textbf{Practical tip}: Often, simply fine-tuning with target domain data (even a small amount) is sufficient for moderate domain shifts.
+\end{quickref}
+
+%==============================================================================
+\section{Object Detection}
+\label{sec:week5-detection}
+%==============================================================================
+
+So far, we have focused on \textit{image classification}: given an image, predict a single label. But many real-world applications need more: they need to know not just \textit{what} is in an image, but \textit{where} each object is located and \textit{how many} objects there are.
+
+\textbf{Object detection} (sometimes called ``object recognition'') solves this problem by identifying objects within an image and determining their \textbf{classes}, \textbf{positions}, and \textbf{boundaries}. The output is a set of bounding boxes, each labelled with a class and a confidence score.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_5/object detection.png}
+    \caption{Object detection: classify and localise objects with bounding boxes. The model must identify that there are two dogs, locate each one, and draw tight bounding boxes around them.}
+    \label{fig:object-detection}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_5/object detection 2.png}
+    \caption{Object detection involves finding objects, drawing tight bounding boxes, and determining object classes. Multiple objects of multiple classes can appear in a single image.}
+    \label{fig:object-detection-2}
+\end{figure}
+
+\subsection{Why Object Detection Is Harder Than Classification}
+
+Object detection combines classification (``what'') with localisation (``where''). This is fundamentally more challenging than classification for several reasons:
+
+\begin{itemize}
+    \item \textbf{Variable number of outputs}: Classification always outputs one label per image. Detection outputs a \textit{variable} number of boxes-zero, one, ten, or hundreds depending on the image.
+    \item \textbf{Continuous outputs}: Classification outputs discrete class labels. Detection also outputs continuous coordinates (bounding box positions).
+    \item \textbf{Multiple scales}: Objects can appear at any size. A car might occupy 80\% of the image or 2\%.
+    \item \textbf{Overlapping objects}: Objects can partially occlude each other.
+    \item \textbf{Extreme class imbalance}: Most of any image is background. For every pixel containing an object, there may be 100 or 1000 background pixels.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{images/week_5/multiple objects.png}
+    \caption{Detecting multiple objects of different classes in a single image. The detector must output a variable number of boxes with different class labels.}
+    \label{fig:multiple-objects}
+\end{figure}
+
+\begin{rigour}[Object Detection Problem Formulation]
+\textbf{Input}: Image $X \in \mathbb{R}^{H \times W \times 3}$
+
+\textbf{Output}: Set of detections $\{(b_i, c_i, s_i)\}_{i=1}^N$ where:
+\begin{itemize}
+    \item $b_i = (x, y, w, h)$ or $(x_1, y_1, x_2, y_2)$: bounding box coordinates
+    \item $c_i \in \{1, \ldots, K\}$: class label
+    \item $s_i \in [0, 1]$: confidence score
+\end{itemize}
+
+\textbf{Challenges}:
+\begin{itemize}
+    \item Variable number of objects per image
+    \item Objects at different scales
+    \item Overlapping objects
+    \item Class imbalance (most regions are background)
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[Object Detection Tasks]
+\begin{enumerate}
+    \item \textbf{Find objects} in the image
+    \item \textbf{Draw bounding boxes} around each object
+    \item \textbf{Classify} each detected object
+\end{enumerate}
+
+\textbf{Applications}: Autonomous vehicles, surveillance, satellite imagery, medical imaging, retail analytics.
+\end{quickref}
+
+\subsection{Bounding Box Representation}
+
+\begin{rigour}[Bounding Box Formats]
+\textbf{Corner format (XYXY)}: $(x_1, y_1, x_2, y_2)$
+\begin{itemize}
+    \item $(x_1, y_1)$: upper-left corner
+    \item $(x_2, y_2)$: lower-right corner
+\end{itemize}
+
+\textbf{Centre format (XYWH)}: $(x_c, y_c, w, h)$
+\begin{itemize}
+    \item $(x_c, y_c)$: centre coordinates
+    \item $(w, h)$: width and height
+\end{itemize}
+
+\textbf{Conversion}:
+\begin{align}
+x_c &= (x_1 + x_2) / 2, \quad y_c = (y_1 + y_2) / 2 \\
+w &= x_2 - x_1, \quad h = y_2 - y_1
+\end{align}
+
+Different frameworks use different conventions-always verify which format is expected.
+\end{rigour}
+
+\subsection{Intersection over Union (IoU)}
+
+IoU is the fundamental metric for comparing predicted boxes to ground truth.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/iou.png}
+    \caption{IoU measures overlap between predicted and ground truth boxes.}
+    \label{fig:iou}
+\end{figure}
+
+\begin{rigour}[Intersection over Union]
+For two bounding boxes $\mathcal{A}$ and $\mathcal{B}$:
+\[
+\text{IoU}(\mathcal{A}, \mathcal{B}) = \frac{|\mathcal{A} \cap \mathcal{B}|}{|\mathcal{A} \cup \mathcal{B}|} = \frac{\text{Area of intersection}}{\text{Area of union}}
+\]
+
+\textbf{Properties}:
+\begin{itemize}
+    \item $\text{IoU} \in [0, 1]$
+    \item IoU = 1: Perfect overlap (identical boxes)
+    \item IoU = 0: No overlap
+    \item Symmetric: $\text{IoU}(\mathcal{A}, \mathcal{B}) = \text{IoU}(\mathcal{B}, \mathcal{A})$
+\end{itemize}
+
+\textbf{Detection threshold}: A detection is typically considered correct if $\text{IoU} > 0.5$ (PASCAL VOC standard) or $\text{IoU} > 0.5, 0.55, \ldots, 0.95$ (COCO mAP).
+\end{rigour}
+
+\begin{rigour}[IoU Computation]
+Given boxes in corner format:
+\begin{align}
+\mathcal{A} &= (x_1^A, y_1^A, x_2^A, y_2^A) \\
+\mathcal{B} &= (x_1^B, y_1^B, x_2^B, y_2^B)
+\end{align}
+
+\textbf{Intersection coordinates}:
+\begin{align}
+x_1^I &= \max(x_1^A, x_1^B), \quad y_1^I = \max(y_1^A, y_1^B) \\
+x_2^I &= \min(x_2^A, x_2^B), \quad y_2^I = \min(y_2^A, y_2^B)
+\end{align}
+
+\textbf{Intersection area} (zero if no overlap):
+\[
+\text{Area}_I = \max(0, x_2^I - x_1^I) \cdot \max(0, y_2^I - y_1^I)
+\]
+
+\textbf{Union area}:
+\[
+\text{Area}_U = \text{Area}_A + \text{Area}_B - \text{Area}_I
+\]
+
+\textbf{IoU}:
+\[
+\text{IoU} = \frac{\text{Area}_I}{\text{Area}_U}
+\]
+\end{rigour}
+
+\subsection{Anchor Boxes}
+
+How does a detector actually find objects? One naive approach would be to slide a window across every possible location and scale, classifying each window. But this would require millions of forward passes per image-far too slow.
+
+\textbf{Anchor boxes} provide a clever solution. Instead of considering every possible box, we predefine a small set of ``template'' boxes at various sizes and aspect ratios. At each position in the image (or rather, in the feature map), we place these template boxes and ask the network two questions:
+\begin{enumerate}
+    \item Does this anchor box contain an object? If so, what class?
+    \item How should we adjust this anchor's position and size to better fit the actual object?
+\end{enumerate}
+
+Think of anchors as reasonable initial guesses that the network refines. If an anchor roughly covers an object, the network learns to predict small adjustments (offsets) to make the box fit tightly.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/anchor boxes.png}
+    \caption{Anchor boxes: predefined boxes at various scales and aspect ratios, centred at grid points across the feature map.}
+    \label{fig:anchor-boxes}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/anchor boxes 2.png}
+    \caption{Anchor boxes at different scales and aspect ratios provide coverage for objects of varying shapes-tall and thin (people), wide and short (cars), or roughly square (faces).}
+    \label{fig:anchor-boxes-2}
+\end{figure}
+
+\begin{rigour}[Anchor Box Mechanism]
+\textbf{Anchor boxes} (also called ``prior boxes'' or ``default boxes'') are predefined bounding boxes with fixed sizes and aspect ratios, placed at regular grid positions across the image.
+
+\textbf{Design}:
+\begin{itemize}
+    \item Choose a set of scales $\{s_1, s_2, \ldots\}$ and aspect ratios $\{r_1, r_2, \ldots\}$
+    \item At each grid cell, place anchors of size $(w, h) = (s \sqrt{r}, s / \sqrt{r})$
+    \item Common choices: scales 32, 64, 128, 256, 512; ratios 1:2, 1:1, 2:1
+\end{itemize}
+
+\textbf{For each anchor box, the model predicts}:
+\begin{enumerate}
+    \item \textbf{Offsets} $(\delta x, \delta y, \delta w, \delta h)$: adjustments to anchor position and size
+    \item \textbf{Class scores}: probability distribution over $K$ classes
+    \item \textbf{Objectness score}: probability that anchor contains any object (in some architectures)
+\end{enumerate}
+
+\textbf{Final prediction}: Apply predicted offsets to anchor box:
+\begin{align}
+\hat{x} &= x_a + \delta x \cdot w_a \\
+\hat{y} &= y_a + \delta y \cdot h_a \\
+\hat{w} &= w_a \cdot \exp(\delta w) \\
+\hat{h} &= h_a \cdot \exp(\delta h)
+\end{align}
+where $(x_a, y_a, w_a, h_a)$ is the anchor box.
+\end{rigour}
+
+\subsection{Class Prediction and Confidence Scores}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/class prediction.png}
+    \caption{Class prediction: for each anchor box, the model predicts class probabilities and confidence scores.}
+    \label{fig:class-prediction}
+\end{figure}
+
+For each proposed anchor box, the model predicts:
+\begin{enumerate}
+    \item The \textbf{class} of the object (if any) within the box, as a probability distribution over classes
+    \item \textbf{Offsets} to make the box fit the detected object more tightly
+    \item A \textbf{confidence score} representing how certain the model is about the prediction
+\end{enumerate}
+
+The confidence score serves two purposes: it helps select the final class for each box (choose the highest-scoring class), and it is used during non-maximum suppression to decide which overlapping boxes to keep.
+
+\subsection{Non-Maximum Suppression (NMS)}
+
+A typical object detector proposes hundreds or thousands of anchor boxes, many of which overlap. Several boxes might all ``detect'' the same object with high confidence. We need a way to merge these redundant detections into a single box per object.
+
+\textbf{Non-Maximum Suppression} solves this by keeping only the ``best'' box for each object and removing boxes that overlap too much with it. The intuition: if two boxes have high IoU (overlap), they probably detect the same object, so keep only the more confident one.
+
+\begin{rigour}[Non-Maximum Suppression Algorithm]
+\textbf{Input}: Set of detected boxes $\{(b_i, s_i)\}$ with confidence scores
+
+\textbf{Output}: Filtered set of boxes
+
+\textbf{Algorithm}:
+\begin{enumerate}
+    \item Sort boxes by confidence score (descending)
+    \item Select box with highest score, add to output
+    \item Remove all boxes with $\text{IoU} > \tau$ with the selected box
+    \item Repeat steps 2--3 with remaining boxes until none left
+\end{enumerate}
+
+\textbf{Hyperparameter}: IoU threshold $\tau$ (typically 0.5)
+\begin{itemize}
+    \item Higher $\tau$: More lenient, keeps more overlapping boxes
+    \item Lower $\tau$: More aggressive suppression
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[NMS Worked Example]
+\textbf{Detections for ``dog''}: 5 boxes with scores 0.9, 0.85, 0.7, 0.6, 0.5
+
+\textbf{IoU threshold}: 0.5
+
+\textbf{Step 1}: Select box with score 0.9, add to output.
+
+\textbf{Step 2}: Compute IoU of remaining boxes with selected box:
+\begin{itemize}
+    \item Box 0.85: IoU = 0.8 $>$ 0.5 $\to$ remove (same object)
+    \item Box 0.7: IoU = 0.3 $<$ 0.5 $\to$ keep (different object)
+    \item Box 0.6: IoU = 0.7 $>$ 0.5 $\to$ remove
+    \item Box 0.5: IoU = 0.2 $<$ 0.5 $\to$ keep
+\end{itemize}
+
+\textbf{Step 3}: From remaining (0.7, 0.5), select 0.7, check IoU with 0.5:
+\begin{itemize}
+    \item IoU = 0.1 $<$ 0.5 $\to$ keep
+\end{itemize}
+
+\textbf{Output}: 3 boxes (scores 0.9, 0.7, 0.5) - likely 3 separate dogs.
+\end{quickref}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_5/bounding box workflow.png}
+    \caption{Object detection pipeline: propose boxes, predict classes, apply NMS.}
+    \label{fig:detection-workflow}
+\end{figure}
+
+\subsection{R-CNN Family: Region-Based Detection}
+
+The R-CNN family pioneered the use of CNNs for object detection through a two-stage approach: propose regions, then classify.
+
+\begin{rigour}[R-CNN (Regions with CNN features, 2014)]
+\textbf{Architecture}:
+\begin{enumerate}
+    \item \textbf{Region proposal}: Use selective search to generate $\sim$2000 region proposals
+    \item \textbf{Feature extraction}: Warp each region to fixed size, pass through CNN (AlexNet)
+    \item \textbf{Classification}: SVM classifier for each class
+    \item \textbf{Bounding box regression}: Refine box coordinates
+\end{enumerate}
+
+\textbf{Limitations}:
+\begin{itemize}
+    \item Very slow: CNN forward pass for each of 2000 regions
+    \item Training is multi-stage (CNN, SVM, regressor separately)
+    \item Storage-intensive: features cached to disk
+\end{itemize}
+
+\textbf{Inference time}: $\sim$47 seconds per image.
+\end{rigour}
+
+\begin{rigour}[Fast R-CNN (2015)]
+\textbf{Key innovation}: Run CNN once on entire image, then extract features for each region.
+
+\textbf{Architecture}:
+\begin{enumerate}
+    \item \textbf{Feature extraction}: Single CNN pass on full image $\to$ feature map
+    \item \textbf{RoI pooling}: Extract fixed-size features from feature map for each region proposal
+    \item \textbf{Classification + regression}: FC layers predict class and refine box
+\end{enumerate}
+
+\textbf{RoI (Region of Interest) Pooling}:
+\begin{itemize}
+    \item Maps variable-size regions to fixed-size feature vectors
+    \item Divides region into $H \times W$ grid (e.g., 7$\times$7)
+    \item Max pools within each grid cell
+\end{itemize}
+
+\textbf{Improvement}: $\sim$10$\times$ faster than R-CNN at training, $\sim$150$\times$ faster at inference.
+
+\textbf{Remaining bottleneck}: Selective search for region proposals (runs on CPU).
+\end{rigour}
+
+\begin{rigour}[Faster R-CNN (2015)]
+\textbf{Key innovation}: Replace selective search with a learned \textbf{Region Proposal Network (RPN)}.
+
+\textbf{Architecture}:
+\begin{enumerate}
+    \item \textbf{Backbone CNN}: Extract feature map from image
+    \item \textbf{RPN}: Slide small network over feature map to propose regions
+    \item \textbf{RoI pooling}: Extract features for each proposal
+    \item \textbf{Detection head}: Classify and refine boxes
+\end{enumerate}
+
+\textbf{Region Proposal Network}:
+\begin{itemize}
+    \item At each location, predict objectness score and box offsets for $k$ anchors
+    \item Typically $k = 9$ (3 scales $\times$ 3 aspect ratios)
+    \item RPN is trained jointly with detection network
+\end{itemize}
+
+\textbf{Speed}: Near real-time ($\sim$5 fps), 10$\times$ faster than Fast R-CNN.
+\end{rigour}
+
+\begin{quickref}[R-CNN Evolution Summary]
+\begin{center}
+\begin{tabular}{llll}
+\textbf{Method} & \textbf{Region Proposals} & \textbf{Feature Sharing} & \textbf{Speed} \\
+\hline
+R-CNN & Selective search & None (per-region CNN) & 47s/image \\
+Fast R-CNN & Selective search & Full image CNN & 2s/image \\
+Faster R-CNN & RPN (learned) & Full image CNN & 0.2s/image \\
+\end{tabular}
+\end{center}
+\end{quickref}
+
+\subsection{YOLO: Single-Shot Detection}
+
+YOLO (You Only Look Once) reframes detection as a single regression problem, enabling real-time performance.
+
+\begin{rigour}[YOLO Architecture]
+\textbf{Key idea}: Divide image into $S \times S$ grid. Each grid cell predicts:
+\begin{itemize}
+    \item $B$ bounding boxes, each with 5 values: $(x, y, w, h, \text{confidence})$
+    \item $C$ class probabilities (shared across all boxes in cell)
+\end{itemize}
+
+\textbf{Output tensor}: $S \times S \times (B \cdot 5 + C)$
+
+\textbf{Example} (YOLO v1): $S = 7$, $B = 2$, $C = 20$ (PASCAL VOC)
+\begin{itemize}
+    \item Output: $7 \times 7 \times (2 \cdot 5 + 20) = 7 \times 7 \times 30$
+\end{itemize}
+
+\textbf{Confidence interpretation}:
+\[
+\text{Confidence} = P(\text{Object}) \times \text{IoU}_{\text{pred}}^{\text{truth}}
+\]
+
+\textbf{Class-specific confidence}:
+\[
+P(\text{Class}_i | \text{Object}) \times P(\text{Object}) \times \text{IoU} = P(\text{Class}_i) \times \text{IoU}
+\]
+\end{rigour}
+
+\begin{rigour}[YOLO Loss Function]
+\[
+\begin{aligned}
+\mathcal{L} &= \lambda_{\text{coord}} \sum_{i=0}^{S^2} \sum_{j=0}^{B} \mathbf{1}_{ij}^{\text{obj}} \left[ (x_i - \hat{x}_i)^2 + (y_i - \hat{y}_i)^2 \right] \\
+&+ \lambda_{\text{coord}} \sum_{i=0}^{S^2} \sum_{j=0}^{B} \mathbf{1}_{ij}^{\text{obj}} \left[ (\sqrt{w_i} - \sqrt{\hat{w}_i})^2 + (\sqrt{h_i} - \sqrt{\hat{h}_i})^2 \right] \\
+&+ \sum_{i=0}^{S^2} \sum_{j=0}^{B} \mathbf{1}_{ij}^{\text{obj}} (C_i - \hat{C}_i)^2 \\
+&+ \lambda_{\text{noobj}} \sum_{i=0}^{S^2} \sum_{j=0}^{B} \mathbf{1}_{ij}^{\text{noobj}} (C_i - \hat{C}_i)^2 \\
+&+ \sum_{i=0}^{S^2} \mathbf{1}_i^{\text{obj}} \sum_{c \in \text{classes}} (p_i(c) - \hat{p}_i(c))^2
+\end{aligned}
+\]
+
+\textbf{Key design choices}:
+\begin{itemize}
+    \item $\sqrt{w}, \sqrt{h}$: Small boxes penalised less for same absolute error
+    \item $\lambda_{\text{coord}} = 5$: Localisation errors weighted more
+    \item $\lambda_{\text{noobj}} = 0.5$: Background cells weighted less (class imbalance)
+    \item $\mathbf{1}_{ij}^{\text{obj}}$: 1 if cell $i$'s box $j$ is ``responsible'' for an object
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[YOLO vs R-CNN Family]
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Aspect} & \textbf{YOLO} & \textbf{Faster R-CNN} \\
+\hline
+Approach & Single-shot & Two-stage \\
+Speed & 45+ fps & $\sim$5 fps \\
+Accuracy (mAP) & Lower & Higher \\
+Small objects & Weaker & Better \\
+Real-time & Yes & Borderline \\
+\end{tabular}
+\end{center}
+
+\textbf{YOLO versions}: v1 (2016), v2/YOLO9000 (2017), v3 (2018), v4 (2020), v5+ (community)
+\end{quickref}
+
+\subsection{SSD: Single Shot MultiBox Detector}
+
+SSD combines YOLO's single-shot speed with multi-scale detection.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_5/SSD architecture.png}
+    \caption{SSD architecture: predictions at multiple feature map scales.}
+    \label{fig:ssd}
+\end{figure}
+
+\begin{rigour}[SSD Architecture]
+\textbf{Key innovations}:
+\begin{enumerate}
+    \item \textbf{Single-shot}: Predictions made in one forward pass (no region proposals)
+    \item \textbf{Multi-scale}: Anchor boxes applied at multiple feature map resolutions
+    \item \textbf{Base network}: Truncated VGG-16 as feature extractor
+\end{enumerate}
+
+\textbf{Multi-scale detection}:
+\begin{itemize}
+    \item High-resolution feature maps (e.g., 38$\times$38): detect small objects
+    \item Low-resolution feature maps (e.g., 3$\times$3): detect large objects
+\end{itemize}
+
+\textbf{Output at each scale}: For each anchor at each position, predict:
+\begin{itemize}
+    \item 4 box offsets $(\delta x, \delta y, \delta w, \delta h)$
+    \item $K + 1$ class scores (including background)
+\end{itemize}
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_5/anchor boxes 3.png}
+    \caption{Multi-scale anchor boxes on different feature maps: higher resolution maps detect smaller objects; lower resolution maps detect larger objects.}
+    \label{fig:multiscale-anchors}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_5/anchor boxes 4.png}
+    \caption{Different feature maps at different scales with uniformly distributed anchor boxes. The same anchor box templates, applied at different feature map resolutions, effectively cover objects at multiple scales.}
+    \label{fig:anchor-boxes-4}
+\end{figure}
+
+\begin{rigour}[Multi-Scale Detection]
+\begin{itemize}
+    \item \textbf{High-resolution feature maps} (e.g., 38$\times$38): Detect small objects with fine spatial precision
+    \item \textbf{Low-resolution feature maps} (e.g., 3$\times$3): Detect large objects with broader receptive fields
+    \item \textbf{Uniformly Distributed}: Each feature map level has anchor boxes distributed uniformly, ensuring coverage across the image at that scale
+\end{itemize}
+
+All anchor boxes from different scales are combined together and subjected to non-maximum suppression, producing the final set of detections.
+\end{rigour}
+
+\begin{rigour}[SSD Loss Function]
+\[
+L(x, c, l, g) = \frac{1}{N} \left( L_{\text{conf}}(x, c) + \alpha L_{\text{loc}}(x, l, g) \right)
+\]
+
+\begin{itemize}
+    \item $L_{\text{conf}}$: Cross-entropy loss for class predictions
+    \item $L_{\text{loc}}$: Smooth L1 loss for bounding box regression
+    \item $N$: Number of matched anchor boxes
+    \item $\alpha$: Weighting factor (typically 1)
+\end{itemize}
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/l1 loss.png}
+    \caption{Smooth L1 loss (Huber loss): combines L2 stability for small errors with L1 robustness to outliers. The transition occurs at $|x| = \delta$ (typically 1).}
+    \label{fig:l1-loss}
+\end{figure}
+
+\begin{quickref}[Smooth L1 Loss]
+\[
+\text{Smooth L1}(x) = \begin{cases}
+\frac{1}{2}x^2 & \text{if } |x| < 1 \\
+|x| - \frac{1}{2} & \text{otherwise}
+\end{cases}
+\]
+
+Combines L2 stability for small errors with L1 robustness for large errors (outliers). This is particularly important for bounding box regression where occasional large annotation errors or mispredictions should not dominate the gradient.
+\end{quickref}
+
+\begin{rigour}[Smooth L1 Loss: Mathematical Details]
+The Smooth L1 loss (also called Huber loss with $\delta = 1$) provides a compromise between L1 and L2 losses.
+
+\textbf{General form} with threshold $\delta$:
+\[
+\text{Smooth L1}(x) = \begin{cases}
+\frac{1}{2\delta}x^2 & \text{if } |x| < \delta \\
+|x| - \frac{\delta}{2} & \text{otherwise}
+\end{cases}
+\]
+
+where $x = y_{\text{pred}} - y_{\text{true}}$ is the residual.
+
+\textbf{Derivative} (gradient for backpropagation):
+\[
+\frac{d}{dx}\text{Smooth L1}(x) = \begin{cases}
+x/\delta & \text{if } |x| < \delta \\
+\text{sign}(x) & \text{otherwise}
+\end{cases}
+\]
+
+\textbf{Key properties:}
+\begin{itemize}
+    \item \textbf{Small errors} ($|x| < \delta$): Behaves like L2 loss - smooth gradients, stable optimisation
+    \item \textbf{Large errors} ($|x| \geq \delta$): Behaves like L1 loss - bounded gradients, robust to outliers
+    \item \textbf{Differentiable everywhere}: Unlike pure L1 loss, which has undefined gradient at $x = 0$
+\end{itemize}
+
+\textbf{Why use it for bounding box regression?} Annotation noise and occasional large errors are common. Smooth L1 prevents these outliers from dominating the gradient updates while maintaining precision for well-matched boxes.
+\end{rigour}
+
+\begin{rigour}[Hard Negative Mining]
+Most anchor boxes are background (negatives). Without careful handling, the loss is dominated by easy negatives.
+
+\textbf{Hard negative mining}:
+\begin{enumerate}
+    \item Compute confidence loss for all negative anchors
+    \item Sort by confidence loss (descending)-highest loss = hardest negatives
+    \item Keep only top negatives such that negative:positive ratio $\leq$ 3:1
+\end{enumerate}
+
+\textbf{Purpose}: Focus training on difficult negative examples (false positives) rather than easy background regions.
+\end{rigour}
+
+\subsection{Data Augmentation for Object Detection}
+
+Object detection requires special augmentation considerations because bounding boxes must remain valid after transformations.
+
+\begin{rigour}[Augmentation with Bounding Box Constraints]
+When augmenting detection data:
+
+\textbf{1. Geometric transforms must update boxes}:
+\begin{itemize}
+    \item Horizontal flip: $x_{\text{new}} = W - x_{\text{old}}$
+    \item Rotation: Transform all four corners, compute new axis-aligned box
+    \item Scale/crop: Scale coordinates, clip to image boundaries
+\end{itemize}
+
+\textbf{2. Random crops must preserve objects}:
+\begin{itemize}
+    \item Generate random crop
+    \item Accept only if IoU with at least one ground truth box exceeds threshold
+    \item Typical thresholds: $\{0.1, 0.3, 0.5, 0.7, 0.9\}$
+\end{itemize}
+
+\textbf{3. Handle partial occlusion}:
+\begin{itemize}
+    \item If crop cuts through object, decide: keep truncated box or discard?
+    \item Common rule: Keep if $>$50\% of original box area remains
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[Detection Augmentation Techniques]
+\begin{itemize}
+    \item \textbf{Random crops with IoU constraint}: Vary object positions and scales
+    \item \textbf{Horizontal flipping}: Doubles effective dataset (with mirrored boxes)
+    \item \textbf{Colour jittering}: Robustness to lighting conditions
+    \item \textbf{Random patches}: Background variation
+    \item \textbf{Mosaic augmentation} (YOLO v4): Combine 4 images into one
+\end{itemize}
+
+\textbf{Critical:} After geometric transforms, bounding box coordinates must be adjusted accordingly. Boxes that fall outside the crop are discarded.
+\end{quickref}
+
+%==============================================================================
+\section{Semantic Segmentation}
+\label{sec:week5-segmentation}
+%==============================================================================
+
+Object detection tells us where objects are (via bounding boxes), but bounding boxes are coarse-they include background pixels and cannot capture complex object shapes. \textbf{Semantic segmentation} goes further: it classifies \textit{every single pixel} in the image, producing a dense prediction map that perfectly outlines each object's boundary.
+
+Think of it as ``colouring in'' each pixel according to what class it belongs to. In a street scene, every pixel might be labelled as road, car, pedestrian, building, sky, or tree. This is dramatically more information than a bounding box.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/semantic segmentation.png}
+    \caption{Semantic segmentation: classify every pixel. Unlike object detection (bounding boxes), segmentation produces pixel-perfect boundaries.}
+    \label{fig:semantic-seg}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_5/semantic segmentation 2.png}
+    \caption{Semantic segmentation example: the input image (left) is transformed into a pixel-wise class map (right), where each colour represents a different semantic class.}
+    \label{fig:semantic-seg-2}
+\end{figure}
+
+\textbf{Applications of semantic segmentation}:
+\begin{itemize}
+    \item \textbf{Autonomous driving}: Precisely segment road, sidewalk, pedestrians, vehicles, traffic signs
+    \item \textbf{Medical imaging}: Segment organs, tumours, lesions in CT/MRI scans
+    \item \textbf{Satellite imagery}: Land use classification, urban planning
+    \item \textbf{Photo editing}: Background removal, object selection
+    \item \textbf{Robotics}: Scene understanding for manipulation and navigation
+\end{itemize}
+
+Semantic segmentation assigns a class label to \textbf{every pixel} in an image, producing a dense prediction map.
+
+\begin{rigour}[Semantic Segmentation Problem Formulation]
+\textbf{Input}: Image $X \in \mathbb{R}^{H \times W \times 3}$
+
+\textbf{Output}: Label map $Y \in \{0, 1, \ldots, K\}^{H \times W}$ where $K$ is the number of classes.
+
+\textbf{Alternatively}: Probability map $P \in [0, 1]^{H \times W \times (K+1)}$ with softmax over classes at each pixel.
+
+\textbf{Loss}: Pixel-wise cross-entropy:
+\[
+\mathcal{L} = -\frac{1}{HW} \sum_{i=1}^{H} \sum_{j=1}^{W} \sum_{c=0}^{K} y_{ijc} \log(\hat{p}_{ijc})
+\]
+where $y_{ijc}$ is 1 if pixel $(i,j)$ has ground truth class $c$.
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{images/week_5/image segmentation.png}
+    \caption{Different types of image segmentation: from simple region-based approaches to semantic segmentation that assigns class labels to each pixel.}
+    \label{fig:image-segmentation}
+\end{figure}
+
+\subsection{Types of Segmentation}
+
+There are several related but distinct segmentation tasks, each providing different types of information:
+
+\begin{rigour}[Segmentation Types]
+\textbf{Semantic segmentation}: Each pixel gets a class label. Multiple instances of same class share the same label.
+\begin{itemize}
+    \item Example: All ``person'' pixels are labelled 1, regardless of how many people
+    \item Does not distinguish between individual objects of the same class
+    \item Useful when you care about ``stuff'' (sky, road, grass) more than ``things'' (individual cars, people)
+\end{itemize}
+
+\textbf{Instance segmentation}: Each pixel gets a class label \textit{and} instance ID.
+\begin{itemize}
+    \item Example: Person A is labelled (1, instance\_1), Person B is (1, instance\_2)
+    \item Combines detection (find instances) with segmentation (pixel masks)
+    \item More challenging than semantic segmentation because it must distinguish individual objects
+\end{itemize}
+
+\textbf{Panoptic segmentation}: Combines semantic (for ``stuff'' like sky, road) with instance (for ``things'' like cars, people).
+\begin{itemize}
+    \item Every pixel is labelled, with instance IDs for countable objects
+    \item Provides the most complete scene understanding
+\end{itemize}
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/instance segmentation.png}
+    \caption{Instance segmentation distinguishes individual objects of the same class (e.g., different people get different colours/masks).}
+    \label{fig:instance-seg}
+\end{figure}
+
+\subsection{The Challenge: Spatial Resolution}
+
+Classification CNNs progressively reduce spatial resolution through pooling. For segmentation, we need full-resolution output.
+
+\begin{rigour}[How CNNs Enable Semantic Segmentation]
+Deep learning exploits CNN \textbf{feature maps} for segmentation:
+
+\textbf{Key insight:} The output of each convolutional layer is a set of feature maps that capture hierarchical information about the image at different levels of abstraction.
+
+\begin{itemize}
+    \item \textbf{Early layers}: Capture low-level features (edges, textures, colours)
+    \item \textbf{Middle layers}: Capture mid-level features (parts, patterns)
+    \item \textbf{Deep layers}: Capture high-level semantic features (object parts, class-discriminative regions)
+\end{itemize}
+
+\textbf{Observation:} Deep feature maps often naturally ``highlight'' regions corresponding to semantic classes. For example, certain channels may activate strongly for ``cat'' regions and weakly elsewhere.
+
+\textbf{Challenge:} Deep features have low spatial resolution (e.g., $7 \times 7$ for a 224 input). We must upsample back to full resolution while preserving semantic information.
+\end{rigour}
+
+\begin{redbox}
+\textbf{Classification vs Segmentation architectures:}
+
+\textit{Classification CNNs}: Feature maps $\rightarrow$ Global pooling/Flatten $\rightarrow$ FC layers $\rightarrow$ Class prediction
+
+\textit{Segmentation CNNs}: Feature maps $\rightarrow$ Upsample/Decode $\rightarrow$ Pixel-wise class predictions (same resolution as input)
+
+The critical difference is that segmentation networks must preserve spatial information throughout, using encoder-decoder structures to recover full resolution.
+\end{redbox}
+
+\subsection{Fully Convolutional Networks (FCN)}
+
+FCN (Long et al., 2015) was the first successful deep learning approach to semantic segmentation.
+
+\begin{rigour}[Fully Convolutional Networks]
+\textbf{Key innovation}: Replace fully connected layers with convolutional layers, enabling arbitrary input sizes.
+
+\textbf{Architecture}:
+\begin{enumerate}
+    \item \textbf{Encoder}: Standard classification network (e.g., VGG) without FC layers
+    \item \textbf{1$\times$1 convolution}: Produce $K+1$ channel heatmap (one per class)
+    \item \textbf{Upsampling}: Transposed convolution to restore spatial resolution
+\end{enumerate}
+
+\textbf{FCN variants}:
+\begin{itemize}
+    \item \textbf{FCN-32s}: Single 32$\times$ upsampling from pool5 (coarse)
+    \item \textbf{FCN-16s}: Combine pool5 + pool4, then 16$\times$ upsample
+    \item \textbf{FCN-8s}: Combine pool5 + pool4 + pool3, then 8$\times$ upsample (finest)
+\end{itemize}
+
+\textbf{Skip connections}: Combining predictions from multiple scales improves boundary precision.
+\end{rigour}
+
+\subsection{Transposed Convolution}
+
+Transposed convolution (also called ``deconvolution'' or ``up-convolution'') is the key operation for upsampling feature maps.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_5/up-convolution.png}
+    \caption{Transposed convolution increases spatial resolution.}
+    \label{fig:upconv}
+\end{figure}
+
+\begin{rigour}[Transposed Convolution: Definition]
+A transposed convolution \textbf{increases spatial dimensions}. For a regular convolution with kernel $k$, stride $s$, and padding $p$:
+\[
+\text{Output size} = \lfloor (n + 2p - k) / s \rfloor + 1
+\]
+
+The transposed convolution reverses this:
+\[
+\text{Output size} = (n - 1) \cdot s - 2p + k
+\]
+
+\textbf{Mechanism}:
+\begin{enumerate}
+    \item Insert $s - 1$ zeros between each input value (if $s > 1$)
+    \item Pad the expanded input
+    \item Apply regular convolution with the (flipped) kernel
+\end{enumerate}
+
+\textbf{Why ``transposed''?} For a convolution that can be expressed as matrix multiplication $Y = CX$, the transposed convolution computes $X' = C^T Y'$. The operation uses the transpose of the convolution matrix.
+\end{rigour}
+
+\begin{rigour}[Transposed Convolution: Worked Example]
+\textbf{Input}: $2 \times 2$ feature map, kernel $3 \times 3$, stride 2, no padding
+
+\textbf{Goal}: Upsample to $5 \times 5$
+
+\textbf{Procedure}:
+\begin{enumerate}
+    \item \textbf{Insert zeros}: Place input values on a grid with stride spacing
+    \[
+    \begin{pmatrix} a & 0 & b \\ 0 & 0 & 0 \\ c & 0 & d \end{pmatrix}
+    \]
+    (Actually $5 \times 5$ with zeros, input at positions $(0,0), (0,2), (2,0), (2,2)$)
+
+    \item \textbf{Convolve}: Slide $3 \times 3$ kernel over expanded input
+
+    \item \textbf{Output}: Each input value ``stamps'' the kernel onto the output, with overlapping regions summed
+\end{enumerate}
+
+\textbf{Output size calculation}: $(2 - 1) \cdot 2 + 3 = 5$
+\end{rigour}
+
+\begin{quickref}[Upsampling Methods Comparison]
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Method} & \textbf{Learnable} & \textbf{Properties} \\
+\hline
+Nearest neighbour & No & Fast, blocky output \\
+Bilinear interpolation & No & Smooth, no parameters \\
+Transposed conv & Yes & Learnable, can create checkerboard \\
+Bilinear + Conv & Yes & Smooth base + learned refinement \\
+\end{tabular}
+\end{center}
+\end{quickref}
+
+\begin{redbox}
+\textbf{Checkerboard artefacts}: Transposed convolutions can produce checkerboard patterns when stride doesn't evenly divide kernel size.
+
+\textbf{Solutions}:
+\begin{itemize}
+    \item Use kernel size divisible by stride (e.g., $4 \times 4$ with stride 2)
+    \item Use bilinear upsampling followed by regular convolution
+    \item Use sub-pixel convolution (PixelShuffle)
+\end{itemize}
+\end{redbox}
+
+\subsection{U-Net Architecture}
+
+U-Net (Ronneberger et al., 2015) introduced the encoder-decoder architecture with skip connections that became standard for biomedical segmentation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{images/week_5/u net.png}
+    \caption{U-Net: encoder-decoder with skip connections.}
+    \label{fig:unet}
+\end{figure}
+
+\begin{rigour}[U-Net Architecture]
+\textbf{Encoder} (contracting path):
+\begin{itemize}
+    \item Repeated: Conv 3$\times$3 $\rightarrow$ ReLU $\rightarrow$ Conv 3$\times$3 $\rightarrow$ ReLU $\rightarrow$ MaxPool 2$\times$2
+    \item Each block: Spatial dimensions halved, channels doubled
+    \item Captures ``what'' is in the image (semantic content)
+\end{itemize}
+
+\textbf{Bottleneck}:
+\begin{itemize}
+    \item Deepest layer with smallest spatial resolution
+    \item Highest-level semantic features
+\end{itemize}
+
+\textbf{Decoder} (expanding path):
+\begin{itemize}
+    \item Repeated: UpConv 2$\times$2 $\rightarrow$ Concatenate (skip) $\rightarrow$ Conv 3$\times$3 $\rightarrow$ Conv 3$\times$3
+    \item Each block: Spatial dimensions doubled, channels halved
+    \item Recovers ``where'' features are located (spatial precision)
+\end{itemize}
+
+\textbf{Skip connections}: Concatenate encoder features with decoder features at matching resolutions.
+\begin{itemize}
+    \item Preserves fine spatial detail lost in downsampling
+    \item Provides gradient shortcuts for training
+    \item Concatenation (not addition): preserves distinct encoder/decoder features
+\end{itemize}
+
+\textbf{Final layer}: 1$\times$1 convolution to map to $K$ classes.
+\end{rigour}
+
+\begin{rigour}[U-Net: Layer-by-Layer Example]
+\textbf{Input}: $572 \times 572 \times 1$ (grayscale biomedical image)
+
+\textbf{Encoder}:
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Layer} & \textbf{Operations} & \textbf{Output Size} \\
+\hline
+Input & - & $572 \times 572 \times 1$ \\
+Block 1 & 2$\times$ Conv3-64, Pool & $284 \times 284 \times 64$ \\
+Block 2 & 2$\times$ Conv3-128, Pool & $142 \times 142 \times 128$ \\
+Block 3 & 2$\times$ Conv3-256, Pool & $71 \times 71 \times 256$ \\
+Block 4 & 2$\times$ Conv3-512, Pool & $35 \times 35 \times 512$ \\
+Bottleneck & 2$\times$ Conv3-1024 & $35 \times 35 \times 1024$ \\
+\end{tabular}
+\end{center}
+
+\textbf{Decoder} (with skip connections from encoder):
+\begin{center}
+\begin{tabular}{ll}
+\textbf{Operations} & \textbf{Output Size} \\
+\hline
+UpConv, concat Block4, 2$\times$Conv3-512 & $70 \times 70 \times 512$ \\
+UpConv, concat Block3, 2$\times$Conv3-256 & $140 \times 140 \times 256$ \\
+UpConv, concat Block2, 2$\times$Conv3-128 & $280 \times 280 \times 128$ \\
+UpConv, concat Block1, 2$\times$Conv3-64 & $560 \times 560 \times 64$ \\
+1$\times$1 Conv & $560 \times 560 \times K$ \\
+\end{tabular}
+\end{center}
+
+\textbf{Note}: Original U-Net uses valid convolutions (no padding), hence size changes.
+\end{rigour}
+
+\begin{quickref}[Why U-Net Works Well]
+\begin{enumerate}
+    \item \textbf{Multi-scale features}: Encoder captures context at multiple resolutions
+    \item \textbf{Skip connections}: Preserve fine details for precise boundaries
+    \item \textbf{Symmetric design}: Balanced capacity in encoder and decoder
+    \item \textbf{Data efficiency}: Works well with limited training data (important for medical imaging)
+\end{enumerate}
+\end{quickref}
+
+\subsection{Segmentation Loss Functions}
+
+Beyond pixel-wise cross-entropy, specialised loss functions address class imbalance and boundary precision.
+
+\begin{rigour}[Dice Loss]
+The \textbf{Dice coefficient} measures overlap between prediction and ground truth:
+\[
+\text{Dice}(P, G) = \frac{2|P \cap G|}{|P| + |G|} = \frac{2 \sum_i p_i g_i}{\sum_i p_i + \sum_i g_i}
+\]
+
+where $p_i$ is predicted probability and $g_i$ is ground truth (0 or 1) for pixel $i$.
+
+\textbf{Dice loss}:
+\[
+\mathcal{L}_{\text{Dice}} = 1 - \text{Dice}(P, G)
+\]
+
+\textbf{Properties}:
+\begin{itemize}
+    \item Range: $[0, 1]$, with 0 being perfect overlap
+    \item \textbf{Handles class imbalance}: Naturally weights by class size
+    \item Related to F1 score (Dice = F1 for binary)
+\end{itemize}
+
+\textbf{Numerical stability}: Add smoothing term $\epsilon$:
+\[
+\mathcal{L}_{\text{Dice}} = 1 - \frac{2 \sum_i p_i g_i + \epsilon}{\sum_i p_i + \sum_i g_i + \epsilon}
+\]
+\end{rigour}
+
+\begin{rigour}[Focal Loss for Segmentation]
+Adapted from object detection, focal loss down-weights easy pixels:
+\[
+\mathcal{L}_{\text{focal}} = -\sum_i (1 - p_i)^\gamma \log(p_i)
+\]
+
+where $p_i$ is the predicted probability for the correct class at pixel $i$.
+
+\textbf{Effect}:
+\begin{itemize}
+    \item Well-classified pixels ($p_i \to 1$): $(1 - p_i)^\gamma \to 0$, low loss
+    \item Misclassified pixels ($p_i \to 0$): $(1 - p_i)^\gamma \to 1$, full loss
+\end{itemize}
+
+\textbf{Parameter}: $\gamma$ controls focusing strength (typically 2).
+\end{rigour}
+
+\begin{quickref}[Segmentation Loss Comparison]
+\begin{center}
+\begin{tabular}{lll}
+\textbf{Loss} & \textbf{Handles Imbalance} & \textbf{Best For} \\
+\hline
+Cross-entropy & No (needs weighting) & Balanced classes \\
+Weighted CE & Yes (manual weights) & Known class frequencies \\
+Dice & Yes (automatic) & Small foreground regions \\
+Focal & Yes (focuses on hard) & Highly imbalanced \\
+Dice + CE & Yes & General purpose \\
+\end{tabular}
+\end{center}
+\end{quickref}
+
+\begin{quickref}[Semantic Segmentation Summary]
+\begin{itemize}
+    \item \textbf{Goal}: Pixel-wise classification
+    \item \textbf{FCN}: First deep learning approach-replaced FC with conv, added upsampling
+    \item \textbf{U-Net}: Encoder-decoder with skip connections-standard for medical imaging
+    \item \textbf{Skip connections}: Preserve spatial detail from encoder
+    \item \textbf{Transposed convolutions}: Learnable upsampling
+    \item \textbf{Output}: Same resolution as input, with class probabilities per pixel
+    \item \textbf{Dice loss}: Handles class imbalance better than cross-entropy
+\end{itemize}
+\end{quickref}
+
+%==============================================================================
+\section{Chapter Summary}
+\label{sec:week5-summary}
+%==============================================================================
+
+\begin{quickref}[Week 5 Key Takeaways]
+\textbf{Data and Augmentation}:
+\begin{itemize}
+    \item Labelled data is the bottleneck; augmentation extends datasets without collection
+    \item Geometric + colour augmentation for basic regularisation
+    \item Cutout, Mixup, CutMix for advanced regularisation
+    \item Apply augmentation only to training data
+\end{itemize}
+
+\textbf{Modern Architectures}:
+\begin{itemize}
+    \item VGG: Deep stacks of 3$\times$3 convs, simple and uniform
+    \item Inception: Multi-scale parallel branches with concatenation
+    \item ResNet: Skip connections enable very deep networks
+    \item DenseNet: Dense connectivity for feature reuse
+    \item EfficientNet: Compound scaling for efficient accuracy
+\end{itemize}
+
+\textbf{Transfer Learning}:
+\begin{itemize}
+    \item Pretrained features transfer across domains
+    \item Feature extraction: freeze backbone, train new head
+    \item Fine-tuning: update all/some layers with small LR
+    \item Works even for very different target domains
+\end{itemize}
+
+\textbf{Object Detection}:
+\begin{itemize}
+    \item Two-stage (R-CNN family): Region proposals then classify-more accurate
+    \item Single-shot (YOLO, SSD): Direct prediction-faster, real-time
+    \item IoU measures box overlap; NMS removes duplicates
+    \item Anchor boxes provide prior shapes for regression
+\end{itemize}
+
+\textbf{Semantic Segmentation}:
+\begin{itemize}
+    \item Per-pixel classification requiring full-resolution output
+    \item Encoder-decoder architecture with skip connections (U-Net)
+    \item Transposed convolution for learnable upsampling
+    \item Dice loss handles class imbalance
+\end{itemize}
+\end{quickref}

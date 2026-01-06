@@ -1,0 +1,1050 @@
+% =============================================================================
+% Week 9: Linear Algebra II
+% Topics: Linear dependence, span, basis, determinants, matrix inverse,
+%         eigenvalues/eigenvectors, eigendecomposition, SVD, PCA
+% =============================================================================
+
+\chapter{Week 9: Linear Algebra II}
+\label{ch:week9}
+
+
+\begin{bluebox}[Learning Objectives]
+After completing this chapter, you should be able to:
+\begin{enumerate}[itemsep=2pt]
+    \item Determine whether a set of vectors is linearly dependent or independent
+    \item Understand span, basis, and the dimension of a vector space
+    \item Calculate determinants for $2 \times 2$ and $3 \times 3$ matrices
+    \item Identify when a matrix is invertible and compute inverses
+    \item Find eigenvalues and eigenvectors of a matrix
+    \item Perform eigendecomposition and understand its conditions
+    \item Apply Singular Value Decomposition (SVD) to non-square matrices
+    \item Connect PCA to eigendecomposition of the covariance matrix
+\end{enumerate}
+\end{bluebox}
+
+\begin{rigour}[Prerequisites]
+This chapter assumes familiarity with:
+\begin{itemize}[itemsep=2pt]
+    \item Matrix multiplication and transpose operations (Chapter~\ref{ch:week8})
+    \item Systems of linear equations
+    \item Basic vector operations (addition, scalar multiplication)
+    \item The concept of a vector space
+\end{itemize}
+\end{rigour}
+
+% =============================================================================
+\section{Linear Dependence and Independence}
+\label{sec:linear-dependence}
+% =============================================================================
+
+Linear dependence captures the idea of \emph{redundant information}: at least one vector in a set can be expressed as a linear combination of the others. Conversely, a set of vectors is \textbf{linearly independent} if no vector in the set is redundant-each provides unique directional information.
+
+\begin{definition}[Linear Dependence]
+\label{def:linear-dependence}
+A set of vectors $S = \{\mathbf{v}_1, \mathbf{v}_2, \ldots, \mathbf{v}_n\}$ is \textbf{linearly dependent} if and only if there exist scalars $c_1, c_2, \ldots, c_n$, \emph{not all zero}, such that:
+\begin{equation}
+c_1\mathbf{v}_1 + c_2\mathbf{v}_2 + \cdots + c_n\mathbf{v}_n = \mathbf{0}
+\label{eq:linear-dependence}
+\end{equation}
+This is called a \textbf{non-trivial solution} to the homogeneous equation.
+\end{definition}
+
+\begin{definition}[Linear Independence]
+\label{def:linear-independence}
+A set of vectors $S = \{\mathbf{v}_1, \mathbf{v}_2, \ldots, \mathbf{v}_n\}$ is \textbf{linearly independent} if the \emph{only} solution to \cref{eq:linear-dependence} is the \textbf{trivial solution}: $c_1 = c_2 = \cdots = c_n = 0$.
+\end{definition}
+
+\begin{bluebox}[Key Insight]
+\textbf{Linear Dependence}: We can find non-zero coefficients that make a weighted sum of vectors equal zero. This means at least one vector can be ``cancelled out'' by the others-it lies in the same subspace they span.
+
+\textbf{Linear Independence}: The only way to get zero is to set all coefficients to zero. No vector can be expressed as a combination of the others-each points in a genuinely new direction.
+\end{bluebox}
+
+\subsection{Geometric Intuition}
+
+The geometric interpretation makes linear dependence intuitive:
+
+\begin{itemize}
+    \item \textbf{Two vectors in $\mathbb{R}^2$}: They are linearly dependent if and only if they are \emph{collinear} (one is a scalar multiple of the other). They point along the same line.
+
+    \item \textbf{Three vectors in $\mathbb{R}^3$}: They are linearly dependent if they are \emph{coplanar}-all three lie in the same plane. The third vector doesn't ``lift off'' into a new dimension.
+
+    \item \textbf{General principle}: Linearly dependent vectors fail to span as many dimensions as there are vectors. They have redundancy.
+\end{itemize}
+
+\begin{example}[Linearly Dependent Vectors]
+\label{ex:lin-dep}
+Consider the vectors:
+\[
+\mathbf{v}_1 = \begin{bmatrix} 2 \\ 3 \end{bmatrix}, \quad
+\mathbf{v}_2 = \begin{bmatrix} 4 \\ 6 \end{bmatrix}
+\]
+These are linearly dependent because $\mathbf{v}_2 = 2\mathbf{v}_1$. We can write:
+\[
+2\mathbf{v}_1 - 1\mathbf{v}_2 = \mathbf{0}
+\]
+with $c_1 = 2$ and $c_2 = -1$, both non-zero.
+\end{example}
+
+\begin{example}[Linearly Independent Vectors]
+\label{ex:lin-indep}
+Consider:
+\[
+\mathbf{v}_1 = \begin{bmatrix} 0 \\ 3 \end{bmatrix}, \quad
+\mathbf{v}_2 = \begin{bmatrix} 4 \\ 0 \end{bmatrix}
+\]
+These are linearly independent. The equation $c_1\mathbf{v}_1 + c_2\mathbf{v}_2 = \mathbf{0}$ gives:
+\[
+\begin{bmatrix} 4c_2 \\ 3c_1 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix}
+\]
+which requires $c_1 = 0$ and $c_2 = 0$. No scalar multiple of one vector can produce the other-they point in perpendicular directions.
+\end{example}
+
+\begin{example}[Adding a Redundant Vector]
+\label{ex:redundant}
+Now consider adding a third vector to the independent set:
+\[
+\mathbf{v}_1 = \begin{bmatrix} 0 \\ 3 \end{bmatrix}, \quad
+\mathbf{v}_2 = \begin{bmatrix} 4 \\ 0 \end{bmatrix}, \quad
+\mathbf{v}_3 = \begin{bmatrix} 2 \\ 2 \end{bmatrix}
+\]
+This set is \textbf{linearly dependent}. Why? In $\mathbb{R}^2$, you can have at most 2 linearly independent vectors. The third vector $\mathbf{v}_3$ must be expressible as a combination of $\mathbf{v}_1$ and $\mathbf{v}_2$:
+\[
+\mathbf{v}_3 = \frac{2}{3}\mathbf{v}_1 + \frac{1}{2}\mathbf{v}_2
+\]
+\end{example}
+
+\begin{warning}[Partial Dependence Implies Full Dependence]
+If \emph{any} subset of vectors is linearly dependent, then the entire set is linearly dependent. For a matrix, if even one row (or column) can be expressed as a linear combination of others, the entire matrix has dependent rows (or columns).
+\end{warning}
+
+\subsection{Proving Linear (In)dependence}
+\label{subsec:proving-dependence}
+
+\begin{bluebox}[Procedure for Testing Linear Dependence]
+\begin{enumerate}
+    \item Set up the equation: $c_1\mathbf{v}_1 + c_2\mathbf{v}_2 + \cdots + c_n\mathbf{v}_n = \mathbf{0}$
+    \item Write this as a system of linear equations (one equation per component)
+    \item Solve the system for $c_1, c_2, \ldots, c_n$
+    \item If the \emph{only} solution is $c_1 = c_2 = \cdots = c_n = 0$: \textbf{linearly independent}
+    \item If a non-trivial solution exists: \textbf{linearly dependent}
+\end{enumerate}
+\end{bluebox}
+
+\subsubsection{Example: Proving Linear Dependence}
+
+\begin{example}[Finding a Non-Trivial Solution]
+\label{ex:prove-dependent}
+Consider:
+\[
+\mathbf{v}_1 = \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}, \quad
+\mathbf{v}_2 = \begin{bmatrix} 2 \\ 4 \\ 6 \end{bmatrix}, \quad
+\mathbf{v}_3 = \begin{bmatrix} -1 \\ -2 \\ -3 \end{bmatrix}
+\]
+
+\textbf{Step 1}: Set up $c_1\mathbf{v}_1 + c_2\mathbf{v}_2 + c_3\mathbf{v}_3 = \mathbf{0}$:
+\begin{align*}
+c_1 + 2c_2 - c_3 &= 0 \\
+2c_1 + 4c_2 - 2c_3 &= 0 \\
+3c_1 + 6c_2 - 3c_3 &= 0
+\end{align*}
+
+\textbf{Step 2}: Observe that every equation is a multiple of the first. This is a homogeneous system with infinitely many solutions.
+
+\textbf{Step 3}: Find a non-trivial solution. Let $c_2 = 1$ and $c_3 = 0$. Then from the first equation: $c_1 + 2(1) - 0 = 0$, so $c_1 = -2$.
+
+\textbf{Conclusion}: The solution $(c_1, c_2, c_3) = (-2, 1, 0)$ is non-trivial, so the vectors are \textbf{linearly dependent}.
+
+\textbf{Geometric observation}: $\mathbf{v}_2 = 2\mathbf{v}_1$ and $\mathbf{v}_3 = -\mathbf{v}_1$. All three vectors lie on the same line through the origin.
+\end{example}
+
+\subsubsection{Example: Proving Linear Independence}
+
+\begin{example}[Only Trivial Solution Exists]
+\label{ex:prove-independent}
+Consider the standard basis vectors in $\mathbb{R}^3$:
+\[
+\mathbf{e}_1 = \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}, \quad
+\mathbf{e}_2 = \begin{bmatrix} 0 \\ 1 \\ 0 \end{bmatrix}, \quad
+\mathbf{e}_3 = \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix}
+\]
+
+\textbf{Step 1}: Set up $c_1\mathbf{e}_1 + c_2\mathbf{e}_2 + c_3\mathbf{e}_3 = \mathbf{0}$:
+\begin{align*}
+c_1 &= 0 \\
+c_2 &= 0 \\
+c_3 &= 0
+\end{align*}
+
+\textbf{Conclusion}: The only solution is the trivial solution, so the vectors are \textbf{linearly independent}.
+
+These vectors point along the three coordinate axes-each in a completely different direction. No combination of two can produce the third.
+\end{example}
+
+\subsubsection{Example: Mixed Case}
+
+\begin{example}[Detecting Partial Dependence]
+\label{ex:mixed-case}
+Consider:
+\[
+\mathbf{v}_1 = \begin{bmatrix} 1 \\ 3 \\ 4 \end{bmatrix}, \quad
+\mathbf{v}_2 = \begin{bmatrix} 2 \\ 6 \\ 8 \end{bmatrix}, \quad
+\mathbf{v}_3 = \begin{bmatrix} 0 \\ 1 \\ 2 \end{bmatrix}
+\]
+
+Setting up $c_1\mathbf{v}_1 + c_2\mathbf{v}_2 + c_3\mathbf{v}_3 = \mathbf{0}$:
+\begin{align*}
+c_1 + 2c_2 &= 0 \\
+3c_1 + 6c_2 + c_3 &= 0 \\
+4c_1 + 8c_2 + 2c_3 &= 0
+\end{align*}
+
+From the first equation: $c_1 = -2c_2$. Substituting into the second: $3(-2c_2) + 6c_2 + c_3 = 0$, giving $c_3 = 0$. The third equation then holds for any $c_2$.
+
+Taking $c_2 = 1$ gives $(c_1, c_2, c_3) = (-2, 1, 0)$.
+
+\textbf{Conclusion}: Linearly dependent. Notice that $\mathbf{v}_2 = 2\mathbf{v}_1$, making $\mathbf{v}_1$ and $\mathbf{v}_2$ dependent regardless of $\mathbf{v}_3$.
+\end{example}
+
+% =============================================================================
+\section{Span and Basis}
+\label{sec:span-basis}
+% =============================================================================
+
+\begin{definition}[Span]
+\label{def:span}
+The \textbf{span} of a set of vectors $S = \{\mathbf{v}_1, \mathbf{v}_2, \ldots, \mathbf{v}_n\}$ is the set of all possible linear combinations of those vectors:
+\[
+\text{span}(S) = \{a_1\mathbf{v}_1 + a_2\mathbf{v}_2 + \cdots + a_n\mathbf{v}_n : a_1, a_2, \ldots, a_n \in \mathbb{R}\}
+\]
+\end{definition}
+
+The span represents all points ``reachable'' by scaling and adding the vectors in $S$.
+
+\begin{example}[Span in $\mathbb{R}^2$]
+If $\mathbf{v}_1 = \begin{bmatrix} 1 \\ 0 \end{bmatrix}$ and $\mathbf{v}_2 = \begin{bmatrix} 0 \\ 1 \end{bmatrix}$, then:
+\[
+\text{span}(\{\mathbf{v}_1, \mathbf{v}_2\}) = \mathbb{R}^2
+\]
+Any point $(x, y)$ in the plane can be written as $x\mathbf{v}_1 + y\mathbf{v}_2$.
+\end{example}
+
+\begin{definition}[Spanning Set]
+\label{def:spanning-set}
+A set $S$ is a \textbf{spanning set} for a vector space $V$ if every vector in $V$ can be expressed as a linear combination of vectors in $S$. We say ``$S$ spans $V$''.
+\end{definition}
+
+\begin{definition}[Basis]
+\label{def:basis}
+A \textbf{basis} for a vector space $V$ is a set of vectors that is:
+\begin{enumerate}
+    \item \textbf{Linearly independent}: No redundancy
+    \item \textbf{Spanning}: Covers all of $V$
+\end{enumerate}
+A basis is a \emph{minimal} spanning set-removing any vector would make it fail to span $V$.
+\end{definition}
+
+\begin{definition}[Dimension]
+\label{def:dimension}
+The \textbf{dimension} of a vector space $V$, denoted $\dim(V)$, is the number of vectors in any basis for $V$. This is well-defined because all bases for $V$ have the same size.
+\end{definition}
+
+\begin{bluebox}[Fundamental Facts About Dimension]
+\begin{itemize}
+    \item $\mathbb{R}^n$ has dimension $n$
+    \item Any set of more than $n$ vectors in $\mathbb{R}^n$ must be linearly dependent
+    \item Any basis for $\mathbb{R}^n$ contains exactly $n$ vectors
+    \item The standard basis for $\mathbb{R}^n$ is $\{\mathbf{e}_1, \mathbf{e}_2, \ldots, \mathbf{e}_n\}$ where $\mathbf{e}_i$ has a 1 in position $i$ and 0s elsewhere
+\end{itemize}
+\end{bluebox}
+
+\begin{intuition}[Why Exactly $n$ Independent Vectors in $\mathbb{R}^n$?]
+Think geometrically in $\mathbb{R}^3$:
+\begin{itemize}
+    \item One vector spans a \emph{line} (1D)
+    \item Two independent vectors span a \emph{plane} (2D)
+    \item Three independent vectors span all of \emph{space} (3D)
+    \item A fourth vector must lie in the 3D space already spanned-it's redundant
+\end{itemize}
+Each independent vector adds one new dimension. Once you have $n$ independent vectors in $\mathbb{R}^n$, you've filled all available dimensions.
+\end{intuition}
+
+% =============================================================================
+\section{The Determinant}
+\label{sec:determinant}
+% =============================================================================
+
+The \textbf{determinant} is a scalar value computed from a square matrix that encodes essential information about the matrix's properties.
+
+\begin{definition}[Determinant]
+\label{def:determinant}
+For a square matrix $A$, the determinant, denoted $\det(A)$ or $|A|$, is a scalar that can be computed from the matrix entries according to specific rules.
+\end{definition}
+
+\subsection{Geometric Interpretation}
+
+Before diving into formulas, understanding what the determinant \emph{means} is valuable:
+
+\begin{bluebox}[Geometric Meaning of the Determinant]
+The determinant of a matrix $A$ represents:
+\begin{itemize}
+    \item In 2D: The \textbf{signed area} of the parallelogram formed by the column vectors
+    \item In 3D: The \textbf{signed volume} of the parallelepiped formed by the column vectors
+    \item In general: The factor by which $A$ scales volumes under the linear transformation it represents
+\end{itemize}
+The sign indicates whether the transformation preserves orientation ($\det > 0$) or reverses it ($\det < 0$).
+\end{bluebox}
+
+\subsection{Applications of the Determinant}
+
+\begin{enumerate}
+    \item \textbf{Linear Transformations}: $|\det(A)|$ gives the volume scaling factor. A negative determinant indicates the transformation includes a reflection.
+
+    \item \textbf{Invertibility}: A matrix is invertible if and only if $\det(A) \neq 0$.
+
+    \item \textbf{Linear Independence}: Columns (or rows) are linearly independent if and only if $\det(A) \neq 0$.
+
+    \item \textbf{Eigenvalues}: The characteristic polynomial, used to find eigenvalues, involves the determinant (see \cref{sec:eigenvalues}).
+
+    \item \textbf{Area/Volume Calculations}: The determinant directly computes areas and volumes of geometric shapes.
+
+    \item \textbf{Solving Systems}: Cramer's rule uses determinants to solve systems of linear equations.
+\end{enumerate}
+
+\subsection{Computing Determinants}
+
+\begin{bluebox}[$1 \times 1$ Determinant]
+For $A = [a]$:
+\[
+\det(A) = a
+\]
+\end{bluebox}
+
+\begin{bluebox}[$2 \times 2$ Determinant]
+For $A = \begin{bmatrix} a & b \\ c & d \end{bmatrix}$:
+\[
+\det(A) = ad - bc
+\]
+\textbf{Memory aid}: Product of main diagonal minus product of anti-diagonal.
+\end{bluebox}
+
+\begin{example}[2$\times$2 Determinant]
+\[
+\det\begin{bmatrix} 3 & 2 \\ 1 & 4 \end{bmatrix} = (3)(4) - (2)(1) = 12 - 2 = 10
+\]
+This tells us the parallelogram formed by vectors $\begin{bmatrix} 3 \\ 1 \end{bmatrix}$ and $\begin{bmatrix} 2 \\ 4 \end{bmatrix}$ has area 10.
+\end{example}
+
+\begin{bluebox}[$3 \times 3$ Determinant (Expansion by First Row)]
+For $A = \begin{bmatrix} a & b & c \\ d & e & f \\ g & h & i \end{bmatrix}$:
+\[
+\det(A) = a(ei - fh) - b(di - fg) + c(dh - eg)
+\]
+\end{bluebox}
+
+The pattern is: take each element of the first row, multiply by the determinant of the $2 \times 2$ \textbf{minor} (the submatrix obtained by deleting that element's row and column), and alternate signs: $+, -, +$.
+
+\begin{example}[3$\times$3 Determinant]
+\[
+A = \begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \\ 7 & 8 & 9 \end{bmatrix}
+\]
+\begin{align*}
+\det(A) &= 1 \cdot \det\begin{bmatrix} 5 & 6 \\ 8 & 9 \end{bmatrix}
+         - 2 \cdot \det\begin{bmatrix} 4 & 6 \\ 7 & 9 \end{bmatrix}
+         + 3 \cdot \det\begin{bmatrix} 4 & 5 \\ 7 & 8 \end{bmatrix} \\[6pt]
+&= 1(45 - 48) - 2(36 - 42) + 3(32 - 35) \\
+&= 1(-3) - 2(-6) + 3(-3) \\
+&= -3 + 12 - 9 = 0
+\end{align*}
+The determinant is zero, indicating the columns are linearly dependent. Indeed, the third column equals the average of the first two columns scaled by 2.
+\end{example}
+
+\begin{rigour}[General Formula: Cofactor Expansion]
+For an $n \times n$ matrix, the determinant can be computed by expanding along any row $i$:
+\[
+\det(A) = \sum_{j=1}^{n} (-1)^{i+j} a_{ij} M_{ij}
+\]
+where $M_{ij}$ is the \textbf{minor}: the determinant of the $(n-1) \times (n-1)$ submatrix obtained by deleting row $i$ and column $j$.
+
+The term $(-1)^{i+j}$ creates the alternating sign pattern:
+\[
+\begin{bmatrix}
++ & - & + & - & \cdots \\
+- & + & - & + & \cdots \\
++ & - & + & - & \cdots \\
+\vdots & \vdots & \vdots & \vdots & \ddots
+\end{bmatrix}
+\]
+\end{rigour}
+
+\begin{warning}[Computational Complexity]
+Computing determinants via cofactor expansion has factorial complexity $O(n!)$, making it impractical for large matrices. In practice, row reduction to triangular form (where the determinant is the product of diagonal entries) is used, giving $O(n^3)$ complexity.
+\end{warning}
+
+% =============================================================================
+\section{Matrix Inverse}
+\label{sec:matrix-inverse}
+% =============================================================================
+
+\begin{definition}[Matrix Inverse]
+\label{def:inverse}
+For a square matrix $A$, its \textbf{inverse} $A^{-1}$ (if it exists) satisfies:
+\[
+A^{-1}A = AA^{-1} = I
+\]
+where $I$ is the identity matrix.
+\end{definition}
+
+\subsection{Conditions for Invertibility}
+
+\begin{bluebox}[A Square Matrix $A$ is Invertible if and only if:]
+\begin{enumerate}
+    \item $\det(A) \neq 0$
+    \item The columns of $A$ are linearly independent
+    \item The rows of $A$ are linearly independent
+    \item $A$ has full rank (rank equals the matrix dimension)
+    \item The only solution to $A\mathbf{x} = \mathbf{0}$ is $\mathbf{x} = \mathbf{0}$
+\end{enumerate}
+All these conditions are equivalent.
+\end{bluebox}
+
+The logical chain is:
+\[
+\text{Linear Independence} \Longleftrightarrow \det(A) \neq 0 \Longleftrightarrow \text{Invertible}
+\]
+
+\begin{intuition}[Why These Conditions Are Connected]
+If a matrix has linearly dependent columns, the transformation it represents ``collapses'' some dimension-information is lost. You cannot reverse a process that loses information, hence no inverse exists.
+
+Geometrically, a zero determinant means the transformation squashes $n$-dimensional space into a lower-dimensional subspace (a plane, line, or point). Such a transformation cannot be undone.
+\end{intuition}
+
+\subsection{Computing the Inverse}
+
+\begin{bluebox}[$2 \times 2$ Inverse Formula]
+For $A = \begin{bmatrix} a & b \\ c & d \end{bmatrix}$ with $\det(A) = ad - bc \neq 0$:
+\[
+A^{-1} = \frac{1}{ad - bc} \begin{bmatrix} d & -b \\ -c & a \end{bmatrix}
+\]
+\textbf{Recipe}: Swap diagonal entries, negate off-diagonal entries, divide by determinant.
+\end{bluebox}
+
+\begin{example}[Computing a $2 \times 2$ Inverse]
+For $A = \begin{bmatrix} 3 & 0 \\ 0 & 3 \end{bmatrix}$:
+
+\textbf{Step 1}: Compute $\det(A) = (3)(3) - (0)(0) = 9 \neq 0$. The inverse exists.
+
+\textbf{Step 2}: Apply the formula:
+\[
+A^{-1} = \frac{1}{9} \begin{bmatrix} 3 & 0 \\ 0 & 3 \end{bmatrix} = \begin{bmatrix} 1/3 & 0 \\ 0 & 1/3 \end{bmatrix}
+\]
+
+\textbf{Verification}:
+\[
+\begin{bmatrix} 3 & 0 \\ 0 & 3 \end{bmatrix} \begin{bmatrix} 1/3 & 0 \\ 0 & 1/3 \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} = I \quad \checkmark
+\]
+\end{example}
+
+\begin{example}[Non-Invertible Matrix]
+For $A = \begin{bmatrix} 1 & 0 \\ 2 & 0 \end{bmatrix}$:
+\[
+\det(A) = (1)(0) - (0)(2) = 0
+\]
+The determinant is zero, so $A$ is \textbf{not invertible}. Notice that the second column is all zeros-it's linearly dependent with any vector (being the zero vector scaled).
+\end{example}
+
+\begin{rigour}[General Inverse Formula]
+For an $n \times n$ matrix:
+\[
+A^{-1} = \frac{1}{\det(A)} \text{adj}(A)
+\]
+where $\text{adj}(A)$ is the \textbf{adjugate matrix}-the transpose of the matrix of cofactors. The cofactor $C_{ij} = (-1)^{i+j} M_{ij}$ where $M_{ij}$ is the $(i,j)$ minor.
+
+In practice, Gaussian elimination is used to compute inverses efficiently.
+\end{rigour}
+
+\subsection{Proof: Linearly Dependent Matrix Has No Inverse}
+
+\begin{rigour}[Proof by Contradiction]
+\textbf{Claim}: If $A$ has linearly dependent columns, then $A$ is not invertible.
+
+\textbf{Proof}: Suppose $A$ has linearly dependent columns $\mathbf{a}_1, \ldots, \mathbf{a}_n$. By definition of linear dependence, there exists a non-zero vector $\mathbf{c} = (c_1, \ldots, c_n)^T$ such that:
+\[
+c_1\mathbf{a}_1 + c_2\mathbf{a}_2 + \cdots + c_n\mathbf{a}_n = \mathbf{0}
+\]
+This can be written as $A\mathbf{c} = \mathbf{0}$.
+
+Now suppose, for contradiction, that $A$ is invertible. Then we could multiply both sides by $A^{-1}$:
+\[
+A^{-1}(A\mathbf{c}) = A^{-1}\mathbf{0} \implies I\mathbf{c} = \mathbf{0} \implies \mathbf{c} = \mathbf{0}
+\]
+But this contradicts our assumption that $\mathbf{c} \neq \mathbf{0}$.
+
+Therefore, $A$ cannot be invertible. \qed
+\end{rigour}
+
+% =============================================================================
+\section{Eigenvalues and Eigenvectors}
+\label{sec:eigenvalues}
+% =============================================================================
+
+Eigenvalues and eigenvectors reveal the fundamental ``directions'' and ``scaling factors'' of a linear transformation.
+
+\begin{definition}[Eigenvector and Eigenvalue]
+\label{def:eigen}
+For a square matrix $A$, a non-zero vector $\mathbf{v}$ is an \textbf{eigenvector} of $A$ if:
+\begin{equation}
+A\mathbf{v} = \lambda\mathbf{v}
+\label{eq:eigen}
+\end{equation}
+for some scalar $\lambda$. The scalar $\lambda$ is called the corresponding \textbf{eigenvalue}.
+\end{definition}
+
+\begin{bluebox}[Key Insight]
+An eigenvector is a direction that is \emph{preserved} by the transformation $A$-the vector may be stretched or compressed (by factor $\lambda$) but its direction doesn't change.
+
+The eigenvalue-eigenvector pair effectively ``summarises'' the matrix's action along one direction: the complex matrix multiplication $A\mathbf{v}$ reduces to simple scalar multiplication $\lambda\mathbf{v}$.
+\end{bluebox}
+
+\begin{intuition}[The Meaning of ``Eigen'']
+``Eigen'' is German for ``own'' or ``characteristic''. Eigenvectors are the matrix's ``own'' or ``characteristic'' directions-the directions intrinsic to the transformation, along which its behaviour is simplest.
+\end{intuition}
+
+\begin{example}[Verifying an Eigenvector]
+\label{ex:verify-eigen}
+For $A = \begin{bmatrix} 1 & 2 \\ 4 & 3 \end{bmatrix}$ and $\mathbf{v} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$:
+\[
+A\mathbf{v} = \begin{bmatrix} 1 & 2 \\ 4 & 3 \end{bmatrix} \begin{bmatrix} 1 \\ 2 \end{bmatrix} = \begin{bmatrix} 1 + 4 \\ 4 + 6 \end{bmatrix} = \begin{bmatrix} 5 \\ 10 \end{bmatrix} = 5 \begin{bmatrix} 1 \\ 2 \end{bmatrix} = 5\mathbf{v}
+\]
+Thus $\mathbf{v} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$ is an eigenvector with eigenvalue $\lambda = 5$.
+\end{example}
+
+\subsection{Finding Eigenvalues: The Characteristic Equation}
+
+How do we find eigenvalues systematically? We derive the \textbf{characteristic equation}.
+
+\begin{rigour}[Derivation of the Characteristic Equation]
+Starting from $A\mathbf{v} = \lambda\mathbf{v}$, rearrange:
+\begin{align*}
+A\mathbf{v} - \lambda\mathbf{v} &= \mathbf{0} \\
+A\mathbf{v} - \lambda I\mathbf{v} &= \mathbf{0} \quad \text{(since $\lambda\mathbf{v} = \lambda I\mathbf{v}$)} \\
+(A - \lambda I)\mathbf{v} &= \mathbf{0}
+\end{align*}
+
+This is a homogeneous system. We want a \emph{non-trivial} solution (since eigenvectors must be non-zero).
+
+A homogeneous system $(A - \lambda I)\mathbf{v} = \mathbf{0}$ has non-trivial solutions if and only if $(A - \lambda I)$ is singular (non-invertible), which occurs if and only if:
+\begin{equation}
+\det(A - \lambda I) = 0
+\label{eq:characteristic}
+\end{equation}
+This is the \textbf{characteristic equation} of $A$.
+\end{rigour}
+
+\begin{bluebox}[The Characteristic Equation]
+\[
+\det(A - \lambda I) = 0
+\]
+Solutions to this equation are the eigenvalues of $A$.
+
+Expanding the determinant yields the \textbf{characteristic polynomial}, a polynomial of degree $n$ in $\lambda$ for an $n \times n$ matrix. An $n \times n$ matrix has exactly $n$ eigenvalues (counting multiplicities, and including complex eigenvalues).
+\end{bluebox}
+
+\begin{example}[Finding Eigenvalues]
+\label{ex:find-eigenvalues}
+For $A = \begin{bmatrix} 1 & 2 \\ 4 & 3 \end{bmatrix}$:
+
+\textbf{Step 1}: Form $A - \lambda I$:
+\[
+A - \lambda I = \begin{bmatrix} 1-\lambda & 2 \\ 4 & 3-\lambda \end{bmatrix}
+\]
+
+\textbf{Step 2}: Compute the determinant and set to zero:
+\[
+\det(A - \lambda I) = (1-\lambda)(3-\lambda) - (2)(4) = 0
+\]
+\[
+3 - \lambda - 3\lambda + \lambda^2 - 8 = 0
+\]
+\[
+\lambda^2 - 4\lambda - 5 = 0
+\]
+
+\textbf{Step 3}: Solve the characteristic polynomial:
+\[
+(\lambda - 5)(\lambda + 1) = 0
+\]
+giving $\lambda_1 = 5$ and $\lambda_2 = -1$.
+\end{example}
+
+\subsection{Finding Eigenvectors}
+
+Once eigenvalues are known, eigenvectors are found by solving $(A - \lambda I)\mathbf{v} = \mathbf{0}$ for each eigenvalue.
+
+\begin{example}[Finding Eigenvectors]
+\label{ex:find-eigenvectors}
+Continuing from \cref{ex:find-eigenvalues} with $A = \begin{bmatrix} 1 & 2 \\ 4 & 3 \end{bmatrix}$:
+
+\textbf{For $\lambda_1 = 5$}:
+\[
+(A - 5I)\mathbf{v} = \begin{bmatrix} -4 & 2 \\ 4 & -2 \end{bmatrix} \begin{bmatrix} v_1 \\ v_2 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix}
+\]
+From the first row: $-4v_1 + 2v_2 = 0 \implies v_2 = 2v_1$.
+
+Taking $v_1 = 1$ gives $\mathbf{v}_1 = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$.
+
+\textbf{For $\lambda_2 = -1$}:
+\[
+(A + I)\mathbf{v} = \begin{bmatrix} 2 & 2 \\ 4 & 4 \end{bmatrix} \begin{bmatrix} v_1 \\ v_2 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix}
+\]
+From the first row: $2v_1 + 2v_2 = 0 \implies v_2 = -v_1$.
+
+Taking $v_1 = 1$ gives $\mathbf{v}_2 = \begin{bmatrix} 1 \\ -1 \end{bmatrix}$.
+\end{example}
+
+\subsection{The Eigenspace}
+
+\begin{definition}[Eigenspace]
+\label{def:eigenspace}
+The \textbf{eigenspace} $E_\lambda$ corresponding to eigenvalue $\lambda$ is the set of all vectors satisfying $A\mathbf{v} = \lambda\mathbf{v}$:
+\[
+E_\lambda = \{\mathbf{v} : A\mathbf{v} = \lambda\mathbf{v}\} = \ker(A - \lambda I)
+\]
+This is a subspace of $\mathbb{R}^n$ that includes the zero vector and all eigenvectors for $\lambda$, plus all their linear combinations.
+\end{definition}
+
+Note that while the zero vector is in every eigenspace, we do not call it an eigenvector (by convention, eigenvectors must be non-zero).
+
+\begin{example}[Eigenspace]
+For $A = \begin{bmatrix} 1 & 2 \\ 4 & 3 \end{bmatrix}$ with $\lambda = 5$:
+\[
+E_5 = \text{span}\left\{ \begin{bmatrix} 1 \\ 2 \end{bmatrix} \right\}
+\]
+This is the line through the origin in the direction of $\begin{bmatrix} 1 \\ 2 \end{bmatrix}$. Every non-zero vector on this line is an eigenvector for $\lambda = 5$.
+\end{example}
+
+\begin{warning}[Eigenvectors Are Not Unique]
+For a given eigenvalue, any non-zero scalar multiple of an eigenvector is also an eigenvector. The eigenvector specifies a \emph{direction}, not a specific vector. We often normalise eigenvectors to have unit length.
+\end{warning}
+
+% =============================================================================
+\section{Eigendecomposition}
+\label{sec:eigendecomposition}
+% =============================================================================
+
+When a matrix has enough linearly independent eigenvectors, it can be decomposed into a particularly elegant form.
+
+\begin{definition}[Eigendecomposition (Diagonalisation)]
+\label{def:eigendecomp}
+A square matrix $A$ is \textbf{diagonalisable} if it can be written as:
+\begin{equation}
+A = Q\Lambda Q^{-1}
+\label{eq:eigendecomp}
+\end{equation}
+where:
+\begin{itemize}
+    \item $\Lambda$ is a \textbf{diagonal matrix} with the eigenvalues of $A$ on the diagonal
+    \item $Q$ is a matrix whose columns are the corresponding eigenvectors of $A$
+\end{itemize}
+\end{definition}
+
+\begin{bluebox}[Conditions for Eigendecomposition]
+An $n \times n$ matrix $A$ is diagonalisable if and only if it has $n$ linearly independent eigenvectors.
+
+Sufficient (but not necessary) conditions:
+\begin{itemize}
+    \item $A$ has $n$ distinct eigenvalues (guarantees $n$ independent eigenvectors)
+    \item $A$ is symmetric ($A = A^T$) - always diagonalisable with orthogonal eigenvectors
+\end{itemize}
+\end{bluebox}
+
+\begin{example}[Eigendecomposition]
+\label{ex:eigendecomp}
+For $A = \begin{bmatrix} 1 & 2 \\ 4 & 3 \end{bmatrix}$ with eigenvalues $\lambda_1 = 5$, $\lambda_2 = -1$ and eigenvectors $\mathbf{v}_1 = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$, $\mathbf{v}_2 = \begin{bmatrix} 1 \\ -1 \end{bmatrix}$:
+
+\[
+A = \underbrace{\begin{bmatrix} 1 & 1 \\ 2 & -1 \end{bmatrix}}_{Q}
+\underbrace{\begin{bmatrix} 5 & 0 \\ 0 & -1 \end{bmatrix}}_{\Lambda}
+\underbrace{\begin{bmatrix} 1 & 1 \\ 2 & -1 \end{bmatrix}^{-1}}_{Q^{-1}}
+\]
+
+The columns of $Q$ are the eigenvectors; the diagonal of $\Lambda$ contains the eigenvalues in corresponding order.
+\end{example}
+
+\begin{intuition}[Why Eigendecomposition?]
+Eigendecomposition reveals the ``essence'' of a matrix:
+\begin{itemize}
+    \item $Q^{-1}$ rotates to the eigenvector coordinate system
+    \item $\Lambda$ performs simple scaling along each eigenvector direction
+    \item $Q$ rotates back to the original coordinate system
+\end{itemize}
+
+This makes many computations vastly simpler. For instance:
+\[
+A^k = Q\Lambda^k Q^{-1}
+\]
+Computing $\Lambda^k$ is trivial: just raise each diagonal entry to the power $k$.
+\end{intuition}
+
+% =============================================================================
+\section{Singular Value Decomposition}
+\label{sec:svd}
+% =============================================================================
+
+Eigendecomposition only applies to square matrices. \textbf{Singular Value Decomposition (SVD)} extends this idea to \emph{any} matrix, including rectangular ones.
+
+\begin{definition}[Singular Value Decomposition]
+\label{def:svd}
+For any $m \times n$ matrix $A$, the SVD is:
+\begin{equation}
+A = U\Sigma V^T
+\label{eq:svd}
+\end{equation}
+where:
+\begin{itemize}
+    \item $U$ is an $m \times m$ orthogonal matrix (columns are \textbf{left singular vectors})
+    \item $\Sigma$ is an $m \times n$ diagonal matrix (diagonal entries are \textbf{singular values}, non-negative and typically ordered $\sigma_1 \geq \sigma_2 \geq \cdots \geq 0$)
+    \item $V^T$ is an $n \times n$ orthogonal matrix (rows are \textbf{right singular vectors})
+\end{itemize}
+\end{definition}
+
+\begin{bluebox}[{Where Do $U$, $\Sigma$, and $V$ Come From?}]
+\begin{itemize}
+    \item The columns of $U$ are eigenvectors of $AA^T$
+    \item The columns of $V$ are eigenvectors of $A^TA$
+    \item The singular values in $\Sigma$ are the \textbf{square roots} of the eigenvalues of $A^TA$ (equivalently, $AA^T$)
+\end{itemize}
+
+The key insight: while $A$ may not be square, both $AA^T$ and $A^TA$ are square and symmetric, so they can be eigendecomposed.
+\end{bluebox}
+
+\begin{intuition}[Geometric Interpretation of SVD]
+SVD decomposes any linear transformation into three steps:
+\begin{enumerate}
+    \item $V^T$: Rotate/reflect in the domain (input space)
+    \item $\Sigma$: Scale along orthogonal axes (possibly changing dimension)
+    \item $U$: Rotate/reflect in the codomain (output space)
+\end{enumerate}
+
+The singular values tell you \emph{how much} the transformation stretches along each direction. Large singular values indicate directions of high ``importance''; small or zero singular values indicate directions that are compressed or eliminated.
+\end{intuition}
+
+\subsection{SVD Reveals Matrix Structure}
+
+\begin{bluebox}[Information from SVD]
+\begin{itemize}
+    \item \textbf{Rank}: The number of non-zero singular values equals the rank of $A$-the number of linearly independent columns (or rows)
+
+    \item \textbf{Redundancy}: Many small singular values suggest the data lies in a lower-dimensional subspace; the matrix can be well-approximated by a lower-rank matrix
+
+    \item \textbf{Condition number}: The ratio $\sigma_1/\sigma_n$ indicates numerical stability; large ratios mean the matrix is nearly singular
+\end{itemize}
+\end{bluebox}
+
+\begin{example}[SVD and Rank]
+If a $5 \times 3$ matrix $A$ has SVD with $\Sigma = \text{diag}(4, 2, 0)$:
+\begin{itemize}
+    \item $\rank(A) = 2$ (two non-zero singular values)
+    \item The columns of $A$ span a 2-dimensional subspace
+    \item The third column is a linear combination of the first two
+\end{itemize}
+\end{example}
+
+% =============================================================================
+\section{Principal Component Analysis (PCA)}
+\label{sec:pca}
+% =============================================================================
+
+\textbf{Principal Component Analysis (PCA)} is a fundamental dimensionality reduction technique. It finds new variables (principal components) that capture the maximum variance in the data. Remarkably, PCA is equivalent to eigendecomposition of the covariance matrix.
+
+\subsection{Motivation: Dimensionality Reduction}
+
+Consider a data matrix $X$ with $n$ observations and $p$ variables. Often:
+\begin{itemize}
+    \item Many variables are correlated (redundant information)
+    \item We want to summarise the data with fewer variables
+    \item We want to visualise high-dimensional data
+\end{itemize}
+
+\begin{bluebox}[The PCA Question]
+If we could keep only \emph{one} number per observation, which linear combination of variables would preserve the most information?
+
+Answer: The combination that maximises variance. High variance means observations are spread out-there's more ``signal'' to distinguish them.
+\end{bluebox}
+
+\subsection{PCA as Variance Maximisation}
+
+Let $X$ be an $n \times p$ data matrix, assumed to be \textbf{centred} (column means are zero).
+
+\begin{definition}[Principal Component]
+\label{def:pc}
+The \textbf{first principal component} is a linear combination of the columns of $X$:
+\[
+\mathbf{z}_1 = \phi_{11}x_1 + \phi_{21}x_2 + \cdots + \phi_{p1}x_p = X\boldsymbol{\phi}_1
+\]
+where $\boldsymbol{\phi}_1 = (\phi_{11}, \phi_{21}, \ldots, \phi_{p1})^T$ is chosen to maximise the variance of $\mathbf{z}_1$.
+\end{definition}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/week_9/Screenshot 2024-01-26 181222.png}
+    \caption{Visual representation of forming a principal component as a linear combination of original variables. Each variable $x_j$ is scaled by its loading $\phi_{j1}$ and the scaled vectors are summed element-wise to produce $\mathbf{z}_1$.}
+    \label{fig:pc-linear-combo}
+\end{figure}
+
+Each element $z_{i1}$ of the principal component vector is:
+\[
+z_{i1} = \phi_{11}x_{i1} + \phi_{21}x_{i2} + \cdots + \phi_{p1}x_{ip}
+\]
+This is a weighted sum of observation $i$'s values across all $p$ variables.
+
+\begin{rigour}[The Variance Maximisation Problem]
+We seek loadings $\boldsymbol{\phi}_1$ that maximise:
+\begin{align*}
+\Var(\mathbf{z}_1) &= \frac{1}{n} \sum_{i=1}^{n} (z_{i1} - \bar{z}_1)^2 \\
+&= \frac{1}{n} \sum_{i=1}^{n} z_{i1}^2 \quad \text{(since data is centred, $\bar{z}_1 = 0$)}
+\end{align*}
+
+To prevent unbounded solutions (we could make variance arbitrarily large by scaling $\boldsymbol{\phi}_1$), we impose the constraint:
+\[
+\|\boldsymbol{\phi}_1\|^2 = \sum_{j=1}^{p} \phi_{j1}^2 = 1
+\]
+
+This is a constrained optimisation problem solvable via Lagrange multipliers (see Chapter~\ref{ch:week10}), but there's an elegant alternative: eigendecomposition.
+\end{rigour}
+
+\subsection{PCA via Eigendecomposition of the Covariance Matrix}
+
+\begin{definition}[Sample Covariance Matrix]
+\label{def:cov-matrix}
+For centred data matrix $X$, the sample covariance matrix is:
+\[
+S = \frac{1}{n} X^T X
+\]
+This is a $p \times p$ symmetric matrix where:
+\begin{itemize}
+    \item Diagonal entries $s_{jj}$ are the variances of each variable
+    \item Off-diagonal entries $s_{jk}$ are the covariances between variables $j$ and $k$
+\end{itemize}
+\end{definition}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/week_9/Screenshot 2024-01-26 181250.png}
+    \caption{Structure of the covariance matrix. Diagonal elements represent variances of individual variables; off-diagonal elements capture pairwise covariances, measuring how variables move together.}
+    \label{fig:cov-matrix-structure}
+\end{figure}
+
+\begin{theorem}[PCA via Eigendecomposition]
+\label{thm:pca-eigen}
+The principal components of $X$ are given by the eigenvectors of the covariance matrix $S$. Specifically:
+\begin{itemize}
+    \item The first principal component loadings $\boldsymbol{\phi}_1$ are the eigenvector corresponding to the \textbf{largest} eigenvalue $\lambda_1$
+    \item The $k$-th principal component loadings $\boldsymbol{\phi}_k$ are the eigenvector corresponding to the $k$-th largest eigenvalue $\lambda_k$
+    \item The variance explained by component $k$ equals the eigenvalue $\lambda_k$
+\end{itemize}
+\end{theorem}
+
+\begin{bluebox}[PCA Algorithm via Eigendecomposition]
+\begin{enumerate}
+    \item Centre the data: subtract column means from $X$
+    \item Compute the covariance matrix: $S = \frac{1}{n}X^TX$
+    \item Find eigenvalues and eigenvectors of $S$: $S\boldsymbol{\phi}_k = \lambda_k\boldsymbol{\phi}_k$
+    \item Order eigenvectors by decreasing eigenvalue
+    \item Principal components: $\mathbf{z}_k = X\boldsymbol{\phi}_k$
+\end{enumerate}
+\end{bluebox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/week_9/Screenshot 2024-01-26 184636.png}
+    \caption{Eigendecomposition of the covariance matrix yields the principal component loadings (eigenvectors) and the variance explained by each component (eigenvalues).}
+    \label{fig:cov-eigendecomp}
+\end{figure}
+
+\begin{intuition}[Why Does Eigendecomposition Solve the Maximisation Problem?]
+The covariance matrix $S$ encodes how variables vary together. Its eigenvectors point in directions of ``natural variation'' in the data:
+\begin{itemize}
+    \item The eigenvector for the largest eigenvalue points in the direction of maximum variance
+    \item Subsequent eigenvectors point in directions of decreasing variance, orthogonal to previous ones
+\end{itemize}
+
+Since $S$ is symmetric, its eigenvectors are orthogonal. This means principal components are \textbf{uncorrelated}-each captures genuinely new information.
+\end{intuition}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/week_9/image1.png}
+    \caption{Geometric interpretation of PCA. The first principal component (PC1) aligns with the direction of maximum variance in the data cloud. The second principal component (PC2) is orthogonal to PC1 and captures the most remaining variance.}
+    \label{fig:pca-geometric}
+\end{figure}
+
+\subsection{Computing Principal Components}
+
+Once we have the loadings (eigenvectors), the principal component scores are:
+\[
+\mathbf{z}_k = X\boldsymbol{\phi}_k
+\]
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/week_9/Screenshot 2024-01-26 182019.png}
+    \caption{Computing principal component scores by projecting the data matrix onto the loading vector.}
+    \label{fig:pc-scores}
+\end{figure}
+
+Each principal component $\mathbf{z}_k$ is an $n$-dimensional vector-one score per observation. The full set of principal components transforms the original $n \times p$ data into a new $n \times p$ representation where variables are uncorrelated.
+
+\subsection{Subsequent Principal Components}
+
+\begin{rigour}[Higher-Order Components]
+The $k$-th principal component maximises variance subject to:
+\begin{enumerate}
+    \item Unit norm: $\|\boldsymbol{\phi}_k\| = 1$
+    \item Orthogonality to previous loadings: $\boldsymbol{\phi}_k^T\boldsymbol{\phi}_j = 0$ for $j < k$
+\end{enumerate}
+
+Equivalently, it is the eigenvector corresponding to the $k$-th largest eigenvalue of $S$:
+\begin{align*}
+S\boldsymbol{\phi}_1 &= \lambda_1\boldsymbol{\phi}_1 \quad \rightarrow \quad \mathbf{z}_1 = X\boldsymbol{\phi}_1 \\
+S\boldsymbol{\phi}_2 &= \lambda_2\boldsymbol{\phi}_2 \quad \rightarrow \quad \mathbf{z}_2 = X\boldsymbol{\phi}_2 \\
+&\vdots
+\end{align*}
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/week_9/image2.png}
+    \caption{Multiple principal components ordered by variance explained. Each subsequent component captures progressively less variance while remaining orthogonal to all previous components.}
+    \label{fig:multiple-pcs}
+\end{figure}
+
+\subsection{Dimensionality Reduction}
+
+The power of PCA lies in \textbf{dimensionality reduction}: often, a small number of principal components capture most of the variance.
+
+\begin{bluebox}[Choosing the Number of Components]
+Common strategies:
+\begin{itemize}
+    \item \textbf{Variance threshold}: Keep enough components to explain (e.g.) 95\% of total variance
+    \item \textbf{Scree plot}: Plot eigenvalues and look for an ``elbow''
+    \item \textbf{Kaiser criterion}: Keep components with eigenvalue $> 1$ (for standardised data)
+\end{itemize}
+
+The proportion of variance explained by the first $k$ components is:
+\[
+\frac{\sum_{j=1}^{k} \lambda_j}{\sum_{j=1}^{p} \lambda_j}
+\]
+\end{bluebox}
+
+\subsection{Reconstructing Data from Principal Components}
+
+Given principal components, we can approximate the original data:
+
+\begin{rigour}[Data Reconstruction]
+Using all $p$ components gives exact reconstruction:
+\[
+X = Z\Phi^T
+\]
+where $Z = [\mathbf{z}_1 | \mathbf{z}_2 | \cdots | \mathbf{z}_p]$ and $\Phi = [\boldsymbol{\phi}_1 | \boldsymbol{\phi}_2 | \cdots | \boldsymbol{\phi}_p]$.
+
+Using only the first $k < p$ components gives a rank-$k$ approximation:
+\[
+\hat{X}_k = Z_k\Phi_k^T = \sum_{j=1}^{k} \mathbf{z}_j\boldsymbol{\phi}_j^T
+\]
+This is the \textbf{best} rank-$k$ approximation to $X$ in the least-squares sense.
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/week_9/reconstitute1.png}
+    \caption{Reconstruction from principal components. The outer product $\mathbf{z}_k\boldsymbol{\phi}_k^T$ creates a rank-1 matrix; summing these gives progressively better approximations to the original data.}
+    \label{fig:pca-reconstruct1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/week_9/reconstitute2.png}
+    \caption{Each additional principal component adds detail to the reconstruction, capturing finer structure in the data.}
+    \label{fig:pca-reconstruct2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/week_9/reconstitute3.png}
+    \caption{Image compression example: reconstructing an image using increasing numbers of principal components. Few components capture the main structure; more components recover fine details.}
+    \label{fig:pca-reconstruct3}
+\end{figure}
+
+\subsection{Applications of PCA}
+
+\begin{itemize}
+    \item \textbf{Data visualisation}: Project high-dimensional data to 2D or 3D for plotting
+    \item \textbf{Noise reduction}: Low-rank approximations filter out noise in minor components
+    \item \textbf{Feature extraction}: Principal components serve as new features for downstream models
+    \item \textbf{Compression}: Store data using fewer numbers (principal component scores)
+    \item \textbf{Multicollinearity}: Address correlated predictors by using uncorrelated components
+\end{itemize}
+
+Applications span genomics, facial recognition, computer vision, finance, climate science, and social sciences.
+
+\begin{warning}[PCA Limitations]
+\begin{itemize}
+    \item PCA finds \emph{linear} combinations; it cannot capture nonlinear structure
+    \item PCA maximises variance, which may not align with predictive power or class separation
+    \item Results depend on scaling: standardise variables first if they have different units
+    \item Interpretability can be challenging: principal components are often mixtures of all original variables
+\end{itemize}
+\end{warning}
+
+% =============================================================================
+\section{Summary: Key Results}
+\label{sec:week9-summary}
+% =============================================================================
+
+\begin{bluebox}[Chapter Summary]
+\textbf{Linear Dependence}:
+\begin{itemize}
+    \item Vectors are linearly dependent if a non-trivial solution exists to $\sum c_i\mathbf{v}_i = \mathbf{0}$
+    \item Dependent vectors contain redundant information; one can be expressed as a combination of others
+\end{itemize}
+
+\textbf{Key Equivalences for Square Matrices}:
+\[
+\text{Linearly Independent Columns} \iff \det(A) \neq 0 \iff A \text{ is Invertible}
+\]
+
+\textbf{Eigenvalues and Eigenvectors}:
+\begin{itemize}
+    \item Definition: $A\mathbf{v} = \lambda\mathbf{v}$
+    \item Eigenvalues found from: $\det(A - \lambda I) = 0$
+    \item Eigenvectors found from: $(A - \lambda I)\mathbf{v} = \mathbf{0}$
+\end{itemize}
+
+\textbf{Eigendecomposition}: $A = Q\Lambda Q^{-1}$ (requires $n$ independent eigenvectors)
+
+\textbf{SVD}: $A = U\Sigma V^T$ (works for any matrix)
+
+\textbf{PCA}: The principal components are eigenvectors of the covariance matrix; eigenvalues give variance explained.
+\end{bluebox}
+
+\begin{rigour}[Connections Between Concepts]
+\begin{center}
+\begin{tikzpicture}[
+    node distance=2cm,
+    box/.style={rectangle, draw, text width=3cm, text centered, minimum height=1cm},
+    arrow/.style={-{Stealth}, thick}
+]
+\node[box] (dep) {Linear Independence};
+\node[box, right=of dep] (det) {$\det(A) \neq 0$};
+\node[box, right=of det] (inv) {$A$ Invertible};
+\node[box, below=1.5cm of det] (eigen) {Eigendecomposition};
+\node[box, below=of eigen] (pca) {PCA};
+
+\draw[arrow, <->] (dep) -- (det);
+\draw[arrow, <->] (det) -- (inv);
+\draw[arrow] (det) -- node[right] {$n$ distinct $\lambda$} (eigen);
+\draw[arrow] (eigen) -- node[right] {Covariance matrix} (pca);
+\end{tikzpicture}
+\end{center}
+\end{rigour}

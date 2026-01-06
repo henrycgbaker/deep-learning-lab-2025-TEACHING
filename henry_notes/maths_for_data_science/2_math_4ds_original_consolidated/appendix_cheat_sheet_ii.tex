@@ -1,0 +1,384 @@
+% =============================================================================
+% Cheat Sheet II
+% =============================================================================
+
+\chapter{Cheat Sheet II}
+
+\thispagestyle{empty}
+{\large \textbf{Finals Fall 2023  --  Henry Baker}}
+\par\noindent\rule{\textwidth}{0.4pt} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Finals Revision: Session 6\\ Calculus Meets Probability / Continuous Random Variables I}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Wk 6 - Continuour r.v.s meets probability}
+\subsection{Continuous r.vs}
+\begin{itemize}
+    \item r.v.s has continuous distribution if its CDF is differentiable
+    \item PDF of $X$ is derivative of CDF: $f(x) = F'(x)$
+    \item CDF of $X$ is integral of PDF (ie the area under the curve)
+    \item unlike discrete r.v.s, for continuous: $P(X=x)=0$ for all $x$ \begin{itemize}
+        \item PDF of $X$ gives probability density
+        \item BUT, CDF remains interpret able as P(X) (as it represents  AUC under PDF)
+        \item The probability that a continuous random variable falls within a particular interval is given by area under the PDF curve over that interval.
+    \end{itemize}
+    \item valid PDF conditions: 1) non-negative, 2) integrates to 1
+\end{itemize}
+
+\subsection{expectation of continuous r.v}
+\[E(X) = \int_{-\infty}^{\infty} xf(x) \, dx\]
+= centre of mass / balance point \\
+ "To find the expected value of a continuous random variable, take every possible value that variable can have, multiply each by the probability of that value occurring, and then sum all these products together."
+
+\subsection{Uniform, continuous}
+PDF
+\[f(x) = \begin{cases} 
+\frac{1}{b-a} & \text{if } a < x < b \\
+0 & \text{otherwise}
+\end{cases}\]
+
+Proof it is a valid PMF: it sums (integrates) to 1 : rectangle (b-a)*(1/b-a) = 1\\
+
+CDF
+\[F(x) = \begin{cases} 
+0 & \text{if } x \leq a \\
+\frac{x - a}{b - a} & \text{if } a < x < b \\
+1 & \text{if } x \geq b
+\end{cases}
+\]
+
+\subsection{Normal}
+$\mu$ = location; $\sigma^2$ = scale (variance)
+
+\subsection{Standardisation}
+can transform any Normal-distributed r.v. into a Standard Normal (this is a z-score): 
+
+\[Z = \frac{X - \mu}{\sigma}\]
+
+NB: r.v. itself does NOT have to be Normal distribution - can be ANY distribution; so long as it is i.i.d $\rightarrow$ you can take the sample mean, standardise it, and that will be normally distributed.
+
+\subsection{Exponential}
+\begin{itemize}
+    \item time to wait before first success
+    \begin{itemize}
+        \item =  continuous analog of the Geometric (number of failures until first success in a sequence of Bernoulli trials)
+        \item $\lambda$ = rate of success for some unit of time
+        \item memorylessness
+    \end{itemize}
+\end{itemize}
+
+\subsection{Joint Distributions of Continuous r.v.s}
+\begin{itemize}
+    \item Joint CDF: $F_{X,Y}(x,y) = P(X \leq x, Y \leq y)$
+    \item Joint PDF: $f_{X,Y}(x,y) = \frac{\partial^2}{\partial x \partial y} F_{X,Y}(x,y)$ - first take the partial derivative of $F_{X,Y}(x,y)$ with respect to $x$, and then take the partial derivative of the result with respect to $y$
+    \begin{itemize}
+        \item e.g. CDF: $F(x,y) = \frac{1}{2} x^2 y^3 \rightarrow$ PDF: $f (x,y) = 3xy^2$
+    \end{itemize}
+    \item Marginal Distribution of $X$ from Joint PDF, integrate over all values of $Y$: \begin{itemize}
+        \item $f_X(x) = \int_{-\infty}^{\infty} f_{X,Y}(x,y) \, dy$
+    \end{itemize}
+    \item Conditional PDF (of Y, given $X=x$):  
+    \begin{itemize}
+        \item $f_{Y|X}(y|x) = \frac{f_{X,Y}(x,y)}{f_X(x)}$
+        \item Conditional = Joint PDF / Marginal
+    \end{itemize}
+\end{itemize}
+
+\subsection{Bayes Rule and LOTP for continuous r.v.s}
+\begin{itemize}
+    \item Bayes rule: $f_{Y|X}(y|x) = \frac{f_{X|Y}(x|y) f_{Y}(y)}{f_{X}(x)}$
+    \item LOTP: $f_{X}(x) = \int_{-\infty}^{\infty} f_{X|Y}(x|y) f_{Y}(y) \, dy$
+\end{itemize}
+
+\section{wk 7 - Continuous R.vs II}
+
+\subsection{Covariance}
+\begin{itemize}
+    \item move together + ; move opp -; independent 0
+    \item "expectation of the product, minus the product of the expectations"
+    \item $\text{Cov}(X, Y) = \mathbb{E}((X - \mathbb{E}X)(Y - \mathbb{E}Y))$
+    \item $\text{Cov}(X, Y) = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y]$
+    \item independence: covariance is 0: $\mathbb{E}[XY] = \mathbb{E}[X]\mathbb{E}[Y]$
+\end{itemize}
+
+\subsubsection{Some Covariance rules}
+\begin{enumerate}
+    \item $\text{Cov}(X, X) = \text{Var}(X)$
+    \item $\text{Cov}(X, Y) = \text{Cov}(Y, X)$
+    \item $\text{Cov}(X, c) = 0$ for any constant $c$
+    \item $\text{Cov}(aX, Y) = a \cdot \text{Cov}(X, Y)$ for any constant $a$
+    \item $\text{Cov}(X + Y, Z) = \text{Cov}(X, Z) + \text{Cov}(Y, Z)$
+    \item $\text{Var}(X + Y) = \text{Var}(X) + \text{Var}(Y) + 2 \cdot \text{Cov}(X, Y)$
+    \item \textbf{additional:} $E(EX)$: expectation of a constant is just a constant .
+\end{enumerate}
+
+\subsection{Correlation}
+\[\text{Corr}(X, Y) = \frac{\text{Cov}(X, Y)}{\sqrt{\text{Var}(X) \cdot \text{Var}(Y)}}\]
+Correlation coefficient: $\rho_{X,Y} = \frac{\text{Cov}(X, Y)}{\sigma_X \sigma_Y}$
+
+corr between -1:1 \\
+
+Due to non-linearity in the data (think of parabola, $y = x^2$ - perfectly dependent, but uncorrelated):  
+\begin{itemize}
+    \item Independence $\rightarrow$ uncorrelated
+    \item Uncorrelated $\rightarrow \times \rightarrow$ Independence
+\end{itemize}
+
+Independence defined as: $P(X \leq x,Y \leq y) = P(X \leq x)P(Y \leq y)$\\
+For Independent variables: $E(XY) = E(X)E(Y)$ \\
+For independent variables (= 0 covariance), their correlation is 0. But not necessarily visa versa.\\
+
+\begin{tcolorbox}
+    Example of proving independence:
+    \begin{align*}
+E(X) &= \frac{1}{2}(1) + \frac{1}{2}(2) = 1.5 \\
+E(Y) &= \frac{1}{2}(3) + \frac{1}{2}(4) = 3.5 \\
+\end{align*}
+
+$E(XY)$ can be calculated by considering all combinations of $X$ and $Y$\\
+We have four combinations: (1, 3), (1, 4), (2, 3), and (2, 4). Each combination occurs with a probability of 1/4, since the probabilities of X and Y are each 1/2.
+
+\begin{align*}
+E(XY) &= \frac{1}{4}(1 \times 3) + \frac{1}{4}(1 \times 4) + \frac{1}{4}(2 \times 3) + \frac{1}{4}(2 \times 4) = 5.25 \\
+\text{Cov}(X, Y) &= E(XY) - E(X)E(Y) = 5.25 - (1.5 \times 3.5) = 0
+\end{align*}
+Since the covariance is 0, it suggests that $X$ and $Y$ are uncorrelated
+\end{tcolorbox}
+
+\subsection{Law of Large Numbers: as $n$ grows large, the sample mean $\bar{X}$ converges to the true mean $\mu$}
+\begin{itemize}
+    \item Sample mean (if i.i.d): $\bar{X}_n = \frac{X_1 + X_2 + \ldots + X_n}{n}  $
+    \item sample mean is itself r.v.: \begin{itemize}
+        \item Expectation = $\mu$ (i.e. the population mean - the sample mean and the population mean converge as $n$ grows)
+        \item Variance $= \frac{\sigma^2}{n}$
+        \item Standard Deviation $= \frac{\sigma}{\sqrt{n}}$
+    \end{itemize}
+\end{itemize}
+
+\subsection{Central Limit Theorem = that the standardised sample mean (standardised $\bar{X}$) converges in distribution to the standard Normal as $n \rightarrow \infty$}}
+\begin{enumerate}
+    \item subtract expectation  $\mu$
+    \item dividing by  standard deviation $= \frac{\sigma}{\sqrt{n}}$
+\end{enumerate}
+So, regardless of underlying distribution: $\sqrt{n}\left(\frac{\bar{X}_n - \mu}{\sigma}\right) \xrightarrow{d} \mathcal{N}(0, 1)$ \\
+
+Also sum:
+\begin{align*}
+    \sum_{i=1}^{n} X_i \xrightarrow{d} \mathcal{N}(n\mu, n\sigma^2) \quad \text{as} \quad n \to \infty
+\end{align*}
+
+\subsection{Example: Normal Approximation to the Binomial}
+Recalling that the Binomial $(n, p)$ is the sum of $n$ Bernoullis with
+probability $p$, we can even use the Normal distribution to
+approximate the Binomial.
+\[\sum_{i=1}^{n} X_i \approx \mathcal{N}(n\mu, n\sigma^2)\]
+
+and recalling that the mean of a Bernoulli is $p$ and its variance is
+$p(1 - p)$, we can use the CLT to say:
+\[\sum_{i=1}^{n} X_i \approx \mathcal{N}(np, np(1 - p))\]
+
+NB: \\
+Variance: \[E[(X - \mu)^2] = \sum_{i} (x_i - \mu)^2 \cdot P(x_i)\]
+for uniform: \[\text{Var}(X) = \frac{{(b - a)^2}}{12}\]
+
+\section{Lab 7 - EM Algorithm}
+
+\begin{enumerate}
+    \item Initialise parameters\begin{itemize}
+        \item $\mu_1, \mu_2$ = means 
+        \item $\sigma_1, \sigma_2$ = standard deviations
+        \item $\pi_1.\pi_2$ = mixing properties (the initial prob of being in one distribution)
+    \end{itemize}
+    \item E-step: Expectation - compute responsibilities of each data point (= calculate the $\gamma$ of each data point: the prob that each data point belongs to each component given current parameter values)
+    \item M-step: Maximisation - update the parameters based on the responsibilities (= MLE of each parameter given the $\gamma$ values for each data point (the parameters defined as some function involving sums of gamma-data point, so will give a single value).
+    \item Evaluate the new log-likelihood with new (i) parameter, (ii) responsibilities.
+    \item Check for convergence
+\end{enumerate}
+
+NB: how Bayes rule used to obtain gammas:
+\begin{align*}
+\Pr(z_{1i} = 1 | x_i) &= \frac{f(x_i | z_{1i} = 1) \Pr(z_{1i} = 1)}{f(x_i)} \\
+&= \frac{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1)}{\pi_1 \mathcal{N}(x_i | \mu_1, \sigma_1) + \pi_2 \mathcal{N}(x_i | \mu_2, \sigma_2)}
+\end{align*}
+
+\section{Wk 8 - Matrix Algebra}
+
+\begin{itemize}
+    \item Matrix dimensions $m \times n$ = m rows, n columns
+    \item row values $\rightarrow$ column, column values $\rightarrow$ row
+    \item to add 2 matrices: need same dimensions
+    \item $\mathbf{a}^T \mathbf{b} = [a_1, a_2, a_3]
+\begin{bmatrix}
+b_1 \\
+b_2 \\
+b_3 \\
+\end{bmatrix}
+= a_1b_1 + a_2b_2 + a_3b_3$ ... NB: output is scalar
+    \item Matrix multiplication
+    \begin{itemize}
+        \item conformable: $mn \times np$ (LHS columns = RHS rows) $\rightarrow$ output $m × p$ - the outer values
+        \item for each element $a_{ij}$: sum of the products of the elements of the corresponding \textbf{row of A} and the corresponding \textbf{column of B}.
+        \item so for item $a_12$:
+        \begin{itemize}
+             \item all the elements of row 1 from A
+             \item all the elements of column 2 from B
+             \item multiplied by each other
+             \item summed
+        \end{itemize}
+    \end{itemize}
+    \item Transpose Facts
+        \begin{itemize}
+            \item $(A^T)^T = A$ 
+            \item $(A + B)^T = A^T + B^T$ 
+            \item $(AB)^T = B^T A^T $
+            \item $a^Tb = b^Ta$
+        \end{itemize}
+    \item Identity matrix
+    \begin{itemize}
+        \item $I_nx_n = x_n$
+        \item $I_mA_{m\times n}$ = $A_{m\times n}$ and $A_{m\times n}I_n = A_{m\times n}$
+        \item $A^{-1}A = I_n$
+    \end{itemize}
+    \item Vector Norms (measure of magnitude)
+     \begin{itemize}
+        \item L1 $|x|_1 = \sum_{i} |x_i|$ = take absolute values of elements before summing 
+        \item L2 $|x|_2 = \sqrt{\sum_{i} x_i^2}$ = square root of the sum of the squares of the vector's elements 
+    \end{itemize}
+\end{itemize}
+
+\section{Lab 8 - Regression}
+\subsection{Linear Regression}
+The objective function for least squares regression is:
+\[
+    \min_{\beta_0, \beta_1, \ldots, \beta_p} \sum_{i=1}^{n} \varepsilon_i^2 \]
+    \[= \min_{\beta_0, \beta_1, \ldots, \beta_p} \sum_{i=1}^{n} \left( y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2} - \ldots - \beta_p x_{ip} \right)^2\]
+
+Representing the squared error minimisation problem (the cost function) in Matrix form:
+\[\varepsilon^T\varepsilon = Y^TY - Y^TX\beta - \beta^TX^TY + \beta^TX^TX\beta\]
+This expanded \textbf{cost function} (expressed in marix notation) is what we will be minimising (by taking first derivative, set to zero)
+
+(1) Setting to 0 $\rightarrow$ (2) taking first derivative with respect to $\beta \rightarrow$ (3) simplifying:} 
+    \[-2X^TY + 2X^TX\beta = 0\]
+
+Solving for beta:
+\[\beta = (X^TX)^{-1}X^TY\]
+
+\subsection{Penalised regression}
+
+The objective function in Lasso Regression becomes:
+\[
+\text{Minimize} \left( \text{Residual Sum of Squares} + \lambda \sum_{i=1}^{n} \left| \beta_i \right| \right)
+\]
+
+The objective function in Ridge Regression is:
+\[
+\text{Minimize} \left( \text{Residual Sum of Squares} + \lambda \sum_{i=1}^{n} \beta_i^2 \right)
+\]
+
+\section{Wk 9 - Linear Algebra II}
+\begin{itemize}
+    \item Linear Dependence: $c_1v_1 + c_2v_2 + \cdots + c_nv_n = 0$
+    \begin{itemize}
+        \item 1) set up the equation $c_1\mathbf{v}_1 + c_2\mathbf{v}_2 \cdot + c_n\mathbf{v}_n = \mathbf{0}$
+        \item 2) solve the system of equations: take one $c_nv_n$ over to the other side so you can write one of the $c_nv_n$ as a function of the others, then plug back in, etc.  \\
+        I STILL DONT GET HOW TO SOLVE THESE SYSTEMS?
+    \end{itemize}
+    \item Span = all linear combinations of the vectors in the set.
+    \begin{itemize}
+        \item $S$ is a spanning set for $V$ if all the dimensions of $V$ can be represented by linear combinations of $S$. A Spanning Set $S$ must contain at last as many elements as the linearly independent vectors from $V$.
+        \item There are exactly $n$ orthogonal / linearly independent vectors in $\mathbb{R}^n$ - these are the basis vectors (another way to phrase: number of linearly independent vectors in $V$ define dimension of its vector space)
+    \end{itemize}
+    \item Determinant:
+    \begin{itemize}
+        \item \textbf{non-zero (for square matrix) $\rightarrow$ linear independence $\rightarrow$ invertible} 
+        \item determinant of a matrix reflects how the transformation changes the dimensions of the space
+        \item characteristic polynomial of a matrix, used to find its eigenvalues, is derived from its determinant
+        \item 2x2 Matrix: $\det(A) = ad - bc$    
+        \item 3x3 matrix: $\det(A) = a(ei - fh) - b(di - fg) + c(dh - eg)$
+    \end{itemize}
+       \item inverse conditions: ($AA^{-1} = A^{-1}A = I_n$)
+       \begin{enumerate}
+        \item matrix is square
+        \item columns are linearly independent (full rank)
+        \item non-zero determinant
+    \end{enumerate}
+    \item eigenvalue-vector pairings: \begin{itemize}
+        \item $Av = \lambda v$
+        \item eigenvalue equation: $(\lambda I_n - A) v = 0$
+        \item characteristic equation:  \(\det(A - \lambda I) = 0 \rightarrow\) or $det(\lambda I_n - A) = 0$ finds eigenvalues 
+        \item existence conditions: 1) square, 2) a lambda scalar that fulfils characteristic equation (i.e. linearly independent columns)
+        \item eigenspace of $\lambda$, $E_\lambda$, is all vectors $v$ that satsify the condition $Av = \lambda v$
+    \end{itemize}
+    \item Eigendecomposition: $A = Q\Lambda Q^{-1}$
+    \begin{itemize}
+        \item A = sq matrix $n \times n$
+        \item $\Lambda$ = diag matrix with eigenvalues of $A$ $n \times n$
+        \item $Q$ = matrix whose columns are eigenvectors of $A$, corresponding to eigenvalues in $\Lambda$
+    \end{itemize}
+    \item SVD = $A = U \Sigma V^T$
+    \begin{itemize}
+         \item $A \in \mathbb{R}^{m \times n}$ 
+         \item $U$ is a matrix containing left singular vectors of A (contains the $m$ eigenvectors of the square matrix $AA^T$) ($m \times n$)
+        \item $V^T$ is a matrix containing the right singular vectors of A (contains the $n$ eigenvectors of the square matrix $A^T A$ ($n \times n$)
+        \item $\Sigma$ is a matrix where the diagonal entries are the singular values of $A$ (square roots of the eigenvalues of $A^TA$ (or $AA^T$) on the diagonal. ($m \times n$)
+        \item ...
+        \item $U$ & $V^T$: how much matrix $A$ rotates an object
+        \item $\Sigma$: associated scaling \begin{itemize}
+            \item number of non-zero singular values gives rank of the matrix (number of linearly independent columns) - full rank: nothing redundant.
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+Dimensions:\\
+\begin{itemize}
+    \item $A$ = $m \times n$
+    \item $U$ = $m \times m$
+    \item $\Sigma$ = $m \times n$
+    \item $V^T$ = $n \times n$
+    \item + NUMBER OF LINEARLY INDEPENDENT COLUMNS OR ROWS NEEDED TO FORM BASIS FOR COLUMN OR ROW SPACE OF A = RANK OF THE MATRIX A = THE NUMBER OF NON ZERO SINGULAR VALUES IN SIGMA
+\end{itemize}
+
+
+\section{Lab 9 - PCA}
+\subsection{As Variance Max}
+
+$$\text{z}_1 = \phi_{11}x_1 + \phi_{21}x_2 + \ldots + \phi_{p1}x_p$$
+
+Maximising variance of the vector of linear combinations $z_1$ (the first principle component), i.e. maximising the variance across its elements (which represent linear combination associated with each observation, consisting of scaled variables, summed)
+
+\begin{align*}
+    \max_{\phi_{11}, \phi_{21}, \ldots, \phi_{p1}} \text{Var}(\text{z}_1) &= \max_{\phi_{11}, \phi_{21}, \ldots, \phi_{p1}} \frac{1}{n} \sum_{i=1}^{n} (z_{i1} - \bar{\text{z}}_1)^2 \\
+    &= \max_{\phi_{11}, \phi_{21}, \ldots, \phi_{p1}} \frac{1}{n} \sum_{i=1}^{n} z_{i1}^2
+\end{align*}
+
+Constrain associated loadings:
+\[\sum_{j=1}^{p} \phi_{j1}^2 = 1\]
+
+\subsection{As Eigendecomposition}
+\begin{itemize}
+    \item derive a Variance-covariance matrix
+    \item Eigendecompose that: $S\phi_1 = \lambda_1\phi_1$
+    \item $\lambda_1$ = eigenvalue for first principle component
+    \item $\phi_1$ = loadings for first principle component
+    \item i think you woild then multiply the original data matrix by the the loadings vector to get the first principle component.
+\end{itemize}
+
+
+\section{Wk 10 - Optimisation}
+\begin{itemize}
+    \item 2nd deriv test: pos = min; neg = max
+    \item Lagrangian: $L(x, y) = f(x, y) + \lambda g(x, y)$
+    \item constrained opti: 1) set of Lagrangian, 2) Take the first derivatives \(\frac{\partial L}{\partial x}\), \(\frac{\partial L}{\partial y}\), and \(\frac{\partial L}{\partial \lambda}\) and set them equal to 0, 3) solve\\
+    PRACTICE SOLVING
+    \item Hessian: each element a 2nd order partial derivative of a function. Has same dimensions as number of functions in the function: \begin{itemize}
+        \item all eigenvalues pos: local min
+        \item all eigenvalues neg: local max
+        \item mixed: saddle point
+    \end{itemize}
+    \item Gradient (of a function)
+\end{itemize}

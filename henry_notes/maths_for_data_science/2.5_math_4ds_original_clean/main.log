@@ -1,0 +1,3509 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2025.12.30)  30 DEC 2025 17:50
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**main.tex
+(./main.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+(./preamble.tex (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/base/report.cls
+Document Class: report 2025/01/22 v1.4n Standard LaTeX document class
+(/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/base/size11.clo
+File: size11.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count275
+\c@chapter=\count276
+\c@section=\count277
+\c@subsection=\count278
+\c@subsubsection=\count279
+\c@paragraph=\count280
+\c@subparagraph=\count281
+\c@figure=\count282
+\c@table=\count283
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen148
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks17
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/iftex/ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/iftex/iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+))
+\Gm@cnth=\count284
+\Gm@cntv=\count285
+\c@Gm@tempcnt=\count286
+\Gm@bindingoffset=\dimen149
+\Gm@wd@mp=\dimen150
+\Gm@odd@mp=\dimen151
+\Gm@even@mp=\dimen152
+\Gm@layoutwidth=\dimen153
+\Gm@layoutheight=\dimen154
+\Gm@layouthoffset=\dimen155
+\Gm@layoutvoffset=\dimen156
+\Gm@dimlist=\toks18
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/base/inputenc.sty
+Package: inputenc 2024/02/08 v1.3d Input encoding file
+\inpenc@prehook=\toks19
+\inpenc@posthook=\toks20
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/multirow/multirow.sty
+Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
+\multirow@colwidth=\skip51
+\multirow@cntb=\count287
+\multirow@dima=\skip52
+\bigstrutjot=\dimen157
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/booktabs/booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen158
+\lightrulewidth=\dimen159
+\cmidrulewidth=\dimen160
+\belowrulesep=\dimen161
+\belowbottomsep=\dimen162
+\aboverulesep=\dimen163
+\abovetopsep=\dimen164
+\cmidrulesep=\dimen165
+\cmidrulekern=\dimen166
+\defaultaddspace=\dimen167
+\@cmidla=\count288
+\@cmidlb=\count289
+\@aboverulesep=\dimen168
+\@belowrulesep=\dimen169
+\@thisruleclass=\count290
+\@lastruleclass=\count291
+\@thisrulewidth=\dimen170
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 106.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics-def/pdftex.def
+File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen171
+\Gin@req@width=\dimen172
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/setspace/setspace.sty
+Package: setspace 2022/12/04 v6.7b set line spacing
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/tools/enumerate.sty
+Package: enumerate 2023/07/04 v3.00 enumerate extensions (DPC)
+\@enLab=\toks21
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count292
+\float@exts=\toks22
+\float@box=\box53
+\@float@everytoks=\toks23
+\@floatcapt=\box54
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
+Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
+\f@nch@headwidth=\skip53
+\f@nch@offset@elh=\skip54
+\f@nch@offset@erh=\skip55
+\f@nch@offset@olh=\skip56
+\f@nch@offset@orh=\skip57
+\f@nch@offset@elf=\skip58
+\f@nch@offset@erf=\skip59
+\f@nch@offset@olf=\skip60
+\f@nch@offset@orf=\skip61
+\f@nch@height=\skip62
+\f@nch@footalignment=\skip63
+\f@nch@widthL=\skip64
+\f@nch@widthC=\skip65
+\f@nch@widthR=\skip66
+\@temptokenb=\toks24
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2025/07/09 v2.17z AMS math features
+\@mathmargin=\skip67
+
+For additional information on amsmath, use the `?' option.
+(/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2024/11/17 v2.01 AMS text
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks25
+\ex@=\dimen173
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen174
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsmath/amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count293
+LaTeX Info: Redefining \frac on input line 233.
+\uproot@=\count294
+\leftroot@=\count295
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count296
+\DOTSCASE@=\count297
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+LaTeX Info: Redefining \cdots on input line 619.
+\Mathstrutbox@=\box55
+\strutbox@=\box56
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen175
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count298
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+LaTeX Info: Redefining \relbar on input line 969.
+LaTeX Info: Redefining \Relbar on input line 970.
+\c@MaxMatrixCols=\count299
+\dotsspace@=\muskip17
+\c@parentequation=\count300
+\dspbrk@lvl=\count301
+\tag@help=\toks26
+\row@=\count302
+\column@=\count303
+\maxfields@=\count304
+\andhelp@=\toks27
+\eqnshift@=\dimen176
+\alignsep@=\dimen177
+\tagshift@=\dimen178
+\tagwidth@=\dimen179
+\totwidth@=\dimen180
+\lineht@=\dimen181
+\@envbody=\toks28
+\multlinegap=\skip68
+\multlinetaggap=\skip69
+\mathdisplay@stack=\toks29
+LaTeX Info: Redefining \[ on input line 2950.
+LaTeX Info: Redefining \] on input line 2951.
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amssymb.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/tools/bm.sty
+Package: bm 2025/10/21 v1.2g Bold Symbol Support (DPC/FMi)
+\symboldoperators=\mathgroup6
+\symboldletters=\mathgroup7
+\symboldsymbols=\mathgroup8
+Package bm Info: No bold for \OMX/cmex/m/n, using \pmb.
+Package bm Info: No bold for \U/msa/m/n, using \pmb.
+Package bm Info: No bold for \U/msb/m/n, using \pmb.
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 149.
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/tcolorbox/tcolorbox.sty
+Package: tcolorbox 2025/11/28 version 6.9.0 text color boxes
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex
+\pgfutil@everybye=\toks30
+\pgfutil@tempdima=\dimen182
+\pgfutil@tempdimb=\dimen183
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def
+\pgfutil@abb=\box57
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfrcs.code.tex (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/pgf.revision.tex)
+Package: pgfrcs 2025-08-29 v3.1.11a (3.1.11a)
+))
+Package: pgf 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/basiclayer/pgfcore.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
+Package: pgfsys 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
+\pgfkeys@pathtoks=\toks31
+\pgfkeys@temptoks=\toks32
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeyslibraryfiltered.code.tex
+\pgfkeys@tmptoks=\toks33
+))
+\pgf@x=\dimen184
+\pgf@y=\dimen185
+\pgf@xa=\dimen186
+\pgf@ya=\dimen187
+\pgf@xb=\dimen188
+\pgf@yb=\dimen189
+\pgf@xc=\dimen190
+\pgf@yc=\dimen191
+\pgf@xd=\dimen192
+\pgf@yd=\dimen193
+\w@pgf@writea=\write3
+\r@pgf@reada=\read2
+\c@pgf@counta=\count305
+\c@pgf@countb=\count306
+\c@pgf@countc=\count307
+\c@pgf@countd=\count308
+\t@pgf@toka=\toks34
+\t@pgf@tokb=\toks35
+\t@pgf@tokc=\toks36
+\pgf@sys@id@count=\count309
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
+File: pgf.cfg 2025-08-29 v3.1.11a (3.1.11a)
+)
+Driver file for pgf: pgfsys-pdftex.def
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-pdftex.def
+File: pgfsys-pdftex.def 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-common-pdf.def
+File: pgfsys-common-pdf.def 2025-08-29 v3.1.11a (3.1.11a)
+))) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.tex
+File: pgfsyssoftpath.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfsyssoftpath@smallbuffer@items=\count310
+\pgfsyssoftpath@bigbuffer@items=\count311
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.code.tex
+File: pgfsysprotocol.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 274.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/graphics/mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
+Package: pgfcore 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex
+\pgfmath@dimen=\dimen194
+\pgfmath@count=\count312
+\pgfmath@box=\box58
+\pgfmath@toks=\toks37
+\pgfmath@stack@operand=\toks38
+\pgfmath@stack@operation=\toks39
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.trigonometric.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.random.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.comparison.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.base.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.round.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.misc.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integerarithmetics.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathcalc.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex
+\c@pgfmathroundto@lastzeros=\count313
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfint.code.tex) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.code.tex
+File: pgfcorepoints.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@picminx=\dimen195
+\pgf@picmaxx=\dimen196
+\pgf@picminy=\dimen197
+\pgf@picmaxy=\dimen198
+\pgf@pathminx=\dimen199
+\pgf@pathmaxx=\dimen256
+\pgf@pathminy=\dimen257
+\pgf@pathmaxy=\dimen258
+\pgf@xx=\dimen259
+\pgf@xy=\dimen260
+\pgf@yx=\dimen261
+\pgf@yy=\dimen262
+\pgf@zx=\dimen263
+\pgf@zy=\dimen264
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathconstruct.code.tex
+File: pgfcorepathconstruct.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@path@lastx=\dimen265
+\pgf@path@lasty=\dimen266
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathusage.code.tex
+File: pgfcorepathusage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@shorten@end@additional=\dimen267
+\pgf@shorten@start@additional=\dimen268
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorescopes.code.tex
+File: pgfcorescopes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfpic=\box59
+\pgf@hbox=\box60
+\pgf@layerbox@main=\box61
+\pgf@picture@serial@count=\count314
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.code.tex
+File: pgfcoregraphicstate.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgflinewidth=\dimen269
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransformations.code.tex
+File: pgfcoretransformations.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@pt@x=\dimen270
+\pgf@pt@y=\dimen271
+\pgf@pt@temp=\dimen272
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorequick.code.tex
+File: pgfcorequick.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreobjects.code.tex
+File: pgfcoreobjects.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathprocessing.code.tex
+File: pgfcorepathprocessing.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorearrows.code.tex
+File: pgfcorearrows.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfarrowsep=\dimen273
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
+File: pgfcoreshade.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@max=\dimen274
+\pgf@sys@shading@range@num=\count315
+\pgf@shadingcount=\count316
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
+File: pgfcoreimage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.tex
+File: pgfcoreexternal.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfexternal@startupbox=\box62
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.code.tex
+File: pgfcorelayers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransparency.code.tex
+File: pgfcoretransparency.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.tex
+File: pgfcorepatterns.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex
+File: pgfcorerdf.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+))) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
+File: pgfmoduleshapes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfnodeparttextbox=\box63
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+File: pgfmoduleplot.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65.sty
+Package: pgfcomp-version-0-65 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@nodesepstart=\dimen275
+\pgf@nodesepend=\dimen276
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18.sty
+Package: pgfcomp-version-1-18 2025-08-29 v3.1.11a (3.1.11a)
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgffor.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/pgf/math/pgfmath.sty (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex
+Package: pgffor 2025-08-29 v3.1.11a (3.1.11a)
+\pgffor@iter=\dimen277
+\pgffor@skip=\dimen278
+\pgffor@stack=\toks40
+\pgffor@toks=\toks41
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+Package: tikz 2025-08-29 v3.1.11a (3.1.11a)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers.code.tex
+File: pgflibraryplothandlers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@plot@mark@count=\count317
+\pgfplotmarksize=\dimen279
+)
+\tikz@lastx=\dimen280
+\tikz@lasty=\dimen281
+\tikz@lastxsaved=\dimen282
+\tikz@lastysaved=\dimen283
+\tikz@lastmovetox=\dimen284
+\tikz@lastmovetoy=\dimen285
+\tikzleveldistance=\dimen286
+\tikzsiblingdistance=\dimen287
+\tikz@figbox=\box64
+\tikz@figbox@bg=\box65
+\tikz@tempbox=\box66
+\tikz@tempbox@bg=\box67
+\tikztreelevel=\count318
+\tikznumberofchildren=\count319
+\tikznumberofcurrentchild=\count320
+\tikz@fig@count=\count321
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+File: pgfmodulematrix.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfmatrixcurrentrow=\count322
+\pgfmatrixcurrentcolumn=\count323
+\pgf@matrix@numberofcolumns=\count324
+)
+\tikz@expandcount=\count325
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarytopaths.code.tex
+File: tikzlibrarytopaths.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+))) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/tools/verbatim.sty
+Package: verbatim 2024-01-22 v1.5x LaTeX2e package for verbatim enhancements
+\every@verbatim=\toks42
+\verbatim@line=\toks43
+\verbatim@in@stream=\read3
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/environ/environ.sty
+Package: environ 2014/05/04 v0.3 A new way to define environments
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/trimspaces/trimspaces.sty
+Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count326
+)
+\tcb@titlebox=\box68
+\tcb@upperbox=\box69
+\tcb@lowerbox=\box70
+\tcb@phantombox=\box71
+\c@tcbbreakpart=\count327
+\c@tcblayer=\count328
+\c@tcolorbox@number=\count329
+\l__tcobox_tmpa_box=\box72
+\l__tcobox_tmpa_dim=\dimen288
+\tcb@temp=\box73
+\tcb@temp=\box74
+\tcb@temp=\box75
+\tcb@temp=\box76
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hyperref.sty
+Package: hyperref 2025-07-12 v7.01o Hypertext links for LaTeX
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/infwarerr/infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/hycolor/hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/hyperref/nameref.sty
+Package: nameref 2025-06-21 v2.57 Cross-referencing by name of section
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/refcount/refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/kvoptions/kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+))
+\c@section@level=\count330
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/stringenc/stringenc.sty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO)
+)
+\@linkdim=\dimen289
+\Hy@linkcounter=\count331
+\Hy@pagecounter=\count332
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/hyperref/pd1enc.def
+File: pd1enc.def 2025-07-12 v7.01o Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/intcalc/intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+\Hy@SavedSpaceFactor=\count333
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/hyperref/puenc.def
+File: puenc.def 2025-07-12 v7.01o Hyperref: PDF Unicode definition (HO)
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
+)
+Package hyperref Info: Hyper figures OFF on input line 4195.
+Package hyperref Info: Link nesting OFF on input line 4200.
+Package hyperref Info: Hyper index ON on input line 4203.
+Package hyperref Info: Plain pages OFF on input line 4210.
+Package hyperref Info: Backreferencing OFF on input line 4215.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4462.
+\c@Hy@tempcnt=\count334
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/url/url.sty
+\Urlmuskip=\muskip18
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 4801.
+\XeTeXLinkMargin=\dimen290
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/bitset/bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
+))
+\Fld@menulength=\count335
+\Field@Width=\dimen291
+\Fld@charsize=\dimen292
+Package hyperref Info: Hyper figures OFF on input line 6078.
+Package hyperref Info: Link nesting OFF on input line 6083.
+Package hyperref Info: Hyper index ON on input line 6086.
+Package hyperref Info: backreferencing OFF on input line 6093.
+Package hyperref Info: Link coloring OFF on input line 6098.
+Package hyperref Info: Link coloring with OCG OFF on input line 6103.
+Package hyperref Info: PDF/A mode OFF on input line 6108.
+\Hy@abspage=\count336
+\c@Item=\count337
+\c@Hfootnote=\count338
+)
+Package hyperref Info: Driver (autodetected): hpdftex.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/hyperref/hpdftex.def
+File: hpdftex.def 2025-07-12 v7.01o Hyperref driver for pdfTeX
+\Fld@listcount=\count339
+\c@bookmark@seq@number=\count340
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 284.
+)
+\Hy@SectionHShift=\skip70
+) (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count341
+) (./main.aux
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+
+LaTeX Warning: Label `fig:enter-label' multiply defined.
+
+)
+\openout1 = `main.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 8.
+LaTeX Font Info:    ... okay on input line 8.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 8.
+LaTeX Font Info:    ... okay on input line 8.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 8.
+LaTeX Font Info:    ... okay on input line 8.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 8.
+LaTeX Font Info:    ... okay on input line 8.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 8.
+LaTeX Font Info:    ... okay on input line 8.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 8.
+LaTeX Font Info:    ... okay on input line 8.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 8.
+LaTeX Font Info:    ... okay on input line 8.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 8.
+LaTeX Font Info:    ... okay on input line 8.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 8.
+LaTeX Font Info:    ... okay on input line 8.
+
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(71.13188pt, 455.24411pt, 71.13188pt)
+* v-part:(T,H,B)=(71.13188pt, 702.78308pt, 71.13188pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=455.24411pt
+* \textheight=702.78308pt
+* \oddsidemargin=-1.1381pt
+* \evensidemargin=-1.1381pt
+* \topmargin=-38.1381pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=11.0pt
+* \footskip=30.0pt
+* \marginparwidth=50.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+(/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
+))
+Package hyperref Info: Link coloring OFF on input line 8.
+ (./main.out) (./main.out)
+\@outlinefile=\write4
+\openout4 = `main.out'.
+
+ [1
+
+{/Users/henrybaker/Library/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] (./main.toc
+LaTeX Font Info:    Trying to load font information for U+msa on input line 4.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 4.
+ (/Users/henrybaker/Library/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.50 ...berline {5.2}Integration}{36}{section.5.2}
+                                                  % [1
+
+] [2] [3] [4])
+\tf@toc=\write5
+\openout5 = `main.toc'.
+
+ [5] [6
+
+] (./week_1_probability_theory.tex
+Chapter 1.
+
+Underfull \hbox (badness 10000) in paragraph at lines 47--48
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 52--54
+
+ []
+
+
+Overfull \hbox (352.13304pt too wide) in paragraph at lines 57--64
+[]$[]$ 
+ []
+
+[7
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 91--95
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 106--107
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 108--109
+
+ []
+
+[8]
+Underfull \hbox (badness 10000) in paragraph at lines 109--110
+
+ []
+
+) (./week_2_conditional_probability.tex [9]
+Chapter 2.
+<images/week_2/Screenshot 2023-10-21 115331.png, id=1152, 903.375pt x 273.02pt>
+File: images/week_2/Screenshot 2023-10-21 115331.png Graphic file (type png)
+<use images/week_2/Screenshot 2023-10-21 115331.png>
+Package pdftex.def Info: images/week_2/Screenshot 2023-10-21 115331.png  used on input line 30.
+(pdftex.def)             Requested size: 455.24411pt x 137.58864pt.
+[10
+
+ <./images/week_2/Screenshot 2023-10-21 115331.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 65--66
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 73--75
+
+ []
+
+[11]
+Underfull \hbox (badness 10000) in paragraph at lines 84--86
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 107--109
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 125--126
+
+ []
+
+[12]
+
+! LaTeX Error: There's no line here to end.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.131 \begin
+            {itemize}
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (2.79613pt too wide) in paragraph at lines 145--146
+[]\T1/cmr/m/n/10.95 Let $\OML/cmm/m/it/10.95 X$ \T1/cmr/m/n/10.95 be the num-ber of heads. This as-signs the val-ues: $\OML/cmm/m/it/10.95 X\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 HH\OT1/cmr/m/n/10.95 ) = 2; \OML/cmm/m/it/10.95 X\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 HT\OT1/cmr/m/n/10.95 ) = 1; \OML/cmm/m/it/10.95 X\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 TH\OT1/cmr/m/n/10.95 ) =
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 156--157
+
+ []
+
+[13]
+<images/week_2/Screenshot 2023-10-21 130325.png, id=1178, 1057.45062pt x 556.0775pt>
+File: images/week_2/Screenshot 2023-10-21 130325.png Graphic file (type png)
+<use images/week_2/Screenshot 2023-10-21 130325.png>
+Package pdftex.def Info: images/week_2/Screenshot 2023-10-21 130325.png  used on input line 186.
+(pdftex.def)             Requested size: 341.43307pt x 179.54362pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 191--192
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 198--200
+
+ []
+
+<images/week_2/Screenshot 2023-10-21 130639.png, id=1179, 1040.88875pt x 503.38063pt>
+File: images/week_2/Screenshot 2023-10-21 130639.png Graphic file (type png)
+<use images/week_2/Screenshot 2023-10-21 130639.png>
+Package pdftex.def Info: images/week_2/Screenshot 2023-10-21 130639.png  used on input line 206.
+(pdftex.def)             Requested size: 341.43307pt x 165.11758pt.
+) (./week_3_joint_random_variables.tex [14 <./images/week_2/Screenshot 2023-10-21 130325.png>] [15 <./images/week_2/Screenshot 2023-10-21 130639.png>]
+Chapter 3.
+[16
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 61--62
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 64--65
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--95
+
+ []
+
+[17]
+<images/week_3/Screenshot 2023-10-21 140956.png, id=1202, 1004.25188pt x 763.85374pt>
+File: images/week_3/Screenshot 2023-10-21 140956.png Graphic file (type png)
+<use images/week_3/Screenshot 2023-10-21 140956.png>
+Package pdftex.def Info: images/week_3/Screenshot 2023-10-21 140956.png  used on input line 133.
+(pdftex.def)             Requested size: 227.62206pt x 173.13011pt.
+ [18]
+<images/week_3/Screenshot 2023-10-21 141320.png, id=1212, 798.48312pt x 774.39313pt>
+File: images/week_3/Screenshot 2023-10-21 141320.png Graphic file (type png)
+<use images/week_3/Screenshot 2023-10-21 141320.png>
+Package pdftex.def Info: images/week_3/Screenshot 2023-10-21 141320.png  used on input line 150.
+(pdftex.def)             Requested size: 227.62206pt x 220.7516pt.
+ [19 <./images/week_3/Screenshot 2023-10-21 140956.png> <./images/week_3/Screenshot 2023-10-21 141320.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 162--163
+
+ []
+
+<images/week_3/Screenshot 2023-10-21 141759.png, id=1221, 1007.765pt x 462.72874pt>
+File: images/week_3/Screenshot 2023-10-21 141759.png Graphic file (type png)
+<use images/week_3/Screenshot 2023-10-21 141759.png>
+Package pdftex.def Info: images/week_3/Screenshot 2023-10-21 141759.png  used on input line 167.
+(pdftex.def)             Requested size: 227.62206pt x 104.51193pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 172--173
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 174--176
+
+ []
+
+
+Overfull \hbox (127.36722pt too wide) in paragraph at lines 183--192
+ [][] 
+ []
+
+[20 <./images/week_3/Screenshot 2023-10-21 141759.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 224--226
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 247--248
+
+ []
+
+
+Overfull \hbox (156.60197pt too wide) detected at line 271
+[]
+ []
+
+[21] [22]) [23] [24
+
+] (./week_4_calculus.tex
+Chapter 4.
+
+Underfull \hbox (badness 10000) in paragraph at lines 30--31
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 33--35
+
+ []
+
+[25
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 55--56
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 58--59
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 59--61
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 73--74
+
+ []
+
+[26]
+Underfull \hbox (badness 10000) in paragraph at lines 77--79
+
+ []
+
+
+Overfull \hbox (27.37506pt too wide) in paragraph at lines 85--86
+[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 89--94
+
+ []
+
+[27] [28]
+Overfull \hbox (80.61192pt too wide) detected at line 187
+[]
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 190--191
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 191--192
+
+ []
+
+[29]
+Overfull \hbox (75.68105pt too wide) in paragraph at lines 229--229
+ []\T1/cmr/bx/n/10.95 Take the log[] [] 
+ []
+
+[30]
+<images/week_4/Screenshot 2023-10-23 184105.png, id=1317, 515.42563pt x 352.81813pt>
+File: images/week_4/Screenshot 2023-10-23 184105.png Graphic file (type png)
+<use images/week_4/Screenshot 2023-10-23 184105.png>
+Package pdftex.def Info: images/week_4/Screenshot 2023-10-23 184105.png  used on input line 264.
+(pdftex.def)             Requested size: 227.62206pt x 155.81111pt.
+ [31 <./images/week_4/Screenshot 2023-10-23 184105.png>]) (./week_5_power_series.tex [32]
+Chapter 5.
+
+Underfull \hbox (badness 10000) in paragraph at lines 27--28
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 37--40
+
+ []
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 41.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 41.
+
+[33
+
+]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 51.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 51.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 61.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 61.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 72.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 72.
+
+[34] [35]) (./week_6_continuous_rvs_i.tex [36]
+Chapter 6.
+<images/week_6/Screenshot 2024-01-15 at 13.35.59.png, id=1376, 887.315pt x 388.45125pt>
+File: images/week_6/Screenshot 2024-01-15 at 13.35.59.png Graphic file (type png)
+<use images/week_6/Screenshot 2024-01-15 at 13.35.59.png>
+Package pdftex.def Info: images/week_6/Screenshot 2024-01-15 at 13.35.59.png  used on input line 26.
+(pdftex.def)             Requested size: 341.43307pt x 149.46823pt.
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 33.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 33.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 36--39
+
+ []
+
+[37
+
+ <./images/week_6/Screenshot 2024-01-15 at 13.35.59.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 40--41
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 43--44
+
+ []
+
+<images/week_6/Screenshot 2024-01-25 at 11.06.02.png, id=1383, 696.6025pt x 427.5975pt>
+File: images/week_6/Screenshot 2024-01-25 at 11.06.02.png Graphic file (type png)
+<use images/week_6/Screenshot 2024-01-25 at 11.06.02.png>
+Package pdftex.def Info: images/week_6/Screenshot 2024-01-25 at 11.06.02.png  used on input line 59.
+(pdftex.def)             Requested size: 341.43307pt x 209.58333pt.
+[38 <./images/week_6/Screenshot 2024-01-25 at 11.06.02.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 86--89
+
+ []
+
+<images/week_6/Screenshot 2024-01-25 at 11.08.07.png, id=1392, 573.14125pt x 366.36874pt>
+File: images/week_6/Screenshot 2024-01-25 at 11.08.07.png Graphic file (type png)
+<use images/week_6/Screenshot 2024-01-25 at 11.08.07.png>
+Package pdftex.def Info: images/week_6/Screenshot 2024-01-25 at 11.08.07.png  used on input line 94.
+(pdftex.def)             Requested size: 341.43307pt x 218.25764pt.
+[39 <./images/week_6/Screenshot 2024-01-25 at 11.08.07.png>]
+<images/week_6/Screenshot 2024-01-25 at 11.09.22.png, id=1401, 660.4675pt x 476.78125pt>
+File: images/week_6/Screenshot 2024-01-25 at 11.09.22.png Graphic file (type png)
+<use images/week_6/Screenshot 2024-01-25 at 11.09.22.png>
+Package pdftex.def Info: images/week_6/Screenshot 2024-01-25 at 11.09.22.png  used on input line 110.
+(pdftex.def)             Requested size: 227.62206pt x 164.3151pt.
+<images/week_6/Screenshot 2024-01-25 at 11.09.56.png, id=1402, 736.7525pt x 362.35374pt>
+File: images/week_6/Screenshot 2024-01-25 at 11.09.56.png Graphic file (type png)
+<use images/week_6/Screenshot 2024-01-25 at 11.09.56.png>
+Package pdftex.def Info: images/week_6/Screenshot 2024-01-25 at 11.09.56.png  used on input line 124.
+(pdftex.def)             Requested size: 341.43307pt x 167.92325pt.
+ [40 <./images/week_6/Screenshot 2024-01-25 at 11.09.22.png> <./images/week_6/Screenshot 2024-01-25 at 11.09.56.png>]
+<images/week_6/Screenshot 2024-01-25 at 11.11.18.png, id=1411, 765.86125pt x 376.40625pt>
+File: images/week_6/Screenshot 2024-01-25 at 11.11.18.png Graphic file (type png)
+<use images/week_6/Screenshot 2024-01-25 at 11.11.18.png>
+Package pdftex.def Info: images/week_6/Screenshot 2024-01-25 at 11.11.18.png  used on input line 162.
+(pdftex.def)             Requested size: 341.43307pt x 167.80753pt.
+ [41]
+<images/week_6/Screenshot 2024-01-25 at 11.11.48.png, id=1417, 660.4675pt x 501.875pt>
+File: images/week_6/Screenshot 2024-01-25 at 11.11.48.png Graphic file (type png)
+<use images/week_6/Screenshot 2024-01-25 at 11.11.48.png>
+Package pdftex.def Info: images/week_6/Screenshot 2024-01-25 at 11.11.48.png  used on input line 173.
+(pdftex.def)             Requested size: 341.43307pt x 259.45256pt.
+<images/week_6/Screenshot 2024-01-25 at 11.12.15.png, id=1418, 671.50874pt x 505.89pt>
+File: images/week_6/Screenshot 2024-01-25 at 11.12.15.png Graphic file (type png)
+<use images/week_6/Screenshot 2024-01-25 at 11.12.15.png>
+Package pdftex.def Info: images/week_6/Screenshot 2024-01-25 at 11.12.15.png  used on input line 180.
+(pdftex.def)             Requested size: 341.43307pt x 257.22083pt.
+ [42 <./images/week_6/Screenshot 2024-01-25 at 11.11.18.png> <./images/week_6/Screenshot 2024-01-25 at 11.11.48.png>]
+<images/week_6/Screenshot 2024-01-25 at 11.12.49.png, id=1428, 651.43375pt x 483.8075pt>
+File: images/week_6/Screenshot 2024-01-25 at 11.12.49.png Graphic file (type png)
+<use images/week_6/Screenshot 2024-01-25 at 11.12.49.png>
+Package pdftex.def Info: images/week_6/Screenshot 2024-01-25 at 11.12.49.png  used on input line 187.
+(pdftex.def)             Requested size: 341.43307pt x 253.58195pt.
+ [43 <./images/week_6/Screenshot 2024-01-25 at 11.12.15.png> <./images/week_6/Screenshot 2024-01-25 at 11.12.49.png>]
+<images/week_6/Screenshot 2024-01-25 at 11.13.31.png, id=1437, 848.16875pt x 505.89pt>
+File: images/week_6/Screenshot 2024-01-25 at 11.13.31.png Graphic file (type png)
+<use images/week_6/Screenshot 2024-01-25 at 11.13.31.png>
+Package pdftex.def Info: images/week_6/Screenshot 2024-01-25 at 11.13.31.png  used on input line 220.
+(pdftex.def)             Requested size: 341.43307pt x 203.64923pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 227--228
+
+ []
+
+[44 <./images/week_6/Screenshot 2024-01-25 at 11.13.31.png>]
+<images/week_6/Screenshot 2024-01-25 at 11.14.01.png, id=1449, 794.97pt x 441.65pt>
+File: images/week_6/Screenshot 2024-01-25 at 11.14.01.png Graphic file (type png)
+<use images/week_6/Screenshot 2024-01-25 at 11.14.01.png>
+Package pdftex.def Info: images/week_6/Screenshot 2024-01-25 at 11.14.01.png  used on input line 245.
+(pdftex.def)             Requested size: 341.43307pt x 189.69014pt.
+ [45 <./images/week_6/Screenshot 2024-01-25 at 11.14.01.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 283--284
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 289--291
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 292--293
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 295--297
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 325--326
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 327--328
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 339--340
+
+ []
+
+
+! LaTeX Error: Unicode character ^^^ (U+001E)
+               not set up for use with LaTeX.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.341     NB some of the $F$ vs $f$ notation ^^^
+                                                 not right
+You may provide a definition with
+\DeclareUnicodeCharacter 
+
+[46]
+<images/week_6/Screenshot 2024-01-25 at 11.14.49.png, id=1462, 667.49374pt x 383.4325pt>
+File: images/week_6/Screenshot 2024-01-25 at 11.14.49.png Graphic file (type png)
+<use images/week_6/Screenshot 2024-01-25 at 11.14.49.png>
+Package pdftex.def Info: images/week_6/Screenshot 2024-01-25 at 11.14.49.png  used on input line 347.
+(pdftex.def)             Requested size: 341.43307pt x 196.13306pt.
+ [47]
+Underfull \hbox (badness 10000) in paragraph at lines 354--355
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 356--357
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 361--362
+
+ []
+
+<images/week_6/Screenshot 2024-01-25 at 11.15.24.png, id=1467, 821.0675pt x 383.4325pt>
+File: images/week_6/Screenshot 2024-01-25 at 11.15.24.png Graphic file (type png)
+<use images/week_6/Screenshot 2024-01-25 at 11.15.24.png>
+Package pdftex.def Info: images/week_6/Screenshot 2024-01-25 at 11.15.24.png  used on input line 376.
+(pdftex.def)             Requested size: 341.43307pt x 159.4433pt.
+[48 <./images/week_6/Screenshot 2024-01-25 at 11.14.49.png>]
+<images/week_6/Screenshot 2024-01-25 at 11.15.51.png, id=1475, 785.93625pt x 195.73125pt>
+File: images/week_6/Screenshot 2024-01-25 at 11.15.51.png Graphic file (type png)
+<use images/week_6/Screenshot 2024-01-25 at 11.15.51.png>
+Package pdftex.def Info: images/week_6/Screenshot 2024-01-25 at 11.15.51.png  used on input line 394.
+(pdftex.def)             Requested size: 455.24411pt x 113.37785pt.
+) (./week_7_continuous_rvs_ii.tex [49 <./images/week_6/Screenshot 2024-01-25 at 11.15.24.png> <./images/week_6/Screenshot 2024-01-25 at 11.15.51.png>]
+Chapter 7.
+[50
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 57--58
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 80--81
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 93--94
+
+ []
+
+[51]
+Underfull \hbox (badness 10000) in paragraph at lines 108--110
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 118--119
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 100--119
+
+ []
+
+
+! LaTeX Error: There's no line here to end.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.120 
+      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+<images/week_7/Screenshot 2024-01-25 at 11.18.55.png, id=1499, 602.25pt x 590.205pt>
+File: images/week_7/Screenshot 2024-01-25 at 11.18.55.png Graphic file (type png)
+<use images/week_7/Screenshot 2024-01-25 at 11.18.55.png>
+Package pdftex.def Info: images/week_7/Screenshot 2024-01-25 at 11.18.55.png  used on input line 123.
+(pdftex.def)             Requested size: 341.43307pt x 334.61919pt.
+[52]
+Underfull \hbox (badness 10000) in paragraph at lines 132--133
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 136--137
+
+ []
+
+[53 <./images/week_7/Screenshot 2024-01-25 at 11.18.55.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 150--152
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 153--155
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 156--157
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 158--160
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 161--162
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 163--164
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 165--166
+
+ []
+
+[54]
+Underfull \hbox (badness 10000) in paragraph at lines 243--245
+
+ []
+
+[55]
+<images/week_7/Screenshot 2024-01-25 at 11.19.54.png, id=1520, 794.97pt x 458.71375pt>
+File: images/week_7/Screenshot 2024-01-25 at 11.19.54.png Graphic file (type png)
+<use images/week_7/Screenshot 2024-01-25 at 11.19.54.png>
+Package pdftex.def Info: images/week_7/Screenshot 2024-01-25 at 11.19.54.png  used on input line 248.
+(pdftex.def)             Requested size: 341.43307pt x 197.01909pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 256--257
+
+ []
+
+! Undefined control sequence.
+<recently read> \n 
+                   
+l.269 ...istribution to the Standard Normal as $\n
+                                                   \rightarrow \infty$:
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+[56 <./images/week_7/Screenshot 2024-01-25 at 11.19.54.png>]
+
+LaTeX Warning: File `images/week_7/Mathematics for Data Science --- Lecture 7_ Continuous Random Variables (cont.).pdf' not found on input line 283.
+
+
+! Package pdftex.def Error: File `images/week_7/Mathematics for Data Science --- Lecture 7_ Continuous Random Variables (cont.).pdf' not found: using draft setting.
+
+See the pdftex.def package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.283 ... Continuous Random Variables (cont.).pdf}
+                                                  
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+[57] [58] [59]
+Underfull \hbox (badness 10000) in paragraph at lines 394--395
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 396--397
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 398--399
+
+ []
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 402.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `subscript' on input line 402.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 402.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 403--404
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 407--408
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 412--414
+
+ []
+
+[60]
+! You can't use `macro parameter character #' in horizontal mode.
+l.443 At this point, let#
+                         s take a moment to look at the expression we're try...
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 453--454
+
+ []
+
+[61]
+Underfull \hbox (badness 10000) in paragraph at lines 458--459
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 479--480
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 501--502
+
+ []
+
+) [62]
+Overfull \vbox (26.77611pt too high) has occurred while \output is active []
+
+ [63] [64
+
+] (./week_8_linear_algebra_i.tex
+Chapter 8.
+
+! LaTeX Error: \mathbf allowed only in math mode.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.23 2. Vector: \mathbf
+                       {x} =
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.24 \begin{bmatrix}
+                    
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.29 \end{bmatrix}
+                   \\
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+! LaTeX Error: \mathbf allowed only in math mode.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.30 3. Matrix: \mathbf
+                       {A} =
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.31 \begin{bmatrix}
+                    
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.36 \end{bmatrix}
+                  \\
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 22--37
+
+ []
+
+! Undefined control sequence.
+l.38     \item Matrix dimensions are $m\timesn
+                                              $
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 43--44
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 44--45
+
+ []
+
+[65
+
+]
+Runaway argument?
+ 
+! Paragraph ended before \align* was complete.
+<to be read again> 
+                   \par 
+l.57 
+     
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.57 
+     
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing \endgroup inserted.
+<inserted text> 
+                \endgroup 
+l.57 
+     
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Display math should end with $$.
+<to be read again> 
+                   \tex_par:D 
+l.57 
+     
+The `$' that I just saw supposedly matches a previous `$$'.
+So I shall assume that you typed `$$' both times.
+
+
+! LaTeX Error: \mathbf allowed only in math mode.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.58 \mathbf
+            {A} =
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.59 \begin{bmatrix}
+                    
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.62 \end{bmatrix}
+                  \\
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+! LaTeX Error: \mathbf allowed only in math mode.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.63 \mathbf
+            {A}^T =
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.63 \mathbf{A}^
+                T =
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Misplaced \cr.
+\math@cr@@@ ->\cr 
+                  
+l.69 \end{align*}
+                 
+I can't figure out why you would want to use a tab mark
+or \cr or \span just now. If something like a right brace
+up above has ended a previous alignment prematurely,
+you're probably due for more error messages, and you
+might try typing `S' now just to see what is salvageable.
+
+! Misplaced \noalign.
+\math@cr@@ ... \iffalse }\fi \math@cr@@@ \noalign 
+                                                  {\vskip #1\relax }
+l.69 \end{align*}
+                 
+I expect to see \noalign only after the \cr of
+an alignment. Proceed, and I'll ignore this case.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.69 \end{align*}
+                 
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.69 \end{align*}
+                 
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Extra }, or forgotten \endgroup.
+\math@cr@@ ...th@cr@@@ \noalign {\vskip #1\relax }
+                                                  
+l.69 \end{align*}
+                 
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Misplaced \noalign.
+\black@ #1->\noalign 
+                     {\ifdim #1>\displaywidth \dimen@ \prevdepth \nointerlin...
+l.69 \end{align*}
+                 
+I expect to see \noalign only after the \cr of
+an alignment. Proceed, and I'll ignore this case.
+
+
+Overfull \hbox (380.772pt too wide) detected at line 69
+[]
+ []
+
+! Extra }, or forgotten \endgroup.
+\endalign ->\math@cr \black@ \totwidth@ \egroup 
+                                                \ifingather@ \restorealignst...
+l.69 \end{align*}
+                 
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.69 \end{align*}
+                 
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Display math should end with $$.
+<to be read again> 
+                   \endgroup 
+l.69 \end{align*}
+                 
+The `$' that I just saw supposedly matches a previous `$$'.
+So I shall assume that you typed `$$' both times.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 71--72
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 74--75
+
+ []
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.81 \begin{bmatrix}
+                    
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.84 \end{bmatrix}
+                  
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.86 \begin{bmatrix}
+                    
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.89 \end{bmatrix}
+                  
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.91 \begin{bmatrix}
+                    
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.94 \end{bmatrix}
+                   \\
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+[66]
+
+LaTeX Warning: Command \texttimes invalid in math mode on input line 155.
+
+
+LaTeX Warning: Command \texttimes invalid in math mode on input line 155.
+
+Missing character: There is no Ö in font cmr10!
+
+LaTeX Warning: Command \texttimes invalid in math mode on input line 155.
+
+
+LaTeX Warning: Command \texttimes invalid in math mode on input line 155.
+
+Missing character: There is no Ö in font cmr10!
+
+LaTeX Warning: Command \texttimes invalid in math mode on input line 159.
+
+
+LaTeX Warning: Command \texttimes invalid in math mode on input line 159.
+
+Missing character: There is no Ö in font cmr10!
+
+Underfull \hbox (badness 10000) in paragraph at lines 163--165
+
+ []
+
+[67]
+Underfull \hbox (badness 10000) in paragraph at lines 231--232
+
+ []
+
+[68]
+Underfull \hbox (badness 10000) in paragraph at lines 270--271
+
+ []
+
+[69] [70]
+! Missing $ inserted.
+<inserted text> 
+                $
+l.366 ..._{m\times n}$ and $A_{m\times n}I_n = $A_
+                                                  {m\times n}$
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Undefined control sequence.
+l.375     \iten
+                \textbf{only square matrices may have an inverse} (and somet...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+[71]
+Underfull \hbox (badness 10000) in paragraph at lines 413--414
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 416--418
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 422--423
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 424--425
+
+ []
+
+[72]
+Underfull \hbox (badness 10000) in paragraph at lines 449--450
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 451--452
+
+ []
+
+! Undefined control sequence.
+<recently read> \subsubsubsection 
+                                  
+l.456 \subsubsubsection
+                       {Representing the linear regression model in Matrix f...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+<recently read> \subsubsubsection 
+                                  
+l.505 \subsubsubsection
+                       {Representing the squared error minimisation problem ...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+[73]
+Underfull \hbox (badness 10000) in paragraph at lines 534--535
+
+ []
+
+! Undefined control sequence.
+l.536 \subsubsubsection
+                       {Solving minimisation problem (set objective function...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 543--544
+
+ []
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.552 \beta
+            (a vector!) that minimize the sum of squared errors. The process...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.553 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+Overfull \hbox (634.62433pt too wide) in paragraph at lines 551--553
+[]\T1/cmr/m/n/10.95 Setting this deriva-tive equal to zero al-lows us to solve for the val-ues of $\OML/cmm/m/it/10.95 ^^L\OT1/cmr/m/n/10.95 (\OML/cmm/m/it/10.95 avector\OT1/cmr/m/n/10.95 !)\OML/cmm/m/it/10.95 thatminimizethesumofsquarederrors:Theprocesstypicallyinvolvessolvingasystemoflinearequationsderivedfromsettingthederivativeequaltozero:[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 551--553
+
+ []
+
+
+! LaTeX Error: Can be used only in preamble.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.566 \begin{document}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+[74]
+Underfull \hbox (badness 10000) in paragraph at lines 584--585
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 618--619
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 620--621
+
+ []
+
+[75]
+Underfull \hbox (badness 10000) in paragraph at lines 628--629
+
+ []
+
+) (./week_9_linear_algebra_ii.tex [76]
+Chapter 9.
+
+Underfull \hbox (badness 10000) in paragraph at lines 22--23
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 24--25
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 26--27
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 28--29
+
+ []
+
+[77
+
+]
+! Missing $ inserted.
+<inserted text> 
+                $
+l.48         \begin{bmatrix}
+                            
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.51         \end{bmatrix}
+                          
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.53         \begin{bmatrix}
+                            
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.56         \end{bmatrix}
+                          
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+! LaTeX Error: There's no line here to end.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.62 T
+      he set $\left\{\begin{bmatrix}2 \\ 3\end{bmatrix}, \begin{bmatrix}4 \\...
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 62--63
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 64--65
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 66--67
+
+ []
+
+[78] [79] [80]
+
+! LaTeX Error: \mathbf allowed only in math mode.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.175 \mathbf
+             {v}_1 = \begin{bmatrix} 0 \\ 3 \end{bmatrix}, \quad
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.175 \mathbf{v}_
+                 1 = \begin{bmatrix} 0 \\ 3 \end{bmatrix}, \quad
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.178 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 179--180
+
+ []
+
+[81]
+Underfull \hbox (badness 10000) in paragraph at lines 242--247
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 242--247
+
+ []
+
+[82]
+Underfull \hbox (badness 10000) in paragraph at lines 286--287
+
+ []
+
+
+Overfull \hbox (84.88416pt too wide) in paragraph at lines 288--289
+[]\T1/cmr/m/n/10.95 go through https://www.khanacademy.org/math/linear-algebra/vectors-and-spaces/linear-independence/v/linear-
+ []
+
+[83]
+Underfull \hbox (badness 10000) in paragraph at lines 340--342
+
+ []
+
+[84]
+Underfull \hbox (badness 10000) in paragraph at lines 367--368
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 390--391
+
+ []
+
+[85]
+Underfull \hbox (badness 10000) in paragraph at lines 409--411
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 414--415
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 425--427
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 435--437
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 452--453
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 454--455
+
+ []
+
+[86]
+Underfull \hbox (badness 10000) in paragraph at lines 461--463
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 491--492
+
+ []
+
+[87]
+Underfull \hbox (badness 10000) in paragraph at lines 541--543
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 544--545
+
+ []
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.557 Eigenvalues are the values of \lambda
+                                            that satisfy the equation. \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.558 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 555--558
+
+ []
+
+[88]
+Underfull \hbox (badness 10000) in paragraph at lines 574--575
+
+ []
+
+[89]
+Underfull \hbox (badness 10000) in paragraph at lines 594--596
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 597--598
+
+ []
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.602     \item For each eigenvalue \lambda
+                                            you have found, substitute it ba...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+! LaTeX Error: Bad math environment delimiter.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.602 ...e it back into the eigenvalue equation \[
+                                                  (A --- \lambda I)v = 0\]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+! Missing \endgroup inserted.
+<inserted text> 
+                \endgroup 
+l.602 ...value equation \[(A --- \lambda I)v = 0\]
+                                                  
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+! LaTeX Error: \begin{itemize} on input line 601 ended by \end{equation*}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.602 ...value equation \[(A --- \lambda I)v = 0\]
+                                                  
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.602 ...value equation \[(A --- \lambda I)v = 0\]
+                                                  
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+! LaTeX Error: Lonely \item--perhaps a missing list environment.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.603     \item w
+                 here $A$ is the original matrix.
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Underfull \hbox (badness 10000) detected at line 603
+[][]
+ []
+
+
+! LaTeX Error: Lonely \item--perhaps a missing list environment.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.604     \item $
+                 v$ is the associated eigenvector we are trying to solve for.
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Underfull \hbox (badness 10000) detected at line 604
+[][]
+ []
+
+
+! LaTeX Error: Lonely \item--perhaps a missing list environment.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.605     \item S
+                 olve the linear system of equations for $v$
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Underfull \hbox (badness 10000) detected at line 605
+[][]
+ []
+
+
+! LaTeX Error: \begin{tcb@savebox} on input line 600 ended by \end{itemize}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.606 \end{itemize}
+                   
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.607 \end{tcolorbox}
+                     
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Extra }, or forgotten \endgroup.
+\endtcb@savebox ...efalse \color@endgroup \egroup 
+                                                  \expandafter \@iiiparbox \...
+l.607 \end{tcolorbox}
+                     
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Undefined control sequence.
+\endtcb@savebox ...pandafter \@iiiparbox \@mpargs 
+                                                  {\unvbox \@tempboxa }
+l.607 \end{tcolorbox}
+                     
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Missing number, treated as zero.
+<to be read again> 
+                   \protect 
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   \protect 
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, nd, nc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+! Missing endcsname inserted.
+<to be read again> 
+                   scan_stop: 
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+The control sequence marked <to be read again> should
+not appear between \csname and \endcsname.
+
+! Use of ??? doesn't match its definition.
+<argument> ???  
+                ! LaTeX Error: scan_stop: invalid in file name. Lost: mode_i...
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+If you say, e.g., `\def\a1{...}', then you must always
+put `1' after `\a', since control sequence names are
+made up of letters only. The macro here has not been
+followed by the required stuff, so I'm ignoring it.
+
+! Missing endcsname inserted.
+<to be read again> 
+                   scan_stop: 
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+The control sequence marked <to be read again> should
+not appear between \csname and \endcsname.
+
+! Use of ??? doesn't match its definition.
+<argument> ???  
+                ! LaTeX Error: scan_stop: invalid in file name. Lost: mode_i...
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+If you say, e.g., `\def\a1{...}', then you must always
+put `1' after `\a', since control sequence names are
+made up of letters only. The macro here has not been
+followed by the required stuff, so I'm ignoring it.
+
+! Missing endcsname inserted.
+<to be read again> 
+                   scan_stop: 
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+The control sequence marked <to be read again> should
+not appear between \csname and \endcsname.
+
+! Use of ??? doesn't match its definition.
+<argument> ???  
+                ! LaTeX Error: scan_stop: invalid in file name. Lost: mode_i...
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+If you say, e.g., `\def\a1{...}', then you must always
+put `1' after `\a', since control sequence names are
+made up of letters only. The macro here has not been
+followed by the required stuff, so I'm ignoring it.
+
+
+! LaTeX Error: File `\@@par ' not found.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+I could not locate the file with any of these extensions:
+.pdf,.png,.jpg,.mps,.jpeg,.jbig2,.jb2,.PDF,.PNG,.JPG,.JPEG,.JBIG2,.JB2,.eps
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+Runaway argument?
+{\@checkend {tcb@savebox}\endgroup \UseHook {env/tcb@savebox/after}\if@ignore \ETC.
+! Paragraph ended before \setlength was complete.
+<to be read again> 
+                   \par 
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+! LaTeX Error: There's no line here to end.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 914--914
+
+ []
+
+[90] [91]
+Underfull \hbox (badness 10000) in paragraph at lines 914--914
+
+ []
+
+[92] [93]
+
+! LaTeX Error: Something's wrong--perhaps a missing \item.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+! LaTeX Error: There's no line here to end.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.914         \includegraphics
+                              [width=1\linewidth]{images/week_9/Screenshot 2...
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+[94]
+
+LaTeX Warning: Unexpected alignment H on input line 914.
+
+! Missing number, treated as zero.
+<to be read again> 
+                   ]
+l.914         \includegraphics[width=1\linewidth]
+                                                 {images/week_9/Screenshot 2...
+A number should have been here; I inserted `0'.
+(If you can't figure out why I needed to see a number,
+look up `weird error' in the index to The TeXbook.)
+
+! Illegal unit of measure (pt inserted).
+<to be read again> 
+                   ]
+l.914         \includegraphics[width=1\linewidth]
+                                                 {images/week_9/Screenshot 2...
+Dimensions can be in units of em, ex, in, pt, pc,
+cm, mm, dd, cc, nd, nc, bp, or sp; but yours is a new one!
+I'll assume that you meant to say pt, for printer's points.
+To recover gracefully from this error, it's best to
+delete the erroneous units; e.g., type `2' to delete
+two letters. (See Chapter 27 of The TeXbook.)
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.914 ...egraphics[width=1\linewidth]{images/week_
+                                                  9/Screenshot 2024-01-26 18...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Extra }, or forgotten $.
+l.914 .../week_9/Screenshot 2024-01-26 181222.png}
+                                                  
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.915         \caption{Enter Caption}
+                                     
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.917     \end{figure}
+                      
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Extra }, or forgotten \endgroup.
+\color@endbox ->\color@endgroup \egroup 
+                                        
+l.917     \end{figure}
+                      
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+
+! LaTeX Error: \begin{tcolorbox} on input line 599 ended by \end{figure}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.917     \end{figure}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+[95]
+<images/week_9/image1.png, id=1744, 978.65625pt x 543.53062pt>
+File: images/week_9/image1.png Graphic file (type png)
+<use images/week_9/image1.png>
+Package pdftex.def Info: images/week_9/image1.png  used on input line 965.
+(pdftex.def)             Requested size: 341.43307pt x 189.62483pt.
+ [96 <./images/week_9/image1.png>]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 991.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 991.
+
+[97]
+<images/week_9/Screenshot 2024-01-26 181250.png, id=1756, 638.88687pt x 420.57124pt>
+File: images/week_9/Screenshot 2024-01-26 181250.png Graphic file (type png)
+<use images/week_9/Screenshot 2024-01-26 181250.png>
+Package pdftex.def Info: images/week_9/Screenshot 2024-01-26 181250.png  used on input line 1013.
+(pdftex.def)             Requested size: 455.24411pt x 299.68579pt.
+<images/week_9/Screenshot 2024-01-26 184636.png, id=1757, 798.48312pt x 259.46938pt>
+File: images/week_9/Screenshot 2024-01-26 184636.png Graphic file (type png)
+<use images/week_9/Screenshot 2024-01-26 184636.png>
+Package pdftex.def Info: images/week_9/Screenshot 2024-01-26 184636.png  used on input line 1020.
+(pdftex.def)             Requested size: 455.24411pt x 147.93471pt.
+<images/week_9/image.png, id=1758, 658.46pt x 113.42375pt>
+File: images/week_9/image.png Graphic file (type png)
+<use images/week_9/image.png>
+Package pdftex.def Info: images/week_9/image.png  used on input line 1027.
+(pdftex.def)             Requested size: 455.24411pt x 78.41995pt.
+ [98 <./images/week_9/Screenshot 2024-01-26 181250.png> <./images/week_9/Screenshot 2024-01-26 184636.png>]
+<images/week_9/Screenshot 2024-01-26 182019.png, id=1767, 525.965pt x 415.5525pt>
+File: images/week_9/Screenshot 2024-01-26 182019.png Graphic file (type png)
+<use images/week_9/Screenshot 2024-01-26 182019.png>
+Package pdftex.def Info: images/week_9/Screenshot 2024-01-26 182019.png  used on input line 1061.
+(pdftex.def)             Requested size: 455.24411pt x 359.69525pt.
+ [99 <./images/week_9/image.png>]
+<images/week_9/Screenshot 2024-01-26 182601.png, id=1774, 349.80687pt x 340.77313pt>
+File: images/week_9/Screenshot 2024-01-26 182601.png Graphic file (type png)
+<use images/week_9/Screenshot 2024-01-26 182601.png>
+Package pdftex.def Info: images/week_9/Screenshot 2024-01-26 182601.png  used on input line 1074.
+(pdftex.def)             Requested size: 455.24411pt x 443.51459pt.
+ [100 <./images/week_9/Screenshot 2024-01-26 182019.png>] [101 <./images/week_9/Screenshot 2024-01-26 182601.png>]
+<images/week_9/image2.png, id=1787, 735.49782pt x 467.49657pt>
+File: images/week_9/image2.png Graphic file (type png)
+<use images/week_9/image2.png>
+Package pdftex.def Info: images/week_9/image2.png  used on input line 1099.
+(pdftex.def)             Requested size: 341.43307pt x 217.02698pt.
+ [102 <./images/week_9/image2.png>]
+<images/week_9/reconstitute1.png, id=1796, 700.86844pt x 464.4853pt>
+File: images/week_9/reconstitute1.png Graphic file (type png)
+<use images/week_9/reconstitute1.png>
+Package pdftex.def Info: images/week_9/reconstitute1.png  used on input line 1146.
+(pdftex.def)             Requested size: 455.24411pt x 301.70633pt.
+<images/week_9/reconstitute2.png, id=1797, 735.49782pt x 450.18187pt>
+File: images/week_9/reconstitute2.png Graphic file (type png)
+<use images/week_9/reconstitute2.png>
+Package pdftex.def Info: images/week_9/reconstitute2.png  used on input line 1153.
+(pdftex.def)             Requested size: 455.24411pt x 278.64963pt.
+ [103 <./images/week_9/reconstitute1.png>]
+<images/week_9/reconstitute3.png, id=1805, 711.4078pt x 450.18187pt>
+File: images/week_9/reconstitute3.png Graphic file (type png)
+<use images/week_9/reconstitute3.png>
+Package pdftex.def Info: images/week_9/reconstitute3.png  used on input line 1160.
+(pdftex.def)             Requested size: 455.24411pt x 288.08794pt.
+) [104 <./images/week_9/reconstitute2.png> <./images/week_9/reconstitute3.png>] [105
+
+] (./week_10_optimisation.tex
+Chapter 10.
+[106
+
+]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 108.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 108.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 108.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `superscript' on input line 108.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\rightarrow' on input line 108.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 108.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\in' on input line 108.
+
+[107]
+
+! LaTeX Error: \begin{tcolorbox} on input line 599 ended by \end{equation*}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.129 ...(\mathbf{z}) = \mathbf{z}^T \mathbf{z} \]
+                                                   for some \( m \)-length v...
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.129 ...(\mathbf{z}) = \mathbf{z}^T \mathbf{z} \]
+                                                   for some \( m \)-length v...
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 134.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 134.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `superscript' on input line 134.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\times' on input line 134.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 134.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 134.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\rightarrow' on input line 134.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 134.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 134.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\in' on input line 134.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 134.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 147--150
+
+ []
+
+
+! LaTeX Error: Unicode character ^^^ (U+001E)
+               not set up for use with LaTeX.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.151 ^^^
+          this generic formula is just saying that the gradient of a matrix ...
+You may provide a definition with
+\DeclareUnicodeCharacter 
+
+[108]
+Underfull \hbox (badness 10000) in paragraph at lines 179--180
+
+ []
+
+<images/week_10/lec11_1.png, id=1832, 1403.99532pt x 490.83376pt>
+File: images/week_10/lec11_1.png Graphic file (type png)
+<use images/week_10/lec11_1.png>
+Package pdftex.def Info: images/week_10/lec11_1.png  used on input line 188.
+(pdftex.def)             Requested size: 341.43307pt x 119.36032pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 199--200
+
+ []
+
+[109 <./images/week_10/lec11_1.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 210--211
+
+ []
+
+[110]
+! Undefined control sequence.
+l.269 \subsubsubsection
+                       {Objective Function}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.276 \subsubsubsection
+                       {Constraint}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+! Undefined control sequence.
+l.282 \subsubsubsection
+                       {Lagrangian Formulation}
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+Runaway argument?
+ Var(w_A r_A + w_B, r_B) &= Var(w_A, r_A) + Var (w_B, r_B) + 2\cdot C\ETC.
+! Paragraph ended before \align* was complete.
+<to be read again> 
+                   \par 
+l.309 
+      
+I suspect you've forgotten a `}', causing me to apply this
+control sequence to too much text. How can we recover?
+My plan is to forget the whole thing and hope for the best.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.309 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing \endgroup inserted.
+<inserted text> 
+                \endgroup 
+l.309 
+      
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Display math should end with $$.
+<to be read again> 
+                   \tex_par:D 
+l.309 
+      
+The `$' that I just saw supposedly matches a previous `$$'.
+So I shall assume that you typed `$$' both times.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.310 \text{Using fact that} Var(cX) = c^
+                                         2 Var(X): \\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.311 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 310--311
+
+ []
+
+[111]
+! Misplaced alignment tab character &.
+l.312 &
+       = w_A^2 Var(r_A) = w_B^2 Var(r_B) + 2(w_A w_B Cov(r_A, r_B)\\
+I can't figure out why you would want to use a tab mark
+here. If you just want an ampersand, the remedy is
+simple: Just type `I\&' now. But if some right brace
+up above has ended a previous alignment prematurely,
+you're probably due for more error messages, and you
+might try typing `S' now just to see what is salvageable.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.312 &= w_
+           A^2 Var(r_A) = w_B^2 Var(r_B) + 2(w_A w_B Cov(r_A, r_B)\\
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.313 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 312--313
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 314--315
+
+ []
+
+
+! LaTeX Error: \mathcal allowed only in math mode.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.316 \mathcal
+              {L}(w_A, w_B, \lambda) &= w_A r_A + w_B r_B --- \gamma [w_A^2 ...
+You're in trouble here.  Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.316 \mathcal{L}(w_
+                    A, w_B, \lambda) &= w_A r_A + w_B r_B --- \gamma [w_A^2 ...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Misplaced alignment tab character &.
+l.316 \mathcal{L}(w_A, w_B, \lambda) &
+                                      = w_A r_A + w_B r_B --- \gamma [w_A^2 ...
+I can't figure out why you would want to use a tab mark
+here. If you just want an ampersand, the remedy is
+simple: Just type `I\&' now. But if some right brace
+up above has ended a previous alignment prematurely,
+you're probably due for more error messages, and you
+might try typing `S' now just to see what is salvageable.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.317 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 316--317
+
+ []
+
+! Misplaced alignment tab character &.
+l.318 &
+       = w_A r_A + w_B r_B --- \gamma [w_A^2 + 2w_B^2 + w_A w_B] + \lambda(w...
+I can't figure out why you would want to use a tab mark
+here. If you just want an ampersand, the remedy is
+simple: Just type `I\&' now. But if some right brace
+up above has ended a previous alignment prematurely,
+you're probably due for more error messages, and you
+might try typing `S' now just to see what is salvageable.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.318 &= w_
+           A r_A + w_B r_B --- \gamma [w_A^2 + 2w_B^2 + w_A w_B] + \lambda(w...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Misplaced \cr.
+\math@cr@@@ ->\cr 
+                  
+l.319 \end{align*}
+                  
+I can't figure out why you would want to use a tab mark
+or \cr or \span just now. If something like a right brace
+up above has ended a previous alignment prematurely,
+you're probably due for more error messages, and you
+might try typing `S' now just to see what is salvageable.
+
+! Misplaced \noalign.
+\math@cr@@ ... \iffalse }\fi \math@cr@@@ \noalign 
+                                                  {\vskip #1\relax }
+l.319 \end{align*}
+                  
+I expect to see \noalign only after the \cr of
+an alignment. Proceed, and I'll ignore this case.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.319 \end{align*}
+                  
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.319 \end{align*}
+                  
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Extra }, or forgotten \endgroup.
+\math@cr@@ ...th@cr@@@ \noalign {\vskip #1\relax }
+                                                  
+l.319 \end{align*}
+                  
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Misplaced \noalign.
+\black@ #1->\noalign 
+                     {\ifdim #1>\displaywidth \dimen@ \prevdepth \nointerlin...
+l.319 \end{align*}
+                  
+I expect to see \noalign only after the \cr of
+an alignment. Proceed, and I'll ignore this case.
+
+
+Overfull \hbox (193.66693pt too wide) detected at line 319
+[]
+ []
+
+! Extra }, or forgotten \endgroup.
+\endalign ->\math@cr \black@ \totwidth@ \egroup 
+                                                \ifingather@ \restorealignst...
+l.319 \end{align*}
+                  
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.319 \end{align*}
+                  
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Display math should end with $$.
+<to be read again> 
+                   \endgroup 
+l.319 \end{align*}
+                  
+The `$' that I just saw supposedly matches a previous `$$'.
+So I shall assume that you typed `$$' both times.
+
+! Undefined control sequence.
+l.321 \subsubsubsection
+                       {Compute the gradient of L, just maximise with respec...
+The control sequence at the end of the top line
+of your error message was never \def'ed. If you have
+misspelled it (e.g., `\hobx'), type `I' and the correct
+spelling (e.g., `I\hbox'). Otherwise just continue,
+and I'll forget about whatever was undefined.
+
+[112]
+Overfull \hbox (21.77666pt too wide) detected at line 411
+[]
+ []
+
+[113]) [114] [115
+
+] (./appendix_distributions.tex
+Appendix A.
+[116
+
+] [117] [118]
+Overfull \hbox (4.36644pt too wide) in paragraph at lines 240--241
+[]\T1/cmr/m/n/10.95 The Ge-o-met-ric dis-tri-bu-tion gives the prob-a-bil-ity dis-tri-bu-tion of the num-ber of Bernoulli
+ []
+
+[119] [120] [121]) (./appendix_cheat_sheet_i.tex [122]
+Appendix B.
+
+Underfull \hbox (badness 10000) in paragraph at lines 30--32
+
+ []
+
+
+Overfull \hbox (352.13304pt too wide) in paragraph at lines 34--42
+[]$[]$
+ []
+
+[123
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 67--69
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 82--83
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 83--84
+
+ []
+
+! Misplaced \noalign.
+\hline ->\noalign 
+                  {\ifnum 0=`}\fi \hrule \@height \arrayrulewidth \futurelet...
+l.87 $\hline
+            $
+I expect to see \noalign only after the \cr of
+an alignment. Proceed, and I'll ignore this case.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.87 $\hline
+            $
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.87 $\hline
+            $
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Extra }, or forgotten \endgroup.
+\@xhline ... -\arrayrulewidth \fi \ifnum 0=`{\fi }
+                                                  
+l.87 $\hline$
+             
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.88 
+     
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 96--97
+
+ []
+
+[124]
+Underfull \hbox (badness 10000) in paragraph at lines 102--106
+
+ []
+
+[125]
+Underfull \hbox (badness 10000) in paragraph at lines 179--180
+
+ []
+
+<images/cheat_sheets/Screenshot 2023-10-21 130325.png, id=1935, 1057.45062pt x 556.0775pt>
+File: images/cheat_sheets/Screenshot 2023-10-21 130325.png Graphic file (type png)
+<use images/cheat_sheets/Screenshot 2023-10-21 130325.png>
+Package pdftex.def Info: images/cheat_sheets/Screenshot 2023-10-21 130325.png  used on input line 196.
+(pdftex.def)             Requested size: 341.43307pt x 179.54362pt.
+[126]
+<images/cheat_sheets/Screenshot 2023-10-21 130639.png, id=1944, 1040.88875pt x 503.38063pt>
+File: images/cheat_sheets/Screenshot 2023-10-21 130639.png Graphic file (type png)
+<use images/cheat_sheets/Screenshot 2023-10-21 130639.png>
+Package pdftex.def Info: images/cheat_sheets/Screenshot 2023-10-21 130639.png  used on input line 207.
+(pdftex.def)             Requested size: 341.43307pt x 165.11758pt.
+
+
+! LaTeX Error: There's no line here to end.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.227 C
+       ontinuous r.v.s
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+[127 <./images/cheat_sheets/Screenshot 2023-10-21 130325.png> <./images/cheat_sheets/Screenshot 2023-10-21 130639.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 239--240
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 247--248
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 279--280
+
+ []
+
+[128]
+! Missing \endgroup inserted.
+<inserted text> 
+                \endgroup 
+l.306 ...\) and \(Y\) with Marginal Distributions}
+                                                  
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.306 ...\) and \(Y\) with Marginal Distributions}
+                                                  
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.306 ...\) and \(Y\) with Marginal Distributions}
+                                                  
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Missing \cr inserted.
+<inserted text> 
+                \cr 
+l.306 ...\) and \(Y\) with Marginal Distributions}
+                                                  
+I'm guessing that you meant to end an alignment here.
+
+! Missing { inserted.
+<inserted text> 
+                {
+l.306 ...\) and \(Y\) with Marginal Distributions}
+                                                  
+I've put in what seems to be necessary to fix
+the current column of the current alignment.
+Try to go on, since this might almost work.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.306 ...\) and \(Y\) with Marginal Distributions}
+                                                  
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.306 ...\) and \(Y\) with Marginal Distributions}
+                                                  
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+! Missing } inserted.
+<inserted text> 
+                }
+l.306 ...\) and \(Y\) with Marginal Distributions}
+                                                  
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 313--316
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 327--328
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 329--331
+
+ []
+
+[129]
+Underfull \hbox (badness 10000) in paragraph at lines 334--335
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 337--338
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 338--340
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 352--353
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 356--358
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 364--365
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 365--367
+
+ []
+
+[130] [131]) (./appendix_cheat_sheet_ii.tex [132]
+Appendix C.
+
+Underfull \hbox (badness 10000) in paragraph at lines 45--46
+
+ []
+
+[133
+
+] [134]
+Underfull \hbox (badness 10000) in paragraph at lines 124--125
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 132--135
+
+ []
+
+[135]
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 153.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 153.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 153.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 153.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 153.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\mu' on input line 153.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 153.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 163.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 163.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 163.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\rightarrow' on input line 163.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `\infty' on input line 163.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (Unicode):
+(hyperref)                removing `math shift' on input line 163.
+
+! Extra }, or forgotten \endgroup.
+l.163 ...andard Normal as $n \rightarrow \infty$}}
+                                                  
+I've deleted a group-closing symbol because it seems to be
+spurious, as in `$x}$'. But perhaps the } is legitimate and
+you forgot something else, as in `\hbox{$x}'. In such cases
+the way to recover is to insert both the forgotten and the
+deleted material, e.g., by typing `I$}'.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 168--169
+
+ []
+
+[136]
+
+LaTeX Warning: Command \texttimes invalid in math mode on input line 224.
+
+
+LaTeX Warning: Command \texttimes invalid in math mode on input line 224.
+
+Missing character: There is no Ö in font cmr10!
+[137] [138] [139]
+Underfull \hbox (badness 10000) in paragraph at lines 337--338
+
+ []
+
+[140]) [141] (./main.aux)
+ ***********
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+ ***********
+
+
+LaTeX Warning: There were multiply-defined labels.
+
+
+Package rerunfilecheck Warning: File `main.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `main.out':
+(rerunfilecheck)             Before: C073DF89A5A11ED8144B8F79FE13D965;42419
+(rerunfilecheck)             After:  1515D7A878D836DCDEDE4F39710BAAD3;42449.
+ )
+(\end occurred inside a group at level 1)
+
+### semi simple group (level 1) entered at line 566 (\begingroup)
+### bottom level 
+Here is how much of TeX's memory you used:
+ 24784 strings out of 469519
+ 481891 string characters out of 5469078
+ 845248 words of memory out of 5000000
+ 52382 multiletter control sequences out of 15000+600000
+ 654166 words of font info for 103 fonts, out of 8000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 103i,21n,121p,1013b,1037s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx0800.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ectt1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbi1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecti1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm0800.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1440.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx2074.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm0900.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1095.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx1200.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1200.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecrm1440.600pk> </Users/henrybaker/Library/TinyTeX/texmf-var/fonts/pk/ljfour/jknappen/ec/ecbx2488.600pk></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></Users/henrybaker/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on main.pdf (142 pages, 4977770 bytes).
+PDF statistics:
+ 2902 PDF objects out of 2984 (max. 8388607)
+ 2032 compressed objects within 21 object streams
+ 615 named destinations out of 1000 (max. 500000)
+ 1905 words of extra memory for PDF output out of 10000 (max. 10000000)
+

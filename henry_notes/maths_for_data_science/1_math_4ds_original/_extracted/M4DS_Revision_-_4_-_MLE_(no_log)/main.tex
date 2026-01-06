@@ -1,0 +1,149 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize M4DS Mid-term revision}
+\rhead{\footnotesize Henry Baker} 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf Mid Terms Fall 2023  \\ Henry Baker}
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: \\ Maximum Likelihood Estimation - NOT LOGGING}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\begin{itemize}
+    \item We have some data.
+    \item We assume the events in the data are i.i.d.
+    \item Following an {insert distribution}, with {insert parameters}, but some unknown sucess probability $p$.
+    \item Aim: find value of $p$ that maximises the probability that this particular dataset is observed.
+    \item We can't observe the true $p$, but every possible value that $p$ could take corresponds to some joint probability of observing the data that we see $\rightarrow$ find value of $p$ that makes data most likely.
+\end{itemize}
+
+\textbf{We will use goalie example:}
+
+\section{Express likelihood function}
+\subsection{Specify the model}
+Let $X_i$ (number of saves in game $i$) be i.i.d., with distribution 
+\[X_i \sim Binomial \binom{5}{\theta}\]
+
+\begin{tcolorbox}[colback=gray!20]
+
+Here $\theta$ represents unknown value of $p$.
+
+Given a statistical model with parameter(s) $\theta$, and some observed data $X$, the likelhood function $L(\theta; X)$ quantifies how likely the observed data is for different values of $\theta$: 
+\[L(\theta; X) = f(X; \theta)\]
+Where $f(X; \theta)$ is the PMF/PDF of the oberved data, given the parameters $\theta$.
+
+\[L(x_1, x_2, \ldots, x_n; \theta) = P(X_1 = x_1, X_2 = x_2, \ldots, X_n = x_n; \theta)\]
+
+\end{tcolorbox}
+
+\subsection{Write the PMF of $X_i$}
+\begin{enumerate}
+    \item Express the \textbf{generic PMF} given the distribution
+    \item Express the \textbf{probabilities for each} $X_i$ 
+    \item Express the \textbf{joint probabilities} of all events $X_i$.
+\end{enumerate}
+\begin{tcolorbox}
+Our dataset:\\
+1st game: 1 save / 2nd game: 3 saves / 3rd game 2: saves / 4th game: 2 saves)
+\end{tcolorbox}
+\subsubsection{Generic PMF}
+Binomial PMF for 5 trials is given by: 
+\[P(X_i = k) = \binom{5}{k} p^k (1 - p)^{5-k}\]
+\subsubsection{Probabilities of each $X_i$}
+
+\begin{align*}
+P(X_1 = 1) &= \binom{5}{1} \theta^1 (1 - \theta)^{5-1}\\
+P(X_2 = 3) &= \binom{5}{3} \theta^3 (1 - \theta)^{5-3}\\
+P(X_3 = 2) = P(X_4 = 2) &= \binom{5}{2} \theta^2 (1 - \theta)^{5-2}
+\end{align*}
+
+\subsubsection{Joint probabilities of all $X_i$}
+Since events are i.i.d, the joint probability of observing them all is the product of individual probabilities.
+\begin{align*}
+    P(X_1 = 1, X_2 = 3, X_3 = 2, X_4 = 2) &= \binom{5}{1} \theta^1 (1 - \theta)^{5-1} \times \binom{5}{3} \theta^3 (1 - \theta)^{5-3} \times \left( \binom{5}{2} \theta^2 (1 - \theta)^{5-2} \right)^2 \\
+    &= \binom{5}{1} \times \binom{5}{3} \times \binom{5}{2} \times \binom{5}{2} \theta^8 (1 - \theta)^{12} \\
+    &= 5000 \theta^8 (1 - \theta)^{12}
+\end{align*}
+
+\section{Maximise $\theta$}
+Maximising $5000\cdot\theta^8(1-\theta)^{12}$ tells us exactly which value of $\theta$ makes the joint probability of observing our data the largest. \\
+\[P(X_1 = 1, X_2 = 3, X_3 = 2, X_4 = 2) = L(1, 3, 2, 2; \theta) = 5000\cdot\theta^8(1-\theta)^{12} \]\\
+
+\begin{tcolorbox}
+    Maximisation: 
+    \begin{enumerate}
+        \item take first derivative with respect to $\theta$, 
+        \item set equal to 0.
+        \item solve for $\theta$
+    \end{enumerate}
+\end{tcolorbox}
+
+\begin{align*}
+\frac{d}{d\theta} L(1, 3, 2, 2; \theta) &= \frac{d}{d\theta}(5000\cdot\theta^8(1-\theta)^{12}) \\
+&= 5000 ((8\theta^7) (1 - \theta)^{12} + (\theta^8) (12(1 - \theta)^{11})(-1)) \\
+&= 5000 ((8\theta^7) (1 - \theta)^{12} - (\theta^8) (12(1 - \theta)^{11}) \\
+\text{Set that equal to 0.} \\
+\text{When we do so, } \theta &\text{ becomes } \hat{\theta}, \text{ the solution to the maximization problem.} \\
+\\
+0 &= 5000 ((8\hat{\theta}^7) (1 - \hat{\theta})^{12} - (\hat{\theta}^8) (12(1 - \hat{\theta})^{11})) \\
+0 &= 8\hat{\theta}^7 (1 - \hat{\theta})^{12} - \hat{\theta}^8 (12(1 - \hat{\theta})^{11}) \\
+\frac{12\hat{\theta}^8}{8\hat{\theta}^7} &= 1 - \hat{\theta} \\
+\frac{12\hat{\theta}}{8} &= 1 - \hat{\theta} \\
+20\hat{\theta} &= 8 \\
+\hat{\theta} &= \frac{8}{20}
+\end{align*}
+
+Maximum Likelihood Estimation (MLE) is a statistical method used for estimating the parameters of a statistical model. It is a fundamental concept in probability theory and statistics, widely used in various fields, including machine learning and optimization. The core idea of MLE is to find the parameter values that maximize the likelihood function, which measures how well the model with those parameters explains the observed data.
+
+Here's a more detailed breakdown of the MLE concept:
+
+Statistical Model: A statistical model is a mathematical representation of a real-world process, described by a set of parameters. For example, in a normal distribution, the mean and variance are its parameters.
+
+Likelihood Function: The likelihood function is a function of the model parameters given the observed data. It represents the probability of observing the given data under different parameter values of the model. The likelihood is different from probability as it treats the observed data as fixed and the parameters as variables.
+
+Maximizing the Likelihood: MLE seeks to find the parameter values that maximize the likelihood function. These values are called the maximum likelihood estimates. The idea is that the best model parameters are those under which the observed data is most probable.
+
+Log-Likelihood: In practice, it's common to work with the logarithm of the likelihood function, known as the log-likelihood. This transformation simplifies the calculations, especially for products, as it turns them into sums. The maximization principle remains the same since logarithm is a monotonic function.
+
+Finding the Maximum: To find the maximum of the likelihood or log-likelihood, we often use calculus, setting the derivative with respect to the parameters to zero and solving for the parameters. In complex models, this process may require numerical methods.
+
+Applications: MLE is used in various contexts like regression analysis, time series analysis, and machine learning models. It provides a way of fitting a model to data and is foundational in the field of inferential statistics.
+
+For example, in the case of a normal distribution, the MLE for the mean and variance can be calculated using the observed data, and these estimates will be the sample mean and sample variance, respectively.
+
+Would you like to see an example of MLE in practice, perhaps through a specific problem or a demonstration in R code?
+
+\end{document}

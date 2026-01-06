@@ -1,0 +1,1006 @@
+% Week 6b: Qualitative Fairness in Machine Learning
+
+\section{Introduction: Why Fairness Matters}
+
+Machine learning systems increasingly make or inform consequential decisions about people's lives: who gets a loan, who gets hired, who receives medical treatment, who gets released on bail. When these systems fail, they can cause serious harm to individuals and communities.
+
+\begin{bluebox}[Section Summary: The Stakes]
+\begin{itemize}
+    \item ML systems make high-stakes decisions in hiring, lending, criminal justice, healthcare
+    \item Training data encodes historical discrimination-models can learn and amplify bias
+    \item Feedback loops cause predictions to become self-fulfilling prophecies
+    \item Scale and automation mean biased systems affect millions of people
+\end{itemize}
+\end{bluebox}
+
+Three features make ML fairness particularly urgent:
+
+\textbf{1. Historical biases are encoded in training data.} If past hiring decisions discriminated against women, a model trained on that data will learn to discriminate against women. The model doesn't know the historical context-it simply learns that being female correlates with not being hired.
+
+\textbf{2. Automation amplifies bias.} A biased human reviewer might affect hundreds of applications. A biased algorithm can affect millions, consistently applying the same discrimination at scale.
+
+\textbf{3. ML systems create feedback loops.} When predictions influence the world, they can generate data that reinforces the original predictions, even if those predictions were initially wrong.
+
+This week introduces the qualitative dimensions of fairness-the conceptual frameworks, types of harm, and sociotechnical considerations that precede any quantitative analysis. Before we can measure fairness (Week 7), we must understand what fairness \textit{means}, what kinds of harm can arise, and why technical solutions alone are insufficient.
+
+\section{Machine Learning in Social Context}
+
+ML models don't exist in isolation. They operate within institutions, policies, and social structures that shape both their inputs and their impacts. Understanding this broader context is essential for reasoning about fairness.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_06_fairness_qual/context.png}
+    \caption{ML systems exist within broader social and institutional contexts.}
+    \label{fig:ml-context}
+\end{figure}
+
+The figure above illustrates a crucial point: an ML model does not operate in isolation. It sits within a broader context of:
+\begin{itemize}
+    \item \textbf{Data generation}: Who collected the data? Under what conditions? What was measured and what was omitted?
+    \item \textbf{Institutional deployment}: How is the model's output used? Who acts on its predictions?
+    \item \textbf{Feedback mechanisms}: How do predictions affect future data collection?
+    \item \textbf{Power dynamics}: Who benefits from automation? Who bears the costs of errors?
+\end{itemize}
+
+Sometimes you might not want to include data you consider biased or that is not relevant to the model's intended purpose. But identifying such data requires careful thought about what patterns we want to replicate and which we want to avoid.
+
+\subsection{Feedback Loops}
+
+\begin{redbox}
+\textbf{Feedback loops}: Predictions can become self-fulfilling prophecies.
+
+\textbf{Example} (Lum \& Isaac 2016): Predictive policing systems trained on arrest data send more police to historically over-policed areas, generating more arrests, which reinforces the model's predictions.
+
+The model learns to predict \textit{where police go}, not \textit{where crime occurs}.
+\end{redbox}
+
+Feedback loops are particularly dangerous because they can appear to validate a biased model. If we predict that neighbourhood A is high-crime and send more police there, we will observe more crime in neighbourhood A, making the prediction seem accurate.
+
+The predictive policing example deserves careful unpacking. Consider the chain of reasoning:
+
+\begin{enumerate}
+    \item Police have historically patrolled certain neighbourhoods more intensively (for various historical, political, and resource-allocation reasons)
+    \item More patrols lead to more observed crime (particularly for offences that require police presence to detect, such as drug possession)
+    \item Arrest data shows higher crime rates in these neighbourhoods
+    \item A model trained on arrest data predicts these neighbourhoods are ``high crime''
+    \item Police resources are allocated to these ``high crime'' areas
+    \item More patrols lead to more arrests, ``confirming'' the model's predictions
+    \item The cycle continues and intensifies
+\end{enumerate}
+
+\textbf{Other examples of feedback loops:}
+\begin{itemize}
+    \item \textbf{Recommendation systems}: Showing users certain content increases engagement with that content, which trains the system to show more of it
+    \item \textbf{Credit scoring}: Denying credit to certain populations means they cannot build credit history, justifying future denials
+    \item \textbf{Hiring}: Rejecting candidates from certain backgrounds means they cannot gain experience, reinforcing perceived lack of qualifications
+\end{itemize}
+
+\subsection{Language Models and Encoded Bias}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_06_fairness_qual/turkish example.png}
+    \caption{Language models encode societal biases-which patterns should we replicate?}
+    \label{fig:bias-example}
+\end{figure}
+
+The Turkish language has no gendered pronouns. When translating ``O bir doktor. O bir hemşire.'' (``They are a doctor. They are a nurse.''), Google Translate produces ``He is a doctor. She is a nurse.''-revealing biases learned from training data.
+
+This example is instructive. Turkish uses a gender-neutral pronoun (``o'') for all third-person references. When translating to English, the model must choose a gendered pronoun. It chooses based on statistical patterns in its training data-patterns that reflect historical occupational gender disparities. The model is not ``wrong'' in a narrow technical sense; it is replicating the patterns it observed.
+
+This raises a fundamental question: \textit{should} ML systems replicate patterns in their training data? The data reflects the world as it is, not necessarily as it should be.
+
+\begin{greybox}[The Reference Distribution Problem]
+What is the appropriate reference distribution? Should the model:
+\begin{itemize}
+    \item \textbf{Reflect the world as it currently is} (perpetuating existing disparities)?
+    \item \textbf{Reflect the world as it ``should'' be} (imposing value judgements)?
+    \item \textbf{Refuse to make such predictions} (limiting utility)?
+\end{itemize}
+
+There is no technical answer to this question-it requires normative choices about what outcomes we value.
+\end{greybox}
+
+\section{Sources of Bias}
+
+Bias can enter ML systems at every stage of the pipeline. Understanding where bias originates is essential for addressing it.
+
+\begin{bluebox}[Section Summary: Seven Sources of Bias]
+\begin{enumerate}
+    \item \textbf{Historical bias}: Past discrimination encoded in ground truth labels
+    \item \textbf{Representation bias}: Training data doesn't reflect deployment population
+    \item \textbf{Measurement bias}: Features or labels are poor proxies for true quantities
+    \item \textbf{Aggregation bias}: One model for heterogeneous subpopulations
+    \item \textbf{Evaluation bias}: Test data doesn't reflect deployment conditions
+    \item \textbf{Deployment bias}: System used differently than intended
+    \item \textbf{Distribution shift}: Training and deployment populations differ systematically
+\end{enumerate}
+\end{bluebox}
+
+\begin{greybox}[Comprehensive Bias Taxonomy]
+\textbf{1. Historical Bias}
+
+Bias arising from the state of the world, even with perfect sampling and measurement.
+
+\begin{itemize}
+    \item Past hiring decisions that discriminated against women
+    \item Criminal justice data reflecting discriminatory policing
+    \item Credit data reflecting historical redlining
+\end{itemize}
+
+This is perhaps the most pernicious form of bias because \textit{no amount of better data collection can eliminate it}. The bias is in the ground truth itself.
+
+\textit{What this means}: Even if we could perfectly observe and record every historical hiring decision with complete accuracy, the resulting dataset would still be biased because the decisions themselves were discriminatory. The model learns ``women don't get hired'' not because the data is flawed, but because that is what actually happened.
+
+\vspace{1em}
+\textbf{2. Representation Bias}
+
+Training data fails to represent the population where the model will be deployed.
+
+\begin{itemize}
+    \item Medical trials with predominantly white, male, educated participants
+    \item ImageNet trained mostly on images from Western countries
+    \item Voice recognition trained primarily on American English speakers
+\end{itemize}
+
+Even if the training data is unbiased \textit{for the population it represents}, the model may perform poorly on underrepresented groups.
+
+\textit{What this means}: A model can be ``fair'' on its training distribution while being systematically unfair in deployment. If medical AI is trained on data from affluent hospitals, it may fail on patients from under-resourced settings-not because the training data was wrong, but because it was unrepresentative.
+
+\vspace{1em}
+\textbf{3. Measurement Bias}
+
+Features or labels don't accurately capture the underlying construct of interest.
+
+\begin{itemize}
+    \item Using arrest records as a proxy for criminal behaviour (captures policing patterns)
+    \item Using healthcare costs as a proxy for healthcare needs (captures ability to pay)
+    \item Using standardised test scores as a proxy for intelligence (captures test-taking skills and cultural familiarity)
+\end{itemize}
+
+This is a \textit{construct validity} problem: we measure what's easy to measure, not what we actually care about.
+
+\textit{What this means}: The gap between what we measure and what we care about is where unfairness enters. From a social science perspective:
+\[
+\text{Arrests} \neq \text{Crimes committed}
+\]
+\[
+\text{Arrests} = f(\text{Crimes committed}, \text{Police presence}, \text{Prosecution decisions}, \ldots)
+\]
+The proxy (arrests) conflates the underlying construct (crime) with the measurement process (policing). When we optimise for the proxy, we may be optimising for something quite different from what we intended.
+
+\vspace{1em}
+\textbf{4. Aggregation Bias}
+
+A single model applied to groups with different underlying relationships.
+
+\begin{itemize}
+    \item Diabetes risk factors differ between ethnic groups
+    \item Credit behaviour patterns differ between age cohorts
+    \item Disease symptoms present differently across sexes
+\end{itemize}
+
+A model that performs well on average may perform poorly for specific subgroups if the relationship between features and outcomes differs across groups.
+
+\textit{What this means}: Imagine predicting diabetes risk. If the relationship between BMI and diabetes risk differs between populations (which it does), a single model averaging across groups may underestimate risk for some and overestimate for others-even if it has good ``average'' performance.
+
+\vspace{1em}
+\textbf{5. Evaluation Bias}
+
+Benchmark datasets don't represent the deployment context.
+
+\begin{itemize}
+    \item Facial recognition benchmarks overrepresent certain demographics
+    \item NLP benchmarks drawn from formal written text, not conversational speech
+    \item Test sets that don't include edge cases common in deployment
+\end{itemize}
+
+A model may achieve high benchmark performance while failing catastrophically on underrepresented cases in deployment.
+
+\textit{What this means}: We might declare a model ``accurate'' based on benchmarks that share the same biases as the training data. The benchmark validates our model precisely because it fails to test the cases where the model fails.
+
+\vspace{1em}
+\textbf{6. Deployment Bias}
+
+System is used in ways different from its intended purpose.
+
+\begin{itemize}
+    \item Risk assessment tool designed to inform (not replace) human judgment used as sole decision-maker
+    \item Diagnostic aid used without access to full patient context
+    \item Recommendation system designed for one population applied to another
+\end{itemize}
+
+Even a well-designed, well-evaluated system can cause harm when deployed inappropriately.
+
+\textit{What this means}: A model's ``fairness'' depends not just on its technical properties but on how it is used. A recidivism prediction tool designed to supplement human judgement may be fair in that context but unfair when used as an automatic decision-maker.
+
+\vspace{1em}
+\textbf{7. Distribution Shift}
+
+Training data differs systematically from deployment population.
+
+\begin{itemize}
+    \item Medical models trained on data from wealthy institutions, deployed in resource-poor settings
+    \item Temporal shift: models trained on historical data, deployed in changed circumstances
+    \item Geographic shift: models trained in one region, deployed in another
+\end{itemize}
+
+Even a model that is ``fair'' on training data may be unfair in deployment if the populations differ.
+
+\textit{What this means}: This is related to representation bias but occurs over time or across contexts. A model trained during economic stability may behave differently (and unfairly) during a recession. The world changes, but the model's assumptions may not.
+\end{greybox}
+
+\subsection{Feature Omission as a Source of Bias}
+
+A distinct but related problem is \textbf{feature omission}: failing to measure relevant differences between individuals.
+
+\begin{itemize}
+    \item The model treats different people as identical because distinguishing features weren't collected
+    \item Human decision-makers may capture information not present in the data (context, extenuating circumstances)
+    \item Standardised data collection may systematically miss factors relevant to some groups
+\end{itemize}
+
+\textit{Key insight}: Human discretion can capture information not in the input form-a human reviewer can have a conversation, observe demeanour, or consider context that was never formalised. Automation loses this ability to incorporate unmeasured information.
+
+\begin{redbox}
+\textbf{The paradox of protected attributes}: Including protected attributes (race, gender) in models is often legally prohibited to prevent discrimination. But \textit{excluding} them can also cause harm:
+\begin{itemize}
+    \item Models may use proxy variables that correlate with protected attributes
+    \item Without the attribute, we cannot measure or correct for disparate impact
+    \item Some applications (medical diagnosis) may need protected attributes for accuracy
+\end{itemize}
+
+This creates a genuine dilemma: inclusion risks explicit discrimination, exclusion risks discrimination through proxies while also preventing detection and correction.
+\end{redbox}
+
+\section{Types of Harm}
+
+ML systems can cause different types of harm, requiring different responses. A foundational taxonomy distinguishes three categories.
+
+\begin{bluebox}[Section Summary: Three Types of Harm]
+\begin{itemize}
+    \item \textbf{Allocative harm}: Denies resources or opportunities to individuals
+    \item \textbf{Representational harm}: Reinforces stereotypes or subordination
+    \item \textbf{Quality-of-service harm}: Worse performance for certain groups
+\end{itemize}
+\end{bluebox}
+
+\begin{greybox}[Allocative vs Representational vs Quality-of-Service Harm]
+\textbf{Allocative Harm}
+
+A system withholds resources, opportunities, or information based on group membership.
+
+\textit{Examples:}
+\begin{itemize}
+    \item Loan denials, hiring decisions, benefit eligibility determinations
+    \item Bail and sentencing recommendations in criminal justice
+    \item Medical resource allocation, insurance pricing
+\end{itemize}
+
+\textit{Characteristics:}
+\begin{itemize}
+    \item Direct, measurable impact on individuals
+    \item Often occurs in high-stakes decisions
+    \item May be legally actionable (disparate impact)
+\end{itemize}
+
+\textit{Why it matters}: Allocative harm directly affects people's life outcomes-whether they can buy a home, get a job, or receive medical care. These harms are often the focus of anti-discrimination law and are amenable to the quantitative fairness metrics we will develop in Week 7.
+
+\vspace{1em}
+\textbf{Representational Harm}
+
+A system reinforces stereotypes, renders groups invisible, or perpetuates subordination.
+
+\textit{Examples:}
+\begin{itemize}
+    \item Image search for ``CEO'' returning predominantly white male faces
+    \item Language models associating certain professions with genders
+    \item Auto-complete suggesting offensive completions for certain names
+\end{itemize}
+
+\textit{Characteristics:}
+\begin{itemize}
+    \item Shapes perceptions and cultural narratives
+    \item Harder to quantify and measure
+    \item Cumulative effects over time
+\end{itemize}
+
+\textit{Why it matters}: Representational harm is more subtle but can be equally damaging. It shapes how people think about groups, reinforces social hierarchies, and creates the conditions for allocative harm. A child who sees only white male faces when searching for ``scientist'' receives a message about who can be a scientist.
+
+\vspace{1em}
+\textbf{Quality-of-Service Harm}
+
+A system works less well for certain groups than others.
+
+\textit{Examples:}
+\begin{itemize}
+    \item Voice recognition with higher error rates for certain accents
+    \item Facial recognition with lower accuracy for darker skin tones
+    \item Medical diagnostic tools less accurate for underrepresented populations
+\end{itemize}
+
+\textit{Characteristics:}
+\begin{itemize}
+    \item Often stems from representation bias in training data
+    \item May not be intentional or even visible without disaggregated evaluation
+    \item Can have serious consequences when deployed in critical applications
+\end{itemize}
+
+\textit{Why it matters}: Quality-of-service disparities mean that technology literally works worse for some people. When voice assistants don't understand certain accents, or medical AI misdiagnoses certain populations, these groups are excluded from technological benefits that others enjoy.
+\end{greybox}
+
+\begin{bluebox}[Cascading Effects Between Harm Types]
+These three types of harm interact and reinforce each other:
+\begin{itemize}
+    \item Stereotypical image search results shape employer perceptions (representational $\to$ allocative)
+    \item Biased language models influence hiring algorithms (representational $\to$ allocative)
+    \item Underrepresentation in training data leads to worse performance for minority groups (allocative $\to$ quality-of-service)
+    \item Quality-of-service disparities create the conditions for allocative harm (lower accuracy $\to$ worse decisions)
+\end{itemize}
+
+Representational harm creates the conditions for allocative harm, while allocative harm generates the disparate outcomes that become training data for future representational harm.
+\end{bluebox}
+
+\section{What is Fairness?}
+
+Fairness is not a single concept but a family of related ideas that can conflict with each other. Before measuring fairness quantitatively (Week 7), we must understand its qualitative dimensions.
+
+\begin{bluebox}[Three Dimensions of Fairness]
+\textbf{1. Legitimacy}: Should this system exist at all?
+\begin{itemize}
+    \item Precedes discussion of specific harms
+    \item E.g., predicting criminality from faces-is there any legitimate use case?
+\end{itemize}
+
+\textbf{2. Relative treatment}: How does the system allocate resources across groups?
+\begin{itemize}
+    \item Can be measured quantitatively (Week 7)
+    \item Demographic parity, equalised odds, calibration
+\end{itemize}
+
+\textbf{3. Procedural fairness}: Is the decision-making process transparent and rational?
+\begin{itemize}
+    \item Especially important for complex models
+    \item Explainability, right to reasons
+\end{itemize}
+\end{bluebox}
+
+\subsection{Legitimacy: The Prior Question}
+
+Legitimacy is the foundational question that must be answered before any technical analysis. Some systems should not exist at all, regardless of how carefully they are designed.
+
+\begin{redbox}
+\textbf{Questions to ask about legitimacy}:
+\begin{itemize}
+    \item Is the underlying prediction task scientifically valid? (E.g., predicting ``criminality'' from faces assumes a relationship that may not exist.)
+    \item Does the system respect human dignity? (E.g., automated emotion detection in job interviews.)
+    \item What are the power dynamics? Who benefits and who is harmed?
+    \item Is automation appropriate for this decision? Some decisions may warrant human judgement regardless of efficiency gains.
+    \item What is the opportunity cost of not building this system? (Sometimes ``do nothing'' is not a neutral option.)
+\end{itemize}
+
+Legitimacy questions cannot be resolved by technical means. They require ethical reasoning, stakeholder engagement, and democratic deliberation.
+\end{redbox}
+
+\subsection{Relative Treatment: Fairness Metrics}
+
+Once we have established that a system is legitimate, we can ask how it treats different groups. This is the domain of quantitative fairness (Week 7), where we will see that:
+\begin{itemize}
+    \item Multiple reasonable fairness metrics exist
+    \item These metrics generally conflict-you cannot satisfy all of them simultaneously
+    \item Choosing among metrics requires value judgements about what matters
+\end{itemize}
+
+\subsection{Procedural Fairness: The Right to Reasons}
+
+Even if a decision is ``correct'' by some outcome measure, it may be unfair if the process is opaque.
+
+\begin{greybox}[Components of Procedural Fairness]
+\begin{itemize}
+    \item \textbf{Transparency}: Can the decision-maker explain how the decision was reached?
+    \item \textbf{Consistency}: Are similar cases treated similarly?
+    \item \textbf{Contestability}: Can individuals challenge decisions and have them reviewed?
+    \item \textbf{Rationality}: Is the decision based on relevant factors?
+    \item \textbf{Voice}: Did affected parties have input into the process?
+\end{itemize}
+
+Complex models (especially deep learning) pose challenges for procedural fairness because their reasoning is often opaque even to their designers.
+\end{greybox}
+
+\subsection{Individual vs Group Fairness}
+
+Two major philosophical approaches to fairness often conflict:
+
+\begin{greybox}[Individual Fairness]
+\textbf{Principle}: Similar individuals should be treated similarly.
+
+\textit{Formalisation}: For a metric $d$ measuring similarity between individuals and a metric $D$ measuring similarity between outcomes:
+\[
+d(x_i, x_j) \leq \epsilon \implies D(f(x_i), f(x_j)) \leq \delta
+\]
+
+\textit{Unpacking the notation}:
+\begin{itemize}
+    \item $d(x_i, x_j)$ measures how ``similar'' two individuals $x_i$ and $x_j$ are in terms of their features
+    \item $\epsilon$ is a threshold defining what counts as ``similar''
+    \item $f(x_i)$ is the model's prediction/decision for individual $x_i$
+    \item $D(f(x_i), f(x_j))$ measures how different the outcomes are
+    \item $\delta$ is a threshold for how different outcomes can be
+\end{itemize}
+
+\textit{What this means}: If two people are similar (according to $d$), they should receive similar treatment (according to $D$). The challenge is defining ``similar''-this is where the hard normative work lies.
+
+\textit{Advantages:}
+\begin{itemize}
+    \item Treats people as individuals, not group members
+    \item Aligns with intuitions about personal responsibility
+    \item Avoids arbitrary group boundaries
+\end{itemize}
+
+\textit{Challenges:}
+\begin{itemize}
+    \item Requires defining ``similarity''-often contentious
+    \item May perpetuate historical disadvantage if similarity is measured by current status
+    \item Difficult to verify compliance
+\end{itemize}
+\end{greybox}
+
+\begin{greybox}[Group Fairness]
+\textbf{Principle}: Statistical measures should be equal (or approximately equal) across protected groups.
+
+\textit{Common definitions} (detailed in Week 7):
+\begin{itemize}
+    \item \textbf{Demographic parity}: $P(\hat{Y}=1|A=0) = P(\hat{Y}=1|A=1)$
+    \item \textbf{Equalised odds}: Equal true/false positive rates across groups
+    \item \textbf{Calibration}: $P(Y=1|\hat{Y}=p, A=a) = p$ for all groups
+\end{itemize}
+
+\textit{Unpacking the notation}:
+\begin{itemize}
+    \item $\hat{Y}$ is the model's prediction (e.g., ``approve loan'' = 1, ``deny'' = 0)
+    \item $Y$ is the true outcome (e.g., ``actually repaid'' = 1, ``defaulted'' = 0)
+    \item $A$ is the protected attribute (e.g., race, gender)
+    \item $P(\hat{Y}=1|A=0)$ is the probability of a positive prediction given group membership $A=0$
+\end{itemize}
+
+\textit{What demographic parity means}: Both groups receive positive predictions at the same rate. If 20\% of men are approved for loans, 20\% of women should be too.
+
+\textit{What equalised odds means}: Accuracy is the same across groups-both groups have the same true positive rate (correctly approving good applicants) and false positive rate (incorrectly approving bad applicants).
+
+\textit{What calibration means}: When you predict ``70\% chance of repayment,'' 70\% of people with that score should actually repay-and this should hold separately within each group.
+
+\textit{Advantages:}
+\begin{itemize}
+    \item Clear, measurable criteria
+    \item Can detect and correct systematic disparities
+    \item Addresses historical group-level disadvantage
+\end{itemize}
+
+\textit{Challenges:}
+\begin{itemize}
+    \item May conflict with individual fairness
+    \item Requires defining groups-boundaries are often unclear
+    \item Different definitions conflict with each other
+\end{itemize}
+\end{greybox}
+
+\begin{redbox}
+\textbf{Impossibility Results}: Multiple group fairness criteria generally cannot be satisfied simultaneously.
+
+Chouldechova (2017) and Kleinberg et al.\ (2017) proved that except in degenerate cases, a predictor cannot simultaneously achieve:
+\begin{itemize}
+    \item Calibration within groups
+    \item Balance for the positive class (equal true positive rates)
+    \item Balance for the negative class (equal false positive rates)
+\end{itemize}
+
+\textit{What this means}: These aren't just competing preferences-they are mathematically incompatible. When base rates differ between groups (e.g., if one group has higher default rates), you \textbf{cannot} have equal true positive rates, equal false positive rates, and calibration all at once.
+
+This is not a technical limitation to be overcome-it is a fundamental mathematical constraint. \textbf{Choosing a fairness criterion is a value judgment, not a technical decision.}
+\end{redbox}
+
+\section{Types of Automation}
+
+Different types of automation raise different fairness concerns. Understanding \textit{what} is being automated helps identify \textit{which} concerns are most salient.
+
+\begin{greybox}[Three Levels of Automation]
+\textbf{Type 1: Automating explicit rules}
+\begin{itemize}
+    \item \textbf{Examples}: Benefits eligibility checking, minimum job requirements, tax calculations
+    \item \textbf{What happens}: Rules that already existed (in policy, regulation, or practice) are encoded into software
+    \item \textbf{Fairness implication}: Automation makes rules more consistent but loses the flexibility of human discretion
+    \item \textbf{Risk}: Edge cases that would have received human consideration are now handled rigidly
+\end{itemize}
+
+\textbf{Type 2: Automating informal judgements}
+\begin{itemize}
+    \item \textbf{Examples}: Essay grading, medical diagnosis support, credit scoring
+    \item \textbf{What happens}: Model learns to mimic expert decisions that were previously made informally
+    \item \textbf{Fairness implication}: The model may learn \textit{different} reasoning than the experts intended
+    \item \textbf{Risk}: For many decisions, the \textit{process} matters as much as the outcome. A model may achieve similar outcomes through different (potentially objectionable) reasoning
+\end{itemize}
+
+\textbf{Type 3: Learning rules from data}
+\begin{itemize}
+    \item \textbf{Examples}: Loan approval, predictive policing, hiring recommendation, recidivism prediction
+    \item \textbf{What happens}: No pre-existing rules; the model discovers patterns in historical data
+    \item \textbf{Fairness implication}: Inherits all biases in the training data; may discover and exploit proxy variables
+    \item \textbf{Risk}: Feedback loops; optimising for proxies rather than true objectives; lack of transparency about what is being learned
+\end{itemize}
+\end{greybox}
+
+\begin{bluebox}[Automation Types and Fairness Concerns]
+\begin{center}
+\begin{tabular}{lp{8cm}}
+\toprule
+\textbf{Type} & \textbf{Primary Fairness Concern} \\
+\midrule
+Type 1 (Explicit rules) & Loss of discretion; rigid application to edge cases \\
+Type 2 (Informal judgements) & Process may differ from outcome; learned reasoning may be objectionable \\
+Type 3 (Learning from data) & Bias amplification; feedback loops; proxy exploitation \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{bluebox}
+
+Type 3 automation is most concerning for fairness because the model may discover patterns that humans would consider inappropriate or discriminatory. This is the dominant form of modern ML and the most fraught with fairness challenges.
+
+\section{Case Studies}
+
+Understanding fairness in ML requires examining concrete cases where systems have caused harm. These cases illustrate how abstract bias sources and harm types manifest in practice.
+
+\begin{bluebox}[Section Summary: Key Case Studies]
+\begin{itemize}
+    \item \textbf{COMPAS}: Recidivism prediction with racial disparities
+    \item \textbf{Amazon hiring}: Gender bias learned from historical data
+    \item \textbf{Healthcare algorithms}: Proxy bias underserving Black patients
+    \item \textbf{Facial recognition}: Quality-of-service disparities across demographics
+\end{itemize}
+\end{bluebox}
+
+\subsection{COMPAS: Recidivism Prediction}
+
+COMPAS (Correctional Offender Management Profiling for Alternative Sanctions) is a risk assessment tool used in the US criminal justice system to predict likelihood of reoffending.
+
+\textbf{ProPublica investigation (2016)} found:
+\begin{itemize}
+    \item Black defendants were nearly twice as likely as white defendants to be labelled high-risk but not reoffend (false positives)
+    \item White defendants were more likely to be labelled low-risk but subsequently reoffend (false negatives)
+    \item Overall accuracy was similar across races, but errors were distributed differently
+\end{itemize}
+
+\textbf{Northpointe's response}: COMPAS is calibrated-among defendants scored as high-risk, similar proportions of Black and white defendants actually reoffended.
+
+\textbf{The core tension}: Both claims are true. This is not a case of one side being wrong; it is a case of different fairness criteria genuinely conflicting.
+
+\begin{greybox}[Unpacking the COMPAS Tension]
+Let's be precise about what each side is claiming:
+
+\textbf{ProPublica's claim} (equal false positive/negative rates):
+\begin{itemize}
+    \item Among people who will \textit{not} reoffend, Black defendants are more likely to be labelled high-risk
+    \item Among people who will reoffend, white defendants are more likely to be labelled low-risk
+    \item This is unfair because innocent Black people pay a higher cost (wrongful detention) than innocent white people
+\end{itemize}
+
+\textbf{Northpointe's claim} (calibration):
+\begin{itemize}
+    \item Among people labelled high-risk, similar percentages of Black and white defendants reoffend
+    \item The risk scores mean the same thing regardless of race
+    \item This is fair because a ``7'' means the same thing whether the defendant is Black or white
+\end{itemize}
+
+\textbf{Why both can be true}: When base rates differ between groups (if one group has higher recidivism rates, which may itself reflect systemic inequality), calibration and equal error rates cannot both hold. This is the impossibility result in action.
+
+\textbf{The deeper question}: Which type of error matters more? Wrongly detaining someone who wouldn't reoffend? Or wrongly releasing someone who would? Different answers lead to different fairness criteria-and there is no purely technical way to resolve this.
+\end{greybox}
+
+\begin{redbox}
+\textbf{Lesson from COMPAS}: ``Is this algorithm fair?'' is not a well-posed question. We must ask: ``Fair according to which definition?'' and ``Who decides which definition is appropriate?''
+\end{redbox}
+
+\subsection{Amazon Hiring Algorithm}
+
+Amazon developed an ML system to screen job applicants by learning from historical hiring decisions.
+
+\textbf{The problem}: The system learned to penalise applications containing words like ``women's'' (e.g., ``women's chess club captain'') and downgraded graduates of all-women's colleges.
+
+\textbf{Why this happened}: Historical hiring data reflected existing gender imbalances in tech. The model learned that being male (or proxies for maleness) correlated with being hired.
+
+\textbf{Attempted fix}: Amazon tried removing gender-related features, but the model found other proxies. Eventually, the project was abandoned.
+
+\textbf{Key insight}: Removing protected attributes doesn't guarantee fairness. Models can learn to discriminate using proxy variables, and in sufficiently rich feature spaces, proxies are nearly impossible to fully eliminate.
+
+\begin{greybox}[Why Removing Protected Attributes Fails]
+Consider trying to remove gender from a hiring model:
+
+\begin{enumerate}
+    \item Remove the ``gender'' field-but the model can infer gender from names
+    \item Remove names-but the model can infer from activities (``women's rugby team'')
+    \item Remove activities-but the model can infer from university (all-women's college)
+    \item Remove university names-but the model can infer from zip codes
+    \item And so on...
+\end{enumerate}
+
+In high-dimensional feature spaces, there are many ways to reconstruct protected attributes. This is sometimes called the ``proxy problem'' or ``redundant encoding.''
+
+\textbf{Mathematical intuition}: If the protected attribute $A$ is correlated with outcome $Y$ in the training data, and $A$ is correlated with features $X_1, X_2, \ldots$, then the model can learn to predict $Y$ using the features as proxies for $A$-even if $A$ itself is removed.
+\end{greybox}
+
+\subsection{Healthcare Cost Prediction}
+
+A widely-used algorithm in US healthcare (studied by Obermeyer et al., 2019) determined which patients qualified for intensive care management programmes.
+
+\textbf{The problem}: The algorithm used predicted healthcare \textit{costs} as a proxy for healthcare \textit{needs}. At the same risk score, Black patients were considerably sicker than white patients.
+
+\textbf{Why this happened}: Black patients historically had less access to healthcare and spent less money on care. Lower spending was interpreted as lower need, when in fact it reflected barriers to access.
+
+\textbf{Impact}: Black patients had to be significantly sicker than white patients to qualify for the same level of care.
+
+\begin{redbox}
+\textbf{Case Study: Healthcare Risk Prediction}
+
+\textbf{Context}: A widely-used algorithm predicted which patients would benefit from ``high-risk care management'' programmes.
+
+\textbf{Design choice}: The algorithm used \textit{predicted healthcare costs} as a proxy for \textit{healthcare need}, reasoning that high costs indicate high need.
+
+\textbf{The problem}: Costs depend not only on health status but on access to care:
+\begin{itemize}
+    \item Patients who could not afford care had low historical costs
+    \item Patients who faced barriers to access had low historical costs
+    \item These were often the patients with the greatest unmet needs
+\end{itemize}
+
+\textbf{Result}: At a given risk score, Black patients were considerably sicker than white patients with the same score. The algorithm systematically directed resources away from those who needed them most.
+
+\textbf{Lesson}: The proxy (costs) embedded structural inequalities in healthcare access. Optimising for the proxy optimised for something quite different from the intended objective (health needs).
+\end{redbox}
+
+\textbf{Key insight}: This is a \textit{measurement bias} problem. The target variable (costs) was a poor proxy for the construct of interest (needs). The algorithm was working exactly as designed-the design was the problem.
+
+\subsection{Facial Recognition Disparities}
+
+Multiple studies have found substantial performance disparities in commercial facial recognition systems:
+
+\textbf{Gender Shades study (Buolamwini \& Gebru, 2018)}:
+\begin{itemize}
+    \item Error rates for gender classification were 0.8\% for lighter-skinned males vs 34.7\% for darker-skinned females
+    \item Commercial systems from IBM, Microsoft, and Face++ all showed similar patterns
+    \item Disparities were not visible in aggregate accuracy metrics
+\end{itemize}
+
+\textbf{NIST Face Recognition Vendor Test (2019)}:
+\begin{itemize}
+    \item False positive rates varied by factor of 10-100 across demographics
+    \item Asian and African American faces had false positive rates 10-100 times higher than Caucasian faces
+    \item Differences were largest in one-to-many matching scenarios
+\end{itemize}
+
+\textbf{Why this happens}: Predominantly representation bias-training datasets historically overrepresented lighter-skinned faces. Also evaluation bias-benchmarks didn't reveal disparities because they shared the same demographic skew.
+
+\textbf{Consequences}: When deployed in high-stakes contexts (law enforcement, border control), these disparities translate directly into differential rates of false accusations and wrongful detentions.
+
+\begin{greybox}[Why Aggregate Metrics Hide Disparities]
+Consider a facial recognition system with the following performance:
+\begin{itemize}
+    \item 99\% accuracy on lighter-skinned faces (80\% of test set)
+    \item 70\% accuracy on darker-skinned faces (20\% of test set)
+\end{itemize}
+
+Aggregate accuracy: $0.8 \times 0.99 + 0.2 \times 0.70 = 0.932$ or 93.2\%
+
+The system appears to have excellent performance-93\% accuracy!-but this hides a 30\% error rate for one group. This is why disaggregated evaluation (breaking down performance by subgroup) is essential.
+\end{greybox}
+
+\section{Mitigation Strategies}
+
+Addressing fairness in ML requires intervention at multiple stages. This section provides an overview; quantitative methods are covered in Week 7.
+
+\begin{bluebox}[Section Summary: Where to Intervene]
+\begin{itemize}
+    \item \textbf{Pre-processing}: Fix the training data
+    \item \textbf{In-processing}: Constrain the learning algorithm
+    \item \textbf{Post-processing}: Adjust model outputs
+\end{itemize}
+Each approach has tradeoffs; no single intervention is universally best.
+\end{bluebox}
+
+\begin{greybox}[Mitigation Approaches]
+\textbf{Pre-processing: Fix the Data}
+
+Modify training data before model training to remove or reduce bias.
+
+\textit{Techniques:}
+\begin{itemize}
+    \item Resampling to balance representation across groups
+    \item Reweighting examples to equalise group importance
+    \item Removing or transforming features that encode protected attributes
+    \item Generating synthetic data to augment underrepresented groups
+\end{itemize}
+
+\textit{Advantages:} Model-agnostic; addresses root cause
+\textit{Disadvantages:} May not address all bias sources; can reduce data quality
+
+\textit{What this means}: If the problem is biased data, fix the data. Oversample underrepresented groups, undersample overrepresented groups, or generate synthetic examples. This works well for representation bias but cannot fix historical bias (which is in the labels themselves).
+
+\vspace{1em}
+\textbf{In-processing: Constrain the Algorithm}
+
+Modify the learning algorithm to incorporate fairness constraints.
+
+\textit{Techniques:}
+\begin{itemize}
+    \item Add fairness constraints to the optimisation objective
+    \item Regularisation terms penalising disparity
+    \item Adversarial debiasing (train a model that achieves good accuracy while preventing an adversary from predicting protected attributes)
+\end{itemize}
+
+\textit{Advantages:} Directly optimises for fairness; can achieve precise guarantees
+\textit{Disadvantages:} Requires algorithm modification; specific to model type
+
+\textit{What this means}: Instead of $\min_\theta \mathcal{L}(\theta)$ (minimise loss), solve $\min_\theta \mathcal{L}(\theta)$ subject to fairness constraints. The model is forced to find solutions that are both accurate and fair (according to the chosen criterion).
+
+\vspace{1em}
+\textbf{Post-processing: Adjust Outputs}
+
+Modify model predictions after training to satisfy fairness criteria.
+
+\textit{Techniques:}
+\begin{itemize}
+    \item Threshold adjustment: Use different decision thresholds for different groups
+    \item Calibration: Adjust scores to achieve calibration within groups
+    \item Reject option: Abstain from predictions in uncertain regions
+\end{itemize}
+
+\textit{Advantages:} Can be applied to any model; doesn't require retraining
+\textit{Disadvantages:} May not address underlying bias; can feel like a ``band-aid''
+
+\textit{What this means}: Given a trained model, adjust how its outputs are used. If one group has systematically higher scores, lower the threshold for the other group. This achieves demographic parity in outcomes without changing the model itself.
+\end{greybox}
+
+\begin{redbox}
+\textbf{No free lunch}: Achieving fairness typically comes at some cost to overall accuracy. The nature and magnitude of this tradeoff depends on:
+\begin{itemize}
+    \item Which fairness criterion is chosen
+    \item How much bias exists in the original data
+    \item The underlying base rates across groups
+\end{itemize}
+Stakeholders must decide how to balance these competing objectives.
+\end{redbox}
+
+\section{Agency and Recourse}
+
+Beyond statistical fairness, individuals affected by ML systems have a stake in understanding and potentially changing decisions about them.
+
+\begin{bluebox}[Immutable vs Mutable Characteristics]
+\textbf{Models on immutable characteristics} (age, race, birthplace):
+\begin{itemize}
+    \item Individuals cannot change their fate
+    \item Raises questions of fairness and dignity
+\end{itemize}
+
+\textbf{Models on mutable characteristics} (education, behaviour):
+\begin{itemize}
+    \item Obligation to inform individuals how to improve outcomes
+    \item But: Creates opportunity to ``game'' the system
+    \item Goodhart's Law: When a measure becomes a target, it ceases to be a good measure
+\end{itemize}
+\end{bluebox}
+
+\begin{greybox}[Algorithmic Recourse]
+\textbf{Recourse} is the ability of an individual to obtain a different outcome by changing their features.
+
+\textit{Formal definition}: Given individual $x$ with unfavourable outcome $f(x) = 0$, recourse exists if there is an achievable $x'$ such that $f(x') = 1$.
+
+\textit{Unpacking the notation}:
+\begin{itemize}
+    \item $x$ represents all the features describing an individual (income, credit score, employment history, etc.)
+    \item $f(x) = 0$ means the model's decision is negative (loan denied, application rejected)
+    \item $x'$ is a modified version of the individual's features
+    \item ``Achievable'' means the person can actually make those changes (not ``be younger'' or ``have been born elsewhere'')
+    \item $f(x') = 1$ means the model would approve if the features were $x'$
+\end{itemize}
+
+\textit{Requirements for meaningful recourse:}
+\begin{itemize}
+    \item \textbf{Transparency}: Individual knows what factors influenced the decision
+    \item \textbf{Actionability}: The factors are things the individual can change
+    \item \textbf{Stability}: Changing factors will actually change the outcome
+    \item \textbf{Accessibility}: The required changes are feasible for the individual
+\end{itemize}
+
+\textit{Example}: ``Your loan was denied because your credit score is 620. Increase it to 680 and reapply'' provides recourse. ``Your loan was denied based on 247 factors in a neural network'' does not.
+\end{greybox}
+
+\begin{redbox}
+\textbf{Recourse and model complexity}: Black-box models make recourse difficult or impossible. If we cannot explain why a decision was made, we cannot tell individuals how to obtain a different outcome.
+
+This creates tension between:
+\begin{itemize}
+    \item Accuracy (complex models often perform better)
+    \item Explainability (simple models are easier to explain)
+    \item Recourse (requires actionable explanations)
+\end{itemize}
+
+\textbf{Further complications}:
+\begin{itemize}
+    \item Some features that matter are not actionable (e.g., zip code, age)
+    \item Changing one feature may change model predictions in unexpected ways
+    \item Recourse advice may be technically correct but practically impossible (``increase your income by 50\%'')
+\end{itemize}
+\end{redbox}
+
+\section{Culpability: Who Is Responsible?}
+
+When an automated system makes a harmful decision, who is responsible? This question becomes increasingly important as ML systems mediate more consequential decisions.
+
+\begin{greybox}[The Culpability Question]
+Multiple parties may bear responsibility for algorithmic harms:
+\begin{itemize}
+    \item \textbf{Data collectors}: Created or curated the training data
+    \item \textbf{Model developers}: Chose the architecture, features, and objective function
+    \item \textbf{Deployers}: Decided to use the model for a particular application
+    \item \textbf{Operators}: Made individual decisions based on model outputs
+    \item \textbf{Regulators}: Failed to establish appropriate oversight
+\end{itemize}
+
+\textbf{The diffusion problem}: When responsibility is distributed across many actors, it becomes difficult to hold anyone accountable. Each party can point to others:
+\begin{itemize}
+    \item Data collectors: ``We just collected data; we didn't build the model''
+    \item Developers: ``We built a general tool; we didn't choose how it was used''
+    \item Deployers: ``We followed the model's recommendations; we didn't design it''
+    \item Operators: ``I was just following the system's output''
+\end{itemize}
+
+\textbf{The opacity problem}: When a model's reasoning is opaque, it is hard to know whether the harm resulted from:
+\begin{itemize}
+    \item Bad data (data collector's fault)
+    \item Bad model design (developer's fault)
+    \item Inappropriate deployment (deployer's fault)
+    \item Misuse of outputs (operator's fault)
+\end{itemize}
+
+This diffusion and opacity can create ``accountability gaps'' where harms occur but no one is held responsible.
+\end{greybox}
+
+\begin{bluebox}[Implications for Practice]
+\begin{itemize}
+    \item \textbf{Documentation}: Maintain clear records of design decisions and their rationale
+    \item \textbf{Audit trails}: Log model inputs, outputs, and human interventions
+    \item \textbf{Clear responsibility}: Establish who is accountable for what before deployment
+    \item \textbf{Human oversight}: Maintain meaningful human review of consequential decisions
+    \item \textbf{Appeal processes}: Provide mechanisms for individuals to challenge decisions
+\end{itemize}
+\end{bluebox}
+
+\section{Philosophical Considerations}
+
+Fairness in ML ultimately rests on philosophical questions that algorithms alone cannot answer.
+
+\begin{bluebox}[Section Summary: Deeper Questions]
+\begin{itemize}
+    \item What does ``fair'' mean? Different conceptions lead to different criteria
+    \item Who decides? Technical choices encode value judgments
+    \item What are we willing to trade for fairness?
+\end{itemize}
+\end{bluebox}
+
+\subsection{What is ``Fair''?}
+
+Different philosophical traditions suggest different fairness criteria:
+
+\textbf{Libertarian view}: Fairness means treating individuals based on their own characteristics and choices, not group membership. Supports individual fairness, calibration.
+
+\textit{Implication}: A model should predict accurately for each individual based on their features. Group membership should not enter the model. If this leads to disparate outcomes, so be it-the model is treating people as individuals.
+
+\textbf{Egalitarian view}: Fairness means equalising outcomes across groups that have historically been disadvantaged. Supports demographic parity, equalised odds.
+
+\textit{Implication}: A model should produce similar outcomes across groups. If one group has historically been disadvantaged, the model should not perpetuate that disadvantage. If this requires treating individuals differently based on group membership, that may be justified.
+
+\textbf{Utilitarian view}: Fairness means maximising overall welfare, perhaps with some weight for distribution. May accept some disparities if total outcomes are better.
+
+\textit{Implication}: A model should maximise some aggregate measure of welfare. If a model that has disparate impact produces better overall outcomes, it may be acceptable-depending on how much weight we give to distribution.
+
+\textbf{Rawlsian view}: Fairness means arranging inequalities to benefit the least advantaged. Suggests prioritising the group with worst outcomes.
+
+\textit{Implication}: A model should be evaluated by how it affects the worst-off group. Even if a change reduces average accuracy, it may be fair if it improves outcomes for the most disadvantaged.
+
+None of these views is obviously correct. The ``right'' fairness criterion depends on which philosophical framework one adopts.
+
+\subsection{Who Decides?}
+
+Technical choices in ML systems encode value judgments:
+\begin{itemize}
+    \item Which fairness metric to optimise
+    \item How to define protected groups
+    \item How to trade off fairness against accuracy
+    \item What level of disparity is acceptable
+\end{itemize}
+
+These are not purely technical questions. They should involve:
+\begin{itemize}
+    \item Domain experts who understand the context
+    \item Affected communities who bear the consequences
+    \item Policymakers who set legal and ethical standards
+    \item Ethicists who can articulate competing values
+\end{itemize}
+
+\begin{redbox}
+\textbf{The danger of techno-solutionism}: Framing fairness as a purely technical problem to be solved by better algorithms obscures the underlying political and ethical questions. ``We optimised for equalised odds'' is not an answer to ``Why are Black defendants given longer sentences?''
+\end{redbox}
+
+\subsection{Tradeoffs}
+
+Fairness does not exist in isolation. ML practitioners must navigate tradeoffs between:
+
+\textbf{Fairness vs Accuracy}: Achieving fairness often reduces overall predictive accuracy. How much accuracy are we willing to sacrifice?
+
+\textbf{Different fairness criteria}: As impossibility results show, we cannot satisfy all criteria simultaneously. Which violations are more acceptable?
+
+\textbf{Individual vs group fairness}: Treating similar individuals similarly may perpetuate group-level disparities. Equalising group outcomes may treat similar individuals differently.
+
+\textbf{Short-term vs long-term}: Interventions that improve fairness now may have unintended consequences later. Demographic parity in hiring might reduce incentives for groups to acquire qualifications, or might break feedback loops that maintained historical disparities.
+
+\textbf{Local vs global}: A system might be fair within its scope but contribute to broader unfairness. A ``fair'' loan algorithm operates within a financial system that may be structurally unfair.
+
+\section{The Limits of Technical Solutions}
+
+A recurring theme in fairness research is that technical solutions alone are insufficient. This is not a counsel of despair but a recognition that fairness is fundamentally a sociotechnical challenge.
+
+\begin{bluebox}[Why Technical Fixes Are Insufficient]
+\begin{enumerate}
+    \item \textbf{Fairness is contested}: Reasonable people disagree about what fairness means. No technical definition can resolve normative disagreements.
+
+    \item \textbf{Context matters}: What counts as ``fair'' depends on the application, the stakeholders, the history, and the alternatives. There is no universal technical standard.
+
+    \item \textbf{Metrics conflict}: As we will see in Week 7, reasonable fairness metrics are often mutually incompatible. Choosing among them requires value judgements.
+
+    \item \textbf{Gaming and adaptation}: People and institutions adapt to algorithmic systems. Technical fixes can be circumvented or may create new problems.
+
+    \item \textbf{Legitimacy is not technical}: Questions about whether a system should exist, who should control it, and who should benefit from it are political and ethical, not technical.
+\end{enumerate}
+\end{bluebox}
+
+This does not mean technical analysis is useless. Rather:
+
+\begin{itemize}
+    \item Technical analysis can \textit{reveal} unfairness (auditing, measurement)
+    \item Technical interventions can \textit{mitigate} some types of unfairness
+    \item Technical tools can \textit{support} human decision-making about fairness
+    \item But technical tools cannot \textit{replace} human judgement about values
+\end{itemize}
+
+\section{Summary}
+
+\begin{bluebox}[Key Concepts from Week 6b]
+\begin{enumerate}
+    \item \textbf{Bias amplification}: ML can encode and amplify historical discrimination
+    \item \textbf{Feedback loops}: Predictions can become self-fulfilling prophecies
+    \item \textbf{Construct validity}: Proxies (arrests, costs) conflate what we care about with the measurement process
+    \item \textbf{Seven sources of bias}: Historical, representation, measurement, aggregation, evaluation, deployment, distribution shift
+    \item \textbf{Three types of harm}: Allocative, representational, quality-of-service
+    \item \textbf{Fairness dimensions}: Legitimacy, relative treatment, procedural fairness
+    \item \textbf{Individual vs group fairness}: Similar treatment vs equal statistics-often conflict
+    \item \textbf{Impossibility results}: Multiple fairness criteria cannot be satisfied simultaneously
+    \item \textbf{Mitigation strategies}: Pre-processing, in-processing, post-processing
+    \item \textbf{Recourse}: Individuals should understand decisions and have paths to different outcomes
+    \item \textbf{Culpability}: Responsibility is diffused across data collectors, developers, deployers, operators
+    \item \textbf{Value judgments}: Fairness criteria encode philosophical choices that algorithms cannot resolve
+\end{enumerate}
+\end{bluebox}
+
+\begin{bluebox}[Looking Ahead: Week 7]
+Week 7 will cover \textbf{quantitative fairness}: formal definitions of fairness criteria, mathematical relationships between them, and algorithmic approaches to achieving them. Key topics:
+\begin{itemize}
+    \item Formal definitions: demographic parity, equalised odds, calibration
+    \item Three major fairness criteria (independence, separation, sufficiency) and what they mean
+    \item Impossibility results showing these criteria conflict when base rates differ
+    \item How to visualise fairness tradeoffs using ROC curves
+    \item Why ``removing'' sensitive attributes does not guarantee fairness
+    \item Algorithmic interventions: constrained optimisation, adversarial debiasing
+    \item Measuring and auditing fairness in practice
+    \item The fundamental insight that fairness requires \textit{explicitly encoding values}
+\end{itemize}
+
+The qualitative foundations from this week-understanding types of harm, dimensions of fairness, and the limits of technical solutions-will inform how we interpret and apply those quantitative tools.
+\end{bluebox}

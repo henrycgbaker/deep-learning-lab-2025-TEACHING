@@ -1,0 +1,102 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{minted}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize Math for Data Science: Problem Set 1}
+\rhead{\footnotesize } 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf GRAD C23: Mathematics for Data Science} \\
+Hertie School \\ Fall 2024  \\ Prof. Magazinnik \\
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf Problem Set 2}
+	\vspace{2mm}
+	
+\textbf{Names:} %YOUR NAMES GO HERE 
+\\
+\textbf{Due Date:} Friday, October 18 by the end of the day \\
+(The Moodle submission link will become inactive at midnight of October 19.)
+\end{center}  
+
+\vspace{0.4cm}
+
+{\bf Instructions:} Please submit one solution set per group and include your group members' names at the top. Please show all work and explain all reasoning; this is the only way to receive partial credit. 
+
+
+\begin{enumerate}
+  \item \textbf{Maximum Likelihood.} (24 points.) Bangladesh, home to 163 million people, is the world's most populous delta region; one-fourth of the country's land mass is only seven feet above sea level.\footnote{\url{https://www.nrdc.org/stories/bangladesh-country-underwater-culture-move}} Although the communities in Bangladesh's low-lying coastal regions have always been vulnerable to catastrophic flooding events, this seems to be happening with growing frequency. Is climate change increasing the occurrence of flooding in Bangladesh? \\ 
+
+  We often use the Poisson distribution to model (rare) climate events such as earthquakes and hurricanes. So let $X_t$ be the number of major floods in Bangladesh in time period $t$, and let $X_t$ be distributed:
+  \[ X_t \sim \text{Poisson}(\lambda) \]
+
+\begin{enumerate}
+    \item [a.] (4 points.) We observe the following number of floods in Bangladesh per five-year period for the first quarter of the 21st century:
+    \[
+\left[    \begin{array}{cc}
+       1  & 2000-2004 \\
+       3  & 2005-2009 \\
+       1  & 2010-2014 \\
+       2  & 2015-2019 \\
+       0  & 2020-2024
+    \end{array} \right] 
+    \]
+    Please write down the likelihood of this series of events for some unknown $\lambda$, assuming the floods in each period are independent and identically distributed.
+
+\item [b.] (6 points.) Take the log of the likelihood you wrote down in part (a). Show all steps. 
+
+\item [c.] (6 points.) Maximize the log-likelihood from part (b) to derive an MLE estimator for $\lambda$. Show all steps. 
+
+\item [d.] (4 points.) Interpret the $\hat{\lambda}$ you found in part (c) in your own words. What is this quantity conceptually, and how do you get it from the data? 
+
+\item [e.] (4 points.) Show me that you found the MLE by plotting the log likelihood on the y-axis against a series of candidate values for $\lambda$ ranging from 0 to 4 on the x-axis. 
+
+\end{enumerate}
+
+\clearpage
+
+\item \textbf{Taylor Series.} (30 points.) Let us suppose that Taylor Swift's album sales these days are Normally distributed with a mean of 5 million and a standard deviation of 1 million. As an executive at her record label, you are putting together different budget scenarios for next year, when you know she'll be coming out with one new album. (Assume no surprise album drops!) Specifically, suppose you need to know the probability that she sells somewhere between 4 and 6 million records next year. 
+
+\begin{enumerate}
+\item [a.] (4 points.) First, let's do this the easy way. Use the PDF and/or CDF of the Normal distribution to compute this probability. Please write down the definite integral that you are computing and then use R to get the exact answer. 
+
+\item [b.] (8 points.) Now suppose that you are trapped in a Swiss chalet without a computer or internet. You only have pen and paper and your great mind to compute the same probability from (a). (That's why they made you the boss, after all.) You decide to do a Taylor series approximation of the PDF of Taylor's sales.
+
+First, write down the function that you're going to approximate, $f(x)$, along with its first and second derivatives, $f'(x)$ and $f''(x)$.\footnote{I recommend removing the constant terms and making your $f(x)$ only the part of the function that concerns $x$. I'll tell you when to bring the constant terms back in later.} 
+
+\item [c.] (6 points.) Let's approximate this function at the point $x=5$, the midpoint between 4 and 6 million. Please write down the second-order Taylor series approximation and simplify it to the best of your ability. 
+
+\item [d.] (6 points.) Now compute the definite integral of this approximation over the relevant region.\footnote{Compute the integral first, then bring your constant back. Try to do it with pen and paper by constructing the antiderivative. You can use Wolfram Alpha to check your answer.} 
+
+\item [e.] (6 points.) Now what if you'd been after the probability that Taylor sells \textbf{no more than 4 million records}? Compute this using your Taylor series approach and compare it to the right answer. Does this approximation work? Why or why not? Please include in your answer a graph of the two functions, the PDF and its Taylor series approximation, which should illuminate matters. 
+\end{enumerate}
+\end{enumerate}
+\end{document}

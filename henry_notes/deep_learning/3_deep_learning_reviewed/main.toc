@@ -1,0 +1,326 @@
+\contentsline {chapter}{\numberline {1}Week 1: Introduction to Deep Learning}{13}{chapter.1}%
+\contentsline {section}{\numberline {1.1}What is Deep Learning?}{13}{section.1.1}%
+\contentsline {subsection}{\numberline {1.1.1}Historical Context}{14}{subsection.1.1.1}%
+\contentsline {section}{\numberline {1.2}Learning Paradigms}{15}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Machine Learning vs Deep Learning}{17}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Feature Engineering vs Feature Learning}{17}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}When to Use Which}{19}{subsection.1.3.2}%
+\contentsline {section}{\numberline {1.4}Universal Approximation Theorem}{19}{section.1.4}%
+\contentsline {subsection}{\numberline {1.4.1}Intuitive Statement}{20}{subsection.1.4.1}%
+\contentsline {subsection}{\numberline {1.4.2}Implications and Limitations}{21}{subsection.1.4.2}%
+\contentsline {subsection}{\numberline {1.4.3}Why Depth Matters}{21}{subsection.1.4.3}%
+\contentsline {section}{\numberline {1.5}Representation Learning}{22}{section.1.5}%
+\contentsline {subsection}{\numberline {1.5.1}Manifold Hypothesis}{24}{subsection.1.5.1}%
+\contentsline {section}{\numberline {1.6}Modern Deep Learning Architectures}{24}{section.1.6}%
+\contentsline {subsection}{\numberline {1.6.1}Convolutional Neural Networks (CNNs)}{24}{subsection.1.6.1}%
+\contentsline {subsection}{\numberline {1.6.2}Recurrent Neural Networks (RNNs)}{25}{subsection.1.6.2}%
+\contentsline {subsection}{\numberline {1.6.3}Transformers}{25}{subsection.1.6.3}%
+\contentsline {section}{\numberline {1.7}Deep Learning in Policy Context}{25}{section.1.7}%
+\contentsline {subsection}{\numberline {1.7.1}Ethical Considerations}{26}{subsection.1.7.1}%
+\contentsline {subsection}{\numberline {1.7.2}Transparency and Explainability}{26}{subsection.1.7.2}%
+\contentsline {subsection}{\numberline {1.7.3}Safety and Robustness}{27}{subsection.1.7.3}%
+\contentsline {subsection}{\numberline {1.7.4}Environmental Impact}{27}{subsection.1.7.4}%
+\contentsline {chapter}{\numberline {2}Week 2: Deep Neural Networks I}{29}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Neural Network Fundamentals}{29}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Notation and Conventions}{29}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}The Artificial Neuron}{31}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}Layers of Neurons}{32}{subsection.2.1.3}%
+\contentsline {subsection}{\numberline {2.1.4}Matrix Multiplication: How Forward Propagation Works}{32}{subsection.2.1.4}%
+\contentsline {section}{\numberline {2.2}Single-Layer Neural Networks}{36}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Architecture}{37}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Matrix Formulation}{38}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Output Layer for Different Tasks}{38}{subsection.2.2.3}%
+\contentsline {section}{\numberline {2.3}Activation Functions}{39}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Purpose of Activation Functions}{39}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Common Activation Functions}{40}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Why ReLU Dominates}{42}{subsection.2.3.3}%
+\contentsline {section}{\numberline {2.4}Output Layers and Loss Functions}{43}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Output Activations by Task}{43}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Softmax Function}{43}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Loss Functions}{45}{subsection.2.4.3}%
+\contentsline {section}{\numberline {2.5}Capacity and Expressiveness}{49}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Linear Separability}{49}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}How Hidden Layers Create Nonlinear Boundaries}{50}{subsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5.3}Universal Approximation Theorem}{52}{subsection.2.5.3}%
+\contentsline {section}{\numberline {2.6}Gradient Descent}{52}{section.2.6}%
+\contentsline {subsection}{\numberline {2.6.1}Why Gradient Descent?}{53}{subsection.2.6.1}%
+\contentsline {subsection}{\numberline {2.6.2}Gradient Descent Algorithm}{53}{subsection.2.6.2}%
+\contentsline {subsection}{\numberline {2.6.3}Learning Rate}{56}{subsection.2.6.3}%
+\contentsline {subsection}{\numberline {2.6.4}Stopping Criteria}{57}{subsection.2.6.4}%
+\contentsline {section}{\numberline {2.7}Backpropagation}{57}{section.2.7}%
+\contentsline {subsection}{\numberline {2.7.1}The Training Loop}{57}{subsection.2.7.1}%
+\contentsline {subsection}{\numberline {2.7.2}The Chain Rule}{58}{subsection.2.7.2}%
+\contentsline {subsection}{\numberline {2.7.3}Computing the Gradient}{59}{subsection.2.7.3}%
+\contentsline {subsection}{\numberline {2.7.4}Worked Example: Backpropagation}{62}{subsection.2.7.4}%
+\contentsline {subsection}{\numberline {2.7.5}Gradient Formulas for Common Cases}{63}{subsection.2.7.5}%
+\contentsline {section}{\numberline {2.8}Parameters vs Hyperparameters}{64}{section.2.8}%
+\contentsline {section}{\numberline {2.9}The Bigger Picture}{65}{section.2.9}%
+\contentsline {chapter}{\numberline {3}Week 3: Deep Neural Networks II}{67}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Backpropagation (Continued)}{67}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Reminder: Single-Layer Network}{67}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Gradient via Chain Rule}{68}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.1.3}Gradient Update}{69}{subsection.3.1.3}%
+\contentsline {section}{\numberline {3.2}Multivariate Chain Rule}{69}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Worked Example}{70}{subsection.3.2.1}%
+\contentsline {section}{\numberline {3.3}Multiple Output Nodes}{71}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Cross-Entropy Loss}{71}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Gradient for Multi-Class Classification}{72}{subsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.3.3}Softmax + Cross-Entropy Simplification}{73}{subsection.3.3.3}%
+\contentsline {section}{\numberline {3.4}Deeper Networks: Multilayer Perceptrons}{74}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Generic Gradient Form}{74}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Full Expansion for Two Hidden Layers}{75}{subsection.3.4.2}%
+\contentsline {section}{\numberline {3.5}Vectorisation}{75}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Scalar vs Vector Operations}{75}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Vectorised Neural Network}{76}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Compact Representation (Absorbing Biases)}{77}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}General $L$-Layer Network}{78}{subsection.3.5.4}%
+\contentsline {section}{\numberline {3.6}Vectorised Backpropagation}{78}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Output Layer}{79}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Hidden Layers (Recursive)}{80}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}Gradient Dimensions}{82}{subsection.3.6.3}%
+\contentsline {section}{\numberline {3.7}Mini-Batch Gradient Descent}{82}{section.3.7}%
+\contentsline {subsection}{\numberline {3.7.1}Stochastic Gradient Descent (SGD)}{82}{subsection.3.7.1}%
+\contentsline {subsection}{\numberline {3.7.2}Batch Gradient Descent}{83}{subsection.3.7.2}%
+\contentsline {subsection}{\numberline {3.7.3}Vectorisation in Batch Gradient Descent}{83}{subsection.3.7.3}%
+\contentsline {subsection}{\numberline {3.7.4}Mini-Batch Gradient Descent}{84}{subsection.3.7.4}%
+\contentsline {section}{\numberline {3.8}Training Process}{87}{section.3.8}%
+\contentsline {subsection}{\numberline {3.8.1}Generalisation}{87}{subsection.3.8.1}%
+\contentsline {subsection}{\numberline {3.8.2}Data Splits}{87}{subsection.3.8.2}%
+\contentsline {subsection}{\numberline {3.8.3}Early Stopping}{88}{subsection.3.8.3}%
+\contentsline {section}{\numberline {3.9}Performance Metrics}{89}{section.3.9}%
+\contentsline {subsection}{\numberline {3.9.1}Binary Classification Metrics}{89}{subsection.3.9.1}%
+\contentsline {subsection}{\numberline {3.9.2}ROC and AUC}{91}{subsection.3.9.2}%
+\contentsline {subsection}{\numberline {3.9.3}Multi-Class Metrics}{93}{subsection.3.9.3}%
+\contentsline {section}{\numberline {3.10}Training Tips}{93}{section.3.10}%
+\contentsline {subsection}{\numberline {3.10.1}Underfitting}{93}{subsection.3.10.1}%
+\contentsline {subsection}{\numberline {3.10.2}Overfitting}{94}{subsection.3.10.2}%
+\contentsline {subsection}{\numberline {3.10.3}Visualising Features}{94}{subsection.3.10.3}%
+\contentsline {subsection}{\numberline {3.10.4}Common Issues}{95}{subsection.3.10.4}%
+\contentsline {section}{\numberline {3.11}Vanishing Gradient Problem}{96}{section.3.11}%
+\contentsline {subsection}{\numberline {3.11.1}Saturation of Sigmoid}{96}{subsection.3.11.1}%
+\contentsline {subsection}{\numberline {3.11.2}Solution 1: ReLU Activation}{98}{subsection.3.11.2}%
+\contentsline {subsection}{\numberline {3.11.3}Solution 2: Batch Normalisation}{99}{subsection.3.11.3}%
+\contentsline {subsection}{\numberline {3.11.4}Solution 3: Residual Networks (Skip Connections)}{99}{subsection.3.11.4}%
+\contentsline {chapter}{\numberline {4}Week 4: Convolutional Neural Networks I}{103}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Computer Vision Tasks}{103}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Human vs Computer Perception}{104}{subsection.4.1.1}%
+\contentsline {section}{\numberline {4.2}Why Convolutional Layers?}{105}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Challenge 1: Spatial Structure}{105}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Challenge 2: Parameter Explosion}{106}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Challenge 3: Translation Invariance}{107}{subsection.4.2.3}%
+\contentsline {section}{\numberline {4.3}Properties of CNNs}{107}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Example: Cat Image Feature Detection}{108}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Versatility Beyond Images}{109}{subsection.4.3.2}%
+\contentsline {section}{\numberline {4.4}The Convolution Operation}{109}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Discrete Convolution}{109}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Worked Example: Convolution with Kernel Flipping}{110}{subsection.4.4.2}%
+\contentsline {subsection}{\numberline {4.4.3}Cross-Correlation: What CNNs Actually Compute}{110}{subsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.4.4}Effect of Convolution: Feature Detection}{111}{subsection.4.4.4}%
+\contentsline {subsection}{\numberline {4.4.5}Non-linear Activation}{112}{subsection.4.4.5}%
+\contentsline {section}{\numberline {4.5}Padding}{112}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}The Border Problem}{112}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Output Dimension Formula}{113}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}Benefits of Zero-Padding}{113}{subsection.4.5.3}%
+\contentsline {section}{\numberline {4.6}Pooling Layers}{114}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Motivation: From Local to Global}{114}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Max Pooling}{114}{subsection.4.6.2}%
+\contentsline {subsection}{\numberline {4.6.3}Local Translation Invariance}{116}{subsection.4.6.3}%
+\contentsline {subsection}{\numberline {4.6.4}Pooling and Convolutions Together}{117}{subsection.4.6.4}%
+\contentsline {section}{\numberline {4.7}Multi-Channel Convolutions}{117}{section.4.7}%
+\contentsline {subsection}{\numberline {4.7.1}Multiple Input Channels}{117}{subsection.4.7.1}%
+\contentsline {subsection}{\numberline {4.7.2}Multiple Output Channels (Feature Maps)}{118}{subsection.4.7.2}%
+\contentsline {section}{\numberline {4.8}CNN Architecture: LeNet}{120}{section.4.8}%
+\contentsline {section}{\numberline {4.9}Training CNNs}{122}{section.4.9}%
+\contentsline {subsection}{\numberline {4.9.1}Backpropagation Through Convolutions}{122}{subsection.4.9.1}%
+\contentsline {section}{\numberline {4.10}Feature Visualisation}{123}{section.4.10}%
+\contentsline {subsection}{\numberline {4.10.1}What Does a CNN Learn?}{123}{subsection.4.10.1}%
+\contentsline {subsection}{\numberline {4.10.2}Visualisation Techniques}{125}{subsection.4.10.2}%
+\contentsline {subsection}{\numberline {4.10.3}Examples of Learned Features}{125}{subsection.4.10.3}%
+\contentsline {chapter}{\numberline {5}Week 5: Convolutional Neural Networks II}{127}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Labelled Data and Augmentation}{127}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}The Data Bottleneck}{127}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Common Datasets}{129}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Data Labelling Strategies}{132}{subsection.5.1.3}%
+\contentsline {subsubsection}{Self-Annotating Domain-Specific Data}{132}{section*.2}%
+\contentsline {subsubsection}{Considerations for Data Labelling}{132}{section*.3}%
+\contentsline {subsection}{\numberline {5.1.4}Active Learning}{133}{subsection.5.1.4}%
+\contentsline {subsection}{\numberline {5.1.5}Model-Assisted Labelling}{134}{subsection.5.1.5}%
+\contentsline {subsection}{\numberline {5.1.6}Data Augmentation}{135}{subsection.5.1.6}%
+\contentsline {subsubsection}{Colour Augmentation}{137}{section*.4}%
+\contentsline {subsubsection}{Elastic Distortions}{138}{section*.5}%
+\contentsline {section}{\numberline {5.2}Modern CNN Architectures}{139}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}VGG: Deep and Narrow (2014)}{139}{subsection.5.2.1}%
+\contentsline {subsubsection}{Basic CNN Block vs VGG Block}{139}{section*.6}%
+\contentsline {subsection}{\numberline {5.2.2}GoogLeNet: Inception Blocks (2014)}{141}{subsection.5.2.2}%
+\contentsline {subsubsection}{1$\times $1 Convolutions}{143}{section*.7}%
+\contentsline {subsection}{\numberline {5.2.3}ResNet: Skip Connections (2015)}{146}{subsection.5.2.3}%
+\contentsline {subsubsection}{ResNet Block Variants}{148}{section*.8}%
+\contentsline {subsubsection}{Bottleneck ResNet Block}{148}{section*.9}%
+\contentsline {subsubsection}{Global Average Pooling}{150}{section*.10}%
+\contentsline {subsubsection}{ResNet-18 Architecture}{151}{section*.11}%
+\contentsline {section}{\numberline {5.3}Transfer Learning and Fine-Tuning}{152}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Object Detection}{155}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Bounding Box Representation}{156}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Basic Object Detection Workflow}{156}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}Anchor Boxes}{157}{subsection.5.4.3}%
+\contentsline {subsection}{\numberline {5.4.4}Class Prediction}{159}{subsection.5.4.4}%
+\contentsline {subsection}{\numberline {5.4.5}Intersection over Union (IoU)}{159}{subsection.5.4.5}%
+\contentsline {subsection}{\numberline {5.4.6}Non-Maximum Suppression (NMS)}{160}{subsection.5.4.6}%
+\contentsline {subsection}{\numberline {5.4.7}SSD: Single Shot MultiBox Detector}{161}{subsection.5.4.7}%
+\contentsline {subsubsection}{Multiscale Anchor Boxes}{162}{section*.12}%
+\contentsline {subsubsection}{SSD Prediction}{163}{section*.13}%
+\contentsline {subsubsection}{SSD Loss Function}{163}{section*.14}%
+\contentsline {subsubsection}{Hard Negative Mining}{166}{section*.15}%
+\contentsline {subsection}{\numberline {5.4.8}Data Augmentation for Object Detection}{166}{subsection.5.4.8}%
+\contentsline {section}{\numberline {5.5}Semantic Segmentation}{167}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Deep Learning for Semantic Segmentation}{168}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}U-Net Architecture}{170}{subsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.5.3}Transposed Convolution (Up-Convolution)}{171}{subsection.5.5.3}%
+\contentsline {chapter}{\numberline {6}Week 6: Recurrent Neural Networks and Sequence Modeling}{173}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Introduction to Sequence Modeling}{173}{section.6.1}%
+\contentsline {subsection}{\numberline {6.1.1}Characteristics of Sequential Data}{174}{subsection.6.1.1}%
+\contentsline {subsection}{\numberline {6.1.2}Challenges in Modeling Sequential Data}{176}{subsection.6.1.2}%
+\contentsline {subsection}{\numberline {6.1.3}Time Series in Public Policy}{176}{subsection.6.1.3}%
+\contentsline {section}{\numberline {6.2}Sequence Modeling Tasks}{177}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Forecasting and Predicting Next Steps}{177}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Classification}{178}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Clustering}{179}{subsection.6.2.3}%
+\contentsline {subsection}{\numberline {6.2.4}Pattern Matching}{179}{subsection.6.2.4}%
+\contentsline {subsection}{\numberline {6.2.5}Anomaly Detection}{180}{subsection.6.2.5}%
+\contentsline {subsection}{\numberline {6.2.6}Motif Detection}{180}{subsection.6.2.6}%
+\contentsline {section}{\numberline {6.3}Approaches to Sequence Modeling}{181}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Feature Engineering for Text: Bag-of-Words}{182}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}Feature Engineering for Load Forecasting}{183}{subsection.6.3.2}%
+\contentsline {subsection}{\numberline {6.3.3}Challenges in Raw Sequence Modeling}{183}{subsection.6.3.3}%
+\contentsline {section}{\numberline {6.4}Recurrent Neural Networks (RNNs)}{185}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Why Not Fully Connected Networks?}{185}{subsection.6.4.1}%
+\contentsline {subsection}{\numberline {6.4.2}The Recurrence Mechanism}{186}{subsection.6.4.2}%
+\contentsline {subsection}{\numberline {6.4.3}Unrolling an RNN}{187}{subsection.6.4.3}%
+\contentsline {subsection}{\numberline {6.4.4}Vanilla RNN Formulation}{188}{subsection.6.4.4}%
+\contentsline {subsection}{\numberline {6.4.5}Short-Term Memory Problem}{192}{subsection.6.4.5}%
+\contentsline {subsection}{\numberline {6.4.6}Backpropagation Through Time (BPTT)}{194}{subsection.6.4.6}%
+\contentsline {subsection}{\numberline {6.4.7}Output Layers and Vector Notation}{196}{subsection.6.4.7}%
+\contentsline {section}{\numberline {6.5}Long Short-Term Memory (LSTM)}{197}{section.6.5}%
+\contentsline {subsection}{\numberline {6.5.1}Cell State and Hidden State}{199}{subsection.6.5.1}%
+\contentsline {subsection}{\numberline {6.5.2}The Three Gates}{200}{subsection.6.5.2}%
+\contentsline {subsubsection}{Forget Gate}{200}{section*.16}%
+\contentsline {subsubsection}{Input Gate}{202}{section*.17}%
+\contentsline {subsubsection}{Output Gate}{204}{section*.18}%
+\contentsline {section}{\numberline {6.6}Gated Recurrent Units (GRUs)}{207}{section.6.6}%
+\contentsline {subsection}{\numberline {6.6.1}Limitations of LSTM and GRU}{210}{subsection.6.6.1}%
+\contentsline {section}{\numberline {6.7}Convolutional Neural Networks for Sequences}{210}{section.6.7}%
+\contentsline {subsection}{\numberline {6.7.1}1D Convolutions}{211}{subsection.6.7.1}%
+\contentsline {subsection}{\numberline {6.7.2}Causal Convolutions}{213}{subsection.6.7.2}%
+\contentsline {subsection}{\numberline {6.7.3}Dilated Convolutions}{214}{subsection.6.7.3}%
+\contentsline {section}{\numberline {6.8}Transformers (Preview)}{215}{section.6.8}%
+\contentsline {section}{\numberline {6.9}Time Series Forecasting}{218}{section.6.9}%
+\contentsline {subsection}{\numberline {6.9.1}WaveNet and Temporal Convolutional Networks}{218}{subsection.6.9.1}%
+\contentsline {subsection}{\numberline {6.9.2}When to Use Deep Learning for Time Series}{219}{subsection.6.9.2}%
+\contentsline {chapter}{\numberline {7}Week 7: Natural Language Processing I}{223}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Text and Public Policy}{223}{section.7.1}%
+\contentsline {subsection}{\numberline {7.1.1}Example Applications}{224}{subsection.7.1.1}%
+\contentsline {section}{\numberline {7.2}Common NLP Tasks}{225}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Text as Data}{225}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Document Embeddings}{226}{section.7.4}%
+\contentsline {subsection}{\numberline {7.4.1}Bag of Words (BoW)}{226}{subsection.7.4.1}%
+\contentsline {subsection}{\numberline {7.4.2}TF-IDF}{227}{subsection.7.4.2}%
+\contentsline {subsection}{\numberline {7.4.3}Word Embeddings (Preview)}{227}{subsection.7.4.3}%
+\contentsline {subsection}{\numberline {7.4.4}Visualising Document and Word Embeddings}{228}{subsection.7.4.4}%
+\contentsline {section}{\numberline {7.5}Text Preprocessing}{229}{section.7.5}%
+\contentsline {subsection}{\numberline {7.5.1}Getting Text Ready for Analysis: NLP Pipelines}{229}{subsection.7.5.1}%
+\contentsline {subsection}{\numberline {7.5.2}Further Preprocessing Techniques}{230}{subsection.7.5.2}%
+\contentsline {subsection}{\numberline {7.5.3}Simple NLP Pipeline for Document Classification}{231}{subsection.7.5.3}%
+\contentsline {section}{\numberline {7.6}Deep Learning for NLP: Architecture}{232}{section.7.6}%
+\contentsline {section}{\numberline {7.7}Word Embeddings I: One-Hot Encoding}{234}{section.7.7}%
+\contentsline {section}{\numberline {7.8}Word Embeddings II: Word2Vec}{235}{section.7.8}%
+\contentsline {subsection}{\numberline {7.8.1}Skip-Gram and CBOW Models Overview}{236}{subsection.7.8.1}%
+\contentsline {subsection}{\numberline {7.8.2}Skip-Gram Model}{237}{subsection.7.8.2}%
+\contentsline {subsubsection}{Probability and Vector Representation}{237}{section*.19}%
+\contentsline {subsubsection}{Softmax and Conditional Probability}{237}{section*.20}%
+\contentsline {subsubsection}{Objective Function}{239}{section*.21}%
+\contentsline {subsubsection}{Training Process}{240}{section*.22}%
+\contentsline {subsubsection}{Network Architecture}{242}{section*.23}%
+\contentsline {subsubsection}{Loss Function and Gradient Update}{246}{section*.24}%
+\contentsline {subsubsection}{Negative Sampling}{249}{section*.25}%
+\contentsline {subsection}{\numberline {7.8.3}Continuous Bag of Words (CBOW) Model}{251}{subsection.7.8.3}%
+\contentsline {section}{\numberline {7.9}Word Embeddings III: GloVe}{254}{section.7.9}%
+\contentsline {section}{\numberline {7.10}Word Embeddings IV: Contextual Embeddings}{254}{section.7.10}%
+\contentsline {section}{\numberline {7.11}Sentiment Analysis with RNNs}{255}{section.7.11}%
+\contentsline {subsection}{\numberline {7.11.1}Basic RNNs for Sentiment Analysis}{256}{subsection.7.11.1}%
+\contentsline {subsection}{\numberline {7.11.2}Challenges with Basic RNNs}{257}{subsection.7.11.2}%
+\contentsline {subsection}{\numberline {7.11.3}Long Short-Term Memory (LSTM) and Gated Recurrent Units (GRU)}{257}{subsection.7.11.3}%
+\contentsline {subsection}{\numberline {7.11.4}Bidirectional RNNs}{257}{subsection.7.11.4}%
+\contentsline {subsection}{\numberline {7.11.5}Pretraining Task: Masked Language Modelling}{258}{subsection.7.11.5}%
+\contentsline {subsection}{\numberline {7.11.6}Training with Sentiment Labels}{259}{subsection.7.11.6}%
+\contentsline {subsection}{\numberline {7.11.7}Example: Sentiment Analysis on Movie Reviews}{259}{subsection.7.11.7}%
+\contentsline {section}{\numberline {7.12}Regularisation in Deep Learning}{260}{section.7.12}%
+\contentsline {subsection}{\numberline {7.12.1}Weight Sharing}{260}{subsection.7.12.1}%
+\contentsline {subsection}{\numberline {7.12.2}Weight Decay ($L_2$ Regularisation)}{261}{subsection.7.12.2}%
+\contentsline {subsection}{\numberline {7.12.3}Dropout}{261}{subsection.7.12.3}%
+\contentsline {subsection}{\numberline {7.12.4}Benefits of Regularisation}{264}{subsection.7.12.4}%
+\contentsline {chapter}{\numberline {8}Week 8: NLP II - Attention and Transformers}{265}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Encoder-Decoder Architecture}{265}{section.8.1}%
+\contentsline {subsection}{\numberline {8.1.1}Machine Translation: A Motivating Example}{266}{subsection.8.1.1}%
+\contentsline {subsection}{\numberline {8.1.2}The Encoder-Decoder Framework}{267}{subsection.8.1.2}%
+\contentsline {subsection}{\numberline {8.1.3}Autoencoder: A Special Case}{267}{subsection.8.1.3}%
+\contentsline {subsection}{\numberline {8.1.4}RNN-Based Encoder-Decoder}{268}{subsection.8.1.4}%
+\contentsline {subsection}{\numberline {8.1.5}Data Preprocessing for Machine Translation}{270}{subsection.8.1.5}%
+\contentsline {section}{\numberline {8.2}BLEU: Evaluating Machine Translation}{271}{section.8.2}%
+\contentsline {section}{\numberline {8.3}The Attention Mechanism}{273}{section.8.3}%
+\contentsline {subsection}{\numberline {8.3.1}The Problem: Information Bottleneck}{273}{subsection.8.3.1}%
+\contentsline {subsection}{\numberline {8.3.2}Biological Inspiration}{273}{subsection.8.3.2}%
+\contentsline {subsection}{\numberline {8.3.3}Attention Cues: Volitional and Non-Volitional}{274}{subsection.8.3.3}%
+\contentsline {subsection}{\numberline {8.3.4}Queries, Keys, and Values}{274}{subsection.8.3.4}%
+\contentsline {subsection}{\numberline {8.3.5}Attention Pooling}{276}{subsection.8.3.5}%
+\contentsline {subsection}{\numberline {8.3.6}Attention Scoring Functions}{276}{subsection.8.3.6}%
+\contentsline {section}{\numberline {8.4}Bahdanau Attention}{278}{section.8.4}%
+\contentsline {section}{\numberline {8.5}Multi-Head Attention}{279}{section.8.5}%
+\contentsline {section}{\numberline {8.6}Self-Attention}{281}{section.8.6}%
+\contentsline {section}{\numberline {8.7}Positional Encoding}{282}{section.8.7}%
+\contentsline {section}{\numberline {8.8}The Transformer Architecture}{284}{section.8.8}%
+\contentsline {subsection}{\numberline {8.8.1}Transformer Encoder}{285}{subsection.8.8.1}%
+\contentsline {subsection}{\numberline {8.8.2}Transformer Decoder}{286}{subsection.8.8.2}%
+\contentsline {subsection}{\numberline {8.8.3}Transformer Variants}{287}{subsection.8.8.3}%
+\contentsline {section}{\numberline {8.9}BERT: Encoder-Only Transformer}{287}{section.8.9}%
+\contentsline {section}{\numberline {8.10}Vision Transformer (ViT)}{289}{section.8.10}%
+\contentsline {section}{\numberline {8.11}Computational Considerations}{291}{section.8.11}%
+\contentsline {section}{\numberline {8.12}Summary: The Attention Revolution}{294}{section.8.12}%
+\contentsline {section}{\numberline {8.13}Connections to Other Topics}{295}{section.8.13}%
+\contentsline {chapter}{\numberline {9}Week 9: Large Language Models in Practice}{297}{chapter.9}%
+\contentsline {section}{\numberline {9.1}AI Alignment}{297}{section.9.1}%
+\contentsline {subsection}{\numberline {9.1.1}Hallucinations}{298}{subsection.9.1.1}%
+\contentsline {subsection}{\numberline {9.1.2}Data-Based Bias}{299}{subsection.9.1.2}%
+\contentsline {subsection}{\numberline {9.1.3}Offensive and Illegal Content}{300}{subsection.9.1.3}%
+\contentsline {subsection}{\numberline {9.1.4}LLMs vs Chatbots: The Alignment Gap}{300}{subsection.9.1.4}%
+\contentsline {section}{\numberline {9.2}Post-Training: Aligning LLMs}{301}{section.9.2}%
+\contentsline {subsection}{\numberline {9.2.1}The LLM Training Pipeline}{301}{subsection.9.2.1}%
+\contentsline {subsection}{\numberline {9.2.2}LLM Inference: Behind the Scenes}{301}{subsection.9.2.2}%
+\contentsline {subsection}{\numberline {9.2.3}Supervised Fine-Tuning (SFT)}{302}{subsection.9.2.3}%
+\contentsline {subsection}{\numberline {9.2.4}Reinforcement Learning from Human Feedback (RLHF)}{303}{subsection.9.2.4}%
+\contentsline {section}{\numberline {9.3}The Bitter Lesson}{305}{section.9.3}%
+\contentsline {section}{\numberline {9.4}Reasoning Models}{307}{section.9.4}%
+\contentsline {subsection}{\numberline {9.4.1}What Are Reasoning Models?}{307}{subsection.9.4.1}%
+\contentsline {subsection}{\numberline {9.4.2}Performance Characteristics of LRMs}{307}{subsection.9.4.2}%
+\contentsline {subsection}{\numberline {9.4.3}Training Reasoning Models}{309}{subsection.9.4.3}%
+\contentsline {section}{\numberline {9.5}Retrieval-Augmented Generation (RAG)}{309}{section.9.5}%
+\contentsline {subsection}{\numberline {9.5.1}Motivation}{309}{subsection.9.5.1}%
+\contentsline {subsection}{\numberline {9.5.2}RAG Architecture}{310}{subsection.9.5.2}%
+\contentsline {subsection}{\numberline {9.5.3}Document Retrieval Methods}{310}{subsection.9.5.3}%
+\contentsline {subsection}{\numberline {9.5.4}Benefits and Limitations}{312}{subsection.9.5.4}%
+\contentsline {section}{\numberline {9.6}Fine-Tuning LLMs}{312}{section.9.6}%
+\contentsline {subsection}{\numberline {9.6.1}Openness of LLMs}{312}{subsection.9.6.1}%
+\contentsline {subsection}{\numberline {9.6.2}Challenges in Fine-Tuning}{313}{subsection.9.6.2}%
+\contentsline {subsection}{\numberline {9.6.3}Parameter-Efficient Fine-Tuning (PEFT)}{313}{subsection.9.6.3}%
+\contentsline {subsection}{\numberline {9.6.4}LoRA: Low-Rank Adaptation}{314}{subsection.9.6.4}%
+\contentsline {subsection}{\numberline {9.6.5}Fine-Tuning Proprietary Models}{315}{subsection.9.6.5}%
+\contentsline {section}{\numberline {9.7}Few-Shot Learning}{316}{section.9.7}%
+\contentsline {section}{\numberline {9.8}Structured Outputs}{318}{section.9.8}%
+\contentsline {subsection}{\numberline {9.8.1}JSON Schema}{319}{subsection.9.8.1}%
+\contentsline {subsection}{\numberline {9.8.2}Chain-of-Thought with Structured Output}{320}{subsection.9.8.2}%
+\contentsline {section}{\numberline {9.9}Tool Calling}{320}{section.9.9}%
+\contentsline {section}{\numberline {9.10}AI Agents}{323}{section.9.10}%
+\contentsline {subsection}{\numberline {9.10.1}What Are AI Agents?}{323}{subsection.9.10.1}%
+\contentsline {subsection}{\numberline {9.10.2}Examples of AI Agents}{324}{subsection.9.10.2}%
+\contentsline {subsection}{\numberline {9.10.3}Agent Categorisation and Governance}{325}{subsection.9.10.3}%
+\contentsline {subsection}{\numberline {9.10.4}Future Implications}{326}{subsection.9.10.4}%
+\contentsline {section}{\numberline {9.11}Summary}{328}{section.9.11}%

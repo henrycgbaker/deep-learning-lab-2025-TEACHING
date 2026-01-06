@@ -1,0 +1,394 @@
+% \documentclass[xcolor=dvipsnames]{beamer}
+\documentclass[xcolor=dvipsnames,handout]{beamer}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\usepackage{etex}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epsfig}
+\usepackage[english]{babel}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{fancyvrb}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{epsdice}
+
+\hypersetup{
+    colorlinks = true
+}
+
+\definecolor{newred}{RGB}{127,0,0}
+\let\iitemize=\itemize \let\endiitemize=\enditemize \renewenvironment{itemize}{\iitemize \vspace{1mm} \itemsep2mm}{\endiitemize}
+\let\eenumerate=\enumerate \let\endeenumerate=\endenumerate \renewenvironment{enumerate}{\eenumerate \vspace{1mm} \itemsep2mm}{\endeenumerate}
+% == theme & colors
+\mode<presentation>
+{
+
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usecolortheme{beaver}
+  \setbeamercovered{invisible} %or transparent
+  \metroset{block=fill}
+  \setbeamercolor{block title example}{fg=gray!40!black}
+  \setbeamercolor{itemize item}{fg=gray!40!black} 
+  \setbeamercolor{title}{fg=newred} 
+}
+
+      
+\setbeamercolor{background canvas}{bg=white}
+
+
+% === tikz for pictures ===
+\usepackage{tikz}
+\usepackage[latin1]{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning}
+\usetikzlibrary{decorations.pathreplacing}
+\tikzstyle{doublearr}=[latex-latex, black, line width=0.5pt]
+
+% === if you want more than one slides on one page ===
+\usepackage{pgfpages}
+
+
+
+\title{Mathematics for Data Science}
+\subtitle[]{Lecture 5: Power Series; Integration}
+\author[Asya Magazinnik]{Asya Magazinnik}
+\institute{Hertie School}
+\date{\today}
+
+\renewcommand\r{\right}
+\renewcommand\l{\left}
+% \newcommand\sign{{\rm sign}}
+
+%% == change spacing for itemize
+%\let\oldframe\frame
+%\renewcommand{\frame}[1][1]{
+%\oldframe[#1]
+%\let\olditemize\itemize
+%\renewcommand\itemize{\olditemize\addtolength{\itemsep}{.25\baselineskip}}
+%}
+
+
+
+\def\insertnavigation#1{\relax}
+% \usefonttheme{serif}
+\usepackage[all]{xy}
+\usepackage{geometry,colortbl,wrapfig}
+\usepackage{tikz}  
+\usepackage{graphicx,setspace,subfigure}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\newcommand{\Ex}{\textsc{Example  }}
+\newcommand{\series}{\sum_{n=1}^{\infty}} 
+\newcommand{\ball}[1]{B( #1)} 
+\newcommand{\inner}[1]{\ensuremath{\langle #1 \rangle}}
+\newcommand{\e}{\epsilon}
+\newcommand{\grad}{\nabla}
+\newcommand{\pa}{\pause \item}
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+\newcommand{\R}{\mathbb{R}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+
+
+
+
+\newcommand{\indep}{{\bot\negthickspace\negthickspace\bot}}
+
+\begin{document}
+
+\subject{Talks}
+\AtBeginSection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection,currentsubsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+
+\frame[plain]{
+  \titlepage
+  \addtocounter{framenumber}{-1}
+}
+
+
+
+\begin{frame}{Introducing Power Series}
+Define the \alert{power series} as a series of the form:
+\[ \sum_{k=0}^{\infty} c_k x^k = c_0 + c_1 x + c_2 x^2 + c_3 x^3 + ...\]
+where $x$ is a variable and the coefficients $c_k$ are constants. \\ 
+\vspace{3mm} \pause
+For instance, a power series can be: 
+\[ 1 + x + x^2 + x^3 + ... = \sum_{k=0}^\infty x^k \]
+\end{frame}
+
+\begin{frame}{Introducing Power Series}
+    As another example, we can have the power series:
+    \[ \sum_{k=0}^\infty c_k (x-a)^k = c_0 + c_1(x-a) + c_2 (x-a)^2 + ... \]
+    where $a$ is some constant. We call this power series ``centered at $x=a$.'' 
+\end{frame}
+
+\begin{frame}{Power Series Are Convergent or Divergent}
+    Take the power series: 
+    \[ \sum_{k=0}^\infty x^k  = 1 + x + x^2 + x^3 + x^4 ...\]
+    and suppose $x=\frac{1}{2}$. Then, you get:  
+    \[ 
+    \begin{aligned}
+        &1 + \frac{1}{2} + \left( \frac{1}{2} \right)^2 + \left( \frac{1}{2} \right)^3 + \left( \frac{1}{2} \right)^4 ... \\
+        = &1 + \frac{1}{2} + \frac{1}{4} + \frac{1}{8} + \frac{1}{16} ...  
+    \end{aligned}
+     \]
+     As you can see, this sum will eventually stop moving very much as you continue to add higher and higher powers. It will \alert{converge}.
+\end{frame}
+
+\begin{frame}{Power Series Are Convergent or Divergent}
+Take the same power series: 
+    \[ \sum_{k=0}^\infty x^k  = 1 + x + x^2 + x^3 + x^4 ...\]
+    and now suppose $x=2$. Then, you get:  
+    \[ 1 + 2 + 4 + 8 + 16 ...    \]
+    This sum will continue to grow larger and larger as you add higher-order terms. It will \alert{diverge}. \\
+    \vspace{3mm} \pause
+    Note, then, that the same power series can be convergent and divergent for different values of $x$. 
+\end{frame}
+
+\begin{frame}{Power Series as Representations of Functions}
+    Why do we care about this? Because many more difficult functions can be \alert{represented} as infinite polynomials, which are easy to differentiate, integrate, and manipulate. 
+    \begin{itemize} \small 
+        \item And we can even truncate the infinite polynomial at some $k$ for a good-enough approximation (for an even easier time) 
+    \end{itemize} \pause
+    Consider the \alert{geometric series}: 
+    \[ a + ax + ax^2 + ax^3 +... = \sum_{k=0}^\infty ax^k \]
+    for some constant $a$. We will now show that this a representation for (i.e., it equals) the function $\frac{a}{1-x}$ when $|x|<1$.
+\end{frame}
+
+\begin{frame}{Power Series as Representations of Functions}
+Start by rewriting our power series slightly (only changing notation), and start with a finite sum to $n$:
+\[ \sum_{k=1}^n ax^{k-1} = a + ax + ax^2 + ax^3 + ... + ax^{n-1} \]
+\pause 
+Now multiply both sides by $(1-x)$ (you'll see why in a moment):
+\[ \small 
+\begin{aligned} 
+    (1-x) \sum_{k=1}^n ax^{k-1} &= (1-x) (a + ax + ax^2 + ... + ax^{n-1} ) \\ 
+    &= a - ax + ax - ax^2 + ax^2 - ax^3 + ... + ax^{n-1} - ax^n \\
+    &= a - ax^n = a(1-x^n) 
+\end{aligned}
+ \] \pause 
+ Now divide both sides by $(1-x)$ to get our initial sum back:
+ \[ \small 
+ \sum_{k=1}^n ax^{k-1} = \frac{a(1-x^n)}{1-x} 
+ \]
+\end{frame}
+
+\begin{frame}{Power Series as Representations of Functions}
+Finally, to get the infinite sum, take the limit as $n \rightarrow \infty$, recalling that we fixed $|x|<1$: 
+\[ \lim_{n \rightarrow \infty} \frac{a(1-x^n)}{1-x} = \frac{a}{1-x} \]
+\\
+\pause \vspace{5mm} 
+We have shown a useful result: 
+\[ \sum_{k=0}^\infty ax^k = \frac{a}{1-x} \]
+\end{frame}
+
+\begin{frame}{Finite Power Series Approximations}
+You don't have to go to infinity to get pretty close: \\
+    $S_2 = \sum_{k=0}^2 x^k = 1 + x + x^2$ \\
+    $S_4 = \sum_{k=0}^4 x^k = 1 + x + x^2 + x^3 + x^4$ \\
+    $S_6 = \sum_{k=0}^6 x^k = 1 + x + x^2 + x^3 + x^4 + x^5 + x^6 $
+    \begin{center}
+        \includegraphics[width=.7\textwidth]{images/power_approx.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}{This Result Is More Powerful Than It Looks}
+    We have shown that you can represent the function $\frac{a}{1-x}$ as an infinite power series. But you're not limited to just this function. \\
+    \vspace{3mm} \pause 
+    Consider the function $\frac{1}{1+x^3}$. We can easily manipulate this into a useful form: 
+    \[ 
+    \begin{aligned}
+           \frac{1}{1 + x^3} &= \frac{1}{1-(-x^3)} \\ \pause 
+           &= \sum_{k=0}^\infty (-x^3)^k \\
+           &= 1 - x^3 + x^6 - x^9 + ... 
+    \end{aligned}
+ \]
+    
+\end{frame}
+
+\begin{frame}{Taylor Series Approximation}
+ \small   \vspace{2mm} Suppose you have some ugly function $f(x)$. 
+    \begin{itemize} \small 
+        \item It's difficult to differentiate, integrate, manipulate, maximize, or even write down... 
+    \end{itemize}
+    \vspace{2mm}
+    But luckily, let's assume it has a power series representation at some point $x=a$. In other words, suppose there is some polynomial function $p(x)$ such that:
+    \[ p(x) = f(x) \text{ at } x=a \]
+    And recall that our polynomial function $p(x)$ looks like this: 
+    \[ p(x) = \sum_{j=0}^\infty c_j (x-a)^j \]
+    \textbf{Question:} What should $p(x)$ be for a specific function $f(x)$?
+\end{frame}
+
+\begin{frame}{Taylor Series Approximation}
+    \textbf{Let's see for $x=0$.} \\
+Now, if we want $p(x)$ to \alert{represent} $f(x)$ at $x=0$, what conditions would we like to hold?
+\begin{enumerate}
+    \item $p(0)=f(0)$
+    \item $p'(0)=f'(0)$
+    \item $p''(0)=f''(0)$
+    \item $p'''(0)=f'''(0)$
+    \item ...
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Taylor Series Approximation}
+We can solve for the values of $c$ that make these conditions hold. 
+\begin{enumerate}
+    \item $p(0) = f(0)$ \\
+   \vspace{2mm}
+    Remember, what is $p(x)$? It's:
+    \[ p(x) = c_0 + c_1 x + c_2 x^2 + ... \]
+    So, $p(0) = c_0$. Then our first condition is: 
+    \[ \color{red} (1) ~  c_0 = f(0) \]
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Taylor Series Approximation}
+    Our second condition:
+    \begin{enumerate}
+    \addtocounter{enumi}{1}
+        \item $p'(0) = f'(0)$ \\ \vspace{2mm}
+        Ok, so what is $p'(x)$? It's: 
+        \begin{align*}
+        p'(x) &= \frac{d}{dx} \left( c_0 + c_1 x + c_2 x^2 + c_3 x^3 + c_4 x^4 + ... \right) \\
+        &= c_1 + 2 c_2 x + 3 c_3 x^2 + 4 c_4 x^3 ... 
+        \end{align*}
+        So, $p'(0)=c_1$. And we have our second condition:
+        \[ \color{red} (2)~ c_1 = f'(0) \]
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Keep Going!}
+    Our third condition:
+    \begin{enumerate}
+        \addtocounter{enumi}{2}
+
+        \item $p''(0)=f''(0)$ \\
+        \vspace{2mm}
+        What is $p''(x)$? It's:
+         \begin{align*}
+        p''(x) &= \frac{d}{dx} \left( c_1 + 2 c_2 x + 3 c_3 x^2 + 4 c_4 x^3 ... \right) \\
+        &= 2c_2 + 6 c_3 x + 12 c_4 x^2 ... 
+        \end{align*}
+    \end{enumerate}
+    Then, $p''(0)=2c_2$, giving us our third condition:
+    \[ \color{red} (3)~ 2 c_2 = f''(0) \rightarrow c_2 = \frac{1}{2} f''(0) \]
+    \end{frame}
+
+    \begin{frame}{Last One...}
+    Our fourth condition:
+    \begin{enumerate}
+        \addtocounter{enumi}{3}
+
+        \item $p'''(0)=f'''(0)$ \\
+        \vspace{2mm}
+        What is $p'''(x)$? It's:
+         \begin{align*}
+        p'''(x) &= \frac{d}{dx} \left( 2c_2 + 6 c_3 x + 12 c_4 x^2 ... \right) \\
+        &=  6 c_3 + 24 c_4 x + ... 
+        \end{align*}
+    \end{enumerate}
+    Then, $p'''(0)=6 c_3$, giving us our fourth condition:
+    \[ \color{red} (4)~ 6 c_3 = f'''(0) \rightarrow c_3 = \frac{1}{6} f'''(0) \]
+    \end{frame}
+
+\begin{frame}{What Have We Derived?}
+
+We now have the conditions:
+\begin{enumerate}
+    \item $c_0 = f(0)$
+    \item $c_1 = f'(0)$
+    \item $c_2 = \frac{1}{2} f''(0)$
+    \item $c_3 = \frac{1}{6} f'''(0)$
+    \end{enumerate}
+ Meaning, to represent $f(x)$ at $x=0$, our polynomial $p(x)$ should be: 
+ \[
+ p(x) = \underbrace{f(0)}_{c_0} + \underbrace{f'(0)}_{c_1} x + \underbrace{\frac{1}{2} f''(0)}_{c2} x^2 + \underbrace{\frac{1}{6} f'''(0)}_{c_3} x^3 ... 
+ \]
+\end{frame}
+
+\begin{frame}{What Have We Derived}
+    If you kept doing this, you would see a pattern: 
+     \[
+ p(x) = \underbrace{f(0)}_{c_0} + \underbrace{f'(0)}_{c_1} x + \underbrace{\frac{1}{2!} f''(0)}_{c2} x^2 + \underbrace{\frac{1}{3!} f'''(0)}_{c_3} x^3 ... 
+ \]
+ And, generalizing from $x=0$ to $x=a$,
+      \[
+ p(x) = \underbrace{f(a)}_{c_0} + \underbrace{f'(a)}_{c_1} (x-a) + \underbrace{\frac{1}{2!} f''(a)}_{c2} (x-a)^2 + \underbrace{\frac{1}{3!} f'''(a)}_{c_3} (x-a)^3 ... 
+ \]
+ This is the \alert{Taylor series} for the function $f(x)$ at $a$. In the special case when $a=0$, we also call this the \alert{Maclaurin series}.
+\end{frame}
+
+\begin{frame}{Taylor Polynomials}
+\vspace{2mm}
+\small Now, starting from this infinite sum: 
+ \[
+ p(x) = \underbrace{f(a)}_{c_0} + \underbrace{f'(a)}_{c_1} (x-a) + \underbrace{\frac{1}{2!} f''(a)}_{c2} (x-a)^2 + \underbrace{\frac{1}{3!} f'''(a)}_{c_3} (x-a)^3 ... 
+ \]
+   we can write the $n$th \alert{partial sum} of the Maclaurin series as: 
+    \begin{align*}
+        p_0(x) &= f(0) \\
+        p_1(x) &= f(0) + f'(0) x \\
+        p_2(x) &= f(0) + f'(0) + \frac{1}{2} f''(0) x^2 \\
+        p_3(x) &= f(0) + f'(0) + \frac{1}{2} f''(0) x^2 + \frac{1}{6} f'''(0) x^3 
+    \end{align*}
+    Each partial sum is an \alert{approximation} to the function $f(x)$, which gets better and better as you add more terms! 
+\end{frame}
+
+\begin{frame}{Example}
+\vspace{2mm}
+    \textbf{Example:} Find the Taylor polynomials $p_0$, $p_1$, $p_2$, and $p_3$ for the function $f(x) = \log(x)$ at $x=1$. \\
+    \vspace{2mm}
+    We will require the derivatives of $f(x)$, and we should also evaluate them at $x=1$:
+    \begin{align*}
+        f(x) &= \log(x)  \rightarrow \log(1) = 0\\
+        f'(x) &= \frac{1}{x}  \rightarrow f'(x)=1\\
+        f^2(x) &= -\frac{1}{x^2} \rightarrow f^2(1) = -1 \\
+        f^{3}(x) &= \frac{2}{x^3} \rightarrow f^3(1) = 2 
+    \end{align*}
+\end{frame}
+
+\begin{frame}{Example}
+   \[
+ p(x) = \underbrace{f(a)}_{c_0} + \underbrace{f'(a)}_{c_1} (x-a) + \underbrace{\frac{1}{2!} f''(a)}_{c2} (x-a)^2 + \underbrace{\frac{1}{3!} f'''(a)}_{c_3} (x-a)^3 ... 
+ \]
+ Then,
+    \begin{align*}
+        p_0(x) &= f(1) = 0 \\
+        p_1(x) &= f(1) + f'(1)(x-1) = 0 + 1(x-1) = x-1 \\
+        p_2(x) &= x-1 + \frac{1}{2} f''(1) (x-1)^2 = x-1 - \frac{1}{2} (x-1)^2 \\
+        p_3(x) &= x - 1 - \frac{1}{2} (x-1)^2 + \frac{1}{3} (x-1)^3
+    \end{align*}
+    (Graph these approximations and see how close they get.) 
+\end{frame}
+
+\end{document}

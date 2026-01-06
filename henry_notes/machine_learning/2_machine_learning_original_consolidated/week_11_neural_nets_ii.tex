@@ -1,0 +1,1099 @@
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf ML Lecture Notes 2024 \\ Henry Baker}
+\hline 
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf ML Lecture Notes: Wk 11 \\ Neural Networks II: Electric Boogaloo}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Overview}
+
+Core concepts of unsupervised learning
+
+\begin{itemize}
+    \item Core NN concept: \textbf{\textit{composability}}
+    \item More sophisticated things possible through NNs
+    \begin{itemize}
+        \item Images
+        \item Irregular inputs - eg text
+    \end{itemize}
+\end{itemize}
+
+\section{Recipe for a NN}
+\subsection{Design of an NN}
+\begin{itemize}
+    \item \textbf{Inputs}
+    \begin{itemize}
+        \item The number of neurons in the input layer should match the number of features in the input data.
+        \item Example: For an image of 28x28 pixels, the input layer would have 784 neurons (28*28).
+    \end{itemize}
+    \item \textbf{Layers} (Input, Hidden, Output)
+    \item \textbf{Non-linearities}
+    \begin{itemize}
+        \item ReLU (Rectified Linear Unit):
+        \[
+        f(x) = \max(0, x)
+        \]
+        \item Sigmoid:
+        \[
+        f(x) = \frac{1}{1 + e^{-x}}
+        \]  
+        \item Tanh:
+        \[
+        f(x) = \tanh(x)
+        \]
+        \item Softmax: Often used in the output layer for classification tasks,
+        \[
+        f(x_i) = \frac{e^{x_i}}{\sum_j e^{x_j}}
+        \]
+        \end{itemize}
+    \item \textbf{Connections}
+    \begin{itemize}
+        \item Fully Connected: Each neuron is connected to every neuron in the next layer.
+        \item Convolutional: Used in CNNs, where local receptive fields are connected.
+        \item Recurrent: Used in RNNs, where connections form loops for temporal data.
+    \end{itemize}
+    \item \textbf{Outputs}
+    \begin{itemize}
+        \item Regression: Single neuron with a linear activation function.
+        \item Classification: Multiple neurons with a softmax activation function (for multi-class classification).
+    \end{itemize}
+\end{itemize}
+
+\subsection{Design a loss function}
+\begin{itemize}
+    \item Regression $\rightarrow$ MSE
+    \[
+    \text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+    \]
+    \item Classification $\rightarrow$ LogLoss (Cross-Entropy Loss)
+    \[
+    \text{LogLoss} = -\frac{1}{n} \sum_{i=1}^{n} \left[ y_i \log(\hat{y}_i) + (1 - y_i) \log(1 - \hat{y}_i) \right]
+    \]
+\end{itemize}
+
+\subsection{Choose an Optimizer}
+Updates the network's weights to minimize the loss function.
+
+e.g. BFGS, SGD, Adam (in general Adam is best).\\
+
+\textbf{Stochastic Gradient Descent (SGD):}
+\[
+w = w - \eta \nabla L(w)
+\]
+where \(\eta\) is the learning rate.\\
+
+\textbf{Adam (Adaptive Moment Estimation):} Combines the advantages of two other extensions of SGD, AdaGrad and RMSProp.
+The update rule involves estimates of first and second moments of the gradients:
+\[
+m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t
+\]
+\[
+v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2
+\]
+\[
+\hat{m}_t = \frac{m_t}{1 - \beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1 - \beta_2^t}
+\]
+\[
+w_{t+1} = w_t - \eta \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
+\]
+
+\begin{tcolorbox}
+    Try Tensorflow Playground: https://playground.tensorflow.org/
+\end{tcolorbox}
+
+
+\section{Vanishing / exploding gradients}
+
+Addresses issues of gradient-based optimization (i.e. backpropagation)
+
+\begin{tcolorbox}
+    \textbf{Chain rule in Backpropogation}
+    Suppose $L$ layers: 
+    \[
+    \frac{\partial \mathcal{L}}{\partial z_l} = \frac{\partial \mathcal{L}}{\partial z_L} \cdot \frac{\partial z_{L}}{\partial z_{L-1}} \cdots \frac{\partial z_{(l+2)}}{\partial z_{(l+1)}} \cdot \frac{\partial z_{l+1}}{\partial z_{l}}
+    \]
+    Where:
+    \begin{itemize}
+        \item $z_l$ represents the $l$-th layer ???
+        \item $z_L$ represents the pre-activation inputs to the neurons in the $L$th layer ????
+    \end{itemize}
+
+    ... ChatGPT preferred this notation:
+
+    \[
+    \frac{\partial W^{(l)}}{\partial \mathcal{L}} = \frac{\partial a^{(L)}}{\partial \mathcal{L}} \cdot \frac{\partial z^{(L)}}{\partial a^{(L)}} \cdot \frac{\partial a^{(L-1)}}{\partial z^{(L)}} \cdot \cdots \cdot \frac{\partial z^{(l+1)}}{\partial a^{(l+1)}} \cdot \frac{\partial W^{(l)}}{\partial z^{(l+1)}}
+    \]
+    Where:
+    \begin{itemize}
+        \item $a^(k)$ represents the activation in the $k$th layer
+        \item $z^(k)$ represents the pre-activation inputs to the neurons in the $k$th layer
+        \item Each term in the product is a partial derivative, representing how changes in one layer affect the next.
+    \end{itemize}
+\end{tcolorbox}
+
+\subsection{Assumption of Similar Relationships}
+
+Suppose that the derivatives $\frac{\partial Z_{l+1}}{\partial{Z_l}}$ are approximately constant for each layer $k$ and can be represented by some constant $J$
+
+$$\frac{\partial Z_{l+1}}{\partial{Z_l}}\approx J$$
+
+This makes some sense: we’re assuming layers have similar relationships to each other throughout.\\
+
+Then...
+\subsection{Gradient Expression Simplification}
+
+Then, the gradient of the loss function $L$ with respect to the weights in layer $l$ can be approximated as:
+
+\begin{tcolorbox}
+    ChatGPT:
+    \[\frac{\partial L}{\partial{W^{(l)}}}\approx J^{L-l} \cdot \text{other terms}\]
+\end{tcolorbox}
+
+$$\frac{\partial \mathcal{L}}{\partial{Z_l}}\approx J^{L-l}\frac{\partial \mathcal{L}}{\partial{Z_l}}$$
+
+\subsection{Limits \& Their Implications}
+
+If $J \in 0,1$:  as the number of layers $L$ increases, $J^{L-l}$ approaches 0. This results in vanishing gradients
+
+\[
+\lim_{L \to \infty} J^{L-l} = 0
+\]
+
+If \( J \in (1, \infty) \), as the number of layers \( L \) increases, \( J^{L-l} \) grows exponentially. This results in exploding gradients:
+\[
+\lim_{L \to \infty} J^{L-l} = \infty \text{ for } J \in (1, \infty)
+\]
+For a matrix, a similar property holds based on the eigenvalues.
+
+If $\lambda >1$ the gradient diverges, if $\lambda <1$ the gradient converges to zero.
+
+\subsection{Gradient clipping for exploding gradients}
+
+When gradients become too large, they can destabilize the training process by causing extreme updates to the model's weights, leading to divergence.\\
+
+Gradient clipping modifies the gradient before it is used to update the weights. Specifically, it limits the size of the gradient. If the gradient is too large (above a certain threshold or constant $c$), it is scaled down to ensure it doesn’t exceed this threshold.\\
+
+Mathematically, if $g$ is the computed gradient and $\|g\|$ is its norm, gradient clipping is defined as:
+
+\[
+g' = \min\left(1, \frac{c}{\|g\|}\right) \cdot g
+\]
+
+where:
+\begin{itemize}
+    \item $g$ is the original gradient,
+    \item $g'$ is the clipped gradient,
+    \item $c$ is a constant threshold for the maximum allowed gradient norm.
+\end{itemize}
+
+\subsubsection*{Direction Preservation}
+Clipping ensures that the gradient never exceeds the constant $c$, while preserving its direction. Thus, the optimization process continues to move in the correct direction, but in a controlled manner.
+
+\subsubsection*{Interpretation as Adaptive Learning Rate}
+You can think of gradient clipping as adaptive learning rate scaling. By limiting the gradient's size, it effectively reduces the learning rate dynamically when gradients get too large. This prevents erratic jumps in parameter space, keeping training stable.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_11_neural_nets_ii/gradient_clipping_2.png}
+    \caption{Gradient Clipping}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Vanishing Gradients}
+The vanishing gradient problem occurs when gradients become very small as they are propagated backward through a deep neural network (particularly severe in deep networks where the gradients diminish exponentially as they are passed back through many layers).\\
+
+When this happens, the updates to the network's weights become negligible, and the network stops learning. \\
+
+If you have a v big network, you are likely to have a large input at some point -> gradient goes to zero -> stop being able to learn what the right feature represrntations are for the bottom part of the network
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_11_neural_nets_ii/activation function.png}
+    \caption{Shows how activation functions input changes as a function of the size of the input}
+    \label{fig:enter-label}
+\end{figure}
+
+Different activation functions exhibit varying behaviors with respect to the vanishing gradient problem.
+
+\paragraph{1. Sigmoid Activation Function}
+The sigmoid function is defined as:
+\[
+z = \sigma(\beta x) = \frac{1}{1 + e^{-\beta x}}
+\]
+The gradient of the loss function with respect to the input $x$ is:
+\[
+\frac{\partial \mathcal{L}}{\partial x} = z(1 - z) \beta x
+\]
+\textbf{This gradient approaches zero when $z$ is near 0 or 1.} Since the sigmoid function outputs values between 0 and 1, for very large or small inputs $x$, the gradient becomes extremely small, leading to the vanishing gradient problem.\\
+
+\textit{Intuition:} The gradient will disappear if the inputs get too large, and in deep networks, this can happen every time the sigmoid function is applied.
+
+\paragraph{2. ReLU (Rectified Linear Unit) Activation Function}
+The ReLU function is defined as:
+\[
+z = \text{ReLU}(\beta x) = \max(0, \beta x)
+\]
+The gradient of the loss with respect to $x$ is:
+\[
+\frac{\partial \mathcal{L}}{\partial x} = \mathbb{I}(z > 0) \cdot \beta x
+\]
+For negative inputs, the ReLU gradient is zero, which means the gradient disappears for very negative values. However, for positive inputs, the gradient does not shrink as $x$ increases, which helps mitigate the vanishing gradient problem.\\
+
+\textit{Intuition:} ReLU does not suffer from the vanishing gradient problem for positive inputs, although the gradient can become zero for negative inputs.
+
+\paragraph{3. Leaky ReLU Activation Function}
+Leaky ReLU is a variation of ReLU and is defined as:
+\[
+z = \text{Leaky ReLU}(x) = \begin{cases} 
+x & \text{if } x > 0 \\
+\alpha x & \text{if } x \leq 0
+\end{cases}
+\]
+where $\alpha$ is a small positive constant (e.g., 0.01). The gradient for Leaky ReLU is:
+\[
+\frac{\partial \mathcal{L}}{\partial x} = \mathbb{I}(z > 0) \cdot x + \alpha \mathbb{I}(z \leq 0) \cdot x
+\]
+Unlike ReLU, Leaky ReLU ensures that the gradient is never zero, even for negative inputs, thereby preventing the vanishing gradient problem.\\
+
+\textit{Intuition:} Leaky ReLU fixes the issue of zero gradients for negative inputs, ensuring that gradients never fully vanish.
+
+\subsubsection*{Gradient Behavior as Input Size Increases}
+As input values become large:
+\begin{itemize}
+    \item \textbf{Sigmoid:} The gradient vanishes as the output approaches its saturation points (0 or 1).
+    \item \textbf{ReLU:} The gradient is non-zero for large positive inputs, but vanishes for negative inputs.
+    \item \textbf{Leaky ReLU:} The gradient never vanishes, even for negative inputs, ensuring continuous learning.
+\end{itemize}
+
+\subsubsection*{Impact on Deep Networks}
+In very deep networks, the vanishing gradient problem is almost inevitable if using saturating activation functions like the \textbf{sigmoid}, as each application of the sigmoid diminishes the gradient. 
+
+In contrast, \textbf{ReLU} does not shrink gradients for positive inputs, thus reducing the vanishing gradient problem. However, the issue of zero gradients for negative inputs can be addressed by using \textbf{Leaky ReLU}, which introduces a small gradient for negative inputs and prevents the complete vanishing of gradients.
+
+\subsubsection*{Practical Considerations}
+\begin{itemize}
+    \item \textbf{ReLU} is commonly used due to its simplicity and effectiveness at preventing vanishing gradients.
+    \item \textbf{Sigmoid} may still be used when smoothness is important, though it risks the vanishing gradient problem.
+    \item \textbf{Leaky ReLU} is useful if you want to ensure that gradients are non-zero even for negative inputs, patching up ReLU's issue of zero gradients.
+\end{itemize}
+
+In practice, combining different non-linear activation functions can improve the performance and stability of deep networks.
+
+\subsection{Batch Normalization}
+
+\begin{tcolorbox}
+    Avoids vanishing gradient problem because it means you are rarely getting activations which are really big / small.\\
+
+    Maintains the same amount of variability at each layer; stops activation layer collapsing to a series of 0s.\\
+    
+    Conducted both within each batch, and within each layer.
+\end{tcolorbox}
+
+\textit{Batch Normalization} is a technique used to normalize the activations of a neural network layer to ensure that they have a zero mean and unit variance. This helps in stabilizing and accelerating the training process by reducing internal covariate shift, which occurs when the distribution of activations changes during training.
+
+\subsubsection{The Idea}
+The main idea behind batch normalization is to ensure that the distribution of activations within a layer has zero mean and unit variance, making the training more stable and allowing for faster convergence.
+
+\subsubsection{Computation}
+Given an input $x$ and an output $y$, batch normalization is computed as follows:
+\[
+y = \frac{x - \bar{x}_{\text{batch}}}{\sigma^2_{\text{batch}}} \gamma + \beta
+\]
+where:
+\begin{itemize}
+    \item $\bar{x}_{\text{batch}}$ is the batch-specific mean,
+    \item $\sigma^2_{\text{batch}}$ is the batch-specific variation of inputs,
+    \item $\gamma$ and $\beta$ are learnable parameters that allow the model to scale and shift the normalized output.
+\end{itemize}
+
+\subsubsection{Learnable Parameters}
+Batch normalization introduces two learnable parameters, $\gamma$ and $\beta$, which allow the model to recover the original distribution of activations if needed:
+\begin{itemize}
+    \item $\gamma$: Scales the normalized activation.
+    \item $\beta$: Shifts the normalized activation.
+\end{itemize}
+
+\subsubsection{Handling Test Set}
+During training, $\mu_{\text{batch}}$ and $\sigma^2_{\text{batch}}$ are computed from the current mini-batch. However, during testing (or inference), the batch-specific mean and variance are replaced by an exponential weighted moving average of these statistics computed during training.
+
+\[
+\bar{x}_{\text{test}} = \text{moving average of } \bar{x}_{\text{batch}}, \quad \sigma^2_{\text{test}} = \text{moving average of } \sigma^2_{\text{batch}}
+\]
+
+These moving averages are updated throughout training and used for the test set to ensure consistent normalization.
+
+\subsubsection{Key Benefits}
+Batch normalization offers several benefits:
+\begin{itemize}
+    \item It reduces internal covariate shift, stabilizing the training process.
+    \item It allows for higher learning rates, speeding up convergence.
+    \item It acts as a regularizer, reducing the need for other forms of regularization (such as dropout).
+\end{itemize}
+
+\subsection{Regularization}
+
+\subsubsection{Weight Decay (L2 Regularization)}
+
+\begin{tcolorbox}
+    Take all weights, put them in single vector, square them, add them together, apply some penalty... = ridge-style regularisation
+\end{tcolorbox}
+
+Weight decay adds a penalty on the size of the weights, discouraging large weights and encouraging simpler models. This is similar to the ridge regression penalty (L2 regularization), and it can be expressed as:
+
+\[
+\mathcal{L}_{\text{reg}} = \mathcal{L} + \lambda \|w\|^2
+\]
+or 
+\[
+\mathcal{L}_{\text{reg}} = \mathcal{L} + w^Tw
+\]
+
+where:
+\begin{itemize}
+    \item $\mathcal{L}$ is the original loss function,
+    \item $\|w\|^2 = w^T w$ is the L2 norm of the weights,
+    \item $\lambda$ is a regularization coefficient that controls the strength of the penalty.
+\end{itemize}
+
+This penalty encourages the optimizer to find weight values that are small, thereby simplifying the model and improving generalization.
+
+\paragraph{Implementation:}
+Weight decay is typically an option included \textbf{\textit{in the optimizer}} during the training process.
+
+\subsubsection{Dropout}
+
+\begin{tcolorbox}
+    More robust models by inducing the building in of redundancy in the learning.
+\end{tcolorbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/dropout.png}
+    \caption{Dropout}
+    \label{fig:enter-label}
+\end{figure}
+
+Dropout is a regularization technique where, during training, a random subset of edges (or neurons) in the network is "dropped out," or set to zero. This helps in spreading out learning across the network, preventing any particular neuron from becoming overly reliant on specific features.
+
+\paragraph{Training with Dropout:}
+During each training iteration, some neurons are randomly "dropped out," meaning their outputs are set to zero. This forces the network to rely on different subsets of neurons, thereby inducing robustness and redundancy in the learning process.
+
+\paragraph{At Prediction Time:}
+At prediction time, the dropout effect is no longer applied directly. Instead, either the dropped-out units are averaged, or dropout is applied repeatedly to create an ensemble of models, which can give an estimate of uncertainty in the predictions.
+
+\subsubsection{Ensemble Method}
+Dropout introduces an implicit ensemble method by combining multiple subnetworks (created by dropping out different neurons during training). This allows the model to make more robust predictions and, in some cases, provides a measure of uncertainty by averaging the predictions from various dropout masks.
+
+\subsubsection{Intuition}
+Regularization via weight decay or dropout helps prevent overfitting and builds redundancy into the learning process, leading to a more robust model.
+\begin{itemize}
+    \item Weight decay encourages small weights and discourages overly complex models.
+    \item Dropout spreads learning across the network, ensuring that no single neuron dominates the prediction process.
+\end{itemize}
+
+\section{CNNs} 
+
+\begin{tcolorbox}
+    Convolutional neural networks provide a great way to model structured data like images. \\
+    
+    They are based around the idea of moving a little window around the input.
+\end{tcolorbox}
+
+\subsection{Why is Image Data Hard?}
+
+\subsubsection*{1. High Dimensionality}
+Images consist of a large number of pixels, each of which represents a feature. Even a small image of size $256 \times 256$ pixels in RGB format results in:
+\[
+256 \times 256 \times 3 = 196,608 \text{ features.}
+\]
+
++ they are \textit{continuous features}!\\
+
+Handling such a high number of features requires significant computational resources and can lead to challenges like overfitting if not properly managed.
+
+\subsubsection*{2. Structured Data}
+Unlike many tabular datasets, images have a natural $local structure$. The value of each pixel is often correlated with the values of its neighboring pixels. For example, the color of a pixel is likely similar to the colors of nearby pixels. This structured relationship is crucial for understanding images.\\
+
+\textit{Comparison:} 
+\begin{itemize}
+    \item for other types of data (e.g., in ridge regression or random forests), the order of features is often irrelevant, and features are treated independently (cf: RandForest, we are \textit{randomly} sampling a subset of features at each tree).
+    \item In images, however, the spatial relationships between pixels matter significantly.
+\end{itemize}
+
+\subsubsection*{3. Translation Invariance}
+Pixel locations in an image do not carry inherent meaning. For instance, a face can appear on the left-hand side or the right-hand side of an image, but it remains a face regardless of its position. Thus, we don't care about the exact location of objects in the image; rather, we care about what the image represents.\\
+
+\textit{Translation invariance:} Our models need to understand that objects can appear anywhere in the image, and the model should be invariant to such translations. A face on the left side of an image should be recognized just as easily if it appears on the right side.\\
+
+We care more about the object or pattern in the image, not its position. This creates a challengen for models.
+
+\subsubsection*{4. Continuous Features}
+The features in images (pixel intensities) are continuous values, unlike many tabular datasets that have categorical or discrete features. This continuity makes modeling images different from other types of data and
+
+\subsection{The Big Idea (in CNNs)}
+
+What if we cut the image up into little pieces?
+
+Convolutional Neural Networks (CNNs) use a mathematical operation called \textit{convolution} to process image data. The main idea is to extract meaningful features by applying a filter or kernel over small, localized regions of the image.
+
+
+\subsubsection*{Cutting the Image into Pieces}
+Instead of looking at the entire image at once, we divide the image into small pieces or regions, typically using a sliding window approach. This allows the model to capture local patterns and features, such as edges or textures, in the image. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/convolution.png}
+    \caption{Convolution}
+    \label{fig:enter-label}
+\end{figure}
+
+However, if the object of interest doesn't neatly fit into one of these regions, it can be difficult for the model to capture it. 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/convolution 2.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsubsection{Convolutions}
+
+\textit{Solution:} We solve this problem by using \textit{convolutions}, where we move a filter across the image to extract features from different regions.
+
+\subsubsection*{The Convolution Operator}
+
+The idea of a \textit{sliding window} across an image is mathematically described using the convolution operator. A formal definition of convolution between two functions $f$ and $g$ is given as:
+
+\[
+(f * g)(z) = \int_{\mathbb{R}} f(u) g(z - u) du
+\]
+
+In the context of CNNs, we apply this operation to an image by using a filter (also known as a kernel) and an input (the image).
+
+\paragraph{In One Dimension}
+In one dimension, the convolution operation between a filter $w$ and an input $x$ is expressed as:
+
+\[
+(w * x)_i = w_1 x_{i-1} + w_2 x_i + w_3 x_{i+1} + \dots + w_k x_{i+k-1}
+\]
+
+Here:
+\begin{itemize}
+    \item $w$ is the filter or kernel, which is a set of weights learned by the network,
+    \item $x$ is the input (the image data),
+    \item The result of the convolution is a \textit{locally weighted sum} of the input, where each element in the input is multiplied by the corresponding filter weight and summed up.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/convolution 4.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\paragraph{Convolution in Two Dimensions}
+For image data, which is typically two-dimensional, the convolution operation can be extended to 2D. The operation between a 2D filter $W$ and a 2D input $X$ is:
+
+\[
+(W * X)_{i,j} = \sum_m \sum_n W_{m,n} X_{i-m, j-n}
+\]
+
+In slides:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/convolution 5.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+This means that the filter $W$ is slid over the input $X$, and for each position $(i, j)$, the elements of the filter are multiplied by the corresponding elements of the input, and the results are summed.
+
+\subsubsection{Key Idea}
+The convolution operation allows the model to focus on \textit{local patterns} in the image, such as edges, corners, and textures, by applying a weighted sum over localized regions of the image. The model learns the filter weights during training, allowing it to detect meaningful patterns that contribute to the final classification or recognition task.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/convolution 6.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+
+\subsection{Connections to Matrix Multiplication}
+Convolution operations in CNNs can be interpreted as a specific form of \textit{sparse matrix multiplication}.\\
+
+Consider the convolution operation as a form of matrix multiplication, where the convolution can be represented as:
+\[
+y = Cx
+\]
+For example, the matrix $C$ corresponding to the convolution might look like:
+\[
+C = 
+\begin{bmatrix}
+    w_1 & w_2 & 0 & 0 \\
+    0 & w_1 & w_2 & 0 \\
+    0 & 0 & w_1 & w_2 \\
+    0 & 0 & 0 & 0 \\
+    w_3 & w_4 & 0 & 0 \\
+    0 & w_3 & w_4 & 0 \\
+    w_1 & 0 & w_2 & 0 \\
+    0 & 0 & w_3 & w_4
+\end{bmatrix}
+\]
+
+Here:
+\begin{itemize}
+    \item The matrix $C$ is a sparse matrix, meaning it contains a lot of zeros.
+    \item The non-zero entries correspond to the weights of the filter $w = [w_1, w_2, w_3, w_4]$, which are applied to specific parts of the input.
+    \item $x = [x_1, x_2, x_3, x_4, \dots]$ is the input vector, which corresponds to the image or feature map.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/Screenshot 2024-08-28 at 14.50.46.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsubsection*{Sparse Matrix Multiplication}
+The result of the matrix multiplication $C x$ is similar to performing a convolution. The convolution operation can be expressed as $[W * X](i,j)$, with the exception that we are dealing with a matrix multiplication rather than a filter being applied directly to the image.
+
+\paragraph{Takeaway:}
+A convolution is essentially a form of \textit{sparse matrix multiplication}. The sparsity arises because we only focus on the local region of the input, corresponding to the sliding window used in convolutions. \textbf{Many elements of the matrix are zero, meaning they correspond to regions of the input that are ignored. This implies that we only pay attention to features within the window defined by the filter and ignore everything outside the window.}
+
+\subsection{Modifications to convolutions}
+
+\subsection*{Modifications to Convolutions}
+
+\subsubsection{Padding}
+
+\begin{tcolorbox}
+    \textbf{Padding} allows convolutions to handle edge regions, preventing shrinking of the input.
+\end{tcolorbox}
+
+Padding involves adding extra space (usually filled with zeros) around the edges of the input image. This modification allows the convolution operation to cover the border regions of the image, ensuring that features near the edges are not ignored.
+
+\paragraph{Types of Padding:}
+\begin{itemize}
+    \item \textbf{Valid Convolution:} In valid convolution, no padding is added to the input. If the convolution window extends past the edge of the input, those regions are ignored. This results in the output shrinking as more convolutions are applied.
+    \item \textbf{Same Convolution:} In same convolution, padding is added so that the output size remains the same as the input size. Typically, the input is padded with zeros, ensuring that the convolution window can still be applied at the edges.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/padding.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+Padding ensures that the window can still operate even at the boundaries of the image. For example, zero-padding adds zeros around the input, effectively making the input larger while keeping the original image centered.
+
+\subsubsection{Strides}
+
+\begin{tcolorbox}
+    \textbf{Strides} control the step size of the convolution window and allow for downsampling by skipping pixels.
+\end{tcolorbox}
+
+Adjacent outputs are v similar, so skip over some of them!\\
+
+The \textit{stride} is the step size of the sliding convolution window as it moves across the image. By default, the window moves one pixel at a time (stride of 1), but increasing the stride allows the convolution to skip some pixels, reducing the computational cost and shrinking the output.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/padding 2.png}
+    \caption{Shows padding, and stride =1, vs stride = 2}
+    \label{fig:enter-label}
+\end{figure}
+
+\paragraph{How Strides Work:}
+\begin{itemize}
+    \item \textbf{Stride of 1:} The window moves one pixel at a time, ensuring that adjacent windows overlap significantly, usually by about 90\%.
+    \item \textbf{Stride of 2:} The window skips one pixel between adjacent outputs. This effectively halves the spatial dimensions of the output compared to stride 1.
+    \item \textbf{Stride of 3:} The window skips two pixels between adjacent outputs, further reducing the size of the output.
+\end{itemize}
+
+\paragraph{Intuition:}
+When the stride is increased, adjacent windows become less similar because some of the pixels are skipped. This can be useful for downsampling the image and reducing the computational load. However, it also reduces the level of detail captured in the output.
+
+\subsection{Pooling}
+
+\textit{Pooling} is a downsampling technique commonly used in Convolutional Neural Networks (CNNs) to reduce the spatial dimensions of feature maps while retaining important information.\\
+
+Pooling helps make the model more robust to small changes in the input, such as translations, rotations, or noise.
+
+\subsubsection*{Types of Pooling}
+Pooling typically operates over small regions (e.g., $2 \times 2$ pixels) in the input, and there are two common types of pooling:
+
+\begin{itemize}
+    \item \textbf{Max Pooling:} In max pooling, the maximum value within each region is selected as the output.
+    \item \textbf{Average Pooling:} In average pooling, the average of all values within the region is calculated as the output.
+\end{itemize}
+
+For example, in a $2 \times 2$ region, max pooling would select the largest value, while average pooling would compute the mean of the four pixel values.
+
+\subsubsection*{Effect of Pooling on Backpropagation}
+When using max pooling, only the maximum value selected during pooling participates in backpropagation. This means that the gradient is only propagated through the location of the maximum value, while other values in the region do not receive any updates.
+
+\subsubsection*{Robustness to Small Changes}
+Pooling adds robustness to the model by making it less sensitive to small translations, rotations, or noise in the input. Since only the maximum (or average) value from each region is used, slight variations in the input will not significantly change the pooled output. This helps reduce overfitting and makes the model more generalized.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/pooling.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Putting it all together - CNN architectures}
+
+Convolutional Neural Networks (CNNs) are designed to recognize patterns and structures in data by using architecture of layers of convolutions and pooling, building up a hierarchy of features.
+
+\subsection*{CNN Architecture Overview}
+
+\begin{enumerate}
+    \item \textbf{Convolutions:}
+    \begin{itemize}
+        \item CNNs start with convolutional layers, where small filters (kernels) are applied to the input data (e.g., image or other structured data). These filters detect local patterns like edges or textures in images.
+        \item Convolutions act as a way to extract features by scanning over small regions of the input (locality), enabling the network to understand how different parts of the data relate to one another.
+        \item Convolutions can also be applied to serial data (e.g., time-series, sequential data) when the specific position of the structure is not as important as the presence of the pattern itself.
+    \end{itemize}
+
+    \item \textbf{Pooling Layers:}
+    \begin{itemize}
+        \item Pooling layers follow convolutions to downsample the feature maps, reducing their spatial dimensions.
+        \item Pooling deliberately loses information that the network doesn’t need, such as small irrelevant details, while retaining important features.
+        \item This reduction helps make the model more efficient and less prone to overfitting by focusing on higher-level patterns rather than specific local details.
+    \end{itemize}
+
+    \item \textbf{Alternating Convolutions and Pooling:}
+    \begin{itemize}
+        \item A typical CNN architecture alternates between convolutional and pooling layers. The idea is that as you go deeper into the network, the convolutions learn more abstract and complex features from the input data, while the pooling layers gradually reduce the data size.
+        \item Early layers detect simple, low-level patterns (edges, textures), and later layers combine these to form higher-level patterns (shapes, objects).
+    \end{itemize}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.75\linewidth]{figures/week_11_neural_nets_ii/CNN hierarchy.png}
+        \caption{CNN Hierarchy Architecture}
+        \label{fig:enter-label}
+    \end{figure}
+
+    \item \textbf{Fully Connected Layers:}
+    \begin{itemize}
+        \item After the series of convolution and pooling layers, a CNN often ends with one or more fully connected layers (also called dense layers). These layers take the high-level features learned by the previous layers and map them to the final output, like class labels in a classification task.
+        \item These dense layers allow the network to generalize from the local features detected earlier to make overall decisions (e.g., "Is this a cat or a dog?").
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Convolutions for Different Data Types}
+
+CNN's hierarchical, feature-based approach allows CNNs to handle tasks that involve data with clear local patterns or structures, which is why they are so successful in fields like image recognition, video processing, and other domains where data can be processed similarly to images. But they can also be applied elswhere.
+
+\begin{itemize}
+    \item \textbf{Serial Data:}
+    \begin{itemize}
+        \item CNNs are not just for images. They can be applied to sequential data, like time series, text, or genomic data. In such cases, the exact position of a pattern might not be important, but the structure or presence of a pattern is still crucial. For instance, CNNs can capture local relationships in financial data or patterns in natural language sentences.
+        \item CNNs work well for data where \textbf{local structure} matters (e.g., in text, adjacent words might form a phrase), but they aren't ideal for tasks where \textbf{global sequence order} is critical, such as long-term dependencies in text or audio. Other models like RNNs or Transformers are used for such tasks.
+    \end{itemize}
+    
+    \item \textbf{Doesn’t Work Well for Some Audio/Text:}
+    \begin{itemize}
+        \item In some cases, the hierarchical nature of CNNs may not be effective for audio or text where dependencies exist over long distances. For instance, a word early in a sentence may relate to another word much later. CNNs, which emphasize local patterns, may miss these relationships. Other architectures like \textbf{RNNs}, \textbf{LSTMs}, or \textbf{Transformers} handle these types of data better because they are designed to capture longer dependencies and contextual meaning.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Hierarchical Feature Learning}
+
+\begin{itemize}
+    \item \textbf{Low-Level Features to High-Level Concepts:}
+    \begin{itemize}
+        \item CNNs build up an understanding of the data through a \textbf{hierarchy of features}. Early layers learn basic structures (edges, lines), while deeper layers combine those to form more complex patterns (shapes, textures). Eventually, at the higher levels, the network can identify entire objects or concepts.
+        \item For example, in image recognition, the lower layers might detect edges or corners, while higher layers recognize complex structures like eyes or faces.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Local Structure and Abstraction}
+
+\begin{itemize}
+    \item \textbf{Local Structure:}
+    \begin{itemize}
+        \item CNNs work well when the data has a clear, well-defined local structure that can be built up into larger patterns. This is why CNNs excel with images: small parts of an image (like edges or textures) can be combined to form larger patterns (like shapes and objects).
+        \item Other data types with similar local structures, like audio spectrograms or 2D genomic data, can also be processed effectively by CNNs.
+    \end{itemize}
+
+    \item \textbf{Deliberate Information Loss:}
+    \begin{itemize}
+        \item Pooling and other techniques reduce irrelevant information as you go deeper into the network. This helps the model generalize, moving from recognizing \textbf{specific details} (like the exact shape of a curve) to recognizing more \textbf{generic patterns} (like the presence of a circle), eventually outputting a classification or decision based on these generalized features.
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Moving from Specific to Generic Labels}
+
+In essence, CNNs work by moving from very \textbf{specific details} (individual pixels, local features) to more \textbf{generic labels} or decisions. By focusing on what is important (through pooling and downsampling), they simplify complex data into a form that allows for robust and accurate predictions.
+
+\section{Recurrent Neural Networks (RNNs)}
+ \begin{tcolorbox}
+     \textit{Big Idea:} what if we maintain state inside the model? Allows varying input/output shapes!
+ \end{tcolorbox}
+ 
+\subsection{Overview}
+
+\begin{itemize}
+    \item RNNs are designed to maintain \textit{state} inside the model, allowing it to process sequences of data.
+    \item At each iteration, $t$, we receive features $X_t$ and a label $y_t$.
+    \item The features could represent sequences such as characters (one-hot encoded), or an actual time series.
+    \item In the model, we maintain \textit{state} information, denoted as $h_t$, which evolves over time to capture sequential dependencies.
+\end{itemize}
+
+\textbf{Initialize:}
+\begin{itemize}
+    \item Initially, the state is set to $h_0 = 0$.
+\end{itemize}
+
+\textbf{Predict:}
+\begin{itemize}
+    \item At each time step, we make predictions using the current state $h_t$ and features $X_t$.
+    \item The model predicts the output $\hat{y}_t$ and updates the state $h_{t+1}$ based on a function $f$:
+    \[
+    (\hat{y}_{t+1}, h_{t+1}) = f(X_t, h_t)
+    \]
+\end{itemize}
+
+\textbf{Train:}
+\begin{itemize}
+    \item The model is trained by backpropagating based on the error between the predicted $\hat{y}_t$ and the true label $y_t$.
+    \item During training, the function $f$ is updated to improve both the state transitions and the immediate predictions.
+\end{itemize}
+
+\subsection{Why are RNNs Useful?}
+
+\begin{itemize}
+    \item \textbf{RNNs can handle variable input sizes (= useful for text!):}
+    \begin{itemize}
+        \item Unlike traditional neural networks, RNNs do not require a fixed input size.
+        \item Rather, they process inputs sequentially, one at a time, and maintain a hidden state, which allows them to retain relevant information from prior inputs.
+    \end{itemize}
+
+    \item \textbf{Implicit dependence on past information:}
+    \begin{itemize}
+        \item The hidden state enables RNNs to implicitly depend on all past inputs, which makes them suitable for sequential tasks such as time series, language modeling, or any problem involving temporal dependencies.
+        \item With sufficient state information, RNNs can theoretically capture long-term dependencies across the entire input sequence.
+    \end{itemize}
+
+    \item \textbf{Theoretical expressiveness:}
+    \begin{itemize}
+        \item In theory, with enough hidden state, RNNs are as powerful as Turing machines.
+        \item This means they can represent any computable function of the input sequence, making them highly expressive models.
+    \end{itemize}
+
+    \item \textbf{Practical limitations:}
+    \begin{itemize}
+        \item In practice, the limited capacity of the hidden state and the difficulty in training (e.g., vanishing and exploding gradient problems) mean that the theoretical potential of RNNs is often not fully realized.
+        \item As a result, training RNNs effectively over long sequences can be challenging, leading to the development of more advanced architectures like LSTMs and GRUs.
+    \end{itemize}
+\end{itemize}
+
+\section{Attention!}
+
+\begin{tcolorbox}
+    = Extremely flexible representations of data
+\end{tcolorbox}
+
+\begin{itemize}
+    \item \textbf{The building block of modern deep learning:}
+    \begin{itemize}
+        \item At the core of modern deep learning models, such as transformers, is the mechanism of \textit{attention}.
+        \item Attention is fundamentally a \textit{weighted average} of values based on the relevance of different pieces of data.
+    \end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/attention.png}
+    \caption{}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Purpose}
+
+In neural networks, particularly transformers, the attention mechanism allows the model to focus on relevant parts of the input data when making predictions. The scaled dot-product attention is a specific attention mechanism commonly used in transformers.
+
+Where
+\begin{itemize}
+    \item \textbf{Query (Q)}: A set of features representing what you're looking for in the data.
+    \item \textbf{Keys (K)}: Features in the data that are used to determine how relevant each piece of data is to the query.
+    \item \textbf{Values (V)}: The actual data (e.g., labels, vectors) associated with the keys that we want to focus on.
+\end{itemize}
+
+The goal of scaled dot-product attention is to compute a weighted average of the values ($V$), where the weights are determined by how similar the query ($Q$) is to the keys ($K$). The similarity is measured by the dot product of the query and the keys.
+
+\begin{tcolorbox}
+    \textbf{Example: translating a sentence.}\\
+    
+    The query might represent the current word you're translating, and the keys could represent all the words in the sentence. \\
+    
+    The attention mechanism helps the model "focus" on relevant parts of the sentence (the values) based on how related the query word is to the other words (keys). \\
+    
+    The model then produces a translation that incorporates these important words.
+\end{tcolorbox}
+
+\subsection{Attention Definition}
+
+\begin{itemize}
+    \item Suppose we have:
+    \begin{itemize}
+        \item \textcolor{orange}{A \textbf{query} ($q$), which represents a set of features we are interested in.}
+        \item A collection of data, where each piece of data has:
+        \begin{itemize}
+            \item \textcolor{blue}{A \textbf{key} ($k$), which is a set of features.}
+            \item \textcolor{purple}{A \textbf{value} ($v$), which could be a label or the data associated with the key.}
+        \end{itemize}
+        \item \textcolor{green}{A measure of similarity between the \textbf{query} and the \textbf{keys}, often represented as a function $\phi(\cdot)$.}
+    \end{itemize}
+
+    \item \textbf{Attention formula:}
+    \[
+    \text{Attn}(\textcolor{orange}{q}, \textcolor{blue}{k_1}, \textcolor{purple}{v_1}, \dots, \textcolor{blue}{k_n}, \textcolor{purple}{v_n}) = \sum_{i=1}^{n} \frac{\textcolor{green}{\phi(}\textcolor{orange}{q}, \textcolor{blue}{k_i}\textcolor{green}{)}}{\sum_{j=1}^{n} \textcolor{green}{\phi(}\textcolor{orange}{q}, \textcolor{blue}{k_j}\textcolor{green}{)}} \textcolor{purple}{v_i}
+    \]
+    \begin{enumerate}
+        \item Here, $\phi(q, k_i)$ represents the similarity measure (or kernel function) between the query $q$ and key $k_i$.
+        \item The weights $\frac{\phi(q, k_i)}{\sum_{j=1}^{n} \phi(q, k_j)}$ are normalized to ensure they sum to 1.
+        \item The output is a weighted sum of the values $v_i$ based on the similarity of their corresponding keys to the query.
+    \end{enumerate}
+
+    
+    \item \textbf{Interpretation:}
+    \begin{itemize}
+        \item Attention can be thought of as a \textit{soft dictionary lookup}, where the query is used to retrieve relevant values from the data based on their keys.
+        \item It is also often described as a \textit{kernel-weighted average}, where the kernel function $\phi(\cdot)$ determines how similar the query and the keys are.
+        \item The function $\phi(\cdot)$ can take various forms, but it is generally a kernel function such as dot product or Gaussian similarity.
+    \end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_11_neural_nets_ii/attention 2.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Scaled Dot-Product Attention}
+
+\begin{itemize}
+    \item Suppose we have:
+    \begin{itemize}
+        \item A \textbf{query} ($q$), representing a set of features.
+        \item A collection of data, each with:
+        \begin{itemize}
+            \item \textbf{Keys} ($k$), another set of features.
+            \item \textbf{Values} ($v$), which could be labels or associated data.
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{Assumptions:}
+    \begin{itemize}
+        \item The dimensions of the queries and keys are the same, denoted by $d$.
+        \item Both the queries and keys are assumed to follow an approximately standard normal distribution.
+        \item The similarity measure between the query and keys is the dot product.
+    \end{itemize}
+
+    \item \textbf{Notation:}
+    \begin{itemize}
+        \item Let the query matrix $Q \in \mathbb{R}^{m \times d}$, the key matrix $K \in \mathbb{R}^{n \times d}$, and the value matrix $V \in \mathbb{R}^{n \times p}$, where $m$ is the number of queries, $n$ is the number of keys (and values), and $p$ is the dimension of the values.
+    \end{itemize}
+
+    \item \textbf{Scaled Dot-Product Attention:}
+    \[
+    \text{Attn}(q, k_1, v_1, \dots, k_n, v_n) = \text{softmax}\left(\frac{Q K^\top}{\sqrt{d}}\right)V
+    \]
+    \begin{itemize}
+        \item The dot product between the query matrix $Q$ and the transpose of the key matrix $K^\top$ is computed, and then divided by $\sqrt{d}$ to scale the dot product.
+        \item The softmax function is applied to the scaled dot products to produce the attention weights.
+        \item The output is a weighted sum of the values $V$, based on these attention weights.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Softmax Function}
+
+For a matrix $X \in \mathbb{R}^{m \times n}$, the softmax function is applied row-wise, such that each element $x_{ij}$ is transformed as follows:
+
+\[
+\text{softmax}(X)_{ij} = \frac{\exp(x_{ij})}{\sum_{k=1}^{n} \exp(x_{ik})}
+\]
+
+This ensures that the elements in each row of the matrix sum to 1, making them suitable for use as attention weights.
+
+\text{For } X \in \mathbb{R}^{m \times n}:
+
+\[
+\text{softmax}(X) =
+\begin{bmatrix}
+    \frac{\exp(x_{11})}{\sum_{k=1}^{n} \exp(x_{1k})} & \cdots & \frac{\exp(x_{1n})}{\sum_{k=1}^{n} \exp(x_{1k})} \\
+    \vdots & \ddots & \vdots \\
+    \frac{\exp(x_{m1})}{\sum_{k=1}^{n} \exp(x_{mk})} & \cdots & \frac{\exp(x_{mn})}{\sum_{k=1}^{n} \exp(x_{mk})}
+\end{bmatrix}
+\]
+
+\begin{tcolorbox}
+    \textbf{Steps:}
+
+    \textbf{Dot-Product Similarity:}
+    The similarity between a query ($Q$) and keys ($K$) is measured by their dot product. If $Q \in \mathbb{R}^{m \times d}$ (queries) and $K \in \mathbb{R}^{n \times d}$ (keys), the dot product is calculated as:
+    \[
+    QK^\top
+    \]
+    Each element is exponentiated and normalized by the sum of the exponentiated values in its row.\\
+    
+    This gives an $m \times n$ matrix, where each element represents the similarity between a query and a key.
+    
+    \textbf{Scaling by $\sqrt{d}$:}
+    Since the magnitude of the dot product can grow large with increasing dimensions $d$ (the number of features), the dot products are scaled by dividing them by $\sqrt{d}$ to stabilize the values. This scaling helps prevent large gradients during training:
+    \[
+    \frac{QK^\top}{\sqrt{d}}
+    \]
+    
+    \textbf{Softmax:}
+    The softmax function is then applied to the scaled dot product. This ensures that the result is a set of attention weights that sum to 1, making it a proper probability distribution. The more similar the query is to a particular key, the higher the attention weight for that key:
+    \[
+    \text{softmax}\left( \frac{QK^\top}{\sqrt{d}} \right)
+    \]
+    
+    \textbf{Weighted Sum of Values:}
+    Finally, the attention weights are used to compute a weighted sum of the values ($V \in \mathbb{R}^{n \times p}$). This gives the final attention output, which is a matrix of size $m \times p$, where each row corresponds to the query's weighted attention on the values:
+    \[
+    \text{Attn}(q, k_1, v_1, \dots, k_n, v_n) = \text{softmax}\left( \frac{QK^\top}{\sqrt{d}} \right) V
+    \]
+    
+\end{tcolorbox}
+
+\textbf{Why Use Scaled Dot-Product Attention?}\\
+
+\begin{itemize}
+    \item \textbf{Efficiency}: The dot-product similarity can be computed efficiently, even for large datasets.
+    \item \textbf{Handling Long Sequences}: It allows models to attend to important elements in sequences of varying lengths.
+    \item \textbf{Preventing Exploding Gradients}: The scaling by $\sqrt{d}$ prevents the values from becoming too large as the dimensionality increases.
+\end{itemize}
+
+\textbf{Use of Softmax:}\\
+
+The softmax function transforms the dot-product results into probabilities (or attention weights). It ensures that:
+
+\begin{itemize}
+    \item The most similar keys (to the query) get higher weights.
+    \item All the weights across the keys sum up to 1, so it's a valid weighted average.
+\end{itemize}
+
+\subsection{Self-Attention:}
+
+\begin{tcolorbox}
+    Allows each position in the input to attend to every other position, enabling the model to capture relationships between elements within the input itself, rather than relying solely on external context.
+\end{tcolorbox}
+
+
+Given an input matrix \( X \in \mathbb{R}^{n \times d} \) (where \( n \) is the number of elements in the input sequence and \( d \) is the dimension of each element), the self-attention mechanism computes attention as follows:
+Given an input matrix \( X \in \mathbb{R}^{n \times d} \) (where \( n \) is the number of elements in the input sequence and \( d \) is the dimension of each element), the self-attention mechanism computes attention as follows:
+
+\begin{enumerate}
+    \item \textbf{Query, Key, and Value Projections:}
+    \begin{itemize}
+        \item From the input \( X \), we compute three matrices:
+        \begin{itemize}
+            \item \textbf{Query matrix} \( Q \) (represents what we're looking for):
+            \[
+            Q = X W_Q
+            \]
+            where \( W_Q \in \mathbb{R}^{d \times d_Q} \) is a weight matrix that projects the input to the query space.
+            
+            \item \textbf{Key matrix} \( K \) (represents the features in the data):
+            \[
+            K = X W_K
+            \]
+            where \( W_K \in \mathbb{R}^{d \times d_K} \) projects the input to the key space.
+            
+            \item \textbf{Value matrix} \( V \) (the actual data):
+            \[
+            V = X W_V
+            \]
+            where \( W_V \in \mathbb{R}^{d \times d_V} \) projects the input to the value space.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Dot-Product Similarity:}
+    \begin{itemize}
+        \item We compute the similarity between the queries and keys using a dot product. The resulting matrix represents how much each element of the sequence should attend to every other element:
+        \[
+        QK^\top
+        \]
+        This gives an \( n \times n \) matrix, where each element indicates the similarity between a query and a key.
+    \end{itemize}
+
+    \item \textbf{Scaling:}
+    \begin{itemize}
+        \item The dot-product result is scaled by \( \frac{1}{\sqrt{d}} \) (where \( d \) is the dimension of the keys) to prevent excessively large values that can make optimization difficult:
+        \[
+        \frac{QK^\top}{\sqrt{d}}
+        \]
+        This scaling ensures that the dot products remain within a stable range, particularly when \( d \) is large.
+    \end{itemize}
+
+    \item \textbf{Softmax:}
+    \begin{itemize}
+        \item A softmax function is applied to the scaled dot product to convert it into a probability distribution, where higher similarity values result in larger attention weights:
+        \[
+        \text{softmax}\left( \frac{QK^\top}{\sqrt{d}} \right)
+        \]
+        This matrix represents how much attention each element in the sequence should give to every other element.
+    \end{itemize}
+
+    \item \textbf{Weighted Sum of Values:}
+    \begin{itemize}
+        \item Finally, the attention weights are used to compute a weighted sum of the values:
+
+        \begin{align*}
+            \text{SelfAttn}(X) &= \text{softmax}\left( \frac{QK^\top}{\sqrt{d}} \right) V \\
+            &= \text{softmax}\left( \frac{x W_q W_k^\top X^\top}{\sqrt{d}} \right) X W_v
+        \end{align*}
+        This yields the final attention output, where each position in the sequence is represented as a weighted combination of the values.
+    \end{itemize}
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_11_neural_nets_ii/self-attention.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\section*{Intuition}
+Self-attention allows the model to "focus" on different parts of the input sequence by assigning different attention weights. \\
+
+For example, in a sentence, a word can attend to other relevant words, allowing the model to capture dependencies between different parts of the sentence.
+
+\section*{Why Self-Attention?}
+\begin{itemize}
+    \item \textbf{Global Context:} Self-attention allows each element of the input to consider the entire sequence when making predictions, rather than just local context.
+    \item \textbf{Flexible Representation:} It works well with sequences of variable length and is able to handle long-range dependencies effectively.
+    \item \textbf{Parallelization:} Unlike recurrent networks, self-attention allows for efficient parallel computation over the entire sequence.
+\end{itemize}
+
+\subsection{Why does this make sense?}
+
+Plugging in this measure of attention essentially lets us simultansouly train:
+\begin{enumerate}
+    \item Feature representation of inputs (Q)
+    \item Weights (K)
+    \item Feature representation of “labels” (V)
+\end{enumerate}
+= A kernel regression where you learn the representations, the kernel weighting and the representation of the ”label”.\\
+
+Extremely over-parameterized!
+

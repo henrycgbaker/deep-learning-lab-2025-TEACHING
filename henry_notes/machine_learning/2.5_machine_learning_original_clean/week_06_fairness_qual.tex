@@ -1,0 +1,119 @@
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}}
+{\large \bfseries ML Lecture Notes 2024 --- Henry Baker}
+\\ \hline
+\end{tabular}
+
+\vspace*{0.3cm}
+\begin{center}
+	{\Large \bfseries ML Lecture Notes: Wk 6-II --- Qualitative Fairness}
+	\vspace{2mm}
+
+\end{center}
+\vspace{0.4cm}
+
+\section{Machine Learning in Context}
+Idea of bias in data $\rightarrow$ running models exacerbates those biases.\\
+
+Sometimes you might not want to include data you considered biased / isn't relevant to the purpose of the model.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_06_fairness_qual/context.png}
+    \caption{Enter Caption}
+    \label{fig:w02-fig23}
+\end{figure}
+
+Example of encoded bias: which patterns do we want to mimic, and which not?
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_06_fairness_qual/turkish example.png}
+    \caption{Enter Caption}
+    \label{fig:w02-fig24}
+\end{figure}
+
+\textbf{Feedback loops}
+E.g. Predictive policing - self-fulfilling prophecy.\\
+\textit{see Lum \& Isaac 2016 - more crime observed when cop location determined based on observed crime rates} \\
+... Also, consider social scienc hat: construct validity of arrest as measures of crime committed....
+
+\section{Types of harm}
+\textbf{Allocative Harm}\\
+A system withholds a resource or opportunity based on group membership.\\
+
+\textbf{Representational Harm}\\
+A system reinforces subordination of some group along the lines of identity
+
+\section{What is 'Fairness' (Qualitative)}
+\textbf{Legitimacy}\\
+Is there any sense in which such a system should be deployed? (\textit{precedes} a discussion of the specific allocative risks/harms.\\
+E.g. predicting crime from faces - is there any legitimate reason to be doing so?\\
+
+\textbf{Relative treatement of groups}\\
+How does the system allocate resources? Can be measured rigorously and quantitatively
+
+\textbf{Procedural Fairness}... as we work with more and more complex models, how can we know if it is rational
+
+\section{Types of Automation}
+
+\begin{enumerate}
+    \item \textbf{Rules previously defined by hand / process}
+    \begin{itemize}
+        \item benefits eligibility / minimum requirements for jobs
+        \item loses flexibility of discretion
+    \end{itemize}
+    \item \textbf{Rules previously only informally defined}
+    \begin{itemize}
+        \item automated grading
+        \item expert systems: try to machine-learn decision
+        \item BUT, may not rely on what we want it to! - may learn in a different way
+        \begin{itemize}
+            \item for us, often the process is important
+            \item reasoning matters
+        \end{itemize}
+    \end{itemize}
+    \item \textbf{Fully learning rules from data}
+    \begin{itemize}
+        \item who should lenders grant loans to?
+        \item where should police patrol the streets?
+        \item choose a proxy to machine learn as the basis for the decision
+        \item BUT once again we're in feedback loop territory..see next
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Problems in Type-3 automation}
+\begin{itemize}
+    \item \textbf{Bias}: how do you create the appropriate rules from data when the data you're training on is problematic? For many sensitive domains there is no unbiased data
+    \item \textbf{Proxy Mismatch/construct validity} - data often chosen based on convenience (/ppl with power collect data (an expensive exercise) -> biased
+    \begin{itemize}
+        \item E.g. Entrance into a “high risk care management system” in the US - model based on predicted health-care costs (as a proxy health-care needs, with the logic being that high health care costs mean high need).
+        \item Problem: by defining target as payment for service, you are excluding those who were not prev able to pay for healthcare; ie. the most vulnerable
+    \end{itemize}
+    \item \textbf{Feature Failing} - Failing to consider relevant info $\rightarrow$ Mistakenly think two people are alike because you didn’t measure how they were different
+    \begin{itemize}
+        \item if you don't measure across features, you can't see that there's difference between them
+        \item this is where human discretion is important: they can have a conversation / other, and see how units differ across variables / for reasons not included in the input form
+    \end{itemize}
+    \item \textbf{Distribution Shifts} - data we want to apply our decisions on differs
+systematically from what we trained / evaluated on
+    \begin{itemize}
+        \item eg medical trials predominantly middle class, white, educated, male.
+    \end{itemize}
+\end{itemize}
+
+\section{Agency, Recourse, Culpability}
+
+\textbf{Models on immutable characteristics} 
+\begin{itemize}
+    \item people cannot change their fate
+\end{itemize}
+
+\textbf{Models on mutable characteristics}
+\begin{itemize}
+    \item then an obligation to empower individuals so they know how to change their fate
+    \item BUT then they can 'game' they system..?
+\end{itemize}
+

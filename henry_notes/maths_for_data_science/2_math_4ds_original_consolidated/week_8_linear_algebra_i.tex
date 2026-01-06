@@ -1,0 +1,658 @@
+% =============================================================================
+% Week 8: Linear Algebra I
+% =============================================================================
+
+\chapter{Linear Algebra I}
+\label{ch:week8}
+
+\thispagestyle{empty}
+{\large \textbf{Mid Terms Fall 2023  --  Henry Baker}}
+\par\noindent\rule{\textwidth}{0.4pt} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: Session 8\\ Linear Algebra}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Data Structures}
+\subsection{Basics}
+1. Scalar: $x = 1$\\
+2. Vector: \mathbf{x} =
+\begin{bmatrix}
+x_1 \\
+x_2 \\
+\vdots \\
+x_n
+\end{bmatrix} \\
+3. Matrix: \mathbf{A} =
+\begin{bmatrix}
+a_{11} & a_{12} & \ldots & a_{1n} \\
+a_{21} & a_{22} & \ldots & a_{2n} \\
+\vdots & \vdots & \ddots & \vdots \\
+a_{m1} & a_{m2} & \ldots & a_{mn}
+\end{bmatrix}\\
+\begin{itemize}
+    \item Matrix dimensions are $m\timesn$
+    \begin{itemize}
+        \item $m$ = rows (/observations)
+        \item $n$ = columns (/variables / features)
+    \end{itemize}
+    \item A generic element of this matrix is $a_{ij}$ \\ (same as indexing in R)\\
+    \item This feels counter-intuitive: the index is [row, column] \\
+\end{itemize}
+
+
+4. Tensor: an array of matrices, with elements $a_{ijk}$
+
+\subsection{Compact Notation}
+1. Scalar: $x \in \mathbb{R^1}$\\
+2. Vector: $\mathbf{x} \in \mathbb{R^n}$\\
+3. Matrix: $\mathbf{X} \in \mathbb{R}^{m\times n}$
+
+\subsection{Transpose}
+\begin{align*}
+
+\mathbf{A} =
+\begin{bmatrix}
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23} \\
+\end{bmatrix}\\
+\mathbf{A}^T =
+\begin{bmatrix}
+a_{11} & a_{21} \\
+a_{12} & a_{22} \\
+a_{13} & a_{23} \\
+\end{bmatrix}
+\end{align*}
+
+Same with vectors; vector can be treated as matrix with 1 column; a scalar is matrix with 1 row, 1 columns).\\
+
+\begin{tcolorbox}
+Heuristic: all the row values become columns values, and all the column values become row values... so whereas the usual [r,c] indexing feels un-intuitive, it transforms to a more comfortable, [c,r] format. \\
+
+Visually: get the first column, string it out into a row, let the rest of the row fall into the associated column.
+\end{tcolorbox}
+
+\section{Basic Transformations}
+\subsection{Adding Matrices}
+\begin{bmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6 \\
+\end{bmatrix}
++
+\begin{bmatrix}
+1 & 2 & 1 \\
+1 & 1 & 0 \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+2 & 4 & 4 \\
+5 & 6 & 6 \\
+\end{bmatrix} \\
+To add two matrices, they must have the same dimensions.
+
+\subsection{Multiplying a Matrix by a Scalar}
+\begin{align*}
+A =
+\begin{bmatrix}
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23} \\
+\end{bmatrix} \\
+cA =
+\begin{bmatrix}
+c \times a_{11} & c \times a_{12} & c \times a_{13} \\
+c \times a_{21} & c \times a_{22} & c \times a_{23} \\
+\end{bmatrix} \\
+\end{align*}
+
+\section{Multiplying Vectors}
+Just a simplified form of matrix multiplication.
+\begin{align*}
+    \mathbf{a}^T \mathbf{b} = [a_1, a_2, a_3]
+\begin{bmatrix}
+b_1 \\
+b_2 \\
+b_3 \\
+\end{bmatrix}
+= a_1b_1 + a_2b_2 + a_3b_3
+\end{align*}
+
+\begin{tcolorbox}
+\textbf{Heuristic Algorithm:} 
+\begin{itemize}
+    \item tip the RHS vector over to its left
+    \item multiply each of the overlapping elements (such that each of the indexes are aligned with their equivalent)
+    \item add the products together
+    \item becomes a single scalar
+\end{itemize}
+\end{tcolorbox}
+
+\section{Multiplying Matrices}
+
+\begin{align*}
+    \begin{bmatrix}
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23} \\
+\end{bmatrix}
+\begin{bmatrix}
+b_{11} & b_{12} \\
+b_{21} & b_{22} \\
+b_{31} & b_{32} \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+a_{11}b_{11} + a_{12}b_{21} + a_{13}b_{31} & a_{11}b_{12} + a_{12}b_{22} + a_{13}b_{32} \\
+a_{21}b_{11} + a_{22}b_{21} + a_{23}b_{31} & a_{21}b_{12} + a_{22}b_{22} + a_{23}b_{32} \\
+\end{bmatrix}
+\end{align*}
+
+\begin{itemize}
+    \item To multiply matrices, they must be conformable: 
+    \begin{itemize}
+        \item $m × n$ and $n × p$ 
+        \item the inner values: $n$
+        \item LHS columns = RHS rows 
+    \end{itemize}
+    \item gives an output of $m × p$ - the outer values 
+    \item i.e. the dot product dimensions given by the otuer values
+\end{itemize}
+
+\textit{NB a matrix's dimensions are also given rows x columns}
+Thus, in matrix multiplication, order matters \\
+
+\begin{tcolorbox}
+\textbf{Small Matrix Multiplication cheat sheets:} \\
+\textbf{2x2}:
+\begin{align*}
+    AB = \begin{pmatrix} a & b \\ c & d \end{pmatrix} \times \begin{pmatrix} e & f \\ g & h \end{pmatrix} = \begin{pmatrix} ae + bg & af + bh \\ ce + dg & cf + dh \end{pmatrix}
+\end{align*}
+
+\textbf{3x3}
+\begin{align}
+    AB = \begin{pmatrix} 
+    a & b & c \\ 
+    d & e & f \\ 
+    g & h & i 
+    \end{pmatrix} \times \begin{pmatrix} 
+    j & k & l \\ 
+    m & n & o \\ 
+    p & q & r 
+    \end{pmatrix} 
+    = \begin{pmatrix} 
+    aj + bm + cp & ak + bn + cq & al + bo + cr \\ 
+    dj + em + fp & dk + en + fq & dl + eo + fr \\ 
+    gj + hm + ip & gk + hn + iq & gl + ho + ir 
+    \end{pmatrix}
+\end{align}
+
+\textbf{2x3; 3x2}
+\begin{align*}
+    AB = \begin{pmatrix} 
+    a & b & c \\ 
+    d & e & f 
+    \end{pmatrix} \times \begin{pmatrix} 
+    g & h \\ 
+    i & j \\ 
+    k & l 
+    \end{pmatrix} 
+    = \begin{pmatrix} 
+    ag + bi + ck & ah + bj + cl \\ 
+    dg + ei + fk & dh + ej + fl 
+\end{pmatrix}
+\end{align*}
+
+\textbf{3x2; 2x2}
+\begin{align*}
+    ABc = \begin{pmatrix} 
+    a & b \\ 
+    c & d \\ 
+    e & f 
+    \end{pmatrix} \times \begin{pmatrix} 
+    g & h \\ 
+    i & j 
+    \end{pmatrix} 
+    = \begin{pmatrix} 
+    ag + bi & ah + bj \\ 
+    cg + di & ch + dj \\ 
+    eg + fi & eh + fj 
+    \end{pmatrix}
+\end{align*}
+
+\end{tcolorbox}
+
+\begin{tcolorbox}
+\textbf{General Heuristic:} 
+\begin{itemize}
+    \item to be conformable: inner terms the same ($n$: RHS columns, LHS rows)
+    \item the new matrix's dimensions will be outer terms ($m \times p$)
+    \item for each element $a_{ij}$: sum of the products of the elements of the corresponding row of A and the corresponding column of B. \\
+    
+    \textbf{SHORT CUT: 
+    \begin{itemize}
+        \item identify dimensions of resultant matrix 
+        \item identify specific elements within this matrix: $\rightarrow$ identify their indexes (row, column), write out as a matrix of generic placeholder: (e.g. $a_35$; $a_71$; etc)
+        \item for row index value: take elements of equivalent row from matrix A
+        \item for column index value: take elements of equivalent column from matrix B (i.e. the vector)
+        \item write them as sum of multiples \begin{itemize}
+            \item write out the row values of Matrix A, spaced out with "(" before and "$\times$" after each
+            \item write out the column values of Matrix B in the remaining spaces, with ") $+$" after each.
+        \end{itemize}
+    \end{itemize}}
+
+    
+        \item so for item $a_12$:
+        \begin{itemize}
+             \item all the elements of row 1 from A
+             \item all the elements of column 2 from B
+             \item multiplied by each other
+             \item summed
+        \end{itemize}
+       \item for item $a_21$:
+    \begin{itemize}
+        \item all the elements of row 2 of A
+        \item all the elements of column 1 of B
+        \item multiplied by eac hother
+        \item summed
+    \end{itemize}
+       
+    \item eg for $a_{2,1}$: this is the 2nd row of the 1st column; sum of the products of all of the LHS matrix's 2nd row, RHS matrix's first column
+\end{itemize}
+\end{tcolorbox}
+\section{Mutliplying Matrices with Vectors}
+
+\begin{enumerate}
+    \item \textbf{Check conformable}: ensure number of columns = length of vector. \\
+    If matrix $m \times n$, and vector is $n \times 1$ (remember, vectors are vertical): resulting vector will be $m \times 1$ \\
+    i.e. will be a vector
+    \item \textbf{set up multiplication}: multiply elements of the row of the matrix, with corresponding element of the matrix then summing. \\
+    
+   As before:
+    \begin{itemize}
+        \item identify dimensions of resultant matrix (in this case a vector)
+        \item identify specific elements within this $\rightarrow$ identify their indexes (row, column)
+        \item for row index value: take elements of equivalent row from matrix A
+        \item for column index value: take elements of equivalent column from matrix B (i.e. the vector)
+        \item write them as sum of multiples
+    \end{itemize}
+\end{enumerate}
+
+Easier short cut:
+\begin{itemize}
+    \item visually: pick up the vector, tip it over, place it above the matrix
+    \item multiply each of the elements of matrix's columns by the associated vector element above
+    \item sum each row
+\end{itemize}
+
+\begin{align*}
+\text{Matrix A (2x3):} \quad &\begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix} \\
+\text{Vector x (3x1):} \quad &\begin{bmatrix} 7 \\ 8 \\ 9 \end{bmatrix} \\
+\text{Resulting Vector y (2x1):} \quad &\begin{bmatrix} 
+(1 \cdot 7) + (2 \cdot 8) + (3 \cdot 9) \\ 
+(4 \cdot 7) + (5 \cdot 8) + (6 \cdot 9) 
+\end{bmatrix} = \begin{bmatrix} 50 \\ 122 \end{bmatrix}
+\end{align*}
+
+\section{Transpose Facts}
+\begin{align*}
+    (A^T)^T &= A \\
+    (A + B)^T &= A^T + B^T \\
+    (AB)^T &= B^T A^T \\ 
+    a^Tb &= b^Ta
+\end{align*}
+
+\textit{NB: line 3 and 4: the order reverses!!}
+
+\section{Systems of Equation}
+
+\begin{align*}
+a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n &= b_1 \\
+a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n &= b_2 \\
+&\vdots \\
+a_{m1}x_1 + a_{m2}x_2 + \cdots + a_{mn}x_n &= b_n
+\end{align*}
+
+In matrix notation:
+
+\begin{align*}
+    Ax = b
+    \begin{bmatrix}
+    a_{11} & a_{12} & \ldots & a_{1n} \\
+    a_{21} & a_{22} & \ldots & a_{2n} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    a_{m1} & a_{m2} & \ldots & a_{mn}
+    \end{bmatrix}
+    \begin{bmatrix}
+    x_1 \\
+    x_2 \\
+    \vdots \\
+    x_n
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    b_1 \\
+    b_2 \\
+    \vdots \\
+    b_m
+    \end{bmatrix}
+\end{align*}
+
+\begin{tcolorbox}
+Where: \\
+A = matrix of data points ($m \times n$) \\
+x = vector of coefficients we are trying to estimate ($n \times 1$) \\
+b = vector of response variables ($m \times 1$)
+\end{tcolorbox}
+
+\section{Identity Matrix}
+The Identity Matrix $I_n$ is a matrix of size $n \times n$ with 1’s across the
+main diagonal and 0’s everywhere else.
+
+\begin{align*}
+    I_3 =
+    \begin{bmatrix}
+    1 & 0 & 0 \\
+    0 & 1 & 0 \\
+    0 & 0 & 1 \\
+    \end{bmatrix}
+\end{align*}
+
+\begin{tcolorbox}
+Identity Matrix useful for: 
+\begin{itemize}
+    \item takes a vector $x_n$ to itself $: I_nx_n = x_n$
+    \item takes a matrix $A_{m\times n}$ to itself: $I_mA_{m\times n}$ = $A_{m\times n}$ and $A_{m\times n}I_n = $A_{m\times n}$
+    \item it defines the inverse of a matrix: $A^{-1}A = I_n$
+\end{itemize}
+\end{tcolorbox}
+
+\section{The Inverse of a Matrix}
+\[A^{-1}A = I_n\]
+\begin{itemize}
+    \item The inverse does not always exist
+    \iten \textbf{only square matrices may have an inverse} (and sometimes they still don’t)
+    \item We have several different algorithms to find it when it does exist
+    \item However, it’s mainly a theoretical tool and doesn’t often need to be computed directly
+\end{itemize}
+
+\section{Vector Norm}
+Norm of a vector is a measure of its magnitude or distance from 0
+\begin{tcolorbox}
+\begin{align*}
+    |x|_1 &= \sum_{i} |x_i| \\
+    |x|_2 &= \sqrt{\sum_{i} x_i^2}\\
+    |x|_{\infty} &= \max_i |x_i|
+\end{align*}
+\end{tcolorbox}
+
+    \begin{itemize}
+        \item L1 Norm (Manhattan / Taxicab) = take the absolute values of the elements of the vector before summing them. 
+        \item L2 Norm (Euclidean / most common) = square root of the sum of the squares of the vector's elements (for 2D: this is the hypotenuse)
+        \item L3 Norm (less common) = cube root of the sum of the cubes of the vector's elements
+    \end{itemize}
+
+% --- Lab Section ---
+\section{Lab: Regression Using Matrix Algebra}
+
+\thispagestyle{empty}
+{\large \textbf{Mid Terms Fall 2023  --  Henry Baker}}
+\par\noindent\rule{\textwidth}{0.4pt} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: Session 8\\ Matrix Algebra and Calculus applied to Linear Regression}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Linear Regression}
+
+Task: Modelling home values in Boston\\
+
+\subsection{Set up}
+We require that our model be linear in the parameters, which means that for any observation / person $i$, we can express the response $y_i$ (the median home value) as a \textit{linear combination} of the variables, plus some error term.\\
+% Linear Regression Model
+\begin{equation}
+    y_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \ldots + \beta_p x_{ip} + \varepsilon_i
+\end{equation}
+
+\textit{NB: the $x_{i1} \rightarrow$ the $i$ indexes observation, the number value indexes the variable  } \\
+
+Our goal is the find the best values of the beta coefficients where 'best' has specific meaning: the coefficients that minimise the sum of squared errors over the dataset.\\
+
+\subsection{Objective Function for Least Squares}
+The objective function for least squares regression is:
+\[
+    \min_{\beta_0, \beta_1, \ldots, \beta_p} \sum_{i=1}^{n} \varepsilon_i^2 \]
+    \[= \min_{\beta_0, \beta_1, \ldots, \beta_p} \sum_{i=1}^{n} \left( y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2} - \ldots - \beta_p x_{ip} \right)^2\]
+
+\subsection{System of Equations = inefficient approach}
+We could set this up as a maximisation problem using a system of equations to solve, where the \textbf{partial derivatives of the least squares objective function with respect to each coefficient are set to zero} for optimization. These conditions are given by:
+
+\begin{equation}
+    \frac{\partial}{\partial \beta_0} \sum_{i=1}^{n} \left( y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2} - \ldots - \beta_p x_{ip} \right)^2 = 0
+\end{equation}
+\begin{equation}
+    \frac{\partial}{\partial \beta_1} \sum_{i=1}^{n} \left( y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2} - \ldots - \beta_p x_{ip} \right)^2 = 0
+\end{equation}
+\begin{equation}
+    \frac{\partial}{\partial \beta_2} \sum_{i=1}^{n} \left( y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2} - \ldots - \beta_p x_{ip} \right)^2 = 0
+\end{equation}
+\ldots
+\begin{equation}
+    \frac{\partial}{\partial \beta_p} \sum_{i=1}^{n} \left( y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2} - \ldots - \beta_p x_{ip} \right)^2 = 0
+\end{equation}
+
+NOTE TO SELF - THIS IS WHY REGRESSION OUTPUT INTERPRETATION IS "HOLDING EVERYTHING ELSE CONSTANT, THE EFFECT OF A 1 UNIT CHANGE IN X ON Y IS...". BETA COEFFICIENTS ARE JUT THE PARTIAL DERIVATIVE OF A MULTIVARIATE FUNCTION?"\\
+
+Or, we could solve same problem using linear algebra and calculus - much more efficient!\\
+
+\subsection{Matrix approach = efficient}
+
+\begin{tcolorbox}
+\subsubsubsection{Representing the linear regression model in Matrix form:}
+\begin{align}
+    \begin{bmatrix}
+        y_1 \\
+        y_2 \\
+        \vdots \\
+        y_n
+    \end{bmatrix} 
+    = \begin{bmatrix}
+        1 & x_{11} & x_{12} & \ldots & x_{1p} \\
+        1 & x_{21} & x_{22} & \ldots & x_{2p} \\
+        \vdots & \vdots & \vdots & \ddots & \vdots \\
+        1 & x_{n1} & x_{n2} & \ldots & x_{np}
+    \end{bmatrix} 
+    \begin{bmatrix}
+        \beta_0 \\
+        \beta_1 \\
+        \vdots \\
+        \beta_p
+    \end{bmatrix} 
+    + \begin{bmatrix}
+        \varepsilon_1 \\
+        \varepsilon_2 \\
+        \vdots \\
+        \varepsilon_n
+    \end{bmatrix} \label{eq:linear_model_matrix}
+\end{align}
+    
+Let's collapse this into: 
+\[Y = X\beta + \varepsilon \label{eq:compact_form} \]
+
+\end{tcolorbox}
+
+Where:
+\begin{align*}
+    & Y \text{ (}n \times 1\text{) is called the response vector} \nonumber \\
+    & X \text{ (}n \times (p+1)\text{) is called the design matrix} \nonumber \\
+    & \beta \text{ (}(p+1) \times 1\text{) is our vector of coefficients} \nonumber \\
+    & \varepsilon \text{ (}n \times 1\text{) is our vector of error terms}
+\end{align*}
+
+Think about how this works:
+\begin{itemize}
+    \item the design matrix - coefficient product produces a vector
+    \item each element of the response vector represents the summed coefficient-matrix $\times$ element products (i.e. for all the variables), plus an error term.
+    \item for each observation you thus have an outcome value = coefficient-matrix-element-product + error term.
+\end{itemize}
+
+\begin{tcolorbox}
+\subsubsubsection{Representing the squared error minimisation problem (the cost function) in Matrix form:}
+
+\[\varepsilon^T\varepsilon = Y^TY - Y^TX\beta - \beta^TX^TY + \beta^TX^TX\beta\]
+This expanded \textbf{cost function} (expressed in marix notation) is what we will be minimising (by taking first derivative, set to zero)
+\end{tcolorbox}
+
+Proof:
+
+\begin{equation}
+    \sum_{i=1}^{n} \varepsilon_i^2 = 
+    \begin{bmatrix}
+        \varepsilon_1 & \varepsilon_2 & \ldots & \varepsilon_n
+    \end{bmatrix}
+    \begin{bmatrix}
+        \varepsilon_1 \\
+        \varepsilon_2 \\
+        \vdots \\
+        \varepsilon_n
+    \end{bmatrix}
+    = \varepsilon^T\varepsilon
+\end{equation}
+
+Some matrix manipulation of the cost function:
+\begin{align*}
+    \varepsilon^T\varepsilon &= (Y - X\beta)^T(Y - X\beta) \\
+    &= Y^TY - Y^TX\beta - \beta^TX^TY + \beta^TX^TX\beta
+\end{align*}
+
+
+We still take the first derivative, set it equal to 0, to solve for error-miniming coefficients - but it's efficient, as we'll do it with the whole vector of coefficients.\\
+
+\subsubsubsection{Solving minimisation problem (set objective function to 0; differentiate; solve}
+
+\begin{tcolorbox}
+\textbf{(1) Setting to 0 $\rightarrow$ (2) taking first derivative with respect to $\beta \rightarrow$ (3) simplifying:} 
+    \[-2X^TY + 2X^TX\beta = 0\]
+\end{tcolorbox}
+
+Proof:\\
+
+This equation below takes the first derivative of the expanded squared error term from above, with respect to the coefficient \textbf{vector (NB!!)} $\beta$, and sets it equal to 0:
+\begin{align*}
+    \frac{\partial}{\partial \beta} (Y^TY - Y^TX\beta - \beta^TX^TY + \beta^TX^TX\beta) = 0\\
+    \frac{\partial}{\partial \beta} Y^TY - \frac{\partial}{\partial \beta} Y^TX\beta - \frac{\partial}{\partial \beta} \beta^TX^TY + \frac{\partial}{\partial \beta} \beta^TX^TX\beta = 0
+\end{align*}
+
+Setting this derivative equal to zero allows us to solve for the values of 
+\beta (a vector!) that minimize the sum of squared errors. The process typically involves solving a system of linear equations derived from setting the derivative equal to zero.\\
+
+Using the Matrix Cookbook, this reduces to:
+
+\[-2X^TY + 2X^TX\beta = 0\]
+
+Solving for beta:
+\begin{tcolorbox}
+\[\beta = (X^TX)^{-1}X^TY\]
+\end{tcolorbox}
+
+
+\section{Penalised Regression}
+
+\begin{document}
+
+Penalized regression is a method used in statistical modeling to prevent overfitting, improve prediction accuracy, and sometimes enable model interpretation. The idea is to introduce a penalty term to the regression model that constrains the coefficients, making the model simpler and less prone to overfitting. The two most common types of penalized regression are Lasso Regression (which uses the L1 norm) and Ridge Regression (which uses the L2 norm).
+
+\subsection{L1 Norm (Lasso Regression)}
+
+The L1 norm, used in Lasso Regression, is the sum of the absolute values of the coefficients. In mathematical terms, if you have coefficients $\beta_1, \beta_2, \ldots, \beta_n$, the L1 norm is:
+
+\[
+\text{L1 norm} = \sum_{i=1}^{n} \left| \beta_i \right|
+\]
+
+In Lasso Regression, the penalty term added to the regression model is proportional to the L1 norm. The objective function in Lasso Regression becomes:
+
+\[
+\text{Minimize} \left( \text{Residual Sum of Squares} + \lambda \sum_{i=1}^{n} \left| \beta_i \right| \right)
+\]
+
+where $\lambda$ is a tuning parameter that determines the strength of the penalty. A higher value of $\lambda$ results in more regularization.\\
+
+The L1 penalty has the effect of forcing some of the coefficient estimates to be exactly zero when the tuning parameter is sufficiently large. This leads to sparsity, which means that the model automatically selects variables by setting some coefficients to zero, effectively performing variable selection. This is useful in both improving model interpretability and dealing with high-dimensional data.
+
+\subsection{L2 Norm (Ridge Regression)}
+
+The L2 norm, used in Ridge Regression, is the sum of the squares of the coefficients. For coefficients $\beta_1, \beta_2, \ldots, \beta_n$, the L2 norm is:
+
+\[
+\text{L2 norm} = \sum_{i=1}^{n} \beta_i^2
+\]
+
+In Ridge Regression, the penalty term added to the regression model is proportional to the L2 norm. The objective function in Ridge Regression is:
+
+\[
+\text{Minimize} \left( \text{Residual Sum of Squares} + \lambda \sum_{i=1}^{n} \beta_i^2 \right)
+\]
+
+As with Lasso, $\lambda$ is a tuning parameter that controls the strength of the penalty. Unlike Lasso, Ridge Regression does not produce sparse models; it doesn't set coefficients to zero but instead shrinks them towards zero. This is particularly useful when dealing with multicollinearity or when you have more predictors than observations.
+
+\subsection{Summary}
+
+Both L1 and L2 regularization techniques are used to prevent overfitting, but they do so in different ways:
+
+\begin{itemize}
+  \item L1 (Lasso) can produce simpler and more interpretable models because it can reduce some coefficients to zero, effectively selecting more relevant features.
+  \item L2 (Ridge) is better suited for dealing with multicollinearity and does not exclude variables from the model but rather reduces their impact.
+\end{itemize}
+
+Choosing between Lasso and Ridge (or combining them, as in Elastic Net Regression) depends on the specific dataset, the underlying problem, and the need for model interpretability.
+
+
+\section{Bringing together the above expanded cost function with the L2 Norm constraint, to give the Ridge Regression objective function we try to minimise)}
+
+Above we worked out the cost function (i.e. the residual sum of squares / the squared error term) in matrix notation, which we were trying to minimise (by taking first derivative and setting to 0)\\
+
+Here we are combining that objective function with the L2 Norm constraint. This gives us a new objective function, typical of ridge regression. \\
+
+To solve the given minimization problem, we need to find the value of $\beta$ that minimizes the objective function. The objective function can be written as:
+
+\[
+Y^TY - Y^TX\beta - \beta^TX^TY + \beta^TX^TX\beta + \lambda \sum_{i=1}^{n} \beta_i^2
+\]
+
+This is a typical objective function in ridge regression, a method used in linear regression to introduce regularization. The regularization term, $\lambda \sum_{i=1}^{n} \beta_i^2$, helps to prevent overfitting by penalizing large coefficients.\\
+
+To minimize this function with respect to $\beta$, we take its derivative and set it to zero. Let's start by taking the derivative with respect to $\beta$:
+
+\[
+\frac{\partial}{\partial \beta} \left( Y^TY - Y^TX\beta - \beta^TX^TY + \beta^TX^TX\beta + \lambda \sum_{i=1}^{n} \beta_i^2 \right) = 0
+\]
+
+Solving this, we get:
+
+\[
+-2X^TY + 2X^TX\beta + 2\lambda I\beta = 0
+\]
+
+where $I$ is the identity matrix. Simplifying, we have:
+
+\[
+X^TX\beta + \lambda I\beta = X^TY
+\]
+
+This leads to the normal equation for ridge regression:
+
+\[
+(X^TX + \lambda I)\beta = X^TY
+\]
+
+To find $\beta$, we solve this equation:
+
+\[
+\beta = (X^TX + \lambda I)^{-1}X^TY
+\]

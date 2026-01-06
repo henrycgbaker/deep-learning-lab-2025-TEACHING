@@ -1,0 +1,1202 @@
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf ML Lecture Notes 2024 \\ Henry Baker}
+\hline 
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf ML Lecture Notes: Wk 10 \\ Neural Nets }
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Perceptrons}
+\subsection{The Algorithm}
+A Linear classifer. Initially proposed as a model of biological neuron function. \\
+
+Formally: binary classifier: maps inputs $x$ (feature vector) to output value $f(x; \theta$ based on linear prediction functions combining weights $\beta$ w/ feature vector:\\
+
+\textbf{A non-probabilistic version of logistic regression}
+$$f(x; \theta) = \mathbb{I}(X \beta \geq 0)$$
+Where
+\begin{itemize}
+    \item $\mathbb{I}$ is an indicator function that outputs 1 if the argument is true (i.e. that the linear combo of $X\beta$ is non-negative) and 0 otherwise.
+\end{itemize}
+This heavy-side step function is what makes the peceptron a non-probabilistic classifier (unlike logistic regr, which outputs probabilities).\\
+
+\textbf{Learning Algo} - updates weights to reduce classification errors.\\
+
+Update rule (for a single dimension) at each step $t$ given by:\\
+
+$$\beta_i (t + 1) = \textcolor{green}{\beta_i (t)} + \textcolor{blue}{r}(\textcolor{red}{y_i - \hat{f_j}(t)})\textcolor{blue}{(\mathbf{x}_{i,j}}$$
+
+Where
+\begin{itemize}
+    \item in the case of an \textcolor{red}{error}...
+    \item ...updates each \textcolor{green}{coefficient}
+    \item ...in the \textcolor{blue}{direction of the covariate}
+    \item $\textcolor{blue}{r}$ = learning rate (hyperparam)
+\end{itemize}{}
+
+Process:\\
+\begin{enumerate}
+    \item Calculate output based on given $\beta$: $\hat{f_j}(t) = f(X_j \beta (t))$
+    \item Update: $\beta_i (t + 1) = \textcolor{green}{\beta_i (t)} + \textcolor{blue}{r}(\textcolor{red}{y_i - \hat{f_j}(t)})\textcolor{blue}{(\mathbf{x}_{i,j}}$
+    \item Calculate output based on updated $\beta$
+    \item ...
+\end{enumerate}
+
+This update is performed iteratively over the training set until the algorithm converges (i.e., no further errors are made on the training set) or a maximum number of iterations is reached.
+
+\begin{tcolorbox}
+    The Perceptron's weight update is reminiscent of the gradient descent used in logistic regression, where the gradient of the negative log-likelihood (NLL) with respect to $\beta$
+
+    $$\nabla_{\beta} NLL(\beta) = \frac{1}{n} \sum_{j=1}^n (y_j - \hat{f_j}(x+j)) \cdot x_j $$
+
+    The Peceptron is updating like in logistic regression - but LogRegr updates weights based on the gradient of a probabilistic loss, the Peceptron update rate:
+    \begin{itemize}
+        \item for a single observation/error at a time (whereas LogRegr: for the whole dataset, hence the sum)
+        \item Perceptron updates weights directly based on misclassifications, making it suitable for datasets that are linearly separable (whereas LogReg uses probabilistic loss)
+    \end{itemize}
+\end{tcolorbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_10_neural_nets/peceptron.png}
+    \caption{I don't fully understand this, but the point is that the algo bounces around a log, but generally moves in the right direction; the decision boundary is the red dashed line - if the decision vector was pointing all the way to the right, then the red line is the decision boundary?????}
+    \label{fig:enter-label}
+\end{figure}
+
+
+This does converge (in datasets that are linearly separable), but there are issues:
+
+\subsection{Problems!}
+
+\subsubsection{1. Fundamental Linearity of Perceptron:}\\
+
+If not linearly separable - Peceptron algorithm will continue updating without reaching a point where all points are correctly classified
+
+\begin{tcolorbox}
+    \textbf{the XOR function}:\\
+    
+    The XOR (exclusive OR) function outputs true (or 1) if the number of true inputs is odd; in a two-input scenario, it gives 1 when either $x_1$ or $x_2$ is 1, but not both.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\linewidth]{figures/week_10_neural_nets/XOR.png}
+        \caption{The XOR data points are not linearly separable. That is, we cannot draw a straight line to separate the class of points with output 1 from those with output 0}
+        \label{fig:enter-label}
+    \end{figure}
+\end{tcolorbox}
+
+A single-layer Perceptron is essentially a linear classifier. 
+\begin{itemize}
+    \item It makes its decisions by weighing input features with certain coefficients, summing them up, and applying a thresholding step function. 
+\end{itemize}
+Because the decision boundary of a Perceptron is a hyperplane (a line in two dimensions), it cannot solve problems where a non-linear decision boundary is required, such as the XOR problem.
+
+\subsubsection{2. Inability to Choose Between Solutions}
+
+When a dataset is linearly separable, there could be infinitely many hyperplanes that correctly separate the classes. However,  single-layer Perceptron does not have a mechanism to prefer one over another. \\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_10_neural_nets/infinite hyperplane.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+Ideally, one might want to choose the hyperplane that maximizes the margin between the classes for better generalization (as done by Support Vector Machines), but the Perceptron does not inherently have this capability.
+
+\subsubsection{AI Winter}
+
+These issues (esp XOR) publicized by Minsky and Papert in their book "Perceptrons" in the late 1960s.\\
+
+This finding led to the first AI winter. Many in the field turned their attention to other areas, considering neural networks to be a dead end. \\
+
+This perspective persisted until the 1980s and 1990s, when the development of multi-layer networks and the backpropagation algorithm revived interest in the field. This revival was based on the realization that with one or more hidden layers, neural networks could indeed model non-linear functions, effectively addressing the shortcomings of the Perceptron.
+
+\section{Feed-Forward Neural Networks (FFNN) or Multi-Layer Perceptron (MLP)}
+
+The single-layer Perceptron can be thought of as the simplest FFNN with no hidden layers. 
+
+\begin{tcolorbox}
+    What we've done thus far is learn parameters for a larger model:
+    $$f(x; \theta) = \theta \phi(x)$$
+    Where $\phi(x)$ represents some transformatuon of the inputs, potentially non-linear (kernels etc).\\
+
+    But what if we could also learn $\phi$....
+\end{tcolorbox}
+
+\subsubsection{Hierarchical Learning of Feature Representations}
+
+The feed-forward architecture is built on the premise that more complex representations can be learned by composing simpler ones. \\
+
+This is embodied in the structure of the network, where each layer's output serves as the input to the subsequent layer.
+$$f(x; \theta_1, \theta_2) = \theta_1 \phi(x; \theta_2)$$
+\begin{itemize}
+    \item $\phi(x)$ represents some transformatuon of the inputs, potentially non-linear 
+    \item $\theta_1, \theta_2, \cdots \theta_n$ represent the parameters at each layer of the network
+\end{itemize}
+
+\begin{tcolorbox}
+    Formally: 
+$$f(x; \theta = (\theta_1, \ldots, \theta_L)) = f_L (f_{L-1} (\ldots ( f_1 (x))))$$
+Where $f_l(x) = f(x; \theta_l)$
+\end{tcolorbox}
+
+$$f(x; \theta) = \theta_n \phi(\ldots (\theta_2 \phi(\theta_1 \phi(x))) \ldots)$$
+Demonstrates that each layer of a FFNN applies a set of weights $\theta_i$ to its input, and then an activation function $\phi$ to introduce non-linearity
+
+\subsubsection{Learning $\phi$}
+The ability to learn $\phi$ (the transformation at each layer) is crucial.\\
+
+In traditional machine learning models, feature transformation is often a manual process based on domain knowledge. \\
+
+With FFNNs, these transformations are learned from data.\\
+
+The function $\phi$ at each layer can be seen as a feature extractor that transforms the data into a more abstract representation, which should ideally be more useful for the task at hand, such as classification or regression.
+
+\textbf{Deep Hierarchies in FFNN}\\
+
+A deep FFNN, which has many layers of these transformations, can learn very complex patterns. Each layer's output (its feature representation) is used by the next layer as its input. Through training, the network adjusts its weights (the parameters $\theta$) across all layers to minimize some loss function.\\
+
+\textbf{Parameters Learning}
+In the context of FFNN, we are not just learning a single set of parameters, but a series of parameter sets $(\theta_1, \theta_2 \ldots)$, each corresponding to a different layer in the network. The learning process involves finding the best values for all these parameters so that the network can accurately map inputs to outputs.
+
+
+\section{Composing Functions}
+\subsection{Assuming only Linear Stacking}
+
+\textbf{Linear Transformations}\\
+
+In a feed-forward network, each layer performs a linear transformation of its input data.\\
+
+E.g. if a layer has  $n_1$ hidden units (also called neurons) and receives $d$ features from the input or the previous layer, the transformation it performs can be represented by a matrix $\theta_1$ of size $n_1 \times d$\\
+
+\textbf{Composing Linear Layers}\\
+
+If we have multiple layers $\theta_1, \theta_2, \ldots \theta_L$, each one taking output of prev layers as its input we have a sequence of matrix multiplications.\\
+
+Suppose we want $m$ outputs, and we have $d features$:\\
+
+Composite function:
+$$f(x; \theta = (\theta_1, \ldots, \theta_L)) = f_L (f_{L-1}(\ldots f_2(f_1(x)) \ldots))$$
+Where $f_l(x) = \theta_l x$
+\begin{itemize}
+    \item $\theta_1$ is $n_1 \times d$ for $n_1$ hidden units
+    \item $\theta_l$ is $n_l \times n_{l-1}$
+    \item $\theta_L$ is $m \times n_{L-1}$ 
+\end{itemize}
+
+\textbf{Limitations of Linear Stacking}\\
+
+If all functions $f_i$ are purely linear, then stacking them together doesn't give us the benefits of a deep network, as the compisiton of linear functions is still a linear function.\\
+
+Mathematically, if you only have linear transformations without any non-linearity between them, the entire network's effect is equivalent to a single linear transformation from the input to the output.\\
+
+= flattens all intermediate layers. You effectively cannot throw more info into this model than what you can put into an $m \times d$ matrix...
+
+\begin{tcolorbox}
+    Taking the above example, where $f_l(x) = \theta_l x$...
+    \begin{itemize}
+        \item $\theta_1$ is $n_1 \times d$ for $n_1$ hidden units
+        \item $\theta_l$ is $n_l \times n_{l-1}$
+        \item $\theta_L$ is $m \times n_{L-1}$ 
+    \end{itemize}
+
+...then $f(x; \theta) = \theta_L \theta_{L-1} \cdot \theta_1 x$\\
+
+If $\theta_1$ is an $d \times n_1$ matrix; \theta_2 is an $n_2 \times n_1$ matrix; and so on. \\
+
+The output $\theta_L$ would be an $m \times n_{L-1}$ matrix for $m$ outputs.\\
+
+If you multiply all these matrices together, you get an effective transformation matrix $M$ of dimension $d \times m$.\\
+
+This is not very helpful: when everything is linear we end up with a single weight matrix, which is necessarily linear. 
+\end{tcolorbox}
+
+\textbf{Non-Linearity}
+To make a deep network powerful and able to capture complex relationships in data, we introduce non-linear activation functions after each linear transformation. Common choices are sigmoid, hyperbolic tangent (tanh), and rectified linear unit (ReLU). This non-linearity is essential because it allows the network to learn and represent more than just a simple linear function of the input data. Without non-linearity, no matter how deep the network is, it would be functionally no different than a single-layer Perceptron.
+
+\begin{redbox}
+    Without non-linear activation functions, no matter how many layers the network has, it would still behave like a linear model because the composition of linear functions is linear
+\end{redbox}
+
+\subsection{Activation Function}
+Introduce non-linearity, allowing the network to learn and model complex relationships between the inputs and outputs. (prevents collapse into a single uninteresting linear model)\\
+
+Combined into alternating layers: linear > non linear > linear...
+\begin{itemize}
+    \item Linear layer = where we are learning parameters
+    \item Non-linear layers = to prevent collapse
+\end{itemize}
+
+\subsubsection{Step Function}
+
+Used in the original Perceptron model; a simple threshold function that activates (outputs 1) if the weighted sum of inputs is greater than zero and deactivates (outputs 0) otherwise. 
+
+$$f(x; \theta) = \mathbb{I}(X \beta \geq 0)$$
+
+It's a binary function and lacks the nuance needed for modeling the complex, graded behaviors seen in real-world data.
+
+\subsubsection{Softmax / Logit}
+
+The softmax function is often used in the final layer of a neural network classifier to represent a categorical distribution – that is, the probability that an input belongs to each of several categories. \\
+
+For binary classification, the softmax function reduces to the logistic sigmoid (logit) function:
+
+\[ \sigma(x) = \frac{1}{1 + e^{-x}} \]
+
+This function takes a real-valued number and squashes it into a range between 0 and 1, which is interpretable as a probability.\\
+
+A nice property is that it is non-parameterised - there's nothing that needs to be learned, we can just throw it in
+
+\subsubsection{Rectified Linear Units (ReLUs)}
+
+The ReLU function is given by:
+\[ \text{ReLU}(x) = \max(x, 0) \]
+This activation function has become very popular due to its simplicity and effectiveness. It introduces non-linearity while being computationally efficient and facilitating the optimization process, especially in deep networks. \\
+
+It’s linear (and so preserves the properties of linear models) for positive values and zero for negative values.
+
+\subsubsection{Variations on ReLUs}
+
+\begin{itemize}
+    \item \textbf{Swish}: The Swish function is a smooth, non-monotonic function defined as:
+    \[ \text{Swish}(x) = x \cdot \sigma(x) \]
+    It has been found to sometimes outperform ReLUs because it has a non-zero gradient for all input values, which helps mitigate the "dying ReLU" problem where neurons can become inactive and only output zero.
+    
+    \item \textbf{Leaky ReLU}: To address the issue of dying ReLUs, Leaky ReLU allows a small, non-zero gradient when the unit is not active:
+    \[ \text{LeakyReLU}(x) = \begin{cases} 
+    x & \text{if } x > 0 \\
+    \alpha x & \text{if } x \leq 0 
+    \end{cases} \]
+    where \( \alpha \) is
+\end{itemize}
+
+This maintains some kind of relationship between inputs and outputs at all levels of inputs; it's just different for high vs low values.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_10_neural_nets/activation functions1.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_10_neural_nets/activation function 2.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\section{SGD (Training an NN 1)}
+
+In simplest case, done using a method called stochastic gradient descent. SGD is an optimization algorithm used to minimize a (loss) function.\\
+
+\subsection{Update rule:}
+
+$$\theta(t+1) = \theta(t) - \frac{\eta_t}{B} \sum_b \nabla_{\theta}\ell(y_b, f(x_b, \theta))$$
+Where
+\begin{itemize}
+    \item $\eta$ = learning rate (scalar)
+    \item $\nabla_{\theta}\ell(y_b, f(x_b, \theta))$ = gradient of the loss function wrt parameter
+\end{itemize}
+
+\subsection{Mini-batch Gradient Descent} - a variant of SGD.
+
+Instead of calculating the gradient of the loss function using the entire dataset (which can be computationally expensive), we use a small random subset of the data called a mini-batch. \\
+
+Reduces variance in the parameter updates and can lead to faster convergence.
+
+\subsection{Challenge of Gradient Computation}
+
+ NN = extremly complex functions (that's the point)\\
+ 
+ Computing the gradient of the loss function with respect to each parameter isn't straightforward because it's not always clear how each parameter affects the loss. \\
+ 
+ "Credit assignment": determining how much each parameter contributed to the final outcome.\\
+
+ Solution comes down to lots of applications of the Chain Rule for Derivatives\\
+
+\textbf{= Backpropagation}\\
+
+= Chain rule application to calculate  gradients efficiently for networks with many layers (deep networks). \\
+
+2 passes through the network:
+\begin{enumerate}
+    \item \textbf{Forward Pass}: Inputs are passed through the network to compute the outputs and the loss.
+    \item \textbf{Backward Pass}: The gradient of the loss is propagated back through the network to compute the gradients of the loss with respect to each parameter.
+\end{enumerate}
+
+We compute the gradient of the loss function at the final layer and then use the chain rule to successively calculate the gradients for each layer from the output end to the input end.
+
+\textbf{Credit Assignment \& Taylor Series}
+The credit assignment problem involves figuring out which weights and biases to adjust to decrease the loss. \\
+
+Conceptually, you can think of optimizing the network's parameters as a process of making small, iterative improvements based on a local linear approximation of the loss function around the current parameters (hence the reference to a Taylor series expansion). \\
+
+Back-propagation helps in assigning "credit" by quantifying how much a small change in each parameter will impact the loss.
+
+\section{Back-propagation (Training an NN 2)}
+
+Calculates the gradient of the loss function with respect to each weight in the network\\
+
+ This allows us to update the weights in the direction that minimizes the loss, using gradient-based optimization methods such as Stochastic Gradient Descent (SGD). Let's dissect the provided process.
+
+\subsection{Function composition in NNs / Layers as Functions}
+
+A neural network can be thought of as a composition of functions, like:
+
+\[ 
+\mathbf{o} = f_L \circ f_{L-1} \circ \cdots \circ f_{1}(\mathbf{x})
+\]
+
+where \( f_{i} \) represents the function computed by layer \( i \), \( \mathbf{x} \) is the input, and \( \mathbf{o} \) is the output.\\
+
+Each layer \( f_{i} \) typically consists of a linear transformation followed by a non-linear activation. For instance:
+\begin{itemize}
+    \item $f_{i} : \mathbb{R}^{n_{i-1}} \rightarrow \mathbb{R}^{n_i}$ maps the input of that layer from a space of \( n_{i-1} \) dimensions to a space of \( n_i \) dimensions.
+    \item \( n > m \) signifies there are more input features \( n \) than output features \( m \), which is common in many real-life problems.
+\end{itemize}
+
+ \subsection{Chain Rule \& Jacobians}
+ 
+The gradient of the loss with respect to a certain layer's inputs can be computed by taking the product of the gradients of all subsequent layers' transformations. \\
+
+In matrix form, this is often represented by Jacobians $J$, which are matrices of partial derivatives.\\
+
+
+If we have a sequence of functions \( f_1, f_2, \ldots, f_L \), the gradient with respect to the inputs of \( f_1 \) involves the Jacobians of all the functions up to the output:
+
+\[ \frac{\partial \mathbf{o}}{\partial \mathbf{x}_1} = J_{f_L}(\mathbf{x}_L) \cdot J_{f_{L-1}}(\mathbf{x}_{L-1}) \cdot \ldots \cdot J_{f_1}(\mathbf{x}_1) \]
+
+where each \( J_{f_i}(\mathbf{x}_i) \) represents the Jacobian matrix of partial derivatives of the function \( f_i \) with respect to its input \( \mathbf{x}_i \).
+
+\subsection{Gradient Computation}
+
+During the backward pass of backpropagation, we start at the output and work our way back, layer by layer, to the input. \\
+
+At each step, we compute the gradient of the loss with respect to the layer's output and then use the chain rule to "backpropagate" this gradient through the layer.\\
+
+This requires computing the gradient of the layer's activation function and then the gradient of its linear transformation.\\
+
+For a neural network with parameters $\theta$, the backpropagation algorithm systematically applies the chain rule to compute the gradient $\nabla_{\theta} L$ of the loss function $L$ with respect to the parameters $\theta$. \\
+
+These gradients are then used to update the parameters in the direction that minimizes the loss.
+
+
+\begin{tcolorbox}
+
+    \textbf{Example:} suppose we have few outputs relative to input features: $x > m$:\\
+    
+    Our function of interest is $o$:
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.75\linewidth]{figures/week_10_neural_nets/Back propagation.png}
+        \caption{NB: 4th function here is loss function}
+        \label{fig:enter-label}
+    \end{figure}
+
+    $$o = f_4 (f_3 (f_2 )f_1(x)))) = f_4 \circ f_{3} \circ f_2 \circ f_{1}(\mathbf{x}) $$
+
+    In terms of numbers of features at each layer (neurons?):
+    \begin{itemize}
+        \item $f_1: \mathbb{R}^{n} \rightarrow \mathbb{R}^{m_1}$ 
+        \item $f_2: \mathbb{R}^{m_1} \rightarrow \mathbb{R}^{m_2}$
+        \item $f_3: \mathbb{R}^{m_2} \rightarrow \mathbb{R}^{m_3}$
+        \item $f_4: \mathbb{R}^{m_3} \rightarrow \mathbb{R}^{m}$
+    \end{itemize}
+    Where $n$ = number of features; $m_1$ = number of features in 1st hidden layer....\\
+
+    In terms of gradients of $o$ can be expressed as: (??)
+
+    \begin{align*}
+    \frac{\partial \mathbf{o}}{\partial \mathbf{x}_1} &= \\
+        \textit{how fns change wrt change in input: ?} &= \frac{\partial \mathbf{o}}{\partial \mathbf{x_4}} \frac{\partial \mathbf{x_3}}{\partial \mathbf{x}_3} \frac{\partial \mathbf{x_3}}{\partial \mathbf{x}_2} \frac{\partial \mathbf{x_2}}{\partial \mathbf{x}_}\\
+      \textit{part derives of features wrt its input: ?}  &= \frac{\partial f_4(x_4)}{\partial \mathbf{x_4}} \frac{\partial f_3  (\mathbf{x_3})}{\partial \mathbf{x}_3} \frac{\partial f_2 (\mathbf{x_2})}{\partial \mathbf{x}_2} \frac{\partial f_1 (\mathbf{x})}{\partial \mathbf{x}} \\
+      \textit{as Jacobians: }  &= J_f_4(x_4) \cdot J_f_3(x_3) \cdot J_f_2(x_2) \cdot J_f_1(x)
+    \end{align*}    
+    Where Jacobian is a matrix of the gradient of each function, such that the overall function Jacobian:
+    \[ J_f(\mathbf{x}) = \begin{pmatrix}
+    \nabla f_1(\mathbf{x})^T \\
+    \vdots \\
+    \nabla f_m(\mathbf{x})^T
+    \end{pmatrix} \in \mathbb{R}^{m \times n} \]
+    = how changes of input affect changes in output
+\end{tcolorbox}
+
+\subsection{Backpropagation for an MLP}
+
+\textbf{Defining the MLP Structure}\\
+
+The MLP consists of 
+\begin{itemize}
+    \item \textbf{hidden layers} where each layer performs a specific transformation of the data passing through it. (Allows it to hierarchically learn complex feature transformations)
+    \item \textbf{At the final layer, a loss function} $\mathcal{L}$ measures how far the network's predictions ($f_B(x_B)$) is from the true value ($y$).
+\end{itemize}
+
+\begin{itemize}
+    \item For regression tasks: MSE $\mathcal{L}(x_B, y)$ = $\frac{1}{2}(x \beta - y)^2$
+\end{itemize}
+
+So, we define an MLP:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_10_neural_nets/MLP.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\textbf{Layers in the MLP}
+\begin{itemize}
+    \item \textbf{Final loss layer:} $\mathcal{L}(x_4, y) = \frac{1}{2} \|(x_x \beta - y)\|^2$
+    \item \textbf{Linear layer:} \( x_4 = f_3(x_3,\theta_3) = W_2 x_3 \) 
+    \begin{itemize}
+        \item takes inputs, applies weights
+        \item $W_2$ is the weight matrix associated with this layer
+    \end{itemize}
+    \item \textbf{Nonlinear activation:} \( x_3 = f_2(x_2), \varnothing = \phi(x_2) \)
+    \begin{itemize}
+        \item activation function: there are no parameters to optimise; we don't have to worry about it in back propagation
+    \end{itemize}
+    \item \textbf{Linear layer:} \( x_2 = f_1(x), \theta_1 = W_1 x \)
+        \begin{itemize}
+        \item takes inputs, applies weights
+        \item $W_1$ is the weight matrix associated with this layer
+    \end{itemize}
+\end{itemize}
+
+\textbf{Gradient Calculation for Back-propagation}
+ Computing the gradient of the loss with respect to each weight in the network. \\
+ 
+This requires applying the chain rule in reverse order, from the output layer back to the input layer.\\
+
+For a given weight matrix $W$, the gradient is denoted as $\nabla_W \mathcal{L}$.
+
+\begin{itemize}
+    \item Calculate the gradient of the loss with respect to the output of the final layer:
+
+\[ \frac{\partial \mathcal{L}}{\partial \mathbf{x}_B} \frac{\partial \mathbf{x}_B}{\partial \mathbf{L}} \]
+
+\item Use the chain rule to find the gradient with respect to the weights of the last layer \( \mathbf{W}_2 \):
+
+\[ \frac{\partial \mathcal{L}}{\partial \mathbf{\theta}_2} \frac{\partial \mathbf{\theta}_2}{\partial \mathbf{W}_2} \]
+
+\item Propagate the gradient backward to the output of the non-linear activation layer:
+
+\[ \frac{\partial \mathcal{L}}{\partial \mathbf{x}_C} \frac{\partial \mathbf{x}_C}{\partial \mathcal{L}} \]
+
+\item Continue applying the chain rule to find the gradient with respect to the weights of the preceding layer \( \mathbf{W}_1 \):
+
+\[ \frac{\partial \mathcal{L}}{\partial \mathbf{\theta}_1} \frac{\partial \mathbf{\theta}_1}{\partial \mathbf{W}_1} \]
+\end{itemize}
+
+\textit{NB: stacking - The partial derivatives needed at each step are often stored and reused, which is an efficient implementation known as dynamic programming.}
+
+\[
+\frac{\partial \mathcal{L}}{\partial \theta_3} = 
+\color{red}\frac{\partial \mathcal{L}}{\partial x_4} \color{black}\cdot 
+\color{blue}\frac{\partial x_4}{\partial \theta_3}\color{black}
+\]
+
+\[
+\frac{\partial \mathcal{L}}{\partial \theta_2} = 
+\color{red}\frac{\partial \mathcal{L}}{\partial x_4} \color{black}\cdot 
+\color{green}\frac{\partial x_4}{\partial x_3} \color{black}\cdot 
+\color{blue}\frac{\partial x_3}{\partial \theta_2}\color{black}
+\]
+
+\[
+\frac{\partial \mathcal{L}}{\partial \theta_1} = 
+\color{red}\frac{\partial \mathcal{L}}{\partial x_4} \color{black}\cdot 
+\color{green}\frac{\partial x_4}{\partial x_3} \color{black}\cdot 
+\color{orange}\frac{\partial x_3}{\partial x_2} \color{black}\cdot 
+\color{blue}\frac{\partial x_2}{\partial \theta_1}\color{black}
+\]
+
+The computation of the gradient at each layer accounts for the influence of each parameter (weight and bias) on the output error. This systematic approach allows us to "assign credit" or "blame" to the parameters for their contribution to the error.\\
+
+Since neural networks represent a complex, non-linear mapping, there's no closed-form solution for the optimal weights. Hence, iterative optimization methods like SGD are employed.\\
+
+SGD makes a local linear approximation of the loss function around the current parameter values (considering the Taylor series expansion) and updates the parameters to decrease the loss, aiming to converge to a set of parameters that minimize the loss function over time.
+
+
+\subsection{Algorithmically}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_10_neural_nets/backpror algo.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+You can build up this gradient iteratively if you understand each individual layer...
+
+\subsection{We still need each layer's derivatives!}
+
+When training neural networks, we need to compute the derivatives of each layer with respect to its inputs and weights to update the parameters.
+
+\subsubsection{I: Numerical Approximation of derivatives}
+
+although it's not typically used for neural networks due to its inefficiency and approximation error. \\
+
+Involves calculating the gradient by estimating how the function value changes with a very small change in the input. 
+$$lim_{h \rightarrow 0} \frac{f(x+h)-f(x)}{h}$$
+In practice, you  pick a small value for $h$ and compute the above quotient to approximate the derivative.
+
+\textbf{BUT issues w/ Numerical Approximation}
+
+\begin{itemize}
+    \item \textbf{Computational Cost:} requires at least two evaluations of the network function per parameter to estimate its derivative.
+    \item \textbf{Choice of $h$:} if $h$ is too large, the approximation may be poor. If it's too small, we may encounter rounding errors due to the limitations of floating-point arithmetic in computers.
+    \item \textbf{No Structural Advantage:} Neural networks are structured in layers with differentiable activation functions, which can be efficiently exploited using analytical gradients via backpropagation. Numerical methods do not use this structural information, leading to inefficient computations and potential loss of precision.
+\end{itemize}
+
+So we want an analytical solution...\\
+
+\subsubsection{II: Auto-differentiation}
+
+Enables the calculation of derivatives through a computational graph of the function.\\
+
+Decomposes complex functions into simpler, elementary operations whose derivatives are known (hence the term "atomic functions"). Then, by applying the chain rule, it computes the derivatives of the entire function automatically and accurately. 
+
+\textbf{Atomic Functions \& Operations}
+
+Atomic functions are the basic building blocks of more complex functions. \begin{itemize}
+    \item addition, 
+    \item multiplication, 
+    \item trigonometric functions, 
+    \item exponentials, 
+    \item logarithms, 
+\end{itemize}
+where we already know how to compute the derivatives.\\
+
+\textbf{Combing Operations}\\
+
+Auto-differentiation systems construct a computational graph where nodes represent atomic functions or operations, and edges represent dependencies between these operations. The derivatives are calculated using the following rules:
+
+\begin{itemize}
+\textbf{Addition Rule:} If \( f(x) \) and \( g(x) \) are functions, then the gradient of their sum with respect to \( x \) is the sum of their individual gradients:
+\[ \nabla_x (f(x) + g(x)) = \nabla_x f(x) + \nabla_x g(x) \]
+
+\textbf{Multiplication Rule:} The gradient of the product of two functions \( f(x) \) and \( g(x) \) with respect to \( x \) involves the product rule:
+\[ \nabla_x (f(x) \cdot g(x)) = f(x) \cdot \nabla_x g(x) + g(x) \cdot \nabla_x f(x) \]
+
+\textbf{Composition Rule:} For a composite function \( h(x) = f(g(x)) \), the chain rule gives the gradient of \( h(x) \) with respect to \( x \) as the product of the gradient of \( f(u) \) with respect to \( u \) and the gradient of \( g(x) \) with respect to \( x \):
+\[ \nabla_x f(g(x)) = \nabla_u f(u) \bigg|_{u=g(x)} \cdot \nabla_x g(x) \]
+\end{itemize}
+
+\textbf{Need for Full Frameworks}
+
+While basic numerical libraries like NumPy support a wide range of mathematical operations, they do not inherently support auto-differentiation. This is why full-fledged deep learning frameworks like TensorFlow, PyTorch, and JAX are necessary for neural network development. These frameworks have auto-differentiation capabilities built-in and can automatically calculate the gradients required for training neural networks.
+\begin{itemize}
+    \item TensorFlow and PyTorch build dynamic computation graphs that represent the operations of the neural network. When the network performs a forward pass, these frameworks keep track of the operations and are then able to traverse the graph in reverse to compute gradients using backpropagation.
+    \item JAX provides automatic differentiation capabilities through its jax.grad and related functions. It transforms Python and NumPy code into functions that can be auto-differentiated and optimized.
+\end{itemize}
+
+\section{MLP Design Recipe}
+
+\subsection*{Design an Architecture}
+
+\textbf{Number of Layers}
+
+\begin{itemize}
+    \item \textbf{Single-Layer Perceptron (SLP):} This configuration has no hidden layers, only an input layer and an output layer. It is only suitable for linearly separable problems.
+    \item \textbf{One Hidden Layer:} An MLP with a single hidden layer can approximate any function that contains a continuous mapping from one finite space to another. It is more capable of handling non-linear data compared to an SLP.
+    \item \textbf{Multiple Hidden Layers (Deep Learning):} More layers allow the network to learn more complex representations, but they also make the network more computationally intensive and potentially harder to train.
+\end{itemize}
+
+\textbf{Number of Units in Each Layer}
+
+\begin{itemize}
+    \item The number of units in each hidden layer is a parameter that may require tuning. A larger number of units can increase the model's capacity but may lead to overfitting.
+    \item Generally, the size of the input layer corresponds to the dimensionality of the data, and the size of the output layer corresponds to the number of output classes (for classification) or one (for regression).
+    \item The number of units in hidden layers is often determined through experimentation, although common starting points are numbers that form a pyramid shape (decreasing or increasing).
+\end{itemize}
+
+\textbf{Function Definition at Each Layer}
+
+Each layer typically performs a linear transformation followed by a non-linear activation:
+
+\begin{itemize}
+    \item \textbf{Linear Transformation:} Each neuron in a layer computes a weighted sum of its inputs, which are the outputs of the previous layer.
+    \item \textbf{Activation Function:} This function introduces non-linear properties to the model, allowing it to learn more complex patterns. Common choices include ReLU (Rectified Linear Unit), sigmoid, and tanh.
+\end{itemize}
+
+\subsection*{Design a Loss Function}
+
+The choice of a loss function depends on the specific task:
+
+\begin{itemize}
+    \item \textbf{Regression:} Mean Squared Error (\textbf{MSE}) is commonly used. It measures the average squared difference between the estimated values and the actual value.
+    \item \textbf{Classification:} Cross-entropy loss (also known as \textbf{Log Loss}) is typical. It measures the performance of a classification model whose output is a probability value between 0 and 1.
+\end{itemize}
+
+\subsection*{Choose an Optimizer}
+
+The optimizer is the algorithm used to update weights in the network based on the gradients of the loss function:
+
+\begin{itemize}
+    \item \textbf{Stochastic Gradient Descent (SGD):} A simple yet effective approach. Variants like mini-batch gradient descent are commonly used in practice.
+    \item \textbf{Adam (Adaptive Moment Estimation):} Combines the advantages of two other extensions of SGD, namely AdaGrad and RMSProp. Adam is popular due to its effective handling of sparse gradients and adaptive learning rate techniques.
+    \item \textbf{BFGS (Broyden–Fletcher–Goldfarb–Shanno Algorithm):} A more sophisticated optimization algorithm that uses second-order derivatives and maintains a full approximation of the inverse Hessian matrix. It's more common in smaller, less complex models due to its computational expense.
+\end{itemize}
+
+ \begin{figure}[H]
+     \centering
+     \includegraphics[width=0.95\linewidth]{figures/week_10_neural_nets/MLP Recipe.png}
+     \caption{Enter Caption}
+     \label{fig:enter-label}
+ \end{figure}
+
+\section{A Simple MLP}
+
+1 hidden layer, with lots of hidden units\\
+
+Useful for both regression and classification tasks depending on the loss function and final layer activation used.
+
+\subsection{Architecture of the MLP}
+
+\subsubsection{Hidden Layer (\( f_1 \))}
+
+This layer takes an input \( x \) with \( d \) features. \\
+
+It transforms the input using a weight matrix \( \theta_1 \) of dimensions \( d \times k \), where \( k \) is the number of hidden units.\\
+
+After the linear transformation, a non-linear activation function (typically sigmoid or ReLU) is applied. Here, a sigmoid (\( \sigma \)) is used, which squashes the output to the range (0, 1).\\
+
+The output of this layer is a \( k \)-dimensional vector representing learned features from the input.
+
+\begin{itemize}
+    \item \textbf{Function:} \( f_1(x; \theta_1) = [\sigma(\theta_1^1 x), \sigma(\theta_1^2 x), \ldots, \sigma(\theta_1^k x)] \)
+    \item \textbf{Parameters:} \( \theta_1 \) contains \( d \times k \) parameters, where \( d \) is the dimensionality of the input vector \( x \), and \( k \) is the number of hidden units.
+    \item \textbf{Role: just learns a feature representation} of the input data by applying a non-linear transformation (usually sigmoid) to a linear combination of the inputs. The sigmoid activation ensures that the output of each neuron is between 0 and 1, making the model capable of capturing non-linear relationships between the input features.
+\end{itemize}
+
+\subsubsection{Output Layer (\( f_2 \))}
+
+Takes the \( k \)-dimensional output from the hidden layer.\\
+
+Transforms it using a weight vector \( \theta_2 \) of dimensions \( k \times 1 \), thus producing a single output value for regression.\\
+
+For classification, the output would pass through a sigmoid function to represent a probability.
+
+\begin{itemize}
+    \item \textbf{Function:} \( f_2(x; \theta_2) = \theta_2 x \)
+    \item \textbf{Parameters:} \( \theta_2 \) contains \( k \times 1 \) parameters, assuming a single output unit for regression.
+    \item \textbf{Role:  performs a linear regression on the feature representation} provided by the hidden layer $f_1$. It maps the transformed features to a single continuous output, which can be the predicted value in the case of regression.
+\end{itemize}
+
+\subsection{Function Composition}
+
+The overall network function \( f \) is the composition of \( f_2 \) and \( f_1 \)
+
+$$f(x; \theta) = f_2(f_1(x; \theta_1); \theta_2)$$
+
+The total parameter count is the sum of elements in \( \theta_1 \) and \( \theta_2 \):
+\begin{itemize}
+    \item  \( (d \times k) + (k \times 1) \) parameters.
+\end{itemize}
+
+\subsection{Loss Functions}
+
+\textbf{For Regression:} Mean Squared Error (MSE) is used, defined as:
+\[ \ell(y, f(x; \theta)) = (y - f(x; \theta))^2 \]
+
+
+\textbf{For Classification:} Log Loss (or Cross-Entropy Loss) can be used when the output is passed through a sigmoid function in the output layer to ensure the outputs are probabilities:
+\[ \ell(y, f(x; \theta)) = -y \log(f(x; \theta)) + (1 - y) \log(1 - f(x; \theta)) \]
+This loss function is suitable for binary classification tasks, where \( y \) is either 0 or 1.
+
+\section{Optimizer}
+
+\textbf{BFGS:} Broyden–Fletcher–Goldfarb–Shanno (BFGS) is an optimizer that uses second-order derivatives (the Hessian matrix of second derivatives) to guide the optimization process. It is more sophisticated than simple gradient descent and can converge faster for small to medium-sized problems. \\
+
+However, its memory requirement, which grows with the number of parameters squared, makes it less feasible for very large models.
+
+\section{Practical Considerations}
+
+\begin{itemize}
+    \item \textbf{Capacity of the Model:} The number of hidden units \( k \) affects the model's ability to learn from the data.
+    \begin{itemize}
+        \item Too few units may lead to underfitting,
+        \item Too many can cause overfitting.
+    \end{itemize}
+  
+    \item \textbf{Transition from Regression to Classification:} By changing the output layer to include a sigmoid activation and adjusting the loss function to log loss, the same architecture can be used for binary classification tasks. This flexibility makes MLPs a popular choice in many different machine learning applications.
+\end{itemize}
+
+\section{Choosing an Optimizer}
+
+\begin{enumerate}
+    \item \subsection*{SGD}
+    \begin{itemize}
+        \item \textbf{Basic SGD} - updates weights using a portion of the training data rather than the whole dataset to compute the gradient, which is computationally efficient and reduces memory requirements.
+        \item \textbf{With Momentum} - helps accelerate the gradient vectors in the right direction, thereby leading to faster converging. It does this by adding a fraction of the update vector of the past step to the current step's gradient vector.
+    \end{itemize} 
+
+    \item \subsection*{BFGS}
+    \begin{itemize}
+        \item Suitable for smaller datasets as it involves computation of the Hessian matrix, which can be very large for models with many parameters. BFGS is a quasi-Newton method that approximates the Hessian matrix, necessary for the Newton's method updates.
+        \item tries to find the exact solution of the gradients equation \( \nabla f = 0 \) in fewer iterations, making it powerful for small to medium-sized problems.
+    \end{itemize}
+    \item \subsection*{Adam (Adaptive Moment Estimation)}
+    Update rules:
+    
+    \begin{itemize}
+        \begin{align*}
+            \text{A :  } \textcolor{blue}{m_t} & \textcolor{blue}{= \beta_1 m_{t-1} + (1 - \beta_1)g_t}\\
+            \text{B :  } \textcolor{red}{s_t} &\textcolor{red}{= \beta_2 s_{t-1} + (1 - \beta_2)g_t^2}\\
+            \text{C - combo : } \theta_t &= \theta_{t-1} - \frac{\textcolor{green}{\eta_t}}{\textcolor{red}{\sqrt{s_t}} + \textcolor{magenta}{\epsilon}} \textcolor{blue}{m_t}
+        \end{align*}
+        
+
+        \end{itemize}
+        $$ $$
+        = SGD, with
+        \begin{itemize}
+            \item \textcolor{blue}{Momentum (exponential weighted avg of the gradient)}
+            \item \textcolor{red}{Normalization (exponential weighted average of the gradient magnitude)}
+            \item \textcolor{green}{Learning rate}
+            \item \textcolor{pink}{Avoid division by 0}
+        \end{itemize}
+
+
+1. \textbf{A - Updating the running average of the gradients (\(m_t\)):}
+   \begin{itemize}
+       \item  \( m_t \) is the first moment estimate, which is essentially the mean (hence the symbol \( m \)) of the gradients.
+       \item \( \beta_1 \) is a decay rate parameter for the first moment estimate. This is similar to the momentum parameter, controlling the degree to which the previous gradients influence the current update.
+       \item \( g_t \) is the gradient at time step \( t \).
+       \item This equation computes an exponentially decaying average of past gradients. The decay rate is controlled by \( \beta_1 \), with typical values around 0.9.
+   \end{itemize}
+
+2. \textbf{B - Updating the running average of the squared gradients (\(s_t\)):}
+    \begin{itemize}
+        \item \( s_t \) is the second moment estimate, corresponding to the uncentered variance of the gradients (hence the symbol \( s \) which is standard for variance).
+        \item  \( \beta_2 \) is a decay rate parameter for the second moment estimate. It determines how quickly the moving average forgets the earlier observed squared gradients.
+        \item  This equation computes an exponentially decaying average of past squared gradients, where \( \beta_2 \) typically has a value around 0.999.
+    \end{itemize}
+
+3. \textbf{C - Updating the parameters (\(\theta_t\)):}
+   \begin{itemize}
+        \item \( \theta_{t-1} \) is the parameter vector at the previous time step.
+        \item  \( \eta_t \) is the learning rate at time step \( t \). It can be fixed or adaptive.
+        \item \( \sqrt{s_t + \epsilon} \) is the element-wise square root of the second moment estimate, with \( \epsilon \) added to improve numerical stability (preventing division by zero). \( \epsilon \) is a small constant, often around \( 10^{-8} \).
+        \item This equation updates the parameters in the direction that minimizes the loss. It scales the gradient inversely proportional to the square root of the moving average of the squared gradients, which has an effect of adapting the learning rate for each parameter.
+   \end{itemize}
+
+Together, these three components of the Adam algorithm adapt the learning rate based on the first and second moments of the gradients. This property makes Adam particularly suitable for problems with sparse gradients and/or noisy data, and it is one of the reasons for Adam's popularity in training deep neural networks.
+
+
+
+
+
+        \item Adam = SGD, but with momentum
+        \item \(\beta_1\) and \(\beta_2\): These are the exponential decay rates for moment estimates; \(\beta_1\) is typically around 0.9, and \(\beta_2\) around 0.999, which are the defaults in most frameworks.
+        \item Adam stores an exponentially decaying average of past squared gradients (\(s\)) and past gradients (\(m\)).
+        \item \textbf{Learning rate (\(\eta\))}: This is a crucial hyperparameter for Adam, which might need adjustments based on the model's performance during training.
+        \item \(\epsilon\): A very small number (like \(10^{-8}\)) to prevent any division by zero in the implementation.
+    \end{itemize}
+\end{enumerate}
+
+\begin{tcolorbox}
+    \textbf{Default Adam Initialization:}
+    \begin{itemize}
+        \item $\textcolor{blue}{\beta_1 = 0.9}$
+        \item $\textcolor{red}{\beta_2 = 0.999}$
+        \item $\textcolor{pink}{\epsilon = 10^{-6}}$
+        \item $\textcolor{green}{\eta_t = 0.003}$
+    \end{itemize}
+
+    Of these, the \textcolor{green}{learning rate} is the main think we'd want to tweak.
+    
+\end{tcolorbox}
+
+\subsection{Choosing an Optimizer}
+
+\textbf{For Small Problems: BFGS} - as it can rapidly converge to the \textit{exact} solution, provided the problem size is manageable.
+\begin{itemize}
+    \item an Analytical solution (?)
+\end{itemize}
+
+\textbf{For Large-Scale Problems: Adam} - efficiently handles large datasets and converges faster than SGD due to its adaptive learning rate mechanisms.
+\begin{itemize}
+    \item a numerical approximation ?
+\end{itemize}
+
+\section{MLPs are Universal Approximators}
+
+ \textbf{Universal Approximation Theorem:}
+ 
+ A feedforward network with a single hidden layer containing a finite number of neurons can approximate continuous functions on compact subsets of $\mathcal{R}^n$, under mild assumptions on the activation function.\\
+ 
+ This means that theoretically, one hidden layer is sufficient to approximate any smooth function to any desired level of accuracy, provided the activation function is non-constant, bounded, and monotonically-increasing.
+
+ \begin{figure}[H]
+     \centering
+     \includegraphics[width=0.95\linewidth]{figures/week_10_neural_nets/univerasal expression.png}
+     \caption{These are the piecewise linear
+functions learnt using ReLUs; we can carve up the areas of the space}
+     \label{fig:enter-label}
+ \end{figure}
+ 
+\textbf{Empirical Performance of Deeper Networks:}
+
+While a single hidden layer can approximate any function given sufficient neurons, in practice, using multiple layers often yields better performance. \\
+
+This is not well supported by the theoretical maths, but  it seems deeper architectures are more efficient at learning complex patterns due to their hierarchical structure. Each layer can learn different levels of abstraction, which is particularly useful in tasks like image and speech recognition, where data exhibit hierarchical patterns.\\
+
+\textbf{Expressing Compositional Structures:} \\
+
+Hierarchical or compositional structures in data are effectively captured by deeper networks. \\
+
+For instance, in image processing, lower layers might learn to detect edges, while higher layers may interpret these features to recognize more complex shapes or objects. This compositional learning is a key reason why deep learning has been successful in various complex tasks.\\
+
+Thus, even though a single hidden layer MLP is theoretically sufficient for universal approximation, deeper networks tend to perform better in practice, particularly in handling complex data sets and learning tasks.
+
+\section{NNs as GPs}
+
+
+\textbf{MLP Converging to a GP}: As the number of hidden nodes in an MLP increases to infinity, under certain conditions, the distribution of the MLP's outputs converges to a Gaussian process. \\
+
+This relationship between deep neural networks and Gaussian processes has been formalized in the study of neural network Gaussian processes (NNGPs) and the neural tangent kernel (NTK).\\
+
+\textbf{Neural Tangent Kernel (NTK)}: The NTK is a concept that has emerged from the analysis of how neural networks evolve during training under gradient descent. It essentially quantifies the change in the outputs of a neural network with respect to infinitesimal changes in its parameters.\\
+
+The kernel \( k(x, y) = g(x)^\top K g(y) \), where \( g(x) = \nabla_A f(x; \theta) \), relates to how the outputs for inputs \( x \) and \( y \) co-vary in the infinite-width limit. 
+\begin{itemize}
+    \item Here, \( K \) is typically the Gram matrix composed of inner products of gradients of the network’s output with respect to its parameters.
+\end{itemize}
+
+\textbf{Kernel Stability During Training}: In the infinite width limit, the NTK remains constant during training. This constancy implies that the training dynamics of wide neural networks can be predicted and analyzed using kernel methods, and the network behaves as if it were a linear model in the function space defined by the NTK.\\
+
+\textbf{Implications of Architecture on the NTK}: The structure of the MLP (e.g., depth, width, activation functions) determines the specific form of the NTK. This kernel, therefore, encapsulates how architecture choices impact learning dynamics and capabilities.\\
+
+\textbf{Random Sampling with SGD and GP Analogies}: When training an MLP with stochastic gradient descent (SGD), you effectively sample from the function space defined by the network's initialization and architecture. In the infinite-width scenario, this sampling mirrors drawing functions from a Gaussian process defined by the NTK. Each training trajectory (using a different minibatch sequence) may yield slightly different models (like individual MLPs shown in red), but all are samples from the underlying distribution described by the NTK (the GP in blue).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_10_neural_nets/MLP is a GP.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\textbf{Feature Representations and Regression}: In this framework, the MLP learns feature representations, and training essentially becomes a form of regression on these learned features. The specifics of these representations depend on the network's architecture, initialization, and the nature of the training data.\\
+
+This framework of understanding deep learning models using kernel methods and Gaussian processes provides powerful insights into how neural networks learn and how their architecture affects their learning dynamics and capabilities. It also bridges the gap between non-parametric Bayesian methods (like GPs) and parametric models like neural networks.
+
+\section{Vanishing / Exploding Gradient}
+
+Affects the efficiency of training neural networks, as the number of layers (depth) increases. \\
+
+\textbf{Logic of Gradients' Leverage by the Chain Rule}\\
+
+The derivative of the loss function with respect to the weights in earlier layers is calculated using the chain rule. \\
+
+In a network with \( L \) layers, the gradient of the loss with respect to the weights of the first layer involves the product of derivatives across all \( L \) layers. \\
+
+Mathematically, we can represented the separation of the overall gradient by the chain rule:
+
+$$\frac{\partial \mathcal{L}}{\partial z_l} = \frac{\partial \mathcal{L}}{\partial z_L} \frac{\partial z_L}{\partial z_{L-1}} \ldots \frac{\partial z_{l+2}}{\partial z_{l+1}} \frac{\partial z_{l+1}}{\partial z_l}$$
+
+And given the simplifying assumptions below, we can write that as follows I THINK THIS ISN'T QUITE RIGHT?:
+$$\frac{\partial \mathcal{L}}{\partial W_1} \approx \left( \prod_{i=1}^L J_i \right) \frac{\partial \mathcal{L}}{\partial W_L}$$
+   \begin{itemize}
+       \item where \( J_i \) denotes the Jacobian matrix of the partial derivatives from layer \( i \).
+   \end{itemize}
+   
+\textbf{Simplifying Assumption}\\ 
+
+If we assume that the derivatives between each layer are roughly the same, say \( J \)...
+\begin{itemize}
+    \item this makes sense: we're assuming layers have similar relationships to each other throughout.
+\end{itemize}
+
+$$\frac{\partial z_{l+1}}{\partial z_l} \approx J$$
+
+...then the gradient of the first layer can be approximated as \( J^L \) times the gradient at the last layer. This results in:
+$$
+\frac{\partial \mathcal{L}}{\partial W_1} \approx J^L \frac{\partial \mathcal{L}}{\partial z_L}
+$$
+
+More generally, this can be written for any layer \( l \) as:
+
+$$
+\frac{\partial \mathcal{L}}{\partial z_l} \approx J^{L-l} \frac{\partial \mathcal{L}}{\partial z_L}
+$$
+Here, we take the matrix of partial derivatives (the Jacobian) and raise it to a power representing the number of layers from \( l \) to \( L \), effectively capturing the multiplicative effect of the gradients through the network.
+
+
+\subsection{This repetitive multiplication magnifies any small deviations in the values of \( J \).}
+
+\begin{tcolorbox}
+    \textbf{Behaviour at the limits}\\
+    
+    For $\lim_{k \to \infty} p^k = 0$ if $p \in [0,1]$, but $\lim_{k \to \infty} p_k = \infty$ (??) if $p \in [1,\infty]$.\\
+
+    For a matrix, a similar property holds based on the eigenvalues.
+    
+\end{tcolorbox}
+
+\textbf{Behavior of the Gradients as \( L \) increases} 
+
+$$\lambda_{max} < 1 \text{ gradient converges to 0}$$
+
+\textbf{Vanishing Gradient:} If the norm of \( J \) (or any of its eigenvalues, \( \lambda \)) is less than 1, the product \( J^L \) approaches zero as \( L \) becomes large. Gradients become too small for effective learning, causing training to stagnate.
+
+$$\lambda_{max} > 1 \text{ gradient diverges}$$ 
+
+
+\textbf{Exploding Gradient:} Conversely, if the norm of \( J \) is greater than 1, \( J^L \) grows exponentially with \( L \). This can cause learning to diverge wildly or result in numerical instability (like NaN values).\\
+
+
+\textbf{Matrix Properties and Gradient Dynamics}
+
+The characteristics of the matrix \( J \) are crucial. The eigenvalues of \( J \) determine how the gradients behave:
+\begin{enumerate}
+    \item \textbf{Exploding gradients}: Occur if any eigenvalue \( \lambda > 1 \). This means the gradients increase exponentially as they propagate back through the network.
+   - \item \textbf{Vanishing gradients}: Occur if any eigenvalue \( \lambda < 1 \). Here, gradients diminish exponentially, making it very hard to update weights in earlier layers, particularly in deep networks.
+\end{enumerate}
+
+\subsection{Gradient Clipping for Exploding Gradients}
+
+limiting (or "clipping") the gradients during backpropagation to prevent them from becoming too large, which could cause numerical instability or poor convergence due to overly large updates to the weights.\\
+
+During the backpropagation process, before the gradient descent update, the gradients are clipped if they exceed a specified threshold $c$:\\
+
+\textbf{Clipping Rule}
+$$ g = \min \(1, \frac{c}{\|g\|}\) g$$
+Where
+\begin{itemize}
+    \item $g$ = gradient vector
+    \item $\|g\|$ = norm of the gradient vector
+    \item $c$ = threshold
+\end{itemize}
+
+This scales down all components of the gradient equally if its norm is greater than $c$. \textit{Normalises the gradients}
+
+\textbf{Direction Preservations}
+
+Gradient clipping preserves the direction of the gradient vector. This is crucial as it ensures that the optimization process still proceeds in the direction of steepest descent, albeit with a shortened step.
+
+\textbf{Adaptive Learning Rate Behaviour}
+
+Conceptually, gradient clipping can be thought of as adaptively modifying the learning rate. When the gradients are clipped, the learning rate effectively reduces for steps where the gradient norm exceeds the threshold. \\
+
+Even if they are clipped, while we maybe not be learning everything, we are still just ensuring that we are moving in the right direction, while keeping amount we are moving within each gradient under control.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_10_neural_nets/gradient clipping.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Non-saturating Activation Functions for Vanishing Gradients}
+
+The usual sigmoid activation function can lead to vanishing gradients, so we use ReLu and its variants.
+
+\subsubsection{Intuitive Understanding}
+\begin{itemize}
+    \item \textbf{Non-saturating Nature}: Non-saturating activation functions like ReLU and its variants (like Leaky ReLU and Parametric ReLU) are generally preferred in deep learning architectures to avoid vanishing gradients. They are particularly effective in deeper networks where the depth could exacerbate the vanishing gradient problem with saturating activations like sigmoid or tanh.
+    \item \textbf{Implications of Large Inputs}: While ReLU does not suffer from vanishing gradients for large positive inputs, it still faces issues with negative inputs. Leaky ReLU, by providing a pathway for gradient flow even for negative inputs, helps in maintaining the activation across the network.
+\end{itemize}
+
+\subsubsection{Sigmoid Activation Function}
+\begin{itemize}
+    \item \textbf{Function:} \( z = \sigma(\beta x) \) where \( \sigma(x) = \frac{1}{1 + e^{-x}} \).
+    \item \textbf{Gradient:} \( \frac{d\mathcal{L}}{dz} = z(1 - z) \cdot x \).
+    \item \textbf{Behavior:} The gradient of the sigmoid function becomes very small when the output \( z \) is close to 0 or 1. This is because \( z(1 - z) \) approaches 0 as \( z \) approaches 0 or 1, leading to a vanishing gradient problem. This problem occurs particularly when the inputs are large in magnitude (either positive or negative), causing the sigmoid function to saturate at these extreme values.
+\end{itemize}
+
+\subsubsection{ReLU (Rectified Linear Unit) Activation Function}
+\begin{itemize}
+    \item \textbf{Function:}  \( z = \text{ReLU}(\beta x) = \max(0, \beta x) \).
+    \begin{itemize}
+        \item More simply: $\text{ReLu}(x) = max(0,x)$
+    \end{itemize}
+    \item \textbf{Gradient:} \( \frac{d\mathcal{L}}{dz} = \mathbf{1}(z > 0) \cdot x \), where \( \mathbf{1}(z > 0) \) is an indicator function that is 1 if \( z > 0 \) and 0 otherwise.
+    \item \textbf{Behavior:}  The ReLU function helps mitigate the vanishing gradient problem for positive inputs because the gradient is either 0 (for negative inputs) or equal to the input (for positive inputs). It does not saturate for large positive inputs, which helps maintain healthy gradients during training. However, for very negative inputs, the gradient is zero, which can lead to "dead neurons" where neurons never activate.
+    \item \textbf{Benefits}:
+    \begin{itemize}
+        \item Simple and computationally efficient.
+        \item Does not saturate for positive inputs, which helps mitigate the vanishing gradient problem.
+        \item Generally performs well in many applications and is widely used as a default activation function in many types of neural networks.
+    \end{itemize}
+    \item \textbf{Drawbacks}:
+    \begin{itemize}
+        \item \textbf{Dead Neurons Problem}: For inputs less than zero, the gradient is zero, which means that during training, any neuron that outputs a negative value will not update its weights. Over time, if a large number of neurons only output negative values, they stop contributing to the learning process—effectively "dying." This can limit the network's capacity to learn complex patterns.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Leaky ReLU Activation Function}
+\begin{itemize}
+   \item \textbf{Function:} \( z = \text{Leaky ReLU}(x) = \max(\alpha x, x) \) where \( \alpha \) is a small positive constant (e.g., 0.01).
+    \begin{itemize}
+        \item More simply:  \( \text{Leaky ReLU}(x) = \max(\alpha x, x) \) 
+    \end{itemize}
+    \item \textbf{Gradient:} \( \frac{d\mathcal{L}}{dz} = \mathbf{1}(x > 0) \cdot x + \alpha \cdot \mathbf{1}(x \leq 0) \cdot x \).
+    \item \textbf{Behavior:}  The Leaky ReLU addresses the issue of dead neurons by allowing a small, non-zero gradient when \( x \) is less than 0 (hence "leaky"). This ensures that there is always some gradient flowing through the network, which prevents neurons from becoming inactive.
+    \item \textbf{Benefits}:
+    \begin{itemize}
+        \item Addresses the dead neurons problem of ReLU: Even for negative inputs, Leaky ReLU allows a small, non-zero gradient (\( \alpha x \) when \( x < 0 \)), which keeps all neurons "alive" and updating throughout the training process.
+        \item Can lead to better performance on tasks where maintaining a richer representation in the network is beneficial.
+        \item Often helpful in deeper networks where the dead neuron problem is more likely to impair learning.
+    \end{itemize}
+    \item \textbf{Drawbacks}:
+    \begin{itemize}
+        \item The non-zero slope for negative inputs can introduce a risk of exploding gradients, although this is less common compared to the benefits of preventing dead neurons.
+        \item The choice of \( \alpha \) is critical and can vary depending on the specific application; finding the optimal \( \alpha \) might require cross-validation.
+    \end{itemize}
+\end{itemize}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_10_neural_nets/nonsaturating activation functions.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+
+\subsubsection{Choosing Between ReLU and Leaky ReLU}
+The choice between ReLU and Leaky ReLU may depend on specific task characteristics and empirical performance:
+\begin{itemize}
+    \item \textbf{ReLU} might be sufficient for many applications, especially if the network is not very deep or if training data is plentiful and well-preprocessed.
+    \item \textbf{Leaky ReLU} is often preferred in scenarios where you suspect that the network suffers from the dead neurons problem, particularly in deeper or more complex networks where preserving the flow of gradients through all parts of the network is crucial.
+\end{itemize}
+
+\begin{tcolorbox}
+    \textbf{Summary}\\
+
+    Sigmoid - goes to zero if $z$ is near 0 or 1.\\
+
+    ReLU - is zero for v neg inputs, but doesn't disappear on the high end.\\
+
+    Leaky ReLu - is never zero.
+    
+\end{tcolorbox}
+
+\section{Batch Normalisation}
+
+Introduced by Sergey Ioffe and Christian Szegedy in 2015.\\
+
+Addresses the problem of internal covariate shift, where the distribution of each layer's inputs changes during training, as the parameters of the previous layers change. \\
+
+This can make training slow and requires careful initialization and a small learning rate. 
+
+Idea: Ensure the distribution of activations within a layer have zero mean and unit variance.
+
+
+
+
+\subsection{Components of Batch Normalization}
+\begin{enumerate}
+    \item \textbf{Standardization}:
+    \begin{itemize}
+        \item \textbf{Goal}: Normalize the activations of a layer for each mini-batch to have zero mean and unit variance.
+        \item \textbf{Process}: For each feature, subtract the mini-batch mean and divide by the mini-batch standard deviation.
+        \item \textbf{Math}: Given inputs \( \textcolor{green}{x} \) from a mini-batch, compute:
+        $$y = \frac{\color{green}{x} - \color{blue}{\bar{x}_b}}{\sqrt{\color{red}{\sigma_b^2} + \epsilon}} \color{orange}{\gamma + \beta}$$
+        where
+        \begin{itemize}
+            \item $\color{orange}{\gamma + \beta}$ are two learnable parameters.
+            \item $\color{red}{\sigma_b^2} + \epsilon$ batch-specific variance
+            \item $\color{blue}{\bar{x}_b}$ barch-specific mean
+            \item \( \epsilon \) is a small constant added for numerical stability
+        \end{itemize}
+    \end{itemize}
+    
+    \item \textbf{Scaling and Shifting}:
+    \begin{itemize}
+        \item After standardization, the outputs are scaled and shifted using parameters that are learned during training. This step ensures that the batch normalization layer can represent the identity transformation and can scale and shift the normalized data as needed for the network to learn effectively.
+        \item \textbf{Math}: The normalized \( \hat{x} \) is transformed as:
+        \[
+        y = \gamma \hat{x} + \beta
+        \]
+        where \( \gamma \) and \( \beta \) are parameters learned during training. \( \gamma \) is the scale factor, and \( \beta \) is the shift factor.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Implementation Details}
+\begin{itemize}
+    \item \textbf{Learnable Parameters}: The scale (\( \gamma \)) and shift (\( \beta \)) parameters are learned during the backpropagation, just like any other learnable parameters in the network.
+    \item \textbf{Mini-batch Statistics}: During training, the mean and variance used for normalization are computed on each mini-batch. This ensures that the model remains robust to changes in data distribution during training.
+\end{itemize}
+
+\subsection{Behavior at Test Time}
+On test-set, set $\textcolor{blue}{\bar{x_b}}$ and $\textcolor{red}{\hat{\sigma^2_b}}$ to their expoential weighted moving avg.
+
+\begin{itemize}
+    \item \textbf{Fixed Statistics}: At test time, you cannot compute the mean and variance for each mini-batch because the mini-batch size might be different, or you might be running inference on a single example. Instead, the mean and variance computed during training are used.
+    \item \textbf{Moving Average}: During training, the exponential moving averages of the batch means and variances are maintained. These averages are then used during inference to normalize the test data. This method ensures consistency between the statistics seen during training and testing, stabilizing the model's output.
+\end{itemize}
+
+\subsection{Benefits of Batch Normalization}
+\begin{itemize}
+    \item \textbf{Faster Convergence}: By reducing internal covariate shift, batch normalization allows the use of higher learning rates, accelerating the training convergence.
+    \item \textbf{Regularization Effect}: The noise added by the varying means and variances of each mini-batch during training can help to regularize the model, somewhat reducing the need for Dropout.
+    \item \textbf{Improved Gradient Flow}: It helps in stabilizing the learning process by normalizing the inputs to layers within the network, which can lead to improved gradient flow through the network and reduce the impact of vanishing or exploding gradients.
+\end{itemize}
+
+\section{Regularization}
+
+\subsection{Weight Decay (L2 Regularization)}
+\begin{itemize}
+    \item \textbf{Concept}: Weight decay, often associated with L2 regularization, penalizes large weights in the model's cost function. The idea is that simpler models with smaller weights are less likely to overfit.
+    \item \textbf{Implementation}: The L2 penalty term is added to the loss function \( \mathcal{L} \), resulting in a modified loss function \( \mathcal{L}_{reg} \) which includes the sum of squares of the weights \( \mathbf{w} \), scaled by a regularization parameter \( \lambda \).
+    \item \textbf{Math}: The regularized loss function can be written as:
+    $$\mathcal{L}_{reg} = \mathcal{L} + \frac{\lambda}{2} \| \mathbf{w} \|^2$$
+    or
+    $$\mathcal{L}_{reg} = \mathcal{L} + W^T W$$
+    This additional term penalizes large weights by adding a cost that increases quadratically with the weight magnitude.
+    \item \textbf{@ Optimizer}: In practice, weight decay can often be directly included in the optimization algorithm. For example, in stochastic gradient descent (SGD), the weight update rule includes a term that subtracts a portion of the weight value itself, effectively shrinking the weights during each update.
+\end{itemize}
+
+\subsection{Dropout}
+\begin{itemize}
+    \item \textbf{Concept: 'drop out' some edges} - Dropout is a regularization technique that involves randomly "dropping out" (i.e., setting to zero) a number of output features of the layer during training.
+    \item \textbf{Implementation}: During training, each neuron (or for convolutional layers, each channel) has a probability \( p \) of being temporarily "dropped out" and not contributing to the forward pass or the backpropagation process.
+    \item \textbf{Effect: 'spreads out' learning around the network}. Dropout forces the network to be robust as it cannot rely on any single neuron and must learn redundant representations to perform well. It effectively creates a different "thinned" network on each forward pass.
+    \item \textbf{Prediction-Time Correction}: At test time, the activations are scaled by the probability \( p \), to account for the fact that all neurons are now present in the network. Alternatively, the network can be run multiple times with dropout still enabled, to generate an "ensemble" of predictions, which can be averaged to get a final prediction. This technique is called Monte Carlo Dropout.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_10_neural_nets/regularization.png}
+    \caption{Drop Out}
+    \label{fig:enter-label}
+\end{figure}
+
+\section*{In Summary}
+Both weight decay and dropout are commonly used in neural networks to improve generalization. Weight decay does this by penalizing the magnitudes of the weights, encouraging smaller weights, while dropout does this by reducing a network's reliance on any single neuron or feature, promoting a more distributed and robust representation. The use of these techniques can be complementary and they are often used together in training deep neural networks to achieve better performance on unseen data.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,514 @@
+%\documentclass[xcolor=dvipsnames]{beamer}
+\documentclass[xcolor=dvipsnames,handout]{beamer}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\usepackage{etex}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epsfig}
+\usepackage[english]{babel}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{fancyvrb}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{caption}
+%\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{epsdice}
+
+\hypersetup{
+    colorlinks = true
+}
+
+\definecolor{newred}{RGB}{127,0,0}
+\let\iitemize=\itemize \let\endiitemize=\enditemize \renewenvironment{itemize}{\iitemize \vspace{1mm} \itemsep2mm}{\endiitemize}
+\let\eenumerate=\enumerate \let\endeenumerate=\endenumerate \renewenvironment{enumerate}{\eenumerate \vspace{1mm} \itemsep2mm}{\endeenumerate}
+% == theme & colors
+\mode<presentation>
+{
+
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usecolortheme{beaver}
+  \setbeamercovered{invisible} %or transparent
+  \metroset{block=fill}
+  \setbeamercolor{block title example}{fg=gray!40!black}
+  \setbeamercolor{itemize item}{fg=gray!40!black} 
+  \setbeamercolor{title}{fg=newred} 
+}
+
+      
+\setbeamercolor{background canvas}{bg=white}
+
+
+% === tikz for pictures ===
+\usepackage{tikz}
+\usepackage[latin1]{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning}
+\usetikzlibrary{decorations.pathreplacing}
+\tikzstyle{doublearr}=[latex-latex, black, line width=0.5pt]
+
+% === if you want more than one slides on one page ===
+\usepackage{pgfpages}
+
+
+
+\title{Mathematics for Data Science}
+\subtitle[]{Lecture 9: Linear Algebra II: Eigendecomposition and SVD} 
+\author[Asya Magazinnik]{Asya Magazinnik}
+\institute{Hertie School}
+\date{\today}
+
+\renewcommand\r{\right}
+\renewcommand\l{\left}
+% \newcommand\sign{{\rm sign}}
+
+%% == change spacing for itemize
+%\let\oldframe\frame
+%\renewcommand{\frame}[1][1]{
+%\oldframe[#1]
+%\let\olditemize\itemize
+%\renewcommand\itemize{\olditemize\addtolength{\itemsep}{.25\baselineskip}}
+%}
+
+
+
+\def\insertnavigation#1{\relax}
+% \usefonttheme{serif}
+\usepackage[all]{xy}
+\usepackage{geometry,colortbl,wrapfig}
+\usepackage{tikz}  
+\usepackage{graphicx,setspace,subfigure}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\newcommand{\Ex}{\textsc{Example  }}
+\newcommand{\series}{\sum_{n=1}^{\infty}} 
+\newcommand{\ball}[1]{B( #1)} 
+\newcommand{\inner}[1]{\ensuremath{\langle #1 \rangle}}
+\newcommand{\e}{\epsilon}
+\newcommand{\grad}{\nabla}
+\newcommand{\pa}{\pause \item}
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+\newcommand{\R}{\mathbb{R}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+\newcommand{\matr}[1]{\bm{#1}}     % ISO complying version
+
+
+
+\newcommand{\indep}{{\bot\negthickspace\negthickspace\bot}}
+
+\begin{document}
+
+\subject{Talks}
+\AtBeginSection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection,currentsubsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+
+\frame[plain]{
+  \titlepage
+  \addtocounter{framenumber}{-1}
+}
+
+
+\begin{frame}{This Lecture}
+\vspace{2mm}
+There's an enormous quantity of information to cover on linear algebra, and I suspect many of you have already encountered it in some form. So today, we will: 
+\begin{itemize}
+    \item Take a guided tour through the relevant territory without stopping too long on any one concept
+    \item For every concept, I will provide resources that cover it in detail from two sources: 
+    \begin{enumerate}
+        \item \href{https://www.khanacademy.org/math/linear-algebra}{Khan Academy} on Linear Algebra 
+        \item Savov's No Bullshit Guide to Linear Algebra (pdf on Moodle) 
+    \end{enumerate}
+\end{itemize}
+    Please review any unfamiliar concepts independently using the suggested resources. \alert{This is the minimal working toolkit you'll require going forward.} 
+\end{frame}
+
+\begin{frame}{Your Minimal Working Toolkit}
+    \vspace{2mm}
+    The basic concepts you should make sure you understand are: 
+    \begin{enumerate} \small 
+        \item Linear (in)dependence
+        \item The determinant of a matrix
+        \item The matrix inverse and how to determine if a matrix is invertible
+        \item The relationship between the three concepts above: linear independence, the determinant, and invertibility 
+        \item Eigenvalues and eigenvectors 
+    \end{enumerate}
+    \pause \vspace{2mm}
+   Along with the matrix operations from last lecture, these are the concepts that feed into our data science applications of \alert{singular value decomposition}, \alert{principal components analysis}, and, down the line, \alert{linear regression and model fitting}.
+\end{frame}
+
+
+\begin{frame}{Linear Dependence}
+    Let the set $S = \{ \matr{v}_1, \matr{v}_2, ..., \matr{v}_n \}$ be a set of vectors. The members of the set $s$ are \alert{linearly dependent} if at least one of the members of the set can be written as a linear combination of the other members. \\
+    \vspace{5mm} \pause 
+    Formally, the set $S$ is \alert{linearly dependent} if and only if:
+    \[ c_1 \matr{v}_1 + c_2 \matr{v}_2 + ... + c_n \matr{v}_n = \matr{0} \]
+    where at least one of the $c_i$'s is nonzero. (We call this a \alert{nontrivial} solution to the system of equations.) 
+\end{frame}
+
+\begin{frame}{Linear Dependence}
+    The set $\left\{ 
+    \begin{bmatrix} 2 \\ 3 \end{bmatrix},
+    \begin{bmatrix} 4 \\ 6 \end{bmatrix}
+    \right\} $ is linearly dependent.
+    \\ \vspace{5mm} 
+    The set $\left\{ 
+    \begin{bmatrix} 0 \\ 3 \end{bmatrix},
+    \begin{bmatrix} 4 \\ 0 \end{bmatrix}
+    \right\} $ is linearly independent.
+    \\ \vspace{5mm}
+    What about the set $\left\{ 
+    \begin{bmatrix} 0 \\ 3 \end{bmatrix},
+    \begin{bmatrix} 4 \\ 0 \end{bmatrix}, 
+    \begin{bmatrix} 2 \\ 2 \end{bmatrix}
+    \right\}$? 
+\end{frame}
+
+\begin{frame}{The Span}
+    We define the \alert{span} of a set of vectors $S$ as all linear combinations of the vectors in the set. \\
+\vspace{3mm}
+ Going the other way, if $V$
+ is a vector space and $S$ a set of vectors in $V$, then we say that $S$ is a \alert{spanning set} for $V$ if $V=Span(S)$.
+    \begin{itemize}
+        \item The span of two linearly independent vectors $\matr{v}_1 \in \mathbb{R}^2$ and $\matr{v}_2 \in \mathbb{R}^2$ is $\mathbb{R}^2$
+        \item Generally, a \alert{spanning set} $S$ must contain at least as many elements as the linearly independent vectors from $V$.
+        \begin{itemize}
+            \item There are exactly 2 linearly independent vectors in $\mathbb{R}^2$, 3 in $\mathbb{R}^3$, and $n$ in $\mathbb{R}^n$. 
+            \item These vectors are said to form a \alert{basis} for the space.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Resources for Linear Independence}
+    \begin{itemize}
+        \item Khan Academy, Lesson 3: \href{https://www.khanacademy.org/math/linear-algebra/vectors-and-spaces/linear-independence/v/linear-algebra-introduction-to-linear-independence}{Linear Dependence and Independence}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{The Determinant of a Matrix}
+The \alert{determinant} of a square matrix, denoted det($\matr{A})$ or $|\matr{A}|$, is a particular way to multiply the entries of the matrix to produce a single number.
+\\ \vspace{5mm}
+We use determinants for all kinds of tasks: 
+\begin{itemize} \small 
+    \item to compute areas and volumes (see Savov p. 161) 
+    \item to solve systems of equations (see Cramer's Rule, Savov p. 166) 
+    \item to check for linear independence (see Savov p. 167) 
+    \item to determine if a matrix has an inverse (see Savov p. 169-171) 
+\end{itemize}
+\end{frame}
+
+\begin{frame}{The Determinant of a Matrix}
+\vspace{2mm}
+The determinant of a $2 \times 2$ matrix is given by: 
+\[ \left| \begin{matrix}
+    a_{11} & a_{12} \\
+    a_{21} & a_{22}
+\end{matrix} \right| = a_{11} a_{22} - a_{12} a_{21}
+\]
+The determinant of a $3 \times 3$ matrix is given by: 
+\begin{center}
+    \includegraphics[width=\textwidth]{images/matdet.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{The General Formula for a Determinant}
+    \[ \text{det}(\matr{A}) = \sum_{j=1}^n (-1)^{1+j} a_{1j} \matr{M}_{1j} \]
+    where $\matr{M}_{ij}$ is called the \alert{minor} associated with $a_{ij}$, the determinant of the submatrix generated by removing row $i$ and column $j$ from the matrix $\matr{A}$. 
+\end{frame}
+
+\begin{frame}{Geometric Interpretation of the Determinant}
+    A summary of the transformation that the matrix imposes on an object.
+    \begin{itemize}
+        \item \textbf{Scaling} 
+        \begin{itemize} \small 
+            \item $|\text{det}(A)|>1$ implies scaling up the volume (in $\mathbb{R}^3$) or area (in $\mathbb{R}^2$) of an object
+            \item $0<|\text{det}(A)|<1$ implies a scaling down
+            \item $|\text{det}(A)|=0$ collapses the dimensionality (e.g. from a 2-dimensional shape to a line)
+        \end{itemize}
+                \item \textbf{Rotation} 
+                \begin{itemize}
+                    \item Sign of the determinant indicates whether the matrix preserves orientation; negative indicates a reflection
+                \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Resources for Determinants}
+   \begin{itemize}
+       \item  Savov, p. 158-161
+   \end{itemize}
+\end{frame}
+
+\begin{frame}{The Matrix Inverse}
+    Now, with a determinant in hand, we can go back to the matrix inverse: 
+    \[ \matr{A}^{-1} \matr{A} = \matr{I} \]
+    Recall that not all matrices are invertible. In fact, $\matr{A}^{-1}$ exists \textit{if and only if} det($\matr{A}) \neq 0$. 
+    \\ \vspace{5mm}
+    If a matrix is invertible, its inverse is defined:
+    \[ \matr{A}^{-1} = \frac{1}{\text{det}(\matr{A})} \text{adj} (\matr{A}) \]
+    where adj($\matr{A})$ is the \alert{adjugate matrix}.
+\end{frame}
+
+\begin{frame}{The Adjugate Matrix}
+ \vspace{2mm}
+    Real quick, adj($\matr{A})$ is defined as the transpose of the matrix of cofactors: 
+    \[ \text{adj}(\matr{A}) = \matr{C}^T \]
+    where the matrix of cofactors is (for a $3 \times 3$ matrix): 
+    \begin{center}
+    \includegraphics[width=\textwidth]{images/cofac.png}
+\end{center}
+(See Savov, p. 169-171.) 
+\end{frame}
+
+\begin{frame}{What's Really Important}
+    You never need to compute determinants or invert matrices by hand. What is most important to know is the following: 
+    \begin{enumerate}
+        \item A matrix has an \alert{inverse} if and only if it has a nonzero \alert{determinant}
+        \item A matrix has an \alert{inverse} if and only if its columns are \alert{linearly independent} 
+        \item  Thus, a matrix has a \alert{nonzero determinant} if and only if its columns are \alert{linearly independent} 
+    \end{enumerate}
+    We asserted the first claim on slide 12 and we will now prove the second claim. 
+\end{frame}
+
+\begin{frame}{A matrix is invertible if and only if its columns are linearly \\ independent}
+\small 
+We'll do a \alert{proof by contradiction}: suppose a linearly dependent matrix \textit{is invertible}. Then we'll find an implication of this assumption that cannot be true --- a contradiction. \\ \vspace{3mm}
+\textbf{Proof:} Let $\matr{A}$ be a square matrix with linearly \textit{dependent} columns $\matr{a}_1$, $\matr{a}_2$, ..., $\matr{a}_n$:
+\[ \matr{A} = \begin{bmatrix} 
+    \matr{a}_1 & \matr{a}_2 & ... & \matr{a}_n \\
+\end{bmatrix} \] 
+By the definition of linear dependence, that means:
+\[ c_1 \matr{a}_1 + c_2 \matr{a}_2 + ... + c_n \matr{a}_n = \matr{0} \]
+and $c_i \neq 0$ for some $i$. 
+\vspace{2mm} 
+\end{frame}
+
+\begin{frame}{A matrix is invertible if and only if its columns are linearly \\ independent}
+\small \vspace{2mm}
+    We can equivalently write this as: 
+\[ \matr{A} \matr{c} = \matr{0}, \text{ where } \matr{c} \text{ is the vector } \begin{bmatrix} c_1 \\ c_2 \\ ... \\ c_n \end{bmatrix} \]
+Now, if $\matr{A}$ was invertible, then we could multiply both sides by its inverse:  
+\begin{align*}
+    \matr{A}^{-1} \matr{A} \matr{c} &= \matr{A}^{-1} \matr{0} \\
+    \matr{Ic} &= \matr{0} \\
+    \matr{c} &= \matr{0}
+\end{align*}  
+But by the definition of linear dependence, $\matr{c}$ cannot be the zero vector. We have a contradiction. So $\matr{A}$ must be linearly independent. 
+\end{frame}
+
+\begin{frame}{Eigenvalues and Eigenvectors}
+    An \alert{eigenvector-eigenvalue} pairing for a matrix $\matr{A}$ is defined such that: 
+    \[
+    \matr{A} \matr{v} = \lambda \matr{v}
+    \]
+    where $\matr{v}$ is an \alert{eigenvector} and $\lambda$ (a scalar) is an \alert{eigenvalue}.   \pause  For instance, we will show that:
+    \[ \underbrace{\begin{bmatrix} 
+    1 & 2 \\
+    4 & 3
+    \end{bmatrix}}_{\matr{A}} 
+ \underbrace{   \begin{bmatrix}
+1 \\
+2
+    \end{bmatrix}}_{\matr{v}} = \underbrace{5}_{\lambda} \underbrace{\begin{bmatrix}
+       1 \\ 2
+    \end{bmatrix}}_{\matr{v}}
+    \]
+    $\matr{v} = \begin{bmatrix} 1 \\ 2 \end{bmatrix}$ is an eigenvector and $\lambda=5$ is an eigenvalue for $\mathbf{A} = \begin{bmatrix} 
+    1 & 2 \\
+    4 & 3
+    \end{bmatrix}$.
+\end{frame}
+
+\begin{frame}{Eigenvalues and Eigenvectors}
+Think of $\matr{A}$ as some \alert{transformation} of $\matr{v}$: it projects $\matr{v}$ from one place to another place.
+\\ \vspace{5mm}
+If $\matr{A}$ is the journey, then the eigenvalue $\lambda$ is the most direct route; the \textit{essence} of this transformation. (The \textit{eigen} = the self.) 
+\pause \\ \vspace{5mm}
+Not every matrix can be decomposed in this way. But let's think about the properties of the matrices that can be. 
+\end{frame}
+
+\begin{frame}{Condition for Existence of a (Nontrivial) Eigenvector and \\ Eigenvalue}
+ \vspace{2mm}
+    Start with how we defined the eigenvector and eigenvalue: 
+       \[
+    \matr{A} \matr{v} = \lambda \matr{v}
+    \]
+    and simply rearrange: 
+           \[
+    \matr{0} = \lambda \matr{v} - \matr{A} \matr{v} 
+    \]
+    Now, let's replace $\lambda$ with $\lambda \matr{I}_n$ (this is the same): 
+              \[
+    \matr{0} = \lambda \matr{I}_n  \matr{v} - \matr{A} \matr{v} 
+    \]
+    which allows us to write: 
+    \[ \matr{0} = (\lambda \matr{I}_n  - \matr{A}) \matr{v} \]
+\end{frame}
+
+\begin{frame}{Condition for Existence of a (Nontrivial) Eigenvector and \\ Eigenvalue}
+    \[ \matr{0} = \underbrace{(\lambda \matr{I}_n  - \matr{A})}_{\text{call this } \matr{B}} \matr{v} \]
+\small     
+
+    Inspect this for a moment. Note that this is trivially satisfied for $\matr{v}=\matr{0}$, but we're after a nontrivial solution, i.e. some nonzero $\matr{v}$. \\
+   \vspace{2mm}
+    This is \textit{precisely} the definition of linear dependence for the columns of $\matr{B}$. (Look back to slide 16, noting that our current $\matr{v}$ is the vector of constants $c_1, c_2, ..., c_n$ from there.) \\
+    \vspace{2mm}
+    Furthermore, we know from Slide 14 (point 3) that if a matrix has \alert{linearly dependent} columns then its \alert{determinant is zero}. In summary, if we want a nontrivial solution to the above, we require:
+    \[ \det ( \lambda \matr{I}_n - \matr{A}) = 0 \]
+ \end{frame}
+
+ \begin{frame}{Finding the Eigenvalues and Eigenvectors of a Matrix} \small 
+ \vspace{3mm}
+     We'll start with this condition: 
+         \[ \det ( \lambda \matr{I}_n - \matr{A}) = 0 \]
+And let's apply it to our matrix $\matr{A}$: 
+\[ \det \left( \lambda  \begin{bmatrix}
+    1 & 0 \\
+    0 & 1 
+\end{bmatrix} - 
+ \begin{bmatrix}
+    1 & 2 \\
+    4 & 3
+\end{bmatrix} \right) = 0 \]
+
+\vspace{2mm}
+Computing this yields the \alert{characteristic polynomial}: 
+\[ \lambda^2 - 4 \lambda - 5 = 0 \]
+Which has the solutions: 
+\[ \lambda = 5 \; \; \; \lambda = -1 \]
+ \end{frame}
+
+ \begin{frame}{The Eigenspace of $\matr{A}$}
+ \small     We now have our eigenvalues. What about our eigenvectors? \\
+     \vspace{5mm}
+     There will be more than one eigenvector corresponding to a given eigenvalue $\lambda$. Define the \alert{eigenspace} of $\lambda$, $E_\lambda$, as all vectors $\matr{v}$ that satisfy our key condition: 
+     \[ \matr{A} \matr{v} = \lambda \matr{v} \]
+     So, in our case, we find all vectors $\matr{v}$ such that: 
+     \[ \begin{bmatrix} 1 & 2 \\ 4 & 3 \end{bmatrix} \begin{bmatrix} v_1 \\ v_2 \end{bmatrix} = 5 \begin{bmatrix} v_1 \\ v_2 \end{bmatrix}
+     \]
+     which is the span of $\begin{bmatrix} 1 \\ 2 \end{bmatrix}$. (See slide 5.) 
+ \end{frame}
+
+ \begin{frame}{Putting It All Together}
+     Check what we have found: 
+          \[ \underbrace{ \begin{bmatrix} 1 & 2 \\ 4 & 3 \end{bmatrix}}_{\matr{A}} \underbrace{\begin{bmatrix} 1 \\ 2 \end{bmatrix}}_{\matr{v}} = \underbrace{5}_{\lambda} \underbrace{\begin{bmatrix} 1 \\ 2 \end{bmatrix}}_{\matr{v}}
+     \]
+     We have found one eigenvector-eigenvalue combination for the matrix $\matr{A}$ (there was another for $\lambda = -1$). 
+ \end{frame}
+
+ \begin{frame}{Further Resources for Eigen-everything}
+     To review this material in greater detail, see \href{https://www.khanacademy.org/math/linear-algebra/alternate-bases/eigen-everything/v/linear-algebra-introduction-to-eigenvalues-and-eigenvectors}{Khan Academy Lesson 5: Eigen-everything}, in particular: 
+     \begin{itemize}
+         \item \href{https://www.khanacademy.org/math/linear-algebra/alternate-bases/eigen-everything/v/linear-algebra-introduction-to-eigenvalues-and-eigenvectors}{Introduction to eigenvalues and eigenvectors}
+         \item \href{https://www.khanacademy.org/math/linear-algebra/alternate-bases/eigen-everything/v/linear-algebra-proof-of-formula-for-determining-eigenvalues}{Proof of formula for determining eigenvalues}
+         \item \href{https://www.khanacademy.org/math/linear-algebra/alternate-bases/eigen-everything/v/linear-algebra-example-solving-for-the-eigenvalues-of-a-2x2-matrix}{Solving for the eigenvalues of a 2x2 matrix}
+         \item \href{https://www.khanacademy.org/math/linear-algebra/alternate-bases/eigen-everything/v/linear-algebra-finding-eigenvectors-and-eigenspaces-example}{Finding eigenvectors and eigenspaces example}
+     \end{itemize}
+ \end{frame}
+
+ \begin{frame}{Eigendecomposition of a Matrix}
+     We can use the above to find the \alert{eigendecomposition} of a square matrix $\matr{A}$ as follows: 
+     \[ \matr{A} = \matr{Q} \Lambda \matr{Q}^{-1} \]
+     where: 
+     \begin{itemize} \small 
+         \item $\Lambda$ is a matrix with the eigenvalues of $\matr{A}$ on the main diagonal (and 0 everywhere else)
+         \item (An $n \times n$ square matrix will have $n$ eigenvalues, albeit not necessarily unique or real-valued ones, so $\Lambda$ will also be $n \times n$, as we require.) 
+         \item $\matr{Q}$ is a matrix where the columns are the eigenvectors of $\matr{A}$, corresponding to the eigenvalues in $\Lambda$
+     \end{itemize}
+ \end{frame}
+
+ \begin{frame}{Eigendecomposition of a Matrix}
+     \textbf{Example:} Taking our matrix $\matr{A} = \begin{bmatrix} 1 & 2 \\ 4 & 3 \end{bmatrix}$ from before, we write: 
+  \[ \matr{A} =  \underbrace{   \begin{bmatrix} 1 & -1 \\ 2 & 1 \end{bmatrix}}_{\matr{Q}}
+\underbrace{     \begin{bmatrix} 5 & 0 \\ 0 & - 1
+     \end{bmatrix}}_{\Lambda}
+\underbrace{      \begin{bmatrix} 1 & -1 \\ 2 & 1 \end{bmatrix}^{-1} }_{\matr{Q}^{-1}}
+      \] 
+     recalling our solutions $\lambda_1 = 5$ and $\lambda_2 = -1$, and the corresponding eigenvectors $\matr{v}_1 = \begin{bmatrix} 1 \\ 2 \end{bmatrix} $ (which we found) and $\matr{v}_2 = \begin{bmatrix} -1 \\ 1 \end{bmatrix} $ (which you can do as an exercise).
+ \end{frame}
+
+ \begin{frame}{Eigendecomposition of a Matrix}
+Although this was a little time-consuming (the first time), ultimately reducing a matrix to its \alert{essence} is quite efficient. For instance, suppose we want to compute $\matr{A}^7$. Instead of 7 matrix multiplications, we simply do: 
+\begin{align*}
+\matr{A}^7 &= \matr{AAAAAAA} \\
+&= (\matr{Q} \Lambda \matr{Q}^{-1}) (\matr{Q} \Lambda \matr{Q}^{-1}) (\matr{Q} \Lambda \matr{Q}^{-1}) (\matr{Q} \Lambda \matr{Q}^{-1}) ... \\
+&= \matr{Q} \Lambda \Lambda \Lambda \Lambda \Lambda \Lambda \Lambda \matr{Q}^{-1}  \\
+&= \matr{Q} \Lambda^7 \matr{Q}^{-1}
+\end{align*}
+And $\Lambda^7$ is easy to compute: 
+\[ \begin{bmatrix} 5 & 0 \\ 0 & -1 \end{bmatrix} ^7  = \begin{bmatrix} 5^7 & 0 \\ 0 & -1^7   \end{bmatrix} \]
+ \end{frame}
+
+\begin{frame}{Singular Value Decomposition of a Matrix}
+Note that we could only do eigendecomposition on a square matrix. (Why?) \\
+\vspace{5mm}
+\alert{Singular value decomposition} (SVD) allows us to do the same thing --- getting a matrix down to its essence --- for matrices of any dimension. \\
+\vspace{5mm}
+SVD breaks down a matrix of any size into the components: 
+\[ \matr{A} = \matr{U} \Sigma \matr{V}^T \] 
+where $\matr{A} \in \mathbb{R}^{m \times n}$.
+\end{frame}
+
+\begin{frame}{Singular Value Decomposition of a Matrix}
+\vspace{2mm}
+Let's take this piece by piece: 
+\[ \matr{A} = \matr{U} \Sigma \matr{V}^T \] 
+\begin{itemize}
+    \item $\matr{U}$ is a matrix containing the \alert{left singular vectors} of $\matr{A}$ 
+    \begin{itemize} \small 
+        \item  $\matr{U}$ contains the $m$ eigenvectors of the square matrix $\matr{A} \matr{A}^T$
+    \end{itemize}
+    \item $\matr{V}^T$ is a matrix containing the \alert{right singular vectors} of $\matr{A}$
+        \begin{itemize} \small 
+            \item     $\matr{V}^T$ contains the $n$ eigenvectors of the square matrix $\matr{A}^T \matr{A}$
+        \end{itemize}
+    \item $\Sigma$ is a matrix where the diagonal entries are the \alert{singular values} of $\matr{A}$ 
+    \begin{itemize} \small 
+        \item This matrix contains the square roots of the eigenvalues of $\matr{A}^T \matr{A}$ (or $\matr{A}\matr{A}^T$) on the diagonal
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Further Resources}
+    On eigendecomposition of a matrix: Savov, p. 258-263 \\
+    \vspace{5mm}
+    On SVD: Savov, p. 292-295
+\end{frame}
+
+\begin{frame}{SVD Is Profoundly Informative About the Structure and \\ Dimensionality of Your Data }
+    \begin{itemize} \small 
+       \item SVD is like an x-ray of your matrix: $\matr{U}$ and $\matr{V}^T$ represent how much it \alert{rotates} an object when multiplied by it, and $\Sigma$ represents the associated \alert{scaling} 
+       \item Thus, large singular values correspond to large ``strength'' of the transformation that $\matr{A}$ makes along the subspace created by the associated left and right singular vectors 
+        \item Conversely, a small singular value contributes little and a 0 singular value is redundant
+        \item The number of non-zero singular values gives the rank of the matrix, or the number of linearly independent columns
+        \item If many singular values are zero (or very small), it suggests redundancy in the data, implying that the data can be represented in a lower-dimensional space without much loss of information
+            \end{itemize}
+            \end{frame}
+
+\end{document}

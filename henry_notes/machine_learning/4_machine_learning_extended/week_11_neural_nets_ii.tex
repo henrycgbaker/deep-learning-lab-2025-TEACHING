@@ -1,0 +1,1532 @@
+% Week 11: Neural Networks II
+
+\section{Overview}
+
+\begin{bluebox}[Neural Networks II: Architecture Extensions]
+This week extends foundational neural network concepts to specialised architectures:
+\begin{enumerate}
+    \item \textbf{Convolutional Neural Networks (CNNs)}: Exploit spatial structure in images
+    \item \textbf{Recurrent Neural Networks (RNNs)}: Maintain state for sequential data
+    \item \textbf{Attention mechanisms and Transformers}: Enable flexible, learnable weighting of inputs
+\end{enumerate}
+The unifying theme is \textbf{composability}: building complex representations from simple, reusable components tailored to data structure.
+\end{bluebox}
+
+The architectures we study this week are not arbitrary designs-they encode \emph{inductive biases} that match the structure of different data types. CNNs encode the assumption that local patterns matter and should be detected regardless of position. RNNs encode the assumption that sequential order matters and past context should inform current predictions. Transformers encode the assumption that any element might be relevant to any other, letting the model learn which relationships matter. Choosing the right architecture is about matching these inductive biases to your data.
+
+\section{Neural Network Design Recap}
+
+Before diving into specialised architectures, we briefly review the core components that all neural networks share. These components-inputs, activations, connections, outputs, losses, and optimisers-combine in different ways to create the architectures we study this week.
+
+\subsection{Architecture Components}
+
+\begin{greybox}[Network Design Choices]
+\textbf{Inputs:}
+\begin{itemize}
+    \item Input layer dimensionality matches feature count
+    \item Example: $28 \times 28$ image $\to$ 784 input neurons (flattened)
+\end{itemize}
+
+\textbf{Activation functions:}
+\begin{itemize}
+    \item ReLU: $f(x) = \max(0, x)$
+    \item Sigmoid: $f(x) = \frac{1}{1 + e^{-x}}$
+    \item Tanh: $f(x) = \tanh(x)$
+    \item Softmax (output layer for classification): $f(x_i) = \frac{e^{x_i}}{\sum_j e^{x_j}}$
+\end{itemize}
+
+\textbf{Connection patterns:}
+\begin{itemize}
+    \item Fully connected: Each neuron connected to all neurons in next layer
+    \item Convolutional: Local receptive fields with shared weights
+    \item Recurrent: Connections form loops for temporal dependencies
+\end{itemize}
+
+\textbf{Output layer:}
+\begin{itemize}
+    \item Regression: Single neuron, linear activation
+    \item Classification: $K$ neurons with softmax for $K$ classes
+\end{itemize}
+\end{greybox}
+
+\textbf{Unpacking the activation functions:}
+\begin{itemize}
+    \item \textbf{ReLU} is the most commonly used activation in hidden layers. It is computationally cheap (just a threshold) and does not saturate for positive inputs.
+    \item \textbf{Sigmoid} squashes any real number to $(0, 1)$, historically used but now largely replaced by ReLU in hidden layers due to vanishing gradient issues. Still useful when you need a probability output.
+    \item \textbf{Tanh} squashes to $(-1, 1)$, zero-centred which can help optimisation. Suffers from saturation at extremes like sigmoid.
+    \item \textbf{Softmax} is used at the output layer for multi-class classification-it converts a vector of arbitrary real numbers into a probability distribution (all outputs positive and sum to 1).
+\end{itemize}
+
+\subsection{Loss Functions}
+
+The loss function measures how well the network's predictions match the true labels. Different tasks require different loss functions.
+
+\begin{greybox}[Standard Loss Functions]
+\textbf{Regression-Mean Squared Error:}
+\[
+\mathcal{L}_{\text{MSE}} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+\]
+
+\textbf{Unpacking:} For each example $i$, we compute the squared difference between the true value $y_i$ and prediction $\hat{y}_i$. The average over all $n$ examples gives the loss. Squaring penalises large errors more than small ones and makes the loss differentiable everywhere.
+
+\textbf{Binary Classification-Cross-Entropy (Log Loss):}
+\[
+\mathcal{L}_{\text{CE}} = -\frac{1}{n} \sum_{i=1}^{n} \left[ y_i \log(\hat{y}_i) + (1 - y_i) \log(1 - \hat{y}_i) \right]
+\]
+
+\textbf{Unpacking:} Here $y_i \in \{0, 1\}$ is the true class and $\hat{y}_i \in (0, 1)$ is the predicted probability of class 1. When $y_i = 1$, only the $\log(\hat{y}_i)$ term contributes-we want $\hat{y}_i$ close to 1. When $y_i = 0$, only the $\log(1 - \hat{y}_i)$ term contributes-we want $\hat{y}_i$ close to 0. The negative sign ensures the loss is positive and minimised when predictions are confident and correct.
+
+\textbf{Multi-class Classification-Categorical Cross-Entropy:}
+\[
+\mathcal{L}_{\text{CCE}} = -\frac{1}{n} \sum_{i=1}^{n} \sum_{c=1}^{C} y_{i,c} \log(\hat{y}_{i,c})
+\]
+where $y_{i,c}$ is the one-hot encoded true label and $\hat{y}_{i,c}$ is the predicted probability for class $c$.
+
+\textbf{Unpacking:} The one-hot encoding means $y_{i,c} = 1$ for exactly one class and 0 for all others. So this sum collapses to $-\log(\hat{y}_{i,c^*})$ where $c^*$ is the true class-we simply want high predicted probability for the correct class.
+\end{greybox}
+
+\subsection{Optimisers}
+
+Neural networks are trained by gradient descent: iteratively adjusting parameters to reduce the loss. Different optimisers use different strategies for determining the direction and magnitude of parameter updates.
+
+\begin{greybox}[Gradient-Based Optimisation]
+\textbf{Stochastic Gradient Descent (SGD):}
+\[
+w_{t+1} = w_t - \eta \nabla \mathcal{L}(w_t)
+\]
+
+\textbf{Unpacking:} At each step $t$, we compute the gradient of the loss with respect to the current weights, $\nabla \mathcal{L}(w_t)$, and take a step of size $\eta$ (the learning rate) in the negative gradient direction. ``Stochastic'' refers to computing gradients on mini-batches rather than the full dataset.
+
+\textbf{Adam} combines momentum with adaptive learning rates:
+\begin{align*}
+m_t &= \beta_1 m_{t-1} + (1 - \beta_1) g_t \\
+v_t &= \beta_2 v_{t-1} + (1 - \beta_2) g_t^2 \\
+\hat{m}_t &= \frac{m_t}{1 - \beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1 - \beta_2^t} \\
+w_{t+1} &= w_t - \eta \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
+\end{align*}
+
+\textbf{Unpacking each line:}
+\begin{enumerate}
+    \item $m_t$ is an exponential moving average of gradients (momentum)-helps smooth out noisy gradients and accelerate in consistent directions
+    \item $v_t$ is an exponential moving average of squared gradients-estimates the variance of gradients for each parameter
+    \item $\hat{m}_t$ and $\hat{v}_t$ are bias-corrected estimates (early in training, the moving averages are biased towards zero)
+    \item The update divides by $\sqrt{\hat{v}_t}$ to give each parameter its own adaptive learning rate-parameters with large gradients get smaller updates
+\end{enumerate}
+
+Adam is generally the default choice for deep learning.
+\end{greybox}
+
+\textbf{Other optimisers:} AdaGrad and RMSProp (which Adam builds upon), SGD with momentum, and second-order methods like BFGS (expensive but can converge faster for smaller models).
+
+\textbf{Interactive exploration:} TensorFlow Playground (\texttt{playground.tensorflow.org}) provides an excellent interactive environment for building intuition about how network architecture, activation functions, and optimisation interact.
+
+\section{Vanishing and Exploding Gradients}
+
+Gradient-based training propagates error signals backward through layers via the chain rule. In deep networks, this can become unstable. Understanding this problem is essential for designing and training deep architectures.
+
+\subsection{The Problem}
+
+\begin{greybox}[Gradient Flow in Deep Networks]
+For a network with $L$ layers, backpropagation computes:
+\[
+\frac{\partial \mathcal{L}}{\partial z_l} = \frac{\partial \mathcal{L}}{\partial z_L} \cdot \prod_{k=l}^{L-1} \frac{\partial z_{k+1}}{\partial z_k}
+\]
+where $z_k$ denotes the pre-activation at layer $k$.
+
+If layer-wise derivatives are approximately constant $\frac{\partial z_{k+1}}{\partial z_k} \approx J$, then:
+\[
+\frac{\partial \mathcal{L}}{\partial z_l} \approx J^{L-l} \cdot \frac{\partial \mathcal{L}}{\partial z_L}
+\]
+\end{greybox}
+
+\textbf{Unpacking this formula:} The gradient at layer $l$ (which determines how we update that layer's weights) depends on a \emph{product} of $L - l$ layer-wise derivatives. If we have 100 layers and we're computing the gradient for layer 1, we're multiplying together 99 terms. Even if each term is close to 1, this product can become very large or very small.
+
+\textbf{The eigenvalue criterion:} For a matrix $J$ representing the layer-wise Jacobian, the behaviour depends on its eigenvalues $\lambda$:
+\begin{itemize}
+    \item $|\lambda| < 1$: $\displaystyle\lim_{L \to \infty} J^{L-l} = 0$ \quad (vanishing gradients)
+    \item $|\lambda| > 1$: $\displaystyle\lim_{L \to \infty} J^{L-l} = \infty$ \quad (exploding gradients)
+\end{itemize}
+
+\textbf{Analogy:} Imagine playing a game of ``telephone'' where each person multiplies the message by some factor before passing it on. If each person multiplies by 0.9, after 100 people the message has been reduced to $0.9^{100} \approx 0$ (vanished). If each multiplies by 1.1, after 100 people it's $1.1^{100} \approx 10^4$ (exploded).
+
+\textbf{Practical consequences:}
+\begin{itemize}
+    \item \textbf{Vanishing gradients}: Early layers receive negligible updates; the network cannot learn useful features in lower layers, effectively wasting those parameters
+    \item \textbf{Exploding gradients}: Weight updates become erratic; training diverges with NaN losses or wildly oscillating parameters
+\end{itemize}
+
+\subsection{Gradient Clipping}
+
+\begin{greybox}[Gradient Clipping]
+When gradients exceed a threshold $c$, scale them to prevent instability:
+\[
+g' = \min\left(1, \frac{c}{\|g\|}\right) \cdot g
+\]
+
+This preserves gradient \textbf{direction} while constraining \textbf{magnitude}.
+\end{greybox}
+
+\textbf{Unpacking the formula:}
+\begin{itemize}
+    \item $\|g\|$ is the norm (magnitude) of the gradient vector
+    \item If $\|g\| \leq c$, the factor $\min(1, c/\|g\|) = 1$, so $g' = g$ (no change)
+    \item If $\|g\| > c$, the factor is $c/\|g\| < 1$, so $g' = (c/\|g\|) \cdot g$ has magnitude exactly $c$
+    \item The direction of $g$ is preserved in both cases-we're just limiting how far we step
+\end{itemize}
+
+\textbf{Interpretation as adaptive learning rate:} Gradient clipping can be viewed as dynamically reducing the effective learning rate when gradients are large:
+\[
+g' = \frac{c}{\|g\|} \cdot g \implies \text{effective learning rate} = \eta \cdot \frac{c}{\|g\|}
+\]
+Large gradients automatically trigger smaller steps, stabilising training without requiring manual learning rate tuning for each situation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_11_neural_nets_ii/gradient_clipping_2.png}
+    \caption{Gradient clipping constrains update magnitude while preserving direction, preventing divergence in optimisation. Without clipping (red), large gradients cause the optimisation to overshoot and diverge. With clipping (blue), the direction is maintained but the step size is bounded.}
+    \label{fig:gradient-clipping-advanced}
+\end{figure}
+
+\subsection{Vanishing Gradients and Activation Functions}
+
+The choice of activation function critically affects gradient flow. The issue is \emph{saturation}: when activations are in regions where the derivative is near zero, gradients cannot flow.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_11_neural_nets_ii/activation function.png}
+    \caption{Activation functions and their derivatives. Sigmoid saturates for large inputs, causing vanishing gradients. ReLU maintains gradient of 1 for positive inputs.}
+    \label{fig:activation-saturation}
+\end{figure}
+
+\begin{greybox}[Activation Function Gradients]
+\textbf{Sigmoid:} $\sigma(x) = \frac{1}{1 + e^{-x}}$
+\[
+\frac{\partial \mathcal{L}}{\partial x} \propto \sigma(x)(1 - \sigma(x))
+\]
+Gradient $\to 0$ when $\sigma(x) \to 0$ or $\sigma(x) \to 1$ (saturation).
+
+\textbf{Unpacking:} The sigmoid derivative $\sigma(x)(1-\sigma(x))$ has maximum value 0.25 (when $\sigma(x) = 0.5$). For inputs $|x| > 4$, the derivative is essentially zero. If any layer produces large pre-activations, gradients die at that layer.
+
+\textbf{ReLU:} $\text{ReLU}(x) = \max(0, x)$
+\[
+\frac{\partial \text{ReLU}}{\partial x} = \mathbb{I}(x > 0)
+\]
+Gradient is 1 for positive inputs (no saturation), but exactly 0 for negative inputs.
+
+\textbf{Unpacking:} ReLU solves the saturation problem for $x > 0$-the gradient is always 1, no matter how large the input. But for $x \leq 0$, the gradient is exactly 0. This creates ``dead neurons'': if a neuron's inputs consistently produce negative pre-activations, it never updates and contributes nothing to learning.
+
+\textbf{Leaky ReLU:} $\text{LeakyReLU}(x) = \max(\alpha x, x)$
+\[
+\frac{\partial \text{LeakyReLU}}{\partial x} = \begin{cases} 1 & x > 0 \\ \alpha & x \leq 0 \end{cases}
+\]
+Non-zero gradient everywhere (typically $\alpha = 0.01$).
+
+\textbf{Unpacking:} Leaky ReLU addresses dead neurons by having a small positive slope ($\alpha$) for negative inputs. The gradient is always non-zero, so neurons can always update. The small $\alpha$ means negative inputs are still ``suppressed'' but not completely zeroed.
+\end{greybox}
+
+\begin{bluebox}[Activation Function Summary]
+\begin{itemize}
+    \item \textbf{Sigmoid}: Vanishes for large $|x|$; avoid in hidden layers of deep networks
+    \item \textbf{ReLU}: No saturation for $x > 0$; risk of ``dead neurons'' when $x < 0$
+    \item \textbf{Leaky ReLU}: Best of both worlds-non-saturating and no dead neurons
+\end{itemize}
+\end{bluebox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_11_neural_nets_ii/nonsaturating activation functions.png}
+    \caption{Non-saturating activation functions like ReLU and its variants maintain gradient flow, enabling training of deeper networks.}
+    \label{fig:nonsaturating-activations}
+\end{figure}
+
+\subsection{Batch Normalisation}
+
+Batch normalisation stabilises training by normalising layer activations, preventing them from drifting to saturating regions.
+
+\begin{greybox}[Batch Normalisation]
+\[
+y = \frac{x - \bar{x}_{\text{batch}}}{\sqrt{\sigma^2_{\text{batch}} + \epsilon}} \cdot \gamma + \beta
+\]
+
+where:
+\begin{itemize}
+    \item $\bar{x}_{\text{batch}}$, $\sigma^2_{\text{batch}}$ = batch mean and variance
+    \item $\gamma$, $\beta$ = learned scale and shift parameters
+    \item $\epsilon$ = small constant for numerical stability
+\end{itemize}
+
+\textbf{At test time:} Use exponential moving averages of training statistics.
+\end{greybox}
+
+\textbf{Unpacking the three steps:}
+\begin{enumerate}
+    \item \textbf{Normalise}: Subtract batch mean and divide by batch standard deviation. This centres activations at zero with unit variance, preventing drift to saturation regions.
+
+    \item \textbf{Scale and shift}: The learnable parameters $\gamma$ and $\beta$ allow the network to ``undo'' the normalisation if beneficial. If $\gamma = \sigma_{\text{batch}}$ and $\beta = \bar{x}_{\text{batch}}$, we recover the original distribution.
+
+    \item \textbf{Test time}: We cannot compute batch statistics from a single example. Instead, we use exponential moving averages accumulated during training, which estimate the population statistics.
+\end{enumerate}
+
+\textbf{Why this helps:}
+\begin{itemize}
+    \item \textbf{Reduces internal covariate shift}: As earlier layers update, the distribution of inputs to later layers changes. Batch normalisation keeps these distributions stable.
+    \item \textbf{Allows higher learning rates}: More stable gradients permit more aggressive optimisation without divergence.
+    \item \textbf{Acts as implicit regularisation}: The noise from batch statistics (which vary between mini-batches) adds a regularising effect similar to dropout.
+    \item \textbf{Prevents saturation}: Normalised activations stay in the ``active'' region of activation functions.
+\end{itemize}
+
+\begin{redbox}
+\textbf{Training vs inference mode:} Batch normalisation behaves differently at training time (uses batch statistics) versus inference time (uses accumulated statistics). Always ensure your model is in the correct mode (\texttt{model.train()} vs \texttt{model.eval()} in PyTorch). Using training-mode batch norm at inference produces inconsistent, unreliable results.
+\end{redbox}
+
+\subsection{Regularisation}
+
+Regularisation techniques prevent overfitting by constraining model complexity. Two primary methods are used in neural networks.
+
+\subsubsection{Weight Decay (L2 Regularisation)}
+
+\begin{greybox}[Weight Decay]
+\[
+\mathcal{L}_{\text{reg}} = \mathcal{L} + \frac{\lambda}{2} \|w\|^2
+\]
+
+Penalises large weights, encouraging simpler models. Equivalent to ridge regression applied to all network parameters.
+\end{greybox}
+
+\textbf{Unpacking:}
+\begin{itemize}
+    \item $\|w\|^2 = \sum_i w_i^2$ is the sum of squared weights
+    \item $\lambda$ controls regularisation strength-larger $\lambda$ penalises large weights more
+    \item The factor of $\frac{1}{2}$ is conventional, giving a clean gradient: $\frac{\partial}{\partial w}\frac{\lambda}{2}\|w\|^2 = \lambda w$
+    \item This gradient term effectively ``shrinks'' weights towards zero at each update
+\end{itemize}
+
+\textbf{Intuition:} Large weights allow the network to fit complex, potentially spurious patterns in the training data. Penalising weight magnitude encourages smoother functions that generalise better. Networks with smaller weights tend to be more ``conservative'' in their predictions.
+
+Weight decay is typically implemented directly in the optimiser (the \texttt{weight\_decay} parameter) rather than added to the loss function, as this is more computationally efficient.
+
+\subsubsection{Dropout}
+
+\begin{greybox}[Dropout]
+During training, randomly set each neuron's output to zero with probability $p$:
+\[
+\tilde{h}_i = \frac{1}{1-p} \cdot h_i \cdot \text{Bernoulli}(1-p)
+\]
+
+At test time, use all neurons (no dropout).
+\end{greybox}
+
+\textbf{Unpacking the formula:}
+\begin{itemize}
+    \item $\text{Bernoulli}(1-p)$ is a random variable that is 1 with probability $1-p$ and 0 with probability $p$
+    \item When the Bernoulli is 0, the neuron's output is zeroed (dropped)
+    \item The factor $\frac{1}{1-p}$ scales up surviving neurons to maintain the expected output magnitude
+    \item At test time, all neurons are used without dropout or scaling (the training scaling ensures expectations match)
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/dropout.png}
+    \caption{Dropout randomly removes neurons during training, forcing redundant representations. Each forward pass uses a different random subset of neurons.}
+    \label{fig:dropout-advanced}
+\end{figure}
+
+\textbf{Why dropout works:}
+\begin{enumerate}
+    \item \textbf{Prevents co-adaptation}: Without dropout, neurons can learn to rely on specific other neurons being present. Dropout forces each neuron to be useful independently.
+
+    \item \textbf{Ensemble interpretation}: Dropout can be viewed as implicitly training an ensemble of $2^n$ subnetworks (one for each dropout mask), then averaging their predictions at test time.
+
+    \item \textbf{Uncertainty estimation}: Applying dropout at test time and averaging multiple forward passes provides a form of uncertainty quantification-predictions that vary significantly under different masks indicate high model uncertainty.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_11_neural_nets_ii/regularization.png}
+    \caption{Effect of regularisation: without regularisation (left), the model overfits to training noise. With regularisation (right), the model learns smoother decision boundaries that generalise better.}
+    \label{fig:regularization}
+\end{figure}
+
+\section{Convolutional Neural Networks}
+
+\begin{bluebox}[CNNs: Key Idea]
+CNNs exploit \textbf{spatial structure} by:
+\begin{itemize}
+    \item Using local receptive fields (each neuron sees a small region)
+    \item Sharing weights across spatial positions (translation equivariance)
+    \item Building hierarchies from local features to global representations
+\end{itemize}
+\textbf{Result:} Massive parameter reduction compared to fully connected networks, with built-in inductive bias for spatial data.
+\end{bluebox}
+
+\subsection{Motivation: Why Not Fully Connected?}
+
+Images present unique challenges that standard neural networks handle poorly. Understanding these challenges motivates the convolutional architecture.
+
+\textbf{High dimensionality:} A $256 \times 256$ RGB image has $256 \times 256 \times 3 = 196{,}608$ features-and they are continuous, not categorical.
+
+\textbf{Parameter explosion:} A fully connected layer from this input to just 1000 hidden units requires $196{,}608 \times 1000 \approx 200$ million parameters-for a single layer. This is both computationally prohibitive and prone to severe overfitting with any reasonable training set size.
+
+\textbf{Local structure matters:} Unlike tabular data where feature order is often arbitrary (we could shuffle columns without changing the problem), images have meaningful spatial relationships. Neighbouring pixels are correlated; edges and textures emerge from local patterns. Fully connected layers ignore this structure entirely-they treat a pixel at position $(0, 0)$ and one at $(255, 255)$ as equally related.
+
+\textbf{Translation invariance:} A face should be recognised regardless of its position in the image. Fully connected networks treat each pixel position independently, missing this structure-the network would need to learn separate detectors for a face at every possible location, requiring exponentially more parameters and data.
+
+\textbf{Continuous features:} Pixel intensities are continuous (0--255 or 0--1), unlike discrete categories in much tabular data. This continuity requires smooth transformations, not arbitrary mappings.
+
+\subsection{The Convolution Operation}
+
+The key insight: instead of processing the entire image at once, slide a small filter (kernel) across the image to extract local features.
+
+\begin{greybox}[Convolution Definition]
+\textbf{Continuous (1D):}
+\[
+(f * g)(z) = \int_{\mathbb{R}} f(u) \, g(z - u) \, du
+\]
+
+\textbf{Unpacking:} This is the mathematical definition of convolution from signal processing. We ``flip'' function $g$, slide it along $f$, and at each position compute the integral of their product. The output at position $z$ depends on the weighted overlap of $f$ and $g$ around $z$.
+
+\textbf{Discrete 1D} (filter $w$ with $k$ elements applied to input $x$):
+\[
+(w * x)_i = \sum_{j=1}^{k} w_j \cdot x_{i+j-1}
+\]
+
+\textbf{Unpacking:} For each output position $i$, we take $k$ consecutive input elements starting at position $i$, multiply each by the corresponding filter weight $w_j$, and sum. The filter ``slides'' along the input, computing this weighted sum at each position.
+
+\textbf{Discrete 2D} (filter $W$ of size $k \times k$ applied to input $X$):
+\[
+(W * X)_{i,j} = \sum_{m=0}^{k-1} \sum_{n=0}^{k-1} W_{m,n} \cdot X_{i+m, j+n}
+\]
+
+\textbf{Unpacking:} Same idea in two dimensions. For each output position $(i, j)$, we take a $k \times k$ patch of the input centred around that position, multiply element-wise by the filter $W$, and sum. The filter slides across both dimensions of the image.
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/convolution.png}
+    \caption{A convolution filter sliding across an image, computing local weighted sums. The filter ``looks at'' one small region at a time, extracting local features.}
+    \label{fig:convolution}
+\end{figure}
+
+\textbf{Why overlapping windows matter:}
+
+What if we simply divided the image into non-overlapping regions and processed each separately? Objects that span region boundaries would be split, making them hard to recognise.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/convolution 2.png}
+    \caption{When objects span multiple regions, convolutions capture features that simple partitioning would miss. The sliding window ensures every local pattern is detected regardless of position.}
+    \label{fig:convolution2}
+\end{figure}
+
+Convolutions solve this by using overlapping windows. By sliding the filter one pixel at a time, we ensure that every local pattern is captured, regardless of where it appears in the image.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/convolution 4.png}
+    \caption{1D convolution: the filter weights determine which local patterns are detected. Different weights detect different patterns (edges, gradients, flat regions).}
+    \label{fig:convolution1d}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/convolution 5.png}
+    \caption{2D convolution for image processing, extending the same principle to spatial data.}
+    \label{fig:convolution2d}
+\end{figure}
+
+\textbf{Learned filters:} The network \textbf{learns} the filter weights during training-we do not hand-design them. Different filters detect different features: edges, textures, shapes. The learning algorithm discovers which local patterns are useful for the task.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/convolution 6.png}
+    \caption{Learned filters detect interpretable features such as horizontal and vertical edges. Early layers typically learn edge detectors; deeper layers learn more complex patterns.}
+    \label{fig:learned-filters}
+\end{figure}
+
+\subsection{Feature Maps and Channels}
+
+Real images have multiple channels (e.g., RGB). A convolutional layer handles this by extending filters to 3D.
+
+\begin{greybox}[Multi-Channel Convolution]
+Real images have multiple channels (e.g., RGB). A convolutional layer handles this by:
+
+\textbf{Input:} $X \in \mathbb{R}^{H \times W \times C_{\text{in}}}$ (height $\times$ width $\times$ input channels)
+
+\textbf{Filter:} $W \in \mathbb{R}^{k \times k \times C_{\text{in}}}$ (one 3D filter spans all input channels)
+
+\textbf{Output (one feature map):}
+\[
+Y_{i,j} = \sum_{m=0}^{k-1} \sum_{n=0}^{k-1} \sum_{c=1}^{C_{\text{in}}} W_{m,n,c} \cdot X_{i+m, j+n, c} + b
+\]
+
+\textbf{Multiple filters:} Apply $C_{\text{out}}$ different filters to produce $C_{\text{out}}$ feature maps (output channels).
+\end{greybox}
+
+\textbf{Unpacking:}
+\begin{itemize}
+    \item For an RGB image, $C_{\text{in}} = 3$. The filter has weights for each colour channel at each spatial position.
+    \item The sum over $c$ combines information from all input channels into a single output value.
+    \item Each filter produces one 2D feature map. Using 64 filters produces 64 feature maps, each potentially detecting a different type of pattern.
+    \item The bias $b$ is typically shared across all spatial positions for a given filter.
+\end{itemize}
+
+Each feature map captures a different type of pattern-one might detect horizontal edges, another vertical edges, another corners. The collection of feature maps forms a rich representation of the input.
+
+\subsection{Convolution as Sparse Matrix Multiplication}
+
+Understanding convolution as matrix multiplication provides insight into its computational structure.
+
+\begin{greybox}[Matrix View of Convolution]
+Convolution can be expressed as matrix multiplication $y = Cx$ where $C$ is a sparse, structured matrix:
+\[
+C =
+\begin{bmatrix}
+    w_1 & w_2 & 0 & 0 & \cdots \\
+    0 & w_1 & w_2 & 0 & \cdots \\
+    0 & 0 & w_1 & w_2 & \cdots \\
+    \vdots & & & & \ddots
+\end{bmatrix}
+\]
+
+The same weights appear repeatedly (weight sharing), and most entries are zero (local connectivity).
+\end{greybox}
+
+\textbf{Unpacking the structure:}
+\begin{itemize}
+    \item Each row computes one output element
+    \item The non-zero entries are the filter weights $(w_1, w_2, \ldots)$
+    \item Each row shifts the pattern by one position, implementing the ``sliding'' of the filter
+    \item Zeros mean those input positions do not affect that output-locality
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/Screenshot 2024-08-28 at 14.50.46.png}
+    \caption{Convolution as sparse matrix multiplication: zeros correspond to pixels outside the receptive field.}
+    \label{fig:conv-matrix}
+\end{figure}
+
+This structure dramatically reduces parameters compared to fully connected layers and encodes the inductive bias that local patterns matter more than distant correlations.
+
+\subsection{Parameter Sharing and Translation Equivariance}
+
+\begin{greybox}[Parameter Sharing Benefits]
+\textbf{Parameter count comparison} for a $224 \times 224 \times 3$ input:
+
+\textbf{Fully connected to 1000 units:}
+\[
+(224 \times 224 \times 3) \times 1000 = 150{,}528{,}000 \text{ parameters}
+\]
+
+\textbf{Convolutional layer with 64 filters of size $3 \times 3$:}
+\[
+(3 \times 3 \times 3) \times 64 + 64 = 1{,}792 \text{ parameters}
+\]
+
+This is a reduction by a factor of nearly 100,000.
+\end{greybox}
+
+\textbf{Translation equivariance:} Because the same filter is applied at every position, if the input shifts, the output shifts by the same amount. Formally, if $T$ is a translation operator:
+\[
+\text{Conv}(T[X]) = T[\text{Conv}(X)]
+\]
+
+\textbf{Unpacking:} If we shift an edge 10 pixels to the right in the input image, the edge detector's response shifts 10 pixels to the right in the output. The network does not need to learn separate edge detectors for every possible location-one edge detector works everywhere. This is a fundamental inductive bias of CNNs.
+
+\subsection{Receptive Field}
+
+\begin{greybox}[Receptive Field]
+The \textbf{receptive field} of a neuron is the region of the input that influences its activation.
+
+For a single convolutional layer with kernel size $k$: receptive field = $k \times k$.
+
+For stacked layers, the receptive field grows:
+\[
+r_l = r_{l-1} + (k_l - 1) \times \prod_{i=1}^{l-1} s_i
+\]
+where $r_l$ is the receptive field at layer $l$, $k_l$ is the kernel size, and $s_i$ are the strides of preceding layers.
+\end{greybox}
+
+\textbf{Unpacking:} Each additional layer expands the receptive field. The product of strides accounts for how earlier layers' downsampling affects the mapping from input to later layers.
+
+Deeper networks have larger receptive fields, allowing later layers to capture more global patterns. This is why CNNs build from local features (edges) to global features (objects).
+
+\textbf{Example:} Three stacked $3 \times 3$ convolutions have a $7 \times 7$ receptive field, but use fewer parameters than a single $7 \times 7$ convolution and apply more nonlinearities (one after each layer), adding representational power.
+
+\subsection{Padding and Strides}
+
+\subsubsection{Padding}
+
+\begin{greybox}[Padding Types]
+\textbf{Valid convolution (no padding):} Output shrinks as filters cannot be centred on edge pixels.
+\[
+\text{Output size} = \text{Input size} - k + 1
+\]
+
+\textbf{Same convolution (zero padding):} Pad with $\lfloor k/2 \rfloor$ zeros on each side so output dimensions match input dimensions.
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/padding.png}
+    \caption{Zero-padding allows the filter to process edge regions, preserving spatial dimensions.}
+    \label{fig:padding}
+\end{figure}
+
+\textbf{Why padding matters:} Without padding, each convolutional layer shrinks the spatial dimensions. After many layers, the feature maps become tiny, losing spatial information. Same-padding maintains dimensions, allowing very deep networks while preserving spatial resolution.
+
+\subsubsection{Strides}
+
+Adjacent filter positions produce highly correlated outputs (they share most of their inputs). Strides skip positions to reduce redundancy and spatial dimensions.
+
+\begin{greybox}[Stride Effect on Output Size]
+For input size $n$, kernel size $k$, padding $p$, and stride $s$:
+\[
+\text{Output size} = \left\lfloor \frac{n + 2p - k}{s} \right\rfloor + 1
+\]
+
+\begin{itemize}
+    \item \textbf{Stride 1:} Filter moves one pixel per step (default)
+    \item \textbf{Stride 2:} Filter skips one pixel; output spatial dimensions approximately halved
+    \item \textbf{Stride $s$:} Output dimensions reduced by factor of approximately $s$
+\end{itemize}
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/padding 2.png}
+    \caption{Comparison of stride 1 (left) vs stride 2 (right). Larger strides downsample the feature map.}
+    \label{fig:strides}
+\end{figure}
+
+\textbf{Intuition:} With stride 1 and a $3 \times 3$ filter, adjacent output positions share about 66\% of their receptive field. This redundancy is computationally expensive and often unnecessary. Larger strides produce more compact representations with reduced spatial resolution.
+
+\subsection{Pooling}
+
+Pooling provides translation invariance by summarising local regions.
+
+\begin{greybox}[Pooling Operations]
+For a $2 \times 2$ pooling region with stride 2:
+\begin{itemize}
+    \item \textbf{Max pooling:} Output the maximum value in the region
+    \item \textbf{Average pooling:} Output the mean value in the region
+    \item \textbf{Global average pooling:} Average over the entire spatial extent (used before final classifier)
+\end{itemize}
+
+Max pooling is more common in hidden layers; it selects the strongest activation in each region.
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/pooling.png}
+    \caption{Max pooling selects the largest value in each region, providing translation robustness.}
+    \label{fig:pooling}
+\end{figure}
+
+\textbf{Translation invariance vs equivariance:}
+\begin{itemize}
+    \item \textbf{Convolution} is translation \emph{equivariant}: shifting input shifts output proportionally
+    \item \textbf{Pooling} is approximately translation \emph{invariant}: small input shifts may not change output
+\end{itemize}
+
+Pooling deliberately discards exact spatial information, helping the network care about \emph{what} features are present rather than \emph{exactly where} they are.
+
+\begin{redbox}
+During backpropagation with max pooling, gradients flow only through the position of the maximum value. Other positions receive zero gradient-they did not contribute to the output. This sparse gradient flow can slow learning but also acts as a form of regularisation.
+\end{redbox}
+
+\textbf{Pooling vs strided convolutions:} Modern architectures often use strided convolutions instead of pooling, as they are learnable and can capture more nuanced downsampling strategies.
+
+\subsection{CNN Architecture}
+
+A typical CNN alternates convolutional and pooling layers, building a hierarchy of increasingly abstract features.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_11_neural_nets_ii/CNN hierarchy.png}
+    \caption{CNN architecture: early layers detect edges, middle layers detect parts, deep layers detect objects.}
+    \label{fig:cnn-hierarchy}
+\end{figure}
+
+\begin{greybox}[Standard CNN Structure]
+\begin{enumerate}
+    \item \textbf{Convolutional layers:} Extract local features with learned filters
+    \item \textbf{Activation:} Apply ReLU (or variant) after each convolution
+    \item \textbf{Pooling layers:} Downsample and provide translation invariance
+    \item \textbf{Repeat:} Stack conv/pool blocks to build hierarchical representations
+    \item \textbf{Flatten:} Convert final feature maps to a vector
+    \item \textbf{Fully connected layers:} Map flattened features to outputs
+    \item \textbf{Output:} Softmax for classification, linear for regression
+\end{enumerate}
+\end{greybox}
+
+\textbf{Hierarchical feature learning:}
+\begin{itemize}
+    \item Early layers: Low-level features (edges, textures, colours)
+    \item Middle layers: Mid-level features (parts, shapes, patterns)
+    \item Deep layers: High-level features (objects, scenes, concepts)
+\end{itemize}
+
+This progression from local to global, simple to complex, mirrors how biological visual systems work and is key to CNNs' success. Each layer builds on the features detected by previous layers.
+
+\subsection{Classic CNN Architectures}
+
+Understanding the evolution of CNN architectures reveals key insights about what makes deep networks work.
+
+\begin{greybox}[Evolution of CNN Architectures]
+\textbf{LeNet-5 (1998):} First successful CNN for digit recognition.
+\begin{itemize}
+    \item 2 convolutional + 2 pooling + 3 FC layers
+    \item $\sim$60K parameters
+    \item Introduced the conv-pool-conv-pool-FC pattern
+\end{itemize}
+
+\textbf{AlexNet (2012):} Won ImageNet, sparked the deep learning revolution.
+\begin{itemize}
+    \item 5 conv + 3 FC layers, $\sim$60M parameters
+    \item Key innovations: ReLU activation, dropout, data augmentation, GPU training
+    \item Demonstrated that deeper networks with more data dramatically outperform classical methods
+\end{itemize}
+
+\textbf{VGGNet (2014):} Showed that depth matters.
+\begin{itemize}
+    \item 16--19 layers using only $3 \times 3$ convolutions
+    \item $\sim$138M parameters
+    \item Insight: stacking small filters is better than using large filters (more nonlinearities, fewer parameters)
+\end{itemize}
+
+\textbf{ResNet (2015):} Enabled training of very deep networks (50--152+ layers).
+\begin{itemize}
+    \item Introduced residual (skip) connections
+    \item Won ImageNet with 3.6\% error (better than human performance)
+    \item Key insight: learning residuals is easier than learning direct mappings
+\end{itemize}
+\end{greybox}
+
+\begin{bluebox}[CNN Architecture Evolution]
+\begin{itemize}
+    \item \textbf{Trend 1:} Deeper networks generally perform better (with appropriate training techniques)
+    \item \textbf{Trend 2:} Smaller filters ($3 \times 3$) stacked are more effective than large filters
+    \item \textbf{Trend 3:} Skip connections are essential for training very deep networks
+    \item \textbf{Trend 4:} Global average pooling replacing large FC layers reduces overfitting
+\end{itemize}
+\end{bluebox}
+
+\subsection{Residual Connections}
+
+The key innovation enabling very deep networks.
+
+\begin{greybox}[Residual (Skip) Connections]
+Instead of learning a direct mapping $H(x)$, learn the \textbf{residual} $F(x) = H(x) - x$:
+\[
+y = F(x) + x
+\]
+
+A \textbf{residual block} computes:
+\[
+y = \sigma(W_2 \cdot \sigma(W_1 x + b_1) + b_2) + x
+\]
+where $\sigma$ is the activation function.
+
+If dimensions do not match, use a linear projection:
+\[
+y = F(x) + W_s x
+\]
+\end{greybox}
+
+\textbf{Unpacking:} The ``$+ x$'' is the skip connection-it adds the input directly to the output of the convolutional layers. The layers only need to learn $F(x) = H(x) - x$, the difference between desired output and input.
+
+\textbf{Why residual connections work:}
+
+\begin{enumerate}
+    \item \textbf{Identity mapping baseline:} If the optimal transformation is close to identity, the network only needs to learn $F(x) \approx 0$, which is easier than learning $H(x) \approx x$ from scratch. Setting all weights to zero gives identity-a much better initialisation than random.
+
+    \item \textbf{Gradient flow:} During backpropagation, the skip connection provides a direct path for gradients:
+    \[
+    \frac{\partial \mathcal{L}}{\partial x} = \frac{\partial \mathcal{L}}{\partial y} \left( \frac{\partial F}{\partial x} + 1 \right)
+    \]
+    The ``$+1$'' term ensures gradients flow even if $\frac{\partial F}{\partial x}$ is small, mitigating vanishing gradients.
+
+    \item \textbf{Ensemble interpretation:} A ResNet can be viewed as an implicit ensemble of shallower networks-different paths through the skip connections correspond to different effective depths.
+\end{enumerate}
+
+\begin{bluebox}[Residual Connections Summary]
+\begin{itemize}
+    \item Enable training of networks with 100+ layers
+    \item Provide shortcut paths for gradient flow
+    \item Make it easy for layers to learn identity mappings when needed
+    \item Now standard in almost all deep architectures
+\end{itemize}
+\end{bluebox}
+
+\begin{bluebox}[When CNNs Work Well]
+CNNs excel when:
+\begin{itemize}
+    \item \textbf{Local structure matters:} Neighbouring elements are correlated
+    \item \textbf{Translation invariance is desired:} Pattern location is less important than pattern presence
+    \item \textbf{Hierarchy exists:} Complex patterns compose from simpler ones
+\end{itemize}
+
+Examples: images, spectrograms, genomic sequences, medical imaging.
+\end{bluebox}
+
+\begin{redbox}
+CNNs struggle with data requiring \textbf{long-range dependencies}. In text or audio, a word early in a sequence may relate to a word much later-CNNs' local receptive fields miss these connections unless the network is very deep. Use RNNs, LSTMs, or Transformers for such tasks.
+\end{redbox}
+
+\section{Recurrent Neural Networks}
+
+\begin{bluebox}[RNNs: Key Idea]
+RNNs maintain \textbf{hidden state} that evolves over time, enabling:
+\begin{itemize}
+    \item Variable-length input/output sequences
+    \item Implicit dependence on all previous inputs
+    \item Memory of past context
+\end{itemize}
+\textbf{Core equation:} $h_t = f(h_{t-1}, x_t; \theta)$ - the same function applied at every timestep.
+\end{bluebox}
+
+Unlike feedforward networks that process fixed-size inputs, RNNs process sequences of arbitrary length by maintaining a ``memory'' (the hidden state) that summarises everything seen so far.
+
+\subsection{Architecture}
+
+\begin{greybox}[RNN Formulation]
+At each time step $t$:
+\begin{align*}
+h_t &= \tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h) \\
+\hat{y}_t &= W_{hy} h_t + b_y
+\end{align*}
+
+where:
+\begin{itemize}
+    \item $x_t \in \mathbb{R}^d$ is the input at time $t$
+    \item $h_t \in \mathbb{R}^n$ is the hidden state at time $t$
+    \item $W_{hh} \in \mathbb{R}^{n \times n}$ governs hidden-to-hidden transitions
+    \item $W_{xh} \in \mathbb{R}^{n \times d}$ governs input-to-hidden connections
+    \item $W_{hy} \in \mathbb{R}^{m \times n}$ governs hidden-to-output connections
+\end{itemize}
+
+\textbf{Initialisation:} $h_0 = \mathbf{0}$ (or learned initial state)
+\end{greybox}
+
+\textbf{Unpacking the equations:}
+\begin{itemize}
+    \item The first equation updates the hidden state by combining the previous hidden state $h_{t-1}$ with the current input $x_t$. The tanh squashes the result to $(-1, 1)$.
+    \item The second equation produces an output from the current hidden state.
+    \item Both equations can be executed at each timestep, or outputs can be produced only at the end of the sequence (for classification).
+\end{itemize}
+
+\textbf{Key insight:} The \textbf{same weights} $W_{hh}, W_{xh}, W_{hy}$ are used at every timestep. This is weight sharing across time, analogous to how CNNs share weights across space. The network learns a general transition function that works at any timestep.
+
+\subsection{Unrolled View and Backpropagation Through Time}
+
+To understand how RNNs are trained, we ``unroll'' the recurrent loop into a deep feedforward network.
+
+\begin{greybox}[Backpropagation Through Time (BPTT)]
+To train RNNs, ``unroll'' the network across timesteps, treating it as a deep feedforward network where each layer corresponds to a timestep:
+
+\begin{center}
+\begin{tabular}{ccccccc}
+$x_1$ & $\to$ & $x_2$ & $\to$ & $x_3$ & $\to$ & $\cdots$ \\
+$\downarrow$ & & $\downarrow$ & & $\downarrow$ & & \\
+$h_1$ & $\to$ & $h_2$ & $\to$ & $h_3$ & $\to$ & $\cdots$ \\
+$\downarrow$ & & $\downarrow$ & & $\downarrow$ & & \\
+$\hat{y}_1$ & & $\hat{y}_2$ & & $\hat{y}_3$ & & $\cdots$
+\end{tabular}
+\end{center}
+
+Gradients are computed by backpropagating through this unrolled graph:
+\[
+\frac{\partial \mathcal{L}}{\partial W_{hh}} = \sum_{t=1}^{T} \frac{\partial \mathcal{L}_t}{\partial W_{hh}} = \sum_{t=1}^{T} \sum_{k=1}^{t} \frac{\partial \mathcal{L}_t}{\partial h_t} \frac{\partial h_t}{\partial h_k} \frac{\partial h_k}{\partial W_{hh}}
+\]
+
+The term $\frac{\partial h_t}{\partial h_k}$ involves a product of $t - k$ Jacobians-this is where vanishing/exploding gradients arise.
+\end{greybox}
+
+\textbf{Unpacking:} Each loss $\mathcal{L}_t$ depends on $h_t$, which depends on $h_{t-1}$, which depends on... all the way back to $h_1$. To compute how $\mathcal{L}_t$ depends on $W_{hh}$, we sum contributions through every path-every timestep where $W_{hh}$ was used.
+
+\subsection{Vanishing and Exploding Gradients in RNNs}
+
+\begin{greybox}[RNN Gradient Problem]
+The gradient through time involves:
+\[
+\frac{\partial h_t}{\partial h_k} = \prod_{i=k+1}^{t} \frac{\partial h_i}{\partial h_{i-1}} = \prod_{i=k+1}^{t} W_{hh}^\top \cdot \text{diag}(\sigma'(z_i))
+\]
+
+where $z_i$ is the pre-activation at step $i$.
+
+If the spectral radius of $W_{hh}$ is:
+\begin{itemize}
+    \item $< 1$: Gradients vanish exponentially with sequence length
+    \item $> 1$: Gradients explode exponentially with sequence length
+\end{itemize}
+\end{greybox}
+
+\textbf{Practical consequences:}
+\begin{itemize}
+    \item Vanilla RNNs struggle with sequences longer than $\sim$10--20 steps
+    \item Information from early timesteps cannot influence learning at later timesteps
+    \item The network effectively has a ``memory horizon'' beyond which gradients are negligible
+\end{itemize}
+
+\begin{redbox}
+The vanishing gradient problem in RNNs is more severe than in feedforward networks because:
+\begin{enumerate}
+    \item Sequences are often very long (hundreds or thousands of steps)
+    \item The \textit{same} weight matrix $W_{hh}$ is multiplied repeatedly, compounding the effect
+    \item Long-range dependencies are often semantically crucial (e.g., subject-verb agreement in text)
+\end{enumerate}
+\end{redbox}
+
+\subsection{Long Short-Term Memory (LSTM)}
+
+LSTMs address the vanishing gradient problem through \textbf{gating mechanisms} and a separate \textbf{cell state}.
+
+\begin{greybox}[LSTM Architecture]
+An LSTM maintains two vectors: hidden state $h_t$ and cell state $c_t$.
+
+\textbf{Gates} (all in $[0, 1]$ via sigmoid activation):
+\begin{align*}
+f_t &= \sigma(W_f [h_{t-1}, x_t] + b_f) & \text{(forget gate)} \\
+i_t &= \sigma(W_i [h_{t-1}, x_t] + b_i) & \text{(input gate)} \\
+o_t &= \sigma(W_o [h_{t-1}, x_t] + b_o) & \text{(output gate)}
+\end{align*}
+
+\textbf{Candidate cell state:}
+\[
+\tilde{c}_t = \tanh(W_c [h_{t-1}, x_t] + b_c)
+\]
+
+\textbf{Cell state update:}
+\[
+c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t
+\]
+
+\textbf{Hidden state output:}
+\[
+h_t = o_t \odot \tanh(c_t)
+\]
+
+where $\odot$ denotes element-wise multiplication and $[h_{t-1}, x_t]$ is concatenation.
+\end{greybox}
+
+\textbf{Unpacking the gates:}
+
+\begin{itemize}
+    \item \textbf{Forget gate $f_t$:} Decides what proportion of the previous cell state to retain. Values near 1 preserve information; near 0 ``forget'' (reset) the cell state. Each element of $c_{t-1}$ can be independently forgotten.
+
+    \item \textbf{Input gate $i_t$:} Decides how much of the new candidate information to write to the cell state. Controls which new information is important.
+
+    \item \textbf{Output gate $o_t$:} Decides how much of the cell state to expose as the hidden state. The cell state stores long-term memory; the hidden state is the ``working memory'' exposed to other layers.
+\end{itemize}
+
+\textbf{Why LSTMs solve vanishing gradients:} The cell state $c_t$ can flow through time with only element-wise operations. When $f_t \approx 1$ and $i_t \approx 0$, the gradient through $c_t$ is approximately 1:
+\[
+\frac{\partial c_t}{\partial c_{t-1}} = f_t
+\]
+
+If the forget gate stays open ($f_t \approx 1$), gradients flow unimpeded across arbitrarily long sequences. The network can learn to keep the forget gate open when long-term memory is needed.
+
+\subsection{Gated Recurrent Unit (GRU)}
+
+\begin{greybox}[GRU Architecture]
+GRUs simplify LSTMs by merging cell and hidden states, using only two gates:
+
+\textbf{Gates:}
+\begin{align*}
+z_t &= \sigma(W_z [h_{t-1}, x_t] + b_z) & \text{(update gate)} \\
+r_t &= \sigma(W_r [h_{t-1}, x_t] + b_r) & \text{(reset gate)}
+\end{align*}
+
+\textbf{Candidate hidden state:}
+\[
+\tilde{h}_t = \tanh(W_h [r_t \odot h_{t-1}, x_t] + b_h)
+\]
+
+\textbf{Hidden state update:}
+\[
+h_t = (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t
+\]
+\end{greybox}
+
+\textbf{Unpacking:}
+\begin{itemize}
+    \item \textbf{Update gate $z_t$:} Interpolates between old state and new candidate. When $z_t \approx 0$, the state is preserved (like LSTM forget gate $\approx 1$). When $z_t \approx 1$, the state is replaced with the candidate.
+    \item \textbf{Reset gate $r_t$:} Controls how much of the previous state to consider when computing the candidate. When $r_t \approx 0$, ignore history and behave like a feedforward network.
+\end{itemize}
+
+\textbf{GRU vs LSTM:}
+\begin{itemize}
+    \item GRUs have fewer parameters (2 gates vs 3)
+    \item Performance is similar on most tasks
+    \item GRUs are faster to train
+    \item LSTMs may have slight edge on tasks requiring very fine-grained memory control
+\end{itemize}
+
+\subsection{Bidirectional RNNs}
+
+\begin{greybox}[Bidirectional RNN]
+For tasks where future context is also available (e.g., tagging a complete sentence), process the sequence in both directions:
+
+\textbf{Forward pass:} $\overrightarrow{h}_t = f(x_t, \overrightarrow{h}_{t-1})$
+
+\textbf{Backward pass:} $\overleftarrow{h}_t = f(x_t, \overleftarrow{h}_{t+1})$
+
+\textbf{Combined representation:} $h_t = [\overrightarrow{h}_t; \overleftarrow{h}_t]$ (concatenation)
+
+This gives each position access to both past and future context.
+\end{greybox}
+
+\begin{redbox}
+Bidirectional RNNs cannot be used for autoregressive tasks (e.g., language generation) where future tokens are not available at inference time. They are appropriate for tasks like:
+\begin{itemize}
+    \item Sequence labelling (POS tagging, NER)
+    \item Sentence classification
+    \item Machine translation encoding (but not decoding)
+\end{itemize}
+\end{redbox}
+
+\begin{bluebox}[RNN Architecture Summary]
+\begin{itemize}
+    \item \textbf{Vanilla RNN:} Simple but suffers from vanishing gradients; limited to short sequences
+    \item \textbf{LSTM:} Gated architecture with separate cell state; handles long-range dependencies
+    \item \textbf{GRU:} Simplified LSTM; similar performance with fewer parameters
+    \item \textbf{Bidirectional:} Access to past and future context; cannot be used for generation
+\end{itemize}
+\end{bluebox}
+
+\section{Attention Mechanisms}
+
+\begin{bluebox}[Attention: Key Idea]
+Attention computes a \textbf{weighted average} of values, where weights are determined by the relevance of each value to a query. It enables:
+\begin{itemize}
+    \item Flexible, learned representations
+    \item Direct access to all positions (no sequential bottleneck)
+    \item Interpretable importance weights
+\end{itemize}
+\end{bluebox}
+
+Attention is perhaps the most important architectural innovation in modern deep learning. It allows networks to dynamically focus on relevant parts of the input, rather than relying on fixed patterns (CNNs) or sequential accumulation (RNNs).
+
+\subsection{Motivation: The Bottleneck Problem}
+
+In sequence-to-sequence models (e.g., machine translation), an encoder RNN compresses the entire input into a single fixed-length vector, which the decoder must use to generate the output.
+
+\textbf{Problem:} For long sequences, this bottleneck loses information. The final hidden state cannot capture all nuances of a 100-word sentence. Important details from early in the sentence may be ``washed out'' by later processing.
+
+\textbf{Solution:} Instead of using only the final state, let the decoder \textit{attend} to all encoder states, focusing on relevant parts for each output token. When generating the French word for ``cat'', look at the English representation of ``cat'', not just the final state that summarises the whole sentence.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_11_neural_nets_ii/attention.png}
+    \caption{Attention mechanism: queries attend to keys, retrieving weighted combinations of values.}
+    \label{fig:attention}
+\end{figure}
+
+\subsection{General Attention}
+
+\begin{greybox}[Attention Definition]
+Given:
+\begin{itemize}
+    \item Query $q$ (what we're looking for)
+    \item Keys $k_1, \ldots, k_n$ (features describing each value)
+    \item Values $v_1, \ldots, v_n$ (content to retrieve)
+    \item Similarity function $\phi(\cdot, \cdot)$
+\end{itemize}
+
+Attention output:
+\[
+\text{Attn}(q, \{k_i, v_i\}) = \sum_{i=1}^{n} \alpha_i \cdot v_i
+\]
+where the attention weights are:
+\[
+\alpha_i = \frac{\phi(q, k_i)}{\sum_{j=1}^{n} \phi(q, k_j)}
+\]
+
+The weights $\alpha_i$ sum to 1, forming a probability distribution over values.
+\end{greybox}
+
+\textbf{Unpacking the components:}
+\begin{itemize}
+    \item \textbf{Query}: Represents ``what am I looking for?''-the question being asked
+    \item \textbf{Keys}: Represent ``what does each position contain?''-descriptors for matching
+    \item \textbf{Values}: Represent ``what should I retrieve?''-the actual content
+    \item \textbf{Similarity $\phi$}: Measures how well the query matches each key
+    \item \textbf{Output}: Weighted average of values, where weights come from query-key similarities
+\end{itemize}
+
+\textbf{Interpretation as soft dictionary lookup:} A standard dictionary returns exactly one value for an exact key match. Attention is a ``soft'' lookup-it returns a weighted combination based on similarity. If multiple keys partially match, their values all contribute proportionally.
+
+\textbf{Common similarity functions:}
+\begin{itemize}
+    \item \textbf{Dot product:} $\phi(q, k) = q^\top k$-simple, fast, but magnitude-sensitive
+    \item \textbf{Scaled dot product:} $\phi(q, k) = \frac{q^\top k}{\sqrt{d}}$-normalises for dimension
+    \item \textbf{Additive (Bahdanau):} $\phi(q, k) = v^\top \tanh(W_q q + W_k k)$-more flexible, separate projections
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_11_neural_nets_ii/attention 2.png}
+    \caption{Attention weights visualised: each query attends differently to the available keys.}
+    \label{fig:attention-weights}
+\end{figure}
+
+\subsection{Scaled Dot-Product Attention}
+
+The most common attention implementation, used in Transformers.
+
+\begin{greybox}[Scaled Dot-Product Attention]
+For query matrix $Q \in \mathbb{R}^{m \times d_k}$, key matrix $K \in \mathbb{R}^{n \times d_k}$, value matrix $V \in \mathbb{R}^{n \times d_v}$:
+\[
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
+\]
+
+\textbf{Steps:}
+\begin{enumerate}
+    \item Compute similarity: $QK^\top \in \mathbb{R}^{m \times n}$ (dot products between all query-key pairs)
+    \item Scale by $\sqrt{d_k}$ to prevent large values
+    \item Apply softmax row-wise to get attention weights $\in \mathbb{R}^{m \times n}$
+    \item Multiply by $V$ to get weighted values $\in \mathbb{R}^{m \times d_v}$
+\end{enumerate}
+\end{greybox}
+
+\textbf{Unpacking the matrix dimensions:}
+\begin{itemize}
+    \item $Q$ has $m$ queries, each $d_k$-dimensional
+    \item $K$ has $n$ keys, each $d_k$-dimensional
+    \item $V$ has $n$ values, each $d_v$-dimensional
+    \item $QK^\top$ gives an $m \times n$ matrix of all query-key similarities
+    \item After softmax, each row sums to 1 (attention distribution for each query)
+    \item Multiplying by $V$ gives $m$ outputs, each a weighted average of values
+\end{itemize}
+
+\subsubsection{Why Scale by $\sqrt{d_k}$?}
+
+This scaling is crucial for stable training.
+
+If query and key elements are approximately standard normal, their dot product has variance proportional to $d_k$:
+\[
+\text{Var}(q^\top k) = \sum_{i=1}^{d_k} \text{Var}(q_i k_i) = d_k \cdot 1 = d_k
+\]
+
+\textbf{Problem:} For large $d_k$ (e.g., 512), dot products can be very large in magnitude. Softmax of large values saturates to near-one-hot distributions, where gradients are extremely small.
+
+\textbf{Solution:} Dividing by $\sqrt{d_k}$ normalises variance to 1, keeping dot products in a reasonable range where softmax gradients are healthy.
+
+\subsubsection{Softmax}
+
+\begin{greybox}[Row-wise Softmax]
+For matrix $X \in \mathbb{R}^{m \times n}$:
+\[
+\text{softmax}(X)_{ij} = \frac{\exp(x_{ij})}{\sum_{k=1}^{n} \exp(x_{ik})}
+\]
+
+Each row sums to 1, converting raw scores to a probability distribution over columns (keys).
+\end{greybox}
+
+\subsection{Multi-Head Attention}
+
+\begin{greybox}[Multi-Head Attention]
+Instead of a single attention function, apply attention multiple times in parallel with different learned projections:
+
+\textbf{For each head $i \in \{1, \ldots, h\}$:}
+\begin{align*}
+Q_i &= Q W_i^Q, \quad K_i = K W_i^K, \quad V_i = V W_i^V \\
+\text{head}_i &= \text{Attention}(Q_i, K_i, V_i)
+\end{align*}
+
+\textbf{Concatenate and project:}
+\[
+\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h) W^O
+\]
+
+where $W_i^Q, W_i^K \in \mathbb{R}^{d \times d_k}$, $W_i^V \in \mathbb{R}^{d \times d_v}$, and $W^O \in \mathbb{R}^{hd_v \times d}$.
+\end{greybox}
+
+\textbf{Why multiple heads?}
+\begin{itemize}
+    \item Different heads can attend to different types of relationships
+    \item One head might capture syntactic dependencies (subject-verb), another semantic similarity (synonyms)
+    \item Analogous to using multiple filters in a CNN layer-each head learns a different ``view''
+\end{itemize}
+
+Typically $d_k = d_v = d/h$ so that the total computation is similar to single-head attention with full dimensionality.
+
+\subsection{Self-Attention}
+
+Self-attention allows each position in a sequence to attend to all other positions, capturing dependencies regardless of distance.
+
+\begin{greybox}[Self-Attention]
+Given input $X \in \mathbb{R}^{n \times d}$ (sequence of $n$ vectors of dimension $d$), compute queries, keys, and values via learned projections:
+\begin{align*}
+Q &= XW_Q \\
+K &= XW_K \\
+V &= XW_V
+\end{align*}
+
+Then apply scaled dot-product attention:
+\[
+\text{SelfAttn}(X) = \text{softmax}\left(\frac{Q K^\top}{\sqrt{d_k}}\right) V
+\]
+
+The output has the same shape as the input: $n$ vectors of dimension $d_v$.
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_11_neural_nets_ii/self-attention.png}
+    \caption{Self-attention: each position computes attention over all positions, enabling global context.}
+    \label{fig:self-attention}
+\end{figure}
+
+\textbf{What self-attention learns:}
+\begin{enumerate}
+    \item $W_Q$: How to represent ``what I'm looking for''
+    \item $W_K$: How to represent ``what I contain''
+    \item $W_V$: How to represent ``what I provide when attended to''
+\end{enumerate}
+
+\textbf{Connection to kernel regression:} Self-attention is essentially kernel regression where:
+\begin{itemize}
+    \item The kernel (similarity function) is learned
+    \item The input representation is learned
+    \item The output representation is learned
+\end{itemize}
+
+This is extremely flexible (and over-parameterised)-we're simultaneously learning what to compare, how to compare, and what to output.
+
+\begin{bluebox}[Why Self-Attention?]
+\begin{itemize}
+    \item \textbf{Global context:} Every position can directly attend to every other position (path length 1)
+    \item \textbf{Parallelisable:} No sequential dependencies (unlike RNNs)
+    \item \textbf{Flexible:} Learns which relationships matter, rather than assuming fixed patterns
+    \item \textbf{Interpretable:} Attention weights show which positions influence each output
+\end{itemize}
+\end{bluebox}
+
+\section{Transformers}
+
+\begin{bluebox}[Transformers: Key Idea]
+Transformers replace recurrence entirely with self-attention:
+\begin{itemize}
+    \item Process all positions in parallel
+    \item Capture long-range dependencies in a single layer
+    \item Scale efficiently to very long sequences and large models
+\end{itemize}
+\textbf{Result:} State-of-the-art performance across NLP, vision, and beyond.
+\end{bluebox}
+
+The Transformer architecture (Vaswani et al., 2017, ``Attention Is All You Need'') revolutionised deep learning by showing that attention alone, without recurrence or convolution, achieves superior performance on sequence tasks.
+
+\subsection{Architecture Overview}
+
+The original Transformer follows an encoder-decoder structure for sequence-to-sequence tasks.
+
+\begin{greybox}[Transformer Architecture]
+\textbf{Encoder} (processes input sequence):
+\begin{enumerate}
+    \item Input embedding + positional encoding
+    \item $N \times$ encoder layers, each containing:
+    \begin{itemize}
+        \item Multi-head self-attention
+        \item Add \& layer normalisation (residual connection)
+        \item Position-wise feed-forward network
+        \item Add \& layer normalisation
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Decoder} (generates output sequence):
+\begin{enumerate}
+    \item Output embedding + positional encoding
+    \item $N \times$ decoder layers, each containing:
+    \begin{itemize}
+        \item Masked multi-head self-attention (prevents attending to future positions)
+        \item Add \& layer normalisation
+        \item Multi-head cross-attention (attends to encoder outputs)
+        \item Add \& layer normalisation
+        \item Position-wise feed-forward network
+        \item Add \& layer normalisation
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Output:} Linear projection + softmax over vocabulary
+\end{greybox}
+
+\textbf{Unpacking the components:}
+\begin{itemize}
+    \item \textbf{Residual connections}: Every sub-layer has a skip connection, as in ResNets
+    \item \textbf{Layer normalisation}: Stabilises training (discussed below)
+    \item \textbf{Encoder self-attention}: Each position attends to all positions in the input
+    \item \textbf{Decoder self-attention}: Each position attends only to earlier positions (causal)
+    \item \textbf{Cross-attention}: Decoder positions attend to encoder outputs
+\end{itemize}
+
+\subsection{Positional Encoding}
+
+\begin{greybox}[Why Positional Encoding?]
+Self-attention is \textbf{permutation equivariant}: if we shuffle the input sequence, the output shuffles identically. This means the model has no inherent notion of position-``cat sat on mat'' and ``mat on sat cat'' produce the same attention pattern.
+
+\textbf{Solution:} Add positional information to the input embeddings.
+\end{greybox}
+
+\begin{greybox}[Sinusoidal Positional Encoding]
+For position $\text{pos}$ and dimension $i$:
+\begin{align*}
+PE_{(\text{pos}, 2i)} &= \sin\left(\frac{\text{pos}}{10000^{2i/d}}\right) \\
+PE_{(\text{pos}, 2i+1)} &= \cos\left(\frac{\text{pos}}{10000^{2i/d}}\right)
+\end{align*}
+
+\textbf{Properties:}
+\begin{itemize}
+    \item Each position has a unique encoding
+    \item Relative positions can be represented as linear functions of the encodings
+    \item Generalises to sequence lengths not seen during training
+\end{itemize}
+\end{greybox}
+
+\textbf{Intuition:} The positional encoding acts like a binary counter where different dimensions oscillate at different frequencies. Low-frequency dimensions (large $i$) distinguish distant positions; high-frequency dimensions (small $i$) distinguish nearby positions. The model can learn to use these patterns to understand position.
+
+\textbf{Alternative:} Modern models often use \textbf{learned positional embeddings} instead-a separate embedding vector for each position, learned during training. This works well when maximum sequence length is known and fixed.
+
+\subsection{Layer Normalisation}
+
+\begin{greybox}[Layer Normalisation]
+Unlike batch normalisation (which normalises across the batch), layer normalisation normalises across features for each example:
+
+\[
+\text{LayerNorm}(x) = \frac{x - \mu}{\sqrt{\sigma^2 + \epsilon}} \cdot \gamma + \beta
+\]
+
+where $\mu$ and $\sigma^2$ are the mean and variance computed across the feature dimension (not the batch dimension).
+
+\textbf{Advantages over batch normalisation:}
+\begin{itemize}
+    \item Works with batch size 1
+    \item No running statistics needed at test time
+    \item Better suited for variable-length sequences
+\end{itemize}
+\end{greybox}
+
+\textbf{Key difference:} Batch norm computes statistics over examples (same feature across batch). Layer norm computes statistics over features (same example across dimensions). For sequences with varying lengths and small batch sizes, layer norm is more stable and consistent.
+
+\subsection{Position-wise Feed-Forward Networks}
+
+\begin{greybox}[Feed-Forward Block]
+Each position is processed independently by the same two-layer network:
+\[
+\text{FFN}(x) = \max(0, xW_1 + b_1)W_2 + b_2
+\]
+
+Typically the inner dimension is $4 \times$ the model dimension (e.g., $d = 512$, inner = 2048).
+
+This can be seen as two $1 \times 1$ convolutions-the same transformation applied at every position.
+\end{greybox}
+
+\textbf{Purpose:} The attention layer mixes information between positions but applies only linear transformations. The FFN provides position-wise nonlinearity, allowing the model to transform each position's representation in complex ways.
+
+\subsection{Masked Self-Attention}
+
+\begin{greybox}[Causal Masking]
+In the decoder, each position should only attend to earlier positions (not ``see the future''). This is enforced by masking:
+
+\[
+\text{MaskedAttn}(Q, K, V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}} + M\right) V
+\]
+
+where $M$ is a mask matrix with $M_{ij} = 0$ if $i \geq j$ (allowed) and $M_{ij} = -\infty$ if $i < j$ (blocked).
+
+The $-\infty$ values become 0 after softmax, preventing information flow from future positions.
+\end{greybox}
+
+\textbf{Why masking?} During training, we process all positions in parallel. But during generation, position $t$ should not know what comes at positions $t+1, t+2, \ldots$. The mask ensures the training-time behaviour matches the inference-time constraint.
+
+\subsection{Why Transformers Replaced RNNs}
+
+\begin{greybox}[Computational Comparison]
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model} & \textbf{Sequential Ops} & \textbf{Path Length} & \textbf{Complexity/Layer} \\
+\midrule
+RNN & $O(n)$ & $O(n)$ & $O(n \cdot d^2)$ \\
+Transformer & $O(1)$ & $O(1)$ & $O(n^2 \cdot d)$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item \textbf{Sequential operations:} RNNs must process tokens sequentially; Transformers process all in parallel
+    \item \textbf{Maximum path length:} Information travels $O(n)$ steps in RNNs but only $O(1)$ in Transformers
+    \item \textbf{Per-layer complexity:} Transformers have $O(n^2)$ attention cost, but this is highly parallelisable
+\end{itemize}
+\end{greybox}
+
+\textbf{Key advantages of Transformers:}
+\begin{enumerate}
+    \item \textbf{Parallelisation:} Training is much faster on modern hardware (GPUs/TPUs) because all positions can be computed simultaneously
+    \item \textbf{Long-range dependencies:} Direct connections between any two positions in a single layer
+    \item \textbf{Scalability:} Performance improves with more data, compute, and parameters (``scaling laws'')
+    \item \textbf{Transfer learning:} Pre-trained models transfer well to downstream tasks
+\end{enumerate}
+
+\begin{redbox}
+The $O(n^2)$ attention complexity is a limitation for very long sequences. For a 10,000-token document, the attention matrix has 100 million entries. Various ``efficient Transformer'' variants address this (Longformer, BigBird, etc.), but the quadratic scaling remains a fundamental constraint.
+\end{redbox}
+
+\subsection{Pre-training and Transfer Learning}
+
+\begin{greybox}[The Pre-training Paradigm]
+\textbf{Pre-training:} Train a large model on a massive unlabelled corpus with a self-supervised objective:
+\begin{itemize}
+    \item \textbf{Masked language modelling (BERT):} Predict masked tokens from context
+    \item \textbf{Causal language modelling (GPT):} Predict the next token
+    \item \textbf{Denoising (T5):} Reconstruct corrupted text
+\end{itemize}
+
+\textbf{Fine-tuning:} Adapt the pre-trained model to a specific task with a small labelled dataset.
+
+\textbf{Key insight:} Language understanding emerges from predicting text at scale. The resulting representations transfer to almost any NLP task.
+\end{greybox}
+
+\textbf{Why this works:}
+\begin{itemize}
+    \item Predicting language requires understanding syntax, semantics, and world knowledge
+    \item Billions of training examples enable learning rich representations
+    \item Fine-tuning requires only thousands of examples for many tasks
+    \item The same architecture scales from small to very large models
+\end{itemize}
+
+\begin{bluebox}[Transformer Impact]
+Transformers have become the dominant architecture for:
+\begin{itemize}
+    \item \textbf{NLP:} BERT, GPT, T5, and their successors
+    \item \textbf{Vision:} Vision Transformers (ViT), treating image patches as tokens
+    \item \textbf{Multimodal:} CLIP, Flamingo, combining vision and language
+    \item \textbf{Generative AI:} Large language models, image generation (diffusion with Transformers)
+\end{itemize}
+\end{bluebox}
+
+\section{Practical Considerations}
+
+\begin{bluebox}[Choosing an Architecture]
+\textbf{Use CNNs when:}
+\begin{itemize}
+    \item Data has spatial structure (images, spectrograms)
+    \item Translation invariance is desired
+    \item Computational efficiency is critical
+\end{itemize}
+
+\textbf{Use RNNs/LSTMs when:}
+\begin{itemize}
+    \item Sequences are short to moderate length
+    \item Streaming/online processing is required
+    \item Memory constraints prevent attention over full sequence
+\end{itemize}
+
+\textbf{Use Transformers when:}
+\begin{itemize}
+    \item Long-range dependencies are important
+    \item Pre-trained models are available for your domain
+    \item Compute resources allow attention over the sequence
+    \item State-of-the-art performance is the priority
+\end{itemize}
+\end{bluebox}
+
+\subsection{Transfer Learning in Practice}
+
+\begin{greybox}[Transfer Learning Strategies]
+\textbf{Feature extraction:}
+\begin{itemize}
+    \item Freeze pre-trained weights
+    \item Train only new task-specific layers
+    \item Fast, requires minimal data
+\end{itemize}
+
+\textbf{Fine-tuning:}
+\begin{itemize}
+    \item Initialise with pre-trained weights
+    \item Train all parameters (often with lower learning rate for pre-trained layers)
+    \item Better performance, requires more data and compute
+\end{itemize}
+
+\textbf{Layer-wise learning rates:}
+\begin{itemize}
+    \item Lower learning rates for earlier layers (more general features)
+    \item Higher learning rates for later layers (more task-specific)
+    \item Prevents catastrophic forgetting of pre-trained knowledge
+\end{itemize}
+\end{greybox}
+
+\textbf{When transfer learning helps most:}
+\begin{itemize}
+    \item Target task has limited labelled data
+    \item Source and target domains are related
+    \item Pre-trained model is large and well-trained
+\end{itemize}
+
+\subsection{Modern Best Practices}
+
+\begin{greybox}[Training Deep Networks]
+\textbf{Architecture:}
+\begin{itemize}
+    \item Use residual connections for networks deeper than $\sim$10 layers
+    \item Prefer layer normalisation for Transformers, batch normalisation for CNNs
+    \item Use dropout for regularisation (typically 0.1--0.3)
+\end{itemize}
+
+\textbf{Optimisation:}
+\begin{itemize}
+    \item Adam or AdamW (weight decay variant) as default optimiser
+    \item Learning rate warmup followed by decay (linear, cosine, or step)
+    \item Gradient clipping for RNNs and Transformers
+\end{itemize}
+
+\textbf{Regularisation:}
+\begin{itemize}
+    \item Data augmentation is often the most effective regulariser
+    \item Weight decay (L2) is standard
+    \item Dropout in fully connected layers, sometimes in attention
+\end{itemize}
+
+\textbf{Training stability:}
+\begin{itemize}
+    \item Monitor loss curves and gradient norms
+    \item Use mixed-precision training (FP16) for efficiency
+    \item Start with a working configuration, then tune
+\end{itemize}
+\end{greybox}
+
+\section{Summary}
+
+\begin{bluebox}[Key Concepts from Week 11]
+\begin{enumerate}
+    \item \textbf{Gradient problems}: Vanishing (use ReLU, residual connections, LSTM/GRU); Exploding (use gradient clipping)
+    \item \textbf{Batch normalisation}: Stabilises activations, enables higher learning rates
+    \item \textbf{Regularisation}: Weight decay constrains magnitudes; dropout encourages redundancy
+    \item \textbf{CNNs}: Exploit local structure via convolutions; weight sharing provides translation equivariance; pooling provides translation invariance
+    \item \textbf{Residual connections}: Enable training of very deep networks by providing gradient shortcuts
+    \item \textbf{RNNs}: Maintain hidden state for sequential data; vanilla RNNs suffer from vanishing gradients
+    \item \textbf{LSTM/GRU}: Gated architectures that preserve gradients over long sequences
+    \item \textbf{Attention}: Learned weighted averaging; enables flexible, global context
+    \item \textbf{Self-attention}: Each position attends to all positions; foundation of Transformers
+    \item \textbf{Transformers}: Replace recurrence with attention; parallelisable and scalable
+    \item \textbf{Transfer learning}: Pre-train on large data, fine-tune on specific tasks
+\end{enumerate}
+\end{bluebox}
+
+\begin{bluebox}[Architecture Decision Guide]
+\begin{center}
+\begin{tabular}{lp{6cm}}
+\toprule
+\textbf{Data Type} & \textbf{Recommended Architecture} \\
+\midrule
+Images & CNN (or ViT if pre-trained model available) \\
+Short sequences ($< 100$) & LSTM/GRU or Transformer \\
+Long sequences ($> 100$) & Transformer \\
+Text with pre-training & Transformer (BERT, GPT, etc.) \\
+Streaming/online data & RNN/LSTM (process one token at a time) \\
+Tabular data & MLP (potentially with attention) \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{bluebox}

@@ -1,0 +1,58 @@
+% =============================================================================
+% Shared Preamble for M4DS Notes
+% =============================================================================
+
+\documentclass[a4paper,11pt]{report}
+
+% Page geometry
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+
+% Encoding
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+% Tables
+\usepackage{multirow}
+\usepackage{booktabs}
+
+% Graphics
+\usepackage{graphicx}
+\graphicspath{{./images/}}
+
+% Spacing
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+
+% Lists
+\usepackage{enumerate}
+
+% Floats
+\usepackage{float}
+
+% Headers
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\footnotesize M4DS Revision Notes}
+\rhead{\footnotesize Henry Baker}
+\cfoot{\footnotesize \thepage}
+
+% Math
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator{\DUnif}{DUnif}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\E}{E}
+
+% Colored boxes
+\usepackage{tcolorbox}
+
+% Define custom box environments
+\newtcolorbox{bluebox}[1][]{colback=blue!5!white, colframe=blue!75!black, title=#1}
+
+% Hyperlinks (load last)
+\usepackage{hyperref}

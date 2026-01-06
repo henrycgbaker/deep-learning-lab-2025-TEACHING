@@ -1,0 +1,163 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize M4DS Mid-term revision}
+\rhead{\footnotesize Henry Baker} 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf Mid Terms Fall 2023  \\ Henry Baker}
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: Session 5\\ Power Series}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Taylor Series Approximation}
+We have an ugly function: difficult to differentiate, integrate, manipulate, maximise. \\
+Assume: it has a power series representation at some point $x = a$, ie:
+\[p(x) = f(x) \text{ at } x = a\]
+Recall, polynomial function p(x) can be written as:
+\[p(x) = \sum_{j=0}^{\infty} c_j (x - a)^j\]
+Expanded:
+\[p(x) = c_0 + c_1x + c_2x^2 + \dots\] \\
+
+So, setting it to $x = 0$:\\
+if we want $p(x)$ to represent $f(x)$ at $x = 0$, what conditions would we like to hold?
+\begin{align}
+    p(0) &= f(0) \\
+    p'(0) &= f'(0) \\
+    p''(0) &= f''(0) \\
+    p'''(0) &= f'''(0) \\
+    \dots
+\end{align}
+We can solve for the values of $c$ in the Talor series that make these conditions hold:
+\textit{the basic intuition is that as we continue to differentate the power series $n$ times, the $x$ in the $nth$ term drop out leaving an associated constant; when we set $x = 0$ all the other terms drop out, this gives us the constant value for the $nth$ term in the power series} \\
+
+\subsection{First Condition $p(0) = f(0)$}
+\[p(x) = c_0 + c_1x + c_2x^2 + \dots\] \\
+Setting to 0, $p(0) \rightarrow$ all $x$ terms drop out $\rightarrow = \dots c_0$. the first Constant term\\
+So, first condition:
+\begin{align}
+    p(0) &= f(0) \\
+    p(0) &= c_0  \\
+    c_0 &= f(0) \\
+\end{align}
+
+\subsection{2nd Condition $p'(0) = f'(0)$}
+\[p'(x) = c_1 + 2c_2x + 3c_3x^2 + 4c_4x^3 \dots\] \\
+Setting to 0: $p'(0) \rightarrow$ all $x$ terms drop out $\rightarrow = \dots c_1$. the first Constant term\\
+So, second condition:
+\begin{align}
+    p'(0) &= f'(0) \\
+    p'(0) &= c_1  \\
+    c_1 &= f'(0) \\
+\end{align}
+
+\subsection{Third Condition: $p''(0) = f''(0)$}
+\[p''(x) = 2c_2 + 6c_3x + 12c_4x^2 \dots\] \\
+Setting to 0: $p''(0) \rightarrow$ all $x$ terms drop out $\rightarrow = \dots 2c_2$. the first Constant term\\
+So, third condition:
+\begin{align}
+    p''(0) &= f''(0) \\
+    p''(0) &= 2c_2  \\
+    2c_2 &= f''(0) \\
+    c_2 &= \frac{1}{2}f''(0)
+\end{align}
+
+\subsection{Fourth Condition: $p'''(0) = f'''(0)$}
+\[p'''(x) = 6c_3 + 24c_4x +  \dots\] \\
+Setting to 0: $p'''(0) \rightarrow$ all $x$ terms drop out $\rightarrow = \dots 6c_3$. the first Constant term\\
+So, fourth condition:
+\begin{align}
+    p'''(0) &= f'''(0) \\
+    p'''(0) &= 6c_3  \\
+    6c_3 &= f'''(0) \\
+    c_c &= \frac{1}{6}f'''(0)
+\end{align}
+
+\subsection{Putting it Together}
+We have following conditions: 
+\begin{enumerate}
+    \item $c_0 = f(0)$
+    \item $c_1 = f'(0)$
+    \item $c_2 = \frac{1}{2}f''(0)$
+    \item $c_3 = \frac{1}{6}f'''(0)$
+\end{enumerate}
+to represent $f(x)$ at $x = 0$, our polynomial:
+\[p(x) = \underbrace{f(0)}_{c_0} + \underbrace{f'(0)}_{c_1} x + \frac{1}{2} \underbrace{f''(0)}_{c_2} x^2 + \frac{1}{6} \underbrace{f'''(0)}_{c_3} x^3 + \dots\]
+
+If you kept going, a pattern emerges:
+\[p(x) = \underbrace{f(0)}_{c_0} + \underbrace{f'(0)}_{c_1} x + \frac{1}{2!} \underbrace{f''(0)}_{c_2} x^2 + \frac{1}{3!} \underbrace{f'''(0)}_{c_3} x^3 + \dots\]
+Generalising to the form $x = 0$, to $x=a$
+\[p(x) = \underbrace{f(a)}_{c_0} + \underbrace{f'(a)}_{c_1} (x-a) + \frac{1}{2!} \underbrace{f''(a)}_{c_2} (x-a)^2 + \frac{1}{3!} \underbrace{f'''(a)}_{c_3} (x-a)^3 + \dots\]
+This is the Taylor series for the function $f (x)$ at $a$. In the special case when $a = 0$, we also call this the Maclaurin series.\\
+\\
+From this, we can write the $n$th \emph{partial sum} of the Maclaurin series as: 
+\begin{align*}
+p_0(x) & = f(0) \\
+p_1(x) & = f(0) + f'(0)x \\
+p_2(x) & = f(0) + f'(0)x + \frac{1}{2} f''(0)x^2 \\
+p_3(x) & = f(0) + f'(0)x + \frac{1}{2} f''(0)x^2 + \frac{1}{6} f'''(0)x^3 \\
+\end{align*}
+Each partial sum is an approximation to the function \( f(x) \), which gets better and better as you add more terms.
+
+\subsection{Example:} Find the Taylor polynomials \( p_0 \), \( p_1 \), \( p_2 \), and \( p_3 \) for the function \( f(x) = \log(x) \) at \( x = 1 \).
+
+We will require the derivatives of \( f(x) \), and we should also evaluate them at \( x = 1 \):
+
+\begin{align*}
+f(x) &= \log(x) &\rightarrow \log(1) &= 0 \\
+f'(x) &= \frac{1}{x} &\rightarrow f'(1) &= 1 \\
+f''(x) &= -\frac{1}{x^2} &\rightarrow f''(1) &= -1 \\
+f'''(x) &= \frac{2}{x^3} &\rightarrow f'''(1) &= 2 \\
+\end{align*}
+
+\[p(x) = \underbrace{f(a)}_{c_0} + \underbrace{f'(a)}_{c_1} (x-a) + \frac{1}{2!} \underbrace{f''(a)}_{c_2} (x-a)^2 + \frac{1}{3!} \underbrace{f'''(a)}_{c_3} (x-a)^3 + \dots\]
+
+\begin{align*}
+p_0(x) &= f(1) = 0 \\
+\\
+p_1(x) &= f(1) + f'(1)(x - 1) \\
+&= 0 + 1(x - 1) \\
+&= x - 1 \\
+\\
+p_2(x) &= x - 1 + \frac{1}{2} f''(1)(x - 1)^2 \\
+&= x - 1 - \frac{1}{2} (x - 1)^2 \\
+\\
+p_3(x) &= x - 1 - \frac{1}{2} (x - 1)^2 + \frac{1}{3!} (x - 1)^3 \\
+&= 
+\end{align*}
+
+\section{Integration}
+
+
+\end{document}

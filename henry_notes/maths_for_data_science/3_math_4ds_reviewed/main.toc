@@ -1,0 +1,340 @@
+\contentsline {part}{I\hspace {1em}Probability Theory}{12}{part.1}%
+\contentsline {chapter}{\numberline {1}Week 1: Probability Theory}{13}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Sample Spaces and Events}{13}{section.1.1}%
+\contentsline {subsection}{\numberline {1.1.1}Set Operations on Events}{14}{subsection.1.1.1}%
+\contentsline {section}{\numberline {1.2}The Axioms of Probability}{15}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Properties Derived from the Axioms}{15}{subsection.1.2.1}%
+\contentsline {section}{\numberline {1.3}The Naive Definition of Probability}{16}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Counting Principles}{17}{section.1.4}%
+\contentsline {subsection}{\numberline {1.4.1}The Multiplication Rule}{17}{subsection.1.4.1}%
+\contentsline {subsection}{\numberline {1.4.2}Permutations and Combinations}{18}{subsection.1.4.2}%
+\contentsline {subsection}{\numberline {1.4.3}Sampling With and Without Replacement}{18}{subsection.1.4.3}%
+\contentsline {section}{\numberline {1.5}The Inclusion-Exclusion Principle}{19}{section.1.5}%
+\contentsline {section}{\numberline {1.6}The Birthday Problem}{20}{section.1.6}%
+\contentsline {chapter}{\numberline {2}Week 2: Conditional Probability and Random Variables}{21}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Conditional Probability}{21}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Geometric Interpretation}{22}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}The Multiplication Rule}{22}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}Key Properties and Common Misconceptions}{23}{subsection.2.1.3}%
+\contentsline {section}{\numberline {2.2}Bayes' Rule}{24}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Derivation and Statement}{24}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Interpretation: Updating Beliefs}{24}{subsection.2.2.2}%
+\contentsline {section}{\numberline {2.3}The Law of Total Probability}{25}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Tree Diagrams}{26}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Combining Bayes' Rule with LOTP}{27}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Bayes' Rule with Extra Conditioning}{28}{subsection.2.3.3}%
+\contentsline {section}{\numberline {2.4}The Monty Hall Problem}{28}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Setup and Assumptions}{29}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Solution Using Bayes' Rule}{29}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Intuitive Explanation}{30}{subsection.2.4.3}%
+\contentsline {section}{\numberline {2.5}Independence of Events}{30}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Properties of Independence}{31}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Independence vs Disjointness}{31}{subsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5.3}Independence of Multiple Events}{32}{subsection.2.5.3}%
+\contentsline {subsection}{\numberline {2.5.4}Conditional Independence}{33}{subsection.2.5.4}%
+\contentsline {section}{\numberline {2.6}Random Variables}{34}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Probability Mass Functions}{35}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Cumulative Distribution Functions}{36}{section.2.8}%
+\contentsline {subsection}{\numberline {2.8.1}Relationship Between PMF and CDF}{36}{subsection.2.8.1}%
+\contentsline {section}{\numberline {2.9}Common Discrete Distributions}{37}{section.2.9}%
+\contentsline {subsection}{\numberline {2.9.1}Bernoulli Distribution}{37}{subsection.2.9.1}%
+\contentsline {subsection}{\numberline {2.9.2}Binomial Distribution}{38}{subsection.2.9.2}%
+\contentsline {subsection}{\numberline {2.9.3}Discrete Uniform Distribution}{39}{subsection.2.9.3}%
+\contentsline {section}{\numberline {2.10}Summary}{39}{section.2.10}%
+\contentsline {chapter}{\numberline {3}Week 3: Joint Random Variables}{41}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Joint Random Variables and Their Distributions}{41}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Functions of Multiple Random Variables}{41}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}The Random Walk (Motivating Example)}{42}{subsection.3.1.2}%
+\contentsline {section}{\numberline {3.2}Joint Distributions: How Two Random Variables Interact}{43}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Joint Probability Mass Function}{43}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Joint Cumulative Distribution Function}{43}{subsection.3.2.2}%
+\contentsline {section}{\numberline {3.3}Marginal Distributions}{44}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Marginal PMF}{44}{subsection.3.3.1}%
+\contentsline {section}{\numberline {3.4}Conditional Distributions}{45}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Conditional PMF}{45}{subsection.3.4.1}%
+\contentsline {section}{\numberline {3.5}Independence of Random Variables}{46}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Conditional Independence}{46}{subsection.3.5.1}%
+\contentsline {section}{\numberline {3.6}Worked Example: Gene and Disease}{47}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Extended Worked Example: Joint to Marginal to Conditional}{48}{section.3.7}%
+\contentsline {section}{\numberline {3.8}Expectation}{49}{section.3.8}%
+\contentsline {subsection}{\numberline {3.8.1}Linearity of Expectation}{50}{subsection.3.8.1}%
+\contentsline {section}{\numberline {3.9}Variance}{50}{section.3.9}%
+\contentsline {subsection}{\numberline {3.9.1}Properties of Variance}{51}{subsection.3.9.1}%
+\contentsline {section}{\numberline {3.10}Mean and Variance of Common Distributions}{51}{section.3.10}%
+\contentsline {subsection}{\numberline {3.10.1}Bernoulli Distribution}{52}{subsection.3.10.1}%
+\contentsline {subsection}{\numberline {3.10.2}Binomial Distribution}{52}{subsection.3.10.2}%
+\contentsline {subsection}{\numberline {3.10.3}Multinomial Distribution}{53}{subsection.3.10.3}%
+\contentsline {subsection}{\numberline {3.10.4}Poisson Distribution}{53}{subsection.3.10.4}%
+\contentsline {section}{\numberline {3.11}Introduction to Covariance}{54}{section.3.11}%
+\contentsline {section}{\numberline {3.12}Summary}{55}{section.3.12}%
+\contentsline {part}{II\hspace {1em}Calculus}{57}{part.2}%
+\contentsline {chapter}{\numberline {4}Week 4: Calculus I: Differentiation and Maximum Likelihood Estimation}{58}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Differentiation: Foundations}{58}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Differentiation Rules}{59}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Rule 1: Constant Rule}{59}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Rule 2: Power Rule}{59}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Rule 3: Constant Multiple Rule}{60}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}Rule 4: Sum and Difference Rule}{61}{subsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.2.5}Rule 5: Product Rule}{61}{subsection.4.2.5}%
+\contentsline {subsection}{\numberline {4.2.6}Rule 6: Quotient Rule}{62}{subsection.4.2.6}%
+\contentsline {subsection}{\numberline {4.2.7}Rule 7: Chain Rule}{63}{subsection.4.2.7}%
+\contentsline {section}{\numberline {4.3}Exponential and Logarithmic Derivatives}{64}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}The Natural Exponential Function}{64}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}General Exponential Functions}{64}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}The Natural Logarithm}{65}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.3.4}Logarithmic Differentiation}{66}{subsection.4.3.4}%
+\contentsline {section}{\numberline {4.4}Power Series: A Brief Introduction}{66}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Optimisation: Finding Maxima and Minima}{67}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}Critical Points}{67}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Second Derivative Test}{68}{subsection.4.5.2}%
+\contentsline {section}{\numberline {4.6}Maximum Likelihood Estimation}{68}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}The Core Idea}{68}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}The Likelihood Function}{69}{subsection.4.6.2}%
+\contentsline {subsection}{\numberline {4.6.3}The Log-Likelihood}{69}{subsection.4.6.3}%
+\contentsline {subsection}{\numberline {4.6.4}The MLE Procedure}{70}{subsection.4.6.4}%
+\contentsline {section}{\numberline {4.7}MLE Examples}{70}{section.4.7}%
+\contentsline {subsection}{\numberline {4.7.1}Example 1: Bernoulli Distribution}{70}{subsection.4.7.1}%
+\contentsline {subsection}{\numberline {4.7.2}Example 2: Binomial Distribution (Goalie Example)}{71}{subsection.4.7.2}%
+\contentsline {subsection}{\numberline {4.7.3}Example 3: Poisson Distribution}{72}{subsection.4.7.3}%
+\contentsline {subsection}{\numberline {4.7.4}Example 4: Exponential Distribution}{73}{subsection.4.7.4}%
+\contentsline {subsection}{\numberline {4.7.5}Example 5: Normal Distribution (Mean)}{74}{subsection.4.7.5}%
+\contentsline {section}{\numberline {4.8}Summary: MLE Pattern Recognition}{75}{section.4.8}%
+\contentsline {section}{\numberline {4.9}Properties of Maximum Likelihood Estimators}{75}{section.4.9}%
+\contentsline {section}{\numberline {4.10}Practice Exercises}{76}{section.4.10}%
+\contentsline {chapter}{\numberline {5}Week 5: Power Series and Integration}{77}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Taylor Series: Motivation and Derivation}{77}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}The Central Question}{78}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Deriving the Coefficients}{78}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}The Taylor Series Formula}{79}{subsection.5.1.3}%
+\contentsline {section}{\numberline {5.2}Common Maclaurin Series}{80}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}The Exponential Function}{80}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Trigonometric Functions}{81}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}The Natural Logarithm}{81}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}The Geometric Series}{82}{subsection.5.2.4}%
+\contentsline {subsection}{\numberline {5.2.5}Taylor Series for $\ln (x)$ at $x = 1$}{82}{subsection.5.2.5}%
+\contentsline {subsection}{\numberline {5.2.6}Summary of Common Series}{83}{subsection.5.2.6}%
+\contentsline {section}{\numberline {5.3}Convergence of Power Series}{83}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Integration: Foundations}{84}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Antiderivatives and Indefinite Integrals}{85}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Basic Integration Rules}{85}{subsection.5.4.2}%
+\contentsline {section}{\numberline {5.5}The Fundamental Theorem of Calculus}{86}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Integration Techniques}{87}{section.5.6}%
+\contentsline {subsection}{\numberline {5.6.1}Integration by Substitution}{87}{subsection.5.6.1}%
+\contentsline {subsection}{\numberline {5.6.2}Integration by Parts}{89}{subsection.5.6.2}%
+\contentsline {section}{\numberline {5.7}Applications to Probability: Moment Generating Functions}{90}{section.5.7}%
+\contentsline {section}{\numberline {5.8}Practice Exercises}{91}{section.5.8}%
+\contentsline {chapter}{\numberline {6}Week 6: Continuous Random Variables I}{92}{chapter.6}%
+\contentsline {section}{\numberline {6.1}From Discrete to Continuous: The Fundamental Distinction}{92}{section.6.1}%
+\contentsline {section}{\numberline {6.2}The PDF--CDF Relationship}{93}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}From CDF to PDF: Differentiation}{93}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}From PDF to CDF: Integration}{94}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Computing Probabilities}{94}{subsection.6.2.3}%
+\contentsline {subsection}{\numberline {6.2.4}Interpreting the PDF}{94}{subsection.6.2.4}%
+\contentsline {subsection}{\numberline {6.2.5}Valid PDFs}{95}{subsection.6.2.5}%
+\contentsline {section}{\numberline {6.3}Expected Value of Continuous Random Variables}{95}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Variance of Continuous Random Variables}{96}{subsection.6.3.1}%
+\contentsline {section}{\numberline {6.4}The Uniform Distribution}{96}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Verifying the Uniform PDF}{97}{subsection.6.4.1}%
+\contentsline {subsection}{\numberline {6.4.2}CDF of the Uniform Distribution}{97}{subsection.6.4.2}%
+\contentsline {subsection}{\numberline {6.4.3}Mean of the Uniform Distribution}{98}{subsection.6.4.3}%
+\contentsline {subsection}{\numberline {6.4.4}Variance of the Uniform Distribution}{98}{subsection.6.4.4}%
+\contentsline {section}{\numberline {6.5}The Normal Distribution}{99}{section.6.5}%
+\contentsline {subsection}{\numberline {6.5.1}The Standard Normal Distribution}{100}{subsection.6.5.1}%
+\contentsline {subsection}{\numberline {6.5.2}Parameters: Location and Scale}{100}{subsection.6.5.2}%
+\contentsline {subsection}{\numberline {6.5.3}Standardisation and Z-Scores}{101}{subsection.6.5.3}%
+\contentsline {subsection}{\numberline {6.5.4}Properties of the Normal Distribution}{101}{subsection.6.5.4}%
+\contentsline {subsection}{\numberline {6.5.5}The Central Limit Theorem (Preview)}{102}{subsection.6.5.5}%
+\contentsline {section}{\numberline {6.6}The Exponential Distribution}{102}{section.6.6}%
+\contentsline {subsection}{\numberline {6.6.1}Connection to the Poisson Process}{103}{subsection.6.6.1}%
+\contentsline {subsection}{\numberline {6.6.2}CDF of the Exponential Distribution}{103}{subsection.6.6.2}%
+\contentsline {subsection}{\numberline {6.6.3}Mean and Variance}{104}{subsection.6.6.3}%
+\contentsline {subsection}{\numberline {6.6.4}The Memoryless Property}{104}{subsection.6.6.4}%
+\contentsline {section}{\numberline {6.7}Joint, Marginal, and Conditional Distributions for Continuous Variables}{105}{section.6.7}%
+\contentsline {subsection}{\numberline {6.7.1}Joint CDF and PDF}{105}{subsection.6.7.1}%
+\contentsline {subsection}{\numberline {6.7.2}Marginal Distributions}{106}{subsection.6.7.2}%
+\contentsline {subsection}{\numberline {6.7.3}Conditional Distributions}{107}{subsection.6.7.3}%
+\contentsline {subsection}{\numberline {6.7.4}Bayes' Rule and LOTP for Continuous Variables}{107}{subsection.6.7.4}%
+\contentsline {subsection}{\numberline {6.7.5}Mixed Discrete-Continuous Models}{107}{subsection.6.7.5}%
+\contentsline {section}{\numberline {6.8}Transformations of Random Variables (Introduction)}{108}{section.6.8}%
+\contentsline {chapter}{\numberline {7}Week 7: Continuous Random Variables II}{109}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Covariance}{109}{section.7.1}%
+\contentsline {subsection}{\numberline {7.1.1}Definition and Interpretation}{110}{subsection.7.1.1}%
+\contentsline {subsection}{\numberline {7.1.2}The Computational Formula}{110}{subsection.7.1.2}%
+\contentsline {subsection}{\numberline {7.1.3}Properties of Covariance}{112}{subsection.7.1.3}%
+\contentsline {subsection}{\numberline {7.1.4}Covariance and Independence}{114}{subsection.7.1.4}%
+\contentsline {section}{\numberline {7.2}Correlation}{114}{section.7.2}%
+\contentsline {subsection}{\numberline {7.2.1}Definition and Basic Properties}{115}{subsection.7.2.1}%
+\contentsline {subsection}{\numberline {7.2.2}Properties of Correlation}{116}{subsection.7.2.2}%
+\contentsline {subsection}{\numberline {7.2.3}Correlation Measures Linear Relationships}{117}{subsection.7.2.3}%
+\contentsline {subsection}{\numberline {7.2.4}Independence versus Uncorrelated: Summary}{119}{subsection.7.2.4}%
+\contentsline {section}{\numberline {7.3}Law of Large Numbers}{119}{section.7.3}%
+\contentsline {subsection}{\numberline {7.3.1}Setup and Notation}{120}{subsection.7.3.1}%
+\contentsline {subsection}{\numberline {7.3.2}Properties of the Sample Mean}{120}{subsection.7.3.2}%
+\contentsline {subsection}{\numberline {7.3.3}Two Forms of Convergence}{122}{subsection.7.3.3}%
+\contentsline {subsection}{\numberline {7.3.4}Statement of the Law of Large Numbers}{122}{subsection.7.3.4}%
+\contentsline {subsection}{\numberline {7.3.5}Applications of the LLN}{124}{subsection.7.3.5}%
+\contentsline {subsection}{\numberline {7.3.6}Common Misconceptions}{125}{subsection.7.3.6}%
+\contentsline {section}{\numberline {7.4}Central Limit Theorem}{125}{section.7.4}%
+\contentsline {subsection}{\numberline {7.4.1}Statement of the Central Limit Theorem}{125}{subsection.7.4.1}%
+\contentsline {subsection}{\numberline {7.4.2}Equivalent Formulations}{126}{subsection.7.4.2}%
+\contentsline {subsection}{\numberline {7.4.3}Visualising the CLT}{127}{subsection.7.4.3}%
+\contentsline {subsection}{\numberline {7.4.4}Normal Approximation to the Binomial}{128}{subsection.7.4.4}%
+\contentsline {subsection}{\numberline {7.4.5}Why Does the CLT Work?}{129}{subsection.7.4.5}%
+\contentsline {subsection}{\numberline {7.4.6}Extensions and Generalisations}{130}{subsection.7.4.6}%
+\contentsline {section}{\numberline {7.5}The Expectation-Maximisation (EM) Algorithm}{130}{section.7.5}%
+\contentsline {subsection}{\numberline {7.5.1}Motivation: Mixture Models and Latent Variables}{130}{subsection.7.5.1}%
+\contentsline {subsection}{\numberline {7.5.2}Why Standard MLE Fails}{131}{subsection.7.5.2}%
+\contentsline {subsection}{\numberline {7.5.3}The Key Insight: Responsibilities}{132}{subsection.7.5.3}%
+\contentsline {subsection}{\numberline {7.5.4}The EM Algorithm: Structure}{133}{subsection.7.5.4}%
+\contentsline {subsection}{\numberline {7.5.5}EM for Gaussian Mixture Models}{133}{subsection.7.5.5}%
+\contentsline {subsection}{\numberline {7.5.6}Derivation of the M-Step Updates}{134}{subsection.7.5.6}%
+\contentsline {subsection}{\numberline {7.5.7}Convergence Properties}{135}{subsection.7.5.7}%
+\contentsline {subsection}{\numberline {7.5.8}Practical Considerations}{136}{subsection.7.5.8}%
+\contentsline {section}{\numberline {7.6}Summary}{137}{section.7.6}%
+\contentsline {part}{III\hspace {1em}Linear Algebra}{138}{part.3}%
+\contentsline {chapter}{\numberline {8}Week 8: Linear Algebra I}{139}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Data Structures in Linear Algebra}{139}{section.8.1}%
+\contentsline {subsection}{\numberline {8.1.1}Scalars, Vectors, Matrices, and Tensors}{139}{subsection.8.1.1}%
+\contentsline {subsection}{\numberline {8.1.2}Compact Notation}{141}{subsection.8.1.2}%
+\contentsline {section}{\numberline {8.2}The Transpose Operation}{141}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Matrix Addition and Scalar Multiplication}{143}{section.8.3}%
+\contentsline {subsection}{\numberline {8.3.1}Matrix Addition}{143}{subsection.8.3.1}%
+\contentsline {subsection}{\numberline {8.3.2}Scalar Multiplication}{143}{subsection.8.3.2}%
+\contentsline {section}{\numberline {8.4}Matrix Multiplication}{143}{section.8.4}%
+\contentsline {subsection}{\numberline {8.4.1}The Dot Product (Inner Product)}{143}{subsection.8.4.1}%
+\contentsline {subsection}{\numberline {8.4.2}Matrix-Matrix Multiplication}{144}{subsection.8.4.2}%
+\contentsline {subsection}{\numberline {8.4.3}Matrix-Vector Multiplication}{145}{subsection.8.4.3}%
+\contentsline {section}{\numberline {8.5}Systems of Linear Equations}{146}{section.8.5}%
+\contentsline {subsection}{\numberline {8.5.1}Matrix Representation}{146}{subsection.8.5.1}%
+\contentsline {subsection}{\numberline {8.5.2}Geometric Interpretation}{147}{subsection.8.5.2}%
+\contentsline {subsection}{\numberline {8.5.3}Gaussian Elimination}{147}{subsection.8.5.3}%
+\contentsline {section}{\numberline {8.6}The Identity Matrix and Matrix Inverses}{149}{section.8.6}%
+\contentsline {subsection}{\numberline {8.6.1}The Identity Matrix}{149}{subsection.8.6.1}%
+\contentsline {subsection}{\numberline {8.6.2}The Matrix Inverse}{149}{subsection.8.6.2}%
+\contentsline {section}{\numberline {8.7}Vector Norms}{150}{section.8.7}%
+\contentsline {section}{\numberline {8.8}Linear Regression in Matrix Form}{151}{section.8.8}%
+\contentsline {subsection}{\numberline {8.8.1}The Linear Model}{151}{subsection.8.8.1}%
+\contentsline {subsection}{\numberline {8.8.2}The Least Squares Objective}{152}{subsection.8.8.2}%
+\contentsline {subsection}{\numberline {8.8.3}Expanding the Objective Function}{152}{subsection.8.8.3}%
+\contentsline {subsection}{\numberline {8.8.4}Deriving the OLS Estimator}{153}{subsection.8.8.4}%
+\contentsline {section}{\numberline {8.9}Penalised Regression}{154}{section.8.9}%
+\contentsline {subsection}{\numberline {8.9.1}The General Framework}{154}{subsection.8.9.1}%
+\contentsline {subsection}{\numberline {8.9.2}Ridge Regression ($L_2$ Penalty)}{154}{subsection.8.9.2}%
+\contentsline {subsection}{\numberline {8.9.3}Lasso Regression ($L_1$ Penalty)}{155}{subsection.8.9.3}%
+\contentsline {subsection}{\numberline {8.9.4}Elastic Net ($L_1$ + $L_2$ Penalty)}{157}{subsection.8.9.4}%
+\contentsline {subsection}{\numberline {8.9.5}Choosing the Regularisation Parameter}{157}{subsection.8.9.5}%
+\contentsline {section}{\numberline {8.10}Summary and Connections}{157}{section.8.10}%
+\contentsline {chapter}{\numberline {9}Week 9: Linear Algebra II}{159}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Linear Dependence and Independence}{159}{section.9.1}%
+\contentsline {subsection}{\numberline {9.1.1}Geometric Intuition}{160}{subsection.9.1.1}%
+\contentsline {subsection}{\numberline {9.1.2}Proving Linear (In)dependence}{161}{subsection.9.1.2}%
+\contentsline {subsubsection}{Example: Proving Linear Dependence}{161}{section*.15}%
+\contentsline {subsubsection}{Example: Proving Linear Independence}{161}{section*.16}%
+\contentsline {subsubsection}{Example: Mixed Case}{162}{section*.17}%
+\contentsline {section}{\numberline {9.2}Span and Basis}{162}{section.9.2}%
+\contentsline {section}{\numberline {9.3}The Determinant}{163}{section.9.3}%
+\contentsline {subsection}{\numberline {9.3.1}Geometric Interpretation}{163}{subsection.9.3.1}%
+\contentsline {subsection}{\numberline {9.3.2}Applications of the Determinant}{164}{subsection.9.3.2}%
+\contentsline {subsection}{\numberline {9.3.3}Computing Determinants}{164}{subsection.9.3.3}%
+\contentsline {section}{\numberline {9.4}Matrix Inverse}{166}{section.9.4}%
+\contentsline {subsection}{\numberline {9.4.1}Conditions for Invertibility}{166}{subsection.9.4.1}%
+\contentsline {subsection}{\numberline {9.4.2}Computing the Inverse}{166}{subsection.9.4.2}%
+\contentsline {subsection}{\numberline {9.4.3}Proof: Linearly Dependent Matrix Has No Inverse}{167}{subsection.9.4.3}%
+\contentsline {section}{\numberline {9.5}Eigenvalues and Eigenvectors}{167}{section.9.5}%
+\contentsline {subsection}{\numberline {9.5.1}Finding Eigenvalues: The Characteristic Equation}{168}{subsection.9.5.1}%
+\contentsline {subsection}{\numberline {9.5.2}Finding Eigenvectors}{169}{subsection.9.5.2}%
+\contentsline {subsection}{\numberline {9.5.3}The Eigenspace}{170}{subsection.9.5.3}%
+\contentsline {section}{\numberline {9.6}Eigendecomposition}{170}{section.9.6}%
+\contentsline {section}{\numberline {9.7}Singular Value Decomposition}{171}{section.9.7}%
+\contentsline {subsection}{\numberline {9.7.1}SVD Reveals Matrix Structure}{172}{subsection.9.7.1}%
+\contentsline {section}{\numberline {9.8}Principal Component Analysis (PCA)}{172}{section.9.8}%
+\contentsline {subsection}{\numberline {9.8.1}Motivation: Dimensionality Reduction}{172}{subsection.9.8.1}%
+\contentsline {subsection}{\numberline {9.8.2}PCA as Variance Maximisation}{173}{subsection.9.8.2}%
+\contentsline {subsection}{\numberline {9.8.3}PCA via Eigendecomposition of the Covariance Matrix}{174}{subsection.9.8.3}%
+\contentsline {subsection}{\numberline {9.8.4}Computing Principal Components}{176}{subsection.9.8.4}%
+\contentsline {subsection}{\numberline {9.8.5}Subsequent Principal Components}{177}{subsection.9.8.5}%
+\contentsline {subsection}{\numberline {9.8.6}Dimensionality Reduction}{178}{subsection.9.8.6}%
+\contentsline {subsection}{\numberline {9.8.7}Reconstructing Data from Principal Components}{178}{subsection.9.8.7}%
+\contentsline {subsection}{\numberline {9.8.8}Applications of PCA}{180}{subsection.9.8.8}%
+\contentsline {section}{\numberline {9.9}Summary: Key Results}{181}{section.9.9}%
+\contentsline {part}{IV\hspace {1em}Optimisation}{183}{part.4}%
+\contentsline {chapter}{\numberline {10}Week 10: Optimisation}{184}{chapter.10}%
+\contentsline {section}{\numberline {10.1}Why Optimisation Matters}{184}{section.10.1}%
+\contentsline {section}{\numberline {10.2}Unconstrained Optimisation: Single Variable}{185}{section.10.2}%
+\contentsline {subsection}{\numberline {10.2.1}Critical Points and the First Derivative}{185}{subsection.10.2.1}%
+\contentsline {subsection}{\numberline {10.2.2}The Second Derivative Test}{185}{subsection.10.2.2}%
+\contentsline {section}{\numberline {10.3}The Gradient Vector}{186}{section.10.3}%
+\contentsline {section}{\numberline {10.4}The Hessian Matrix}{187}{section.10.4}%
+\contentsline {subsection}{\numberline {10.4.1}The Second Derivative Test in Multiple Variables}{188}{subsection.10.4.1}%
+\contentsline {subsection}{\numberline {10.4.2}Special Case: Two Variables}{189}{subsection.10.4.2}%
+\contentsline {section}{\numberline {10.5}Constrained Optimisation: Lagrange Multipliers}{190}{section.10.5}%
+\contentsline {subsection}{\numberline {10.5.1}The Geometric Intuition}{190}{subsection.10.5.1}%
+\contentsline {subsection}{\numberline {10.5.2}The Method of Lagrange Multipliers}{190}{subsection.10.5.2}%
+\contentsline {subsection}{\numberline {10.5.3}Worked Examples}{191}{subsection.10.5.3}%
+\contentsline {section}{\numberline {10.6}Optimisation as Eigenvalue Problems}{192}{section.10.6}%
+\contentsline {section}{\numberline {10.7}Inequality Constraints: KKT Conditions}{193}{section.10.7}%
+\contentsline {section}{\numberline {10.8}Gradient Descent}{194}{section.10.8}%
+\contentsline {subsection}{\numberline {10.8.1}The Algorithm}{194}{subsection.10.8.1}%
+\contentsline {subsection}{\numberline {10.8.2}Choosing the Learning Rate}{194}{subsection.10.8.2}%
+\contentsline {subsection}{\numberline {10.8.3}Variants of Gradient Descent}{195}{subsection.10.8.3}%
+\contentsline {section}{\numberline {10.9}Application: Portfolio Optimisation}{195}{section.10.9}%
+\contentsline {subsection}{\numberline {10.9.1}Problem Setup}{195}{subsection.10.9.1}%
+\contentsline {subsection}{\numberline {10.9.2}Formulating the Problem}{196}{subsection.10.9.2}%
+\contentsline {subsection}{\numberline {10.9.3}Worked Example with Specific Values}{196}{subsection.10.9.3}%
+\contentsline {section}{\numberline {10.10}Connection to Maximum Likelihood Estimation}{197}{section.10.10}%
+\contentsline {section}{\numberline {10.11}Summary}{197}{section.10.11}%
+\contentsline {section}{\numberline {10.12}Practice Exercises}{198}{section.10.12}%
+\contentsline {part}{V\hspace {1em}Appendices}{199}{part.5}%
+\contentsline {chapter}{\numberline {A}Common Distributions}{200}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Bernoulli Distribution}{200}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Binomial Distribution}{201}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Multinomial Distribution}{202}{section.A.3}%
+\contentsline {section}{\numberline {A.4}Geometric Distribution}{203}{section.A.4}%
+\contentsline {section}{\numberline {A.5}Negative Binomial Distribution}{204}{section.A.5}%
+\contentsline {section}{\numberline {A.6}Hypergeometric Distribution}{205}{section.A.6}%
+\contentsline {section}{\numberline {A.7}Poisson Distribution}{207}{section.A.7}%
+\contentsline {section}{\numberline {A.8}Uniform Distribution (Continuous)}{209}{section.A.8}%
+\contentsline {section}{\numberline {A.9}Normal (Gaussian) Distribution}{210}{section.A.9}%
+\contentsline {section}{\numberline {A.10}Exponential Distribution}{211}{section.A.10}%
+\contentsline {section}{\numberline {A.11}Gamma Distribution}{212}{section.A.11}%
+\contentsline {section}{\numberline {A.12}Beta Distribution}{213}{section.A.12}%
+\contentsline {chapter}{\numberline {B}Cheat Sheet I}{217}{appendix.B}%
+\contentsline {section}{\numberline {B.1}Session 1: Probability Theory}{217}{section.B.1}%
+\contentsline {section}{\numberline {B.2}Session 2: Conditional Probability \& Random Variables}{218}{section.B.2}%
+\contentsline {subsection}{\numberline {B.2.1}Conditional Probability}{218}{subsection.B.2.1}%
+\contentsline {subsection}{\numberline {B.2.2}Random Variables}{220}{subsection.B.2.2}%
+\contentsline {section}{\numberline {B.3}Session 3: Joint r.v.s}{221}{section.B.3}%
+\contentsline {subsection}{\numberline {B.3.1}Independence of joint r.v.s}{222}{subsection.B.3.1}%
+\contentsline {subsection}{\numberline {B.3.2}Expectation}{222}{subsection.B.3.2}%
+\contentsline {subsection}{\numberline {B.3.3}Variance}{222}{subsection.B.3.3}%
+\contentsline {subsection}{\numberline {B.3.4}Marginal \& Conditional Joint PMFs}{223}{subsection.B.3.4}%
+\contentsline {section}{\numberline {B.4}Session 4: Calculus}{224}{section.B.4}%
+\contentsline {section}{\numberline {B.5}MLE}{225}{section.B.5}%
+\contentsline {section}{\numberline {B.6}Taylor Series Approximation}{226}{section.B.6}%
+\contentsline {chapter}{\numberline {C}Cheat Sheet II}{227}{appendix.C}%
+\contentsline {section}{\numberline {C.1}Week 6: Continuous R.V.s Meets Probability}{227}{section.C.1}%
+\contentsline {subsection}{\numberline {C.1.1}Continuous r.v.s}{227}{subsection.C.1.1}%
+\contentsline {subsection}{\numberline {C.1.2}Expectation of continuous r.v.}{227}{subsection.C.1.2}%
+\contentsline {subsection}{\numberline {C.1.3}Uniform, continuous}{227}{subsection.C.1.3}%
+\contentsline {subsection}{\numberline {C.1.4}Normal}{228}{subsection.C.1.4}%
+\contentsline {subsection}{\numberline {C.1.5}Standardisation}{228}{subsection.C.1.5}%
+\contentsline {subsection}{\numberline {C.1.6}Exponential}{228}{subsection.C.1.6}%
+\contentsline {subsection}{\numberline {C.1.7}Joint Distributions of Continuous r.v.s}{228}{subsection.C.1.7}%
+\contentsline {subsection}{\numberline {C.1.8}Bayes Rule and LOTP for continuous r.v.s}{228}{subsection.C.1.8}%
+\contentsline {section}{\numberline {C.2}Week 7: Continuous R.V.s II}{229}{section.C.2}%
+\contentsline {subsection}{\numberline {C.2.1}Covariance}{229}{subsection.C.2.1}%
+\contentsline {subsubsection}{Some Covariance rules}{229}{section*.29}%
+\contentsline {subsection}{\numberline {C.2.2}Correlation}{229}{subsection.C.2.2}%
+\contentsline {subsection}{\numberline {C.2.3}Law of Large Numbers}{230}{subsection.C.2.3}%
+\contentsline {subsection}{\numberline {C.2.4}Central Limit Theorem}{230}{subsection.C.2.4}%
+\contentsline {subsection}{\numberline {C.2.5}Example: Normal Approximation to the Binomial}{231}{subsection.C.2.5}%
+\contentsline {section}{\numberline {C.3}Lab 7: EM Algorithm}{231}{section.C.3}%
+\contentsline {section}{\numberline {C.4}Week 8: Matrix Algebra}{232}{section.C.4}%
+\contentsline {section}{\numberline {C.5}Lab 8: Regression}{232}{section.C.5}%
+\contentsline {subsection}{\numberline {C.5.1}Linear Regression}{232}{subsection.C.5.1}%
+\contentsline {subsection}{\numberline {C.5.2}Penalised regression}{233}{subsection.C.5.2}%
+\contentsline {section}{\numberline {C.6}Week 9: Linear Algebra II}{233}{section.C.6}%
+\contentsline {section}{\numberline {C.7}Lab 9: PCA}{235}{section.C.7}%
+\contentsline {subsection}{\numberline {C.7.1}As Variance Maximisation}{235}{subsection.C.7.1}%
+\contentsline {subsection}{\numberline {C.7.2}As Eigendecomposition}{235}{subsection.C.7.2}%
+\contentsline {section}{\numberline {C.8}Week 10: Optimisation}{235}{section.C.8}%

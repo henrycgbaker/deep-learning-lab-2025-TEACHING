@@ -1,0 +1,295 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{tcolorbox}
+\usepackage{graphicx}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize M4DS Mid-term revision}
+\rhead{\footnotesize Henry Baker} 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf Mid Terms Fall 2023  \\ Henry Baker}
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: Session 8\\ Matrix Algebra and Calculus applied to Linear Regression}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Linear Regression}
+
+Task: Modelling home values in Boston\\
+
+\subsection{Set up}
+We require that our model be linear in the parameters, which means that for any observation / person $i$, we can express the response $y_i$ (the median home value) as a \textit{linear combination} of the variables, plus some error term.\\
+% Linear Regression Model
+\begin{equation}
+    y_i = \beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2} + \ldots + \beta_p x_{ip} + \varepsilon_i
+\end{equation}
+
+\textit{NB: the $x_{i1} \rightarrow$ the $i$ indexes observation, the number value indexes the variable  } \\
+
+Our goal is the find the best values of the beta coefficients where 'best' has specific meaning: the coefficients that minimise the sum of squared errors over the dataset.\\
+
+\subsection{Objective Function for Least Squares}
+The objective function for least squares regression is:
+\[
+    \min_{\beta_0, \beta_1, \ldots, \beta_p} \sum_{i=1}^{n} \varepsilon_i^2 \]
+    \[= \min_{\beta_0, \beta_1, \ldots, \beta_p} \sum_{i=1}^{n} \left( y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2} - \ldots - \beta_p x_{ip} \right)^2\]
+
+\subsection{System of Equations = inefficient approach}
+We could set this up as a maximisation problem using a system of equations to solve, where the \textbf{partial derivatives of the least squares objective function with respect to each coefficient are set to zero} for optimization. These conditions are given by:
+
+\begin{equation}
+    \frac{\partial}{\partial \beta_0} \sum_{i=1}^{n} \left( y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2} - \ldots - \beta_p x_{ip} \right)^2 = 0
+\end{equation}
+\begin{equation}
+    \frac{\partial}{\partial \beta_1} \sum_{i=1}^{n} \left( y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2} - \ldots - \beta_p x_{ip} \right)^2 = 0
+\end{equation}
+\begin{equation}
+    \frac{\partial}{\partial \beta_2} \sum_{i=1}^{n} \left( y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2} - \ldots - \beta_p x_{ip} \right)^2 = 0
+\end{equation}
+\ldots
+\begin{equation}
+    \frac{\partial}{\partial \beta_p} \sum_{i=1}^{n} \left( y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2} - \ldots - \beta_p x_{ip} \right)^2 = 0
+\end{equation}
+
+NOTE TO SELF - THIS IS WHY REGRESSION OUTPUT INTERPRETATION IS "HOLDING EVERYTHING ELSE CONSTANT, THE EFFECT OF A 1 UNIT CHANGE IN X ON Y IS...". BETA COEFFICIENTS ARE JUT THE PARTIAL DERIVATIVE OF A MULTIVARIATE FUNCTION?"\\
+
+Or, we could solve same problem using linear algebra and calculus - much more efficient!\\
+
+\subsection{Matrix approach = efficient}
+
+\begin{tcolorbox}
+\subsubsubsection{Representing the linear regression model in Matrix form:}
+\begin{align}
+    \begin{bmatrix}
+        y_1 \\
+        y_2 \\
+        \vdots \\
+        y_n
+    \end{bmatrix} 
+    = \begin{bmatrix}
+        1 & x_{11} & x_{12} & \ldots & x_{1p} \\
+        1 & x_{21} & x_{22} & \ldots & x_{2p} \\
+        \vdots & \vdots & \vdots & \ddots & \vdots \\
+        1 & x_{n1} & x_{n2} & \ldots & x_{np}
+    \end{bmatrix} 
+    \begin{bmatrix}
+        \beta_0 \\
+        \beta_1 \\
+        \vdots \\
+        \beta_p
+    \end{bmatrix} 
+    + \begin{bmatrix}
+        \varepsilon_1 \\
+        \varepsilon_2 \\
+        \vdots \\
+        \varepsilon_n
+    \end{bmatrix} \label{eq:linear_model_matrix}
+\end{align}
+    
+Let's collapse this into: 
+\[Y &= X\beta + \varepsilon \label{eq:compact_form} \]
+
+\end{tcolorbox}
+
+Where:
+\begin{align*}
+    & Y \text{ (}n \times 1\text{) is called the response vector} \nonumber \\
+    & X \text{ (}n \times (p+1)\text{) is called the design matrix} \nonumber \\
+    & \beta \text{ (}(p+1) \times 1\text{) is our vector of coefficients} \nonumber \\
+    & \varepsilon \text{ (}n \times 1\text{) is our vector of error terms}
+\end{align*}
+
+Think about how this works:
+\begin{itemize}
+    \item the design matrix - coefficient product produces a vector
+    \item each element of the response vector represents the summed coefficient-matrix $\times$ element products (i.e. for all the variables), plus an error term.
+    \item for each observation you thus have an outcome value = coefficient-matrix-element-product + error term.
+\end{itemize}
+
+\begin{tcolorbox}
+\subsubsubsection{Representing the squared error minimisation problem (the cost function) in Matrix form:}
+
+\[\varepsilon^T\varepsilon = Y^TY - Y^TX\beta - \beta^TX^TY + \beta^TX^TX\beta\]
+This expanded \textbf{cost function} (expressed in marix notation) is what we will be minimising (by taking first derivative, set to zero)
+\end{tcolorbox}
+
+Proof:
+
+\begin{equation}
+    \sum_{i=1}^{n} \varepsilon_i^2 = 
+    \begin{bmatrix}
+        \varepsilon_1 & \varepsilon_2 & \ldots & \varepsilon_n
+    \end{bmatrix}
+    \begin{bmatrix}
+        \varepsilon_1 \\
+        \varepsilon_2 \\
+        \vdots \\
+        \varepsilon_n
+    \end{bmatrix}
+    = \varepsilon^T\varepsilon
+\end{equation}
+
+Some matrix manipulation of the cost function:
+\begin{align*}
+    \varepsilon^T\varepsilon &= (Y - X\beta)^T(Y - X\beta) \\
+    &= Y^TY - Y^TX\beta - \beta^TX^TY + \beta^TX^TX\beta
+\end{align*}
+
+
+We still take the first derivative, set it equal to 0, to solve for error-miniming coefficients - but it's efficient, as we'll do it with the whole vector of coefficients.\\
+
+\subsubsubsection{Solving minimisation problem (set objective function to 0; differentiate; solve}
+
+\begin{tcolorbox}
+\textbf{(1) Setting to 0 $\rightarrow$ (2) taking first derivative with respect to $\beta \rightarrow$ (3) simplifying:} 
+    \[-2X^TY + 2X^TX\beta = 0\]
+\end{tcolorbox}
+
+Proof:\\
+
+This equation below takes the first derivative of the expanded squared error term from above, with respect to the coefficient \textbf{vector (NB!!)} $\beta$, and sets it equal to 0:
+\begin{align*}
+    \frac{\partial}{\partial \beta} (Y^TY - Y^TX\beta - \beta^TX^TY + \beta^TX^TX\beta) = 0\\
+    \frac{\partial}{\partial \beta} Y^TY - \frac{\partial}{\partial \beta} Y^TX\beta - \frac{\partial}{\partial \beta} \beta^TX^TY + \frac{\partial}{\partial \beta} \beta^TX^TX\beta = 0
+\end{align*}
+
+Setting this derivative equal to zero allows us to solve for the values of 
+β (a vector!) that minimize the sum of squared errors. The process typically involves solving a system of linear equations derived from setting the derivative equal to zero.\\
+
+Using the Matrix Cookbook, this reduces to:
+
+\[-2X^TY + 2X^TX\beta = 0\]
+
+Solving for beta:
+\begin{tcolorbox}
+\[\beta = (X^TX)^{-1}X^TY\]
+\end{tcolorbox}
+
+
+\section{Penalised Regression}
+
+\begin{document}
+
+Penalized regression is a method used in statistical modeling to prevent overfitting, improve prediction accuracy, and sometimes enable model interpretation. The idea is to introduce a penalty term to the regression model that constrains the coefficients, making the model simpler and less prone to overfitting. The two most common types of penalized regression are Lasso Regression (which uses the L1 norm) and Ridge Regression (which uses the L2 norm).
+
+\subsection{L1 Norm (Lasso Regression)}
+
+The L1 norm, used in Lasso Regression, is the sum of the absolute values of the coefficients. In mathematical terms, if you have coefficients $\beta_1, \beta_2, \ldots, \beta_n$, the L1 norm is:
+
+\[
+\text{L1 norm} = \sum_{i=1}^{n} \left| \beta_i \right|
+\]
+
+In Lasso Regression, the penalty term added to the regression model is proportional to the L1 norm. The objective function in Lasso Regression becomes:
+
+\[
+\text{Minimize} \left( \text{Residual Sum of Squares} + \lambda \sum_{i=1}^{n} \left| \beta_i \right| \right)
+\]
+
+where $\lambda$ is a tuning parameter that determines the strength of the penalty. A higher value of $\lambda$ results in more regularization.\\
+
+The L1 penalty has the effect of forcing some of the coefficient estimates to be exactly zero when the tuning parameter is sufficiently large. This leads to sparsity, which means that the model automatically selects variables by setting some coefficients to zero, effectively performing variable selection. This is useful in both improving model interpretability and dealing with high-dimensional data.
+
+\subsection{L2 Norm (Ridge Regression)}
+
+The L2 norm, used in Ridge Regression, is the sum of the squares of the coefficients. For coefficients $\beta_1, \beta_2, \ldots, \beta_n$, the L2 norm is:
+
+\[
+\text{L2 norm} = \sum_{i=1}^{n} \beta_i^2
+\]
+
+In Ridge Regression, the penalty term added to the regression model is proportional to the L2 norm. The objective function in Ridge Regression is:
+
+\[
+\text{Minimize} \left( \text{Residual Sum of Squares} + \lambda \sum_{i=1}^{n} \beta_i^2 \right)
+\]
+
+As with Lasso, $\lambda$ is a tuning parameter that controls the strength of the penalty. Unlike Lasso, Ridge Regression does not produce sparse models; it doesn't set coefficients to zero but instead shrinks them towards zero. This is particularly useful when dealing with multicollinearity or when you have more predictors than observations.
+
+\subsection{Summary}
+
+Both L1 and L2 regularization techniques are used to prevent overfitting, but they do so in different ways:
+
+\begin{itemize}
+  \item L1 (Lasso) can produce simpler and more interpretable models because it can reduce some coefficients to zero, effectively selecting more relevant features.
+  \item L2 (Ridge) is better suited for dealing with multicollinearity and does not exclude variables from the model but rather reduces their impact.
+\end{itemize}
+
+Choosing between Lasso and Ridge (or combining them, as in Elastic Net Regression) depends on the specific dataset, the underlying problem, and the need for model interpretability.
+
+
+\section{Bringing together the above expanded cost function with the L2 Norm constraint, to give the Ridge Regression objective function we try to minimise)}
+
+Above we worked out the cost function (i.e. the residual sum of squares / the squared error term) in matrix notation, which we were trying to minimise (by taking first derivative and setting to 0)\\
+
+Here we are combining that objective function with the L2 Norm constraint. This gives us a new objective function, typical of ridge regression. \\
+
+To solve the given minimization problem, we need to find the value of $\beta$ that minimizes the objective function. The objective function can be written as:
+
+\[
+Y^TY - Y^TX\beta - \beta^TX^TY + \beta^TX^TX\beta + \lambda \sum_{i=1}^{n} \beta_i^2
+\]
+
+This is a typical objective function in ridge regression, a method used in linear regression to introduce regularization. The regularization term, $\lambda \sum_{i=1}^{n} \beta_i^2$, helps to prevent overfitting by penalizing large coefficients.\\
+
+To minimize this function with respect to $\beta$, we take its derivative and set it to zero. Let's start by taking the derivative with respect to $\beta$:
+
+\[
+\frac{\partial}{\partial \beta} \left( Y^TY - Y^TX\beta - \beta^TX^TY + \beta^TX^TX\beta + \lambda \sum_{i=1}^{n} \beta_i^2 \right) = 0
+\]
+
+Solving this, we get:
+
+\[
+-2X^TY + 2X^TX\beta + 2\lambda I\beta = 0
+\]
+
+where $I$ is the identity matrix. Simplifying, we have:
+
+\[
+X^TX\beta + \lambda I\beta = X^TY
+\]
+
+This leads to the normal equation for ridge regression:
+
+\[
+(X^TX + \lambda I)\beta = X^TY
+\]
+
+To find $\beta$, we solve this equation:
+
+\[
+\beta = (X^TX + \lambda I)^{-1}X^TY
+\]
+
+\end{document}

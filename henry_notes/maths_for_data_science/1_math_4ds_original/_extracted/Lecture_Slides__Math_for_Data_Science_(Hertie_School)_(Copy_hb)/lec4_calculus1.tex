@@ -1,0 +1,461 @@
+% \documentclass[xcolor=dvipsnames]{beamer}
+\documentclass[xcolor=dvipsnames,handout]{beamer}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\usepackage{etex}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epsfig}
+\usepackage[english]{babel}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{fancyvrb}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{caption}
+%\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{epsdice}
+
+\hypersetup{
+    colorlinks = true
+}
+
+\definecolor{newred}{RGB}{127,0,0}
+\let\iitemize=\itemize \let\endiitemize=\enditemize \renewenvironment{itemize}{\iitemize \vspace{1mm} \itemsep2mm}{\endiitemize}
+\let\eenumerate=\enumerate \let\endeenumerate=\endenumerate \renewenvironment{enumerate}{\eenumerate \vspace{1mm} \itemsep2mm}{\endeenumerate}
+% == theme & colors
+\mode<presentation>
+{
+
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usecolortheme{beaver}
+  \setbeamercovered{invisible} %or transparent
+  \metroset{block=fill}
+  \setbeamercolor{block title example}{fg=gray!40!black}
+  \setbeamercolor{itemize item}{fg=gray!40!black} 
+  \setbeamercolor{title}{fg=newred} 
+}
+
+      
+\setbeamercolor{background canvas}{bg=white}
+
+
+% === tikz for pictures ===
+\usepackage{tikz}
+\usepackage[latin1]{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning}
+\usetikzlibrary{decorations.pathreplacing}
+\tikzstyle{doublearr}=[latex-latex, black, line width=0.5pt]
+
+% === if you want more than one slides on one page ===
+\usepackage{pgfpages}
+
+
+
+\title{Mathematics for Data Science}
+\subtitle[]{Lecture 4: Finishing Probability Theory; Introduction to Calculus}
+\author[Asya Magazinnik]{Asya Magazinnik}
+\institute{Hertie School}
+\date{\today}
+
+\renewcommand\r{\right}
+\renewcommand\l{\left}
+% \newcommand\sign{{\rm sign}}
+
+%% == change spacing for itemize
+%\let\oldframe\frame
+%\renewcommand{\frame}[1][1]{
+%\oldframe[#1]
+%\let\olditemize\itemize
+%\renewcommand\itemize{\olditemize\addtolength{\itemsep}{.25\baselineskip}}
+%}
+
+
+
+\def\insertnavigation#1{\relax}
+% \usefonttheme{serif}
+\usepackage[all]{xy}
+\usepackage{geometry,colortbl,wrapfig}
+\usepackage{tikz}  
+\usepackage{graphicx,setspace,subfigure}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\newcommand{\Ex}{\textsc{Example  }}
+\newcommand{\series}{\sum_{n=1}^{\infty}} 
+\newcommand{\ball}[1]{B( #1)} 
+\newcommand{\inner}[1]{\ensuremath{\langle #1 \rangle}}
+\newcommand{\e}{\epsilon}
+\newcommand{\grad}{\nabla}
+\newcommand{\pa}{\pause \item}
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+\newcommand{\R}{\mathbb{R}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+
+
+
+
+\newcommand{\indep}{{\bot\negthickspace\negthickspace\bot}}
+
+\begin{document}
+
+\subject{Talks}
+\AtBeginSection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection,currentsubsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+
+\frame[plain]{
+  \titlepage
+  \addtocounter{framenumber}{-1}
+}
+
+\begin{frame}{The Multinomial Distribution}
+    \begin{enumerate}
+        \item Logic of the Multinomial
+        \item Application to large language models (\href{https://youtu.be/FkckgwMHP2s?si=gxcRs4kuNXKLHMj3&t=473}{link}).
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Logic of the Multinomial}
+\begin{align*}
+      f(x_1, ..., x_k; n, p_1, ..., p_k) &= Pr(X_1 = x_1 \text{ and } ... \text{ and } X_k = x_k) \\
+      &= \frac{n!}{x_1! ... x_k!} p_1^{x_1} \times ... \times p_k^{x_k}
+\end{align*}
+
+\vspace{2mm}
+\small 
+\textbf{Example:} Suppose that in a three-way election for a large country, candidate A received 20\% of the votes, candidate B received 30\% of the votes, and candidate C received 50\% of the votes. If six voters are selected randomly, what is the probability that there will be exactly one supporter for candidate A, two supporters for candidate B and three supporters for candidate C in the sample?
+\begin{equation*}
+    Pr(A=1, B=2, C=3) = \frac{6!}{1!2!3!} (0.2^1) (0.3^2) (0.5^3) = 0.135
+\end{equation*}
+\end{frame}
+
+\begin{frame}{}
+    \includegraphics[width=\textwidth]{images/blei.png}
+\end{frame}
+
+\begin{frame}{Introducing Calculus}
+    Obviously it's impossible to teach differential calculus in one (now half!) session, so here's what we'll do: 
+    \begin{itemize}
+        \item Take a bird's-eye view of calculus and how we will use it
+        \item Provide a map of the territory that you should (eventually) be comfortable with 
+        \item Work through some applied differentiation skills
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Calculus: A Bird's Eye View}
+    Before we even talk about calculus, let's remind ourselves about \alert{functions}:
+    \begin{itemize} \small 
+        \item A function is a map from some input $x$ to some output $y$.
+    \end{itemize} \pause 
+    Some notable functions include: \pause 
+    \begin{itemize} \small 
+        \item A \alert{probability mass function} (PMF) and its continuous analog, the \alert{probability density function} (PDF): these functions map events to probabilities of those events occurring \pause 
+        \item A regression: this is a function describing how independent variables $x_1, x_2, x_3, ...$ map to some outcome $y$ \pause 
+        \item A loss function: in predictive modeling, we are trying to minimize some kind of prediction error, captured by a function
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{A Function Is an Input-Output Device}
+   \begin{center}
+           \includegraphics[height=.9\textheight]{images/function.png}
+   \end{center}
+\end{frame}
+
+\begin{frame}{Some Functions You Should Know}
+ A \alert{linear function} takes the form $f(x) = ax + b$, with parameter $a$ defining the slope and parameter $b$ defining the y-intercept.
+       \begin{center}
+           \includegraphics[height=.8\textheight]{images/linear.png}
+   \end{center}
+\end{frame}
+
+\begin{frame}{Some Functions You Should Know}
+ A \alert{polynomial function} takes the form:
+ \[ f(x) = a_n x^n + a_{n-1} x^{n-1} + ... + a_1 x + a_0\]
+       \begin{center}
+           \includegraphics[height=.7\textheight]{images/polynomial.png}
+   \end{center}
+\end{frame}
+
+\begin{frame}{Some Functions You Should Know}
+\vspace{3mm}
+The \alert{absolute value function} takes the form $f(x) = |x|$. 
+       \begin{center}
+           \includegraphics[height=.8\textheight]{images/abs_value.png}
+   \end{center}
+\end{frame}
+
+\begin{frame}{Some Functions You Should Know}
+\vspace{2mm}
+The exponential function takes the form $f(x) = a^x$, and the logarithmic function ``undoes'' the exponential: $f(x) = \log_b(x) = y$ if and only if $b^y=x$.
+         \begin{center}
+           \includegraphics[height=.6\textheight]{images/exp_log.png}
+   \end{center}  
+\end{frame}
+
+\begin{frame}{Introducing Calculus}
+    Calculus deals with the \alert{rates of change} of functions.
+    \begin{itemize} \small 
+        \item And differential calculus helps us find the instantaneous rate of change at a point (this, too, is a function)
+    \end{itemize} \pause 
+    When is this useful? \pause 
+    \begin{itemize} \small 
+        \item A PDF ($P(X=x)$) is the derivative of a CDF ($P(X \leq x)$) \pause 
+        \item In predictive modeling, we often seek to minimize some loss function, which captures the distance from the predictions of our statistical model to the observed data
+        \begin{itemize}
+            \item The minimum of a function is achieved when the first derivative is 0
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Differentiation}
+\vspace{2mm}
+    So how do we find the instantaneous rate of change of a function at a particular point? 
+\begin{center}
+    \includegraphics[width=.6\textwidth]{images/diff_line.png}
+\end{center}
+    If your function is a line, it's the slope. 
+\end{frame}
+
+\begin{frame}{Differentiation}
+\vspace{2mm}
+    And what if your function is a parabola? 
+    \begin{center}
+    \includegraphics[width=.7\textwidth]{images/diff_parab.png}
+\end{center}
+   Then the instantaneous rate of change at a point is the slope of the tangent line at that point. 
+\end{frame}
+
+\begin{frame}{How Do We Find the Slope of the Tangent Line?}
+  \small   Say we want to find the slope of the tangent line at the point (1,2). First take an arbitrary point (2,5) and run a line from (1,2) to (2,5).
+  \vspace{3mm}
+      \begin{center}
+    \includegraphics[width=.7\textwidth]{images/tan1.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{How Do We Find the Slope of the Tangent Line?}
+Compute the slope of that line: $\frac{f(x+h) - f(x)}{h}$ (where $h$ is some value you added to $x$, so here, 1. $\rightarrow$ $\frac{5-2}{1}=3$. 
+  \vspace{3mm}
+      \begin{center}
+    \includegraphics[width=.7\textwidth]{images/tan1.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{How Do We Find the Slope of the Tangent Line?}
+Then, move the second point closer and closer to $x$ by decreasing $h$ and compute the slope again: 
+  \vspace{3mm}
+      \begin{center}
+    \includegraphics[width=.7\textwidth]{images/tan2.png}
+\end{center}
+\end{frame}
+
+\addtocounter{framenumber}{-1}
+\begin{frame}{How Do We Find the Slope of the Tangent Line?}
+Then, move the second point closer and closer to $x$ by decreasing $h$ and compute the slope again: 
+  \vspace{3mm}
+      \begin{center}
+    \includegraphics[width=.7\textwidth]{images/tan3.png}
+\end{center}
+\end{frame}
+
+\addtocounter{framenumber}{-1}
+\begin{frame}{How Do We Find the Slope of the Tangent Line?}
+Then, move the second point closer and closer to $x$ by decreasing $h$ and compute the slope again: 
+  \vspace{3mm}
+      \begin{center}
+    \includegraphics[width=.7\textwidth]{images/tan4.png}
+\end{center}
+\end{frame}
+
+\addtocounter{framenumber}{-1}
+\begin{frame}{How Do We Find the Slope of the Tangent Line?}
+Then, move the second point closer and closer to $x$ by decreasing $h$ and compute the slope again: 
+  \vspace{3mm}
+      \begin{center}
+    \includegraphics[width=.7\textwidth]{images/tan5.png}
+\end{center}
+\end{frame}
+
+\addtocounter{framenumber}{-1}
+\begin{frame}{How Do We Find the Slope of the Tangent Line?}
+Then, move the second point closer and closer to $x$ by decreasing $h$ and compute the slope again: 
+  \vspace{3mm}
+      \begin{center}
+    \includegraphics[width=.7\textwidth]{images/tan7.png}
+\end{center}
+\end{frame}
+
+\addtocounter{framenumber}{-1}
+\begin{frame}{How Do We Find the Slope of the Tangent Line?}
+Then, move the second point closer and closer to $x$ by decreasing $h$ and compute the slope again: 
+  \vspace{3mm}
+      \begin{center}
+    \includegraphics[width=.7\textwidth]{images/tan9.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{How Do We Find the Slope of the Tangent Line?}
+    \begin{table}[]
+        \centering
+        \begin{tabular}{c|c}
+        $h$ & Slope \\
+        \hline 
+          $h=1$   & 3 \\
+          $h=0.5$ &  2.5 \\
+          $h=0.1$ & 2.1 \\
+          $h=0.01$ & 2.01 \\
+          $h=0.001$ & 2.001
+        \end{tabular}
+        \caption{Slope of the line from $(1,2)$ to $(1+h, f(1+h))$ for different values of $h$}
+    \end{table}
+    As we can see, as $h \rightarrow 0$, the slope converges to 2.
+\end{frame}
+
+\begin{frame}{How Do We Find the Slope of the Tangent Line?}
+As $h \rightarrow 0$, the line between $x$ and $x+h$ becomes the line tangent to the curve at $x$.
+      \begin{center}
+    \includegraphics[width=.7\textwidth]{images/tangent.png}
+\end{center}
+\end{frame}
+
+\begin{frame}{Defining the Derivative}
+    We can define the \alert{derivative} of the function $f(x)$ according to this process: 
+    \[ f'(x) = \lim_{h \rightarrow 0} \frac{f(x+h) - f(x)}{h}\]
+    Here, $f'(x)$ is the function representing the instantaneous rate of change of $f(x)$ at $x$.
+\end{frame}
+
+\begin{frame}{Bookmarking for Later}
+\small \vspace{2mm}
+Note that at its maximum (and minimum), a function's derivative is 0. 
+      \begin{center}
+    \includegraphics[width=.7\textwidth]{images/max_deriv.png}
+\end{center}
+We will use this fact many, many times, from deriving regression coefficients to maximizing likelihoods to minimizing loss functions.
+\end{frame}
+
+\begin{frame}{Differentiation Rules}
+    \textbf{Rule 1:} The Constant Rule
+    \[ \frac{d}{dx} c = 0 \]
+    \pause 
+    \begin{itemize}
+        \item What's the derivative of $f(x) = 8$? 0. 
+        \item The derivative of $f(x)=\pi$? 0.
+    \end{itemize}
+    \pause 
+ \begin{center}
+     \includegraphics[width=.8\textwidth]{images/constant.png}
+ \end{center} 
+\end{frame}
+
+\begin{frame}{Differentiation Rules}
+    \textbf{Rule 2:} The Power Rule
+    \[ \frac{d}{dx} x^n = nx^{n-1} \]
+    \pause 
+    \begin{itemize}
+        \item What's the derivative of $f(x) = x^3$? $3x^2$. 
+        \item The derivative of $f(x)=2x^2$? $4x$.
+    \end{itemize}
+    \pause 
+\end{frame}
+
+\begin{frame}{Differentiation Rules}
+        \textbf{Rule 3:} The Sum Rule and the Difference Rule
+\[
+\begin{aligned}
+    \frac{d}{dx} \left( f(x) + g(x) \right) &= \frac{d}{dx} f(x) + \frac{d}{dx} g(x) \\
+    \frac{d}{dx} \left( f(x) - g(x) \right) &= \frac{d}{dx} f(x) - \frac{d}{dx} g(x) \\
+\end{aligned}
+\]
+\pause 
+\vspace{5mm}
+What is the derivative of $f(x) = 8x - 2x^3$? $8-6x^2$. 
+\end{frame}
+
+\begin{frame}{Differentiation Rules}
+        \textbf{Rule 3:} The Constant Multiple Rule
+    \[ \frac{d}{dx} k f(x) = k \frac{d}{dx} f(x) \] \pause 
+    \textbf{Rule 4:} The Product Rule
+    \[ \frac{d}{dx} \left( g(x) f(x) \right)  = \frac{d}{dx} \left( g(x) \right) * f(x) + g(x) * \frac{d}{dx} \left( f(x) \right) \]
+    \pause 
+    What is the derivative of $(3x^2) * (x^3 - 6x)$? \begin{itemize} \small 
+        \item By the Product Rule, $(6x)(x^3-6x) + (3x^2)(3x^2-6) = 6x^4 - 36x^2 + 9x^4 - 18x^2 = 15x^4 - 54 x^2$ \pause 
+        \item We could also have multiplied it out and applied the Sum Rule: 
+        \[ \frac{d}{dx} \left( 3x^5 - 18x^3 \right) = 15x^4 - 54x^2
+        \]
+    \end{itemize} 
+\end{frame}
+
+\begin{frame}{Differentiation Rules}
+\textbf{Rule 5:} The Quotient Rule 
+\[ \frac{d}{dx} \left( \frac{f(x)}{g(x)} \right)  = \frac{g(x) \cdot  \frac{d}{dx} (f(x))  - f(x) \cdot \frac{d}{dx} (g(x))  } {(g(x))^2} \]
+\pause 
+
+What is the derivative of $\frac{5x^2}{4x + 3}$? \pause 
+\begin{itemize}
+    \item Following the Quotient Rule, $\frac{(4x+3)(10x) - (5x^2) (4)}{(4x+3)^2}$. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Differentiation Rules}
+    \textbf{Rule 6:} The Chain Rule \\
+    If $y$ is a function of $u$, and $u$ is a function of $x$, then: 
+    \[ \frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx} \] \pause 
+    What is the derivative of $(2x^3 + 2x - 1)^4 $? \\
+    \vspace{3mm}
+\pause 
+    Applying the Chain Rule: 
+    \begin{enumerate} \small 
+        \item Identify what is $u(x)$ (inner) and $y(u)$ (outer) function \pause \\
+        Inner: $u(x) = 2x^3 + 2x - 1$, Outer: $y(u) = u^4$ \pause 
+        \item Find $\frac{dy}{du}$ \pause $\rightarrow 4u^3 = 4(2x^3 + 2x-1)^3$ \pause 
+        \item Find $\frac{du}{dx}$ \pause $\rightarrow 6x^2 + 2$ \pause 
+        \item Put it all together \pause $ \rightarrow \frac{dy}{dx} = 4(2x^3 + 2x - 1)^3 \cdot (6x^2+2)$
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Differentiation Rules}
+    \textbf{Rule 7:} The Derivative of the Natural Exponential Function \\
+Let $y(x)=e^x$ be the natural exponential function. Then, $\frac{dy}{dx} = e^x$. 
+\\ \vspace{5mm} \pause 
+\textbf{Rule 8:} The Derivative of the Natural Logarithmic Function \\
+If $x>0$ and $y=\ln(x)$, then $\frac{dy}{dx} = \frac{1}{x}$.
+\end{frame}
+
+\begin{frame}{Practice}
+ Make sure you can solve the following practice problems from \href{https://assets.openstax.org/oscms-prodcms/media/documents/Calculus_Volume_1_-_WEB_68M1Z5W.pdf?_gl=1*1sxyx8e*_gcl_au*MTE0MzU1NTEzOS4xNzI3NjM0NTg5*_ga*MTg4MjQyMzg2OS4xNzI3NjM0NTkx*_ga_T746F8B0QC*MTcyNzYzNDU5MC4xLjAuMTcyNzYzNDU5Ni41NC4wLjA.}{Herman and Strang, Vol. 1}:
+ \begin{itemize}
+     \item 106-117
+     \item 228-229, 231
+     \item 331-337
+ \end{itemize}
+ \vspace{5mm}
+ \textbf{Solutions:} Ask \href{https://chatgpt.com/share/66f99f6d-b250-8004-bf13-d69a4271053c}{ChatGPT}.
+\end{frame}
+\end{document}

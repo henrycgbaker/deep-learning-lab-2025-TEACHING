@@ -1,0 +1,237 @@
+\documentclass[xcolor=dvipsnames]{beamer}
+%\documentclass[xcolor=dvipsnames,handout]{beamer}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\usepackage{etex}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epsfig}
+\usepackage[english]{babel}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{fancyvrb}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{caption}
+%\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{epsdice}
+\usepackage{booktabs}
+
+\hypersetup{
+    colorlinks = true
+}
+
+\definecolor{newred}{RGB}{127,0,0}
+\let\iitemize=\itemize \let\endiitemize=\enditemize \renewenvironment{itemize}{\iitemize \vspace{1mm} \itemsep2mm}{\endiitemize}
+\let\eenumerate=\enumerate \let\endeenumerate=\endenumerate \renewenvironment{enumerate}{\eenumerate \vspace{1mm} \itemsep2mm}{\endeenumerate}
+% == theme & colors
+\mode<presentation>
+{
+
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usecolortheme{beaver}
+  \setbeamercovered{invisible} %or transparent
+  \metroset{block=fill}
+  \setbeamercolor{block title example}{fg=gray!40!black}
+  \setbeamercolor{itemize item}{fg=gray!40!black} 
+  \setbeamercolor{title}{fg=newred} 
+}
+
+      
+\setbeamercolor{background canvas}{bg=white}
+
+
+% === tikz for pictures ===
+\usepackage{tikz}
+\usepackage[latin1]{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning}
+\usetikzlibrary{decorations.pathreplacing}
+\tikzstyle{doublearr}=[latex-latex, black, line width=0.5pt]
+
+% === if you want more than one slides on one page ===
+\usepackage{pgfpages}
+
+
+
+\title{Mathematics for Data Science}
+\subtitle[]{The EM Algorithm \\ 
+A Research Application to the Missing Migrants Data} 
+\author[Asya Magazinnik]{Asya Magazinnik}
+\institute{Hertie School}
+\date{\today}
+
+\renewcommand\r{\right}
+\renewcommand\l{\left}
+% \newcommand\sign{{\rm sign}}
+
+%% == change spacing for itemize
+%\let\oldframe\frame
+%\renewcommand{\frame}[1][1]{
+%\oldframe[#1]
+%\let\olditemize\itemize
+%\renewcommand\itemize{\olditemize\addtolength{\itemsep}{.25\baselineskip}}
+%}
+
+
+
+\def\insertnavigation#1{\relax}
+% \usefonttheme{serif}
+\usepackage[all]{xy}
+\usepackage{geometry,colortbl,wrapfig}
+\usepackage{tikz}  
+\usepackage{graphicx,setspace,subfigure}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\newcommand{\Ex}{\textsc{Example  }}
+\newcommand{\series}{\sum_{n=1}^{\infty}} 
+\newcommand{\ball}[1]{B( #1)} 
+\newcommand{\inner}[1]{\ensuremath{\langle #1 \rangle}}
+\newcommand{\e}{\epsilon}
+\newcommand{\grad}{\nabla}
+\newcommand{\pa}{\pause \item}
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+\newcommand{\R}{\mathbb{R}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+\newcommand{\matr}[1]{\bm{#1}}     % ISO complying version
+
+
+
+\newcommand{\indep}{{\bot\negthickspace\negthickspace\bot}}
+
+\begin{document}
+
+\subject{Talks}
+\AtBeginSection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection,currentsubsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+
+\frame[plain]{
+  \titlepage
+  \addtocounter{framenumber}{-1}
+}
+
+
+\begin{frame}{}
+\vspace{10mm}
+\begin{figure}
+    \centering
+\includegraphics[width=\textwidth]{images/1402_IOM-MMP_Maps_al_migration-map.png}
+    \caption{Total arrivals by sea and deaths in the Mediterranean, 2016-2017. Source: IOM.}
+    \label{fig:enter-label}
+\end{figure}
+\end{frame}
+
+\begin{frame}{}
+    \begin{center}
+        \Huge{\#}
+    \end{center}
+    \pause
+    of migrants who go missing trying to get to Europe over the Mediterranean route
+\end{frame}
+
+\begin{frame}{}
+\begin{figure}
+\vspace{5mm}
+    \centering
+    \includegraphics[width=.9\textwidth]{images/data_sources.png}
+    \caption{Multiple Data Sources on Missing Migrants}
+    \label{fig:enter-label}
+\end{figure}
+\end{frame}
+
+\begin{frame}{The Missing Migrants and the Missing Missing Migrants}
+     \begin{itemize}
+        \item We model list membership according to the \alert{multinomial distribution}: $\pi_{100}$, $\pi_{010}$, $\pi_{001}$, $\pi_{110}$, $\pi_{101}$, $\pi_{011}$, $\pi_{111}$ \pause 
+        \item Specifically, we estimate a \alert{multinomial logit} as a function of other observed characteristics of the event: number of casualties, distance from the coast \pause 
+        \item The probability of events that fall into the \alert{structurally zero} piece can be backed out from the above: $\hat{\pi}_{000}$ \pause 
+        \item Finally, a total number is estimated: \alert{the number of missing missing migrants} (those not captured by any list)
+        \begin{itemize} \small 
+            \item Importantly, the model accounts for dependencies between lists 
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{But There Is a Further Challenge!}
+    Imperfect overlap in the years over which the lists are operational.
+    \begin{itemize} \small 
+        \item \alert{Partially observed data:} If List $A$ is unavailable in 2015 but $B$ and $C$ are, and an event is captured by both $B$ and $C$, we don't know if that event would have been 1\alert{0}1 or 1\alert{1}1
+        \item \alert{Unobserved data:} For events that would have been 0\alert{1}0, we also don't know the event size and distance from the coast
+    \end{itemize}
+    So we have important missing data from the usual model.
+\end{frame}
+
+\begin{frame}{}
+\includegraphics[width=\textwidth]{images/missingness_table.png}
+\end{frame}
+
+\begin{frame}{Solution: The EM Algorithm!}
+    This is the normal log likelihood for the multinomial logit solution to this problem (without our additional data missingness): 
+    \begin{equation*}
+\ell =  \sum_{q=1}^Q \sum_{i=1}^{I_q} \sum_{k=1}^K I_{k|iq}  \log( \pi_{k|iq})
+\end{equation*}
+where: 
+\begin{equation*}
+\label{eq:pi_k}
+    \pi_{k|iq} = \frac{\exp \left( \sum_{h=1}^H \sum_{j=1}^J x_{hiq} \beta_{hj} y_{jk} \right) }{\sum_{r=1}^K \exp \left( \sum_{h=1}^H \sum_{j=1}^J x_{hiq} \beta_{hj} y_{jr} \right) }
+\end{equation*}
+
+where the $x$'s are our covariates, e.g. distance to the coast and number of casualties, and the $\pi$'s are probabilities of group membership, e.g. 001, 010, etc. 
+\end{frame}
+
+\begin{frame}{}
+\vspace{3mm}
+    This is the \alert{complete data log likelihood} with our patterns of missing data: 
+    \begin{align*}
+\label{eq:loglik}
+      Q(\theta|\theta^{(t)}) ~=~  &\mathbb{E} [\ell ( \mathbf{X}^{\text{obs}}, \mathbf{X}^{\text{mis}}, I_{k|iq}^{\text{obs}}, I_{k|iq}^{\text{mis}} ~|~ \theta) ]  \\
+  ~=~ &\underbrace{\sum_{q \in P_1} \sum_{i=1}^{I_q} \sum_{k=1}^K I_{k|iq}  \log( \pi_{k|iq})}_{\text{(1) All lists observed}}  \\
+  &+ \underbrace{\sum_{q \in P_2} \sum_{i=1}^{I_q} \sum_{k \in S_{iq}} \mathbb{E} [ I_{k|iq}] \log(\pi_{k|iq})}_{\text{(2) Covariates observed, list membership unobserved}}  \\
+ &+ \underbrace{\mathbb{E} \left[ \sum_{q \in P_2} \sum_{i=1}^{\hat{n}_{010|q}} \sum_{k \in S_{iq}}  I_{k|iq} \log(\pi_{k|iq}) \right] }_{\text{(3) Covariates and list membership unobserved}}
+\end{align*}
+\end{frame}
+
+\begin{frame}{Process for EM Algorithm}
+\begin{enumerate}
+    \item Propose some starting values for the parameters ($t$)
+    \item Compute the expectation of the complete data log likelihood using those parameter values and your data
+    \item Maximize that log likelihood to get new parameters ($t+1$)
+    \item Go back to step 1.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{The Result}
+\vspace{3mm}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]{images/result_fig.png}
+        \caption{Estimates of the total number of fatalities.}
+    \end{figure}
+\end{frame}
+\end{document}

@@ -1,0 +1,1267 @@
+% Week 9: Large Language Models in Practice
+\chapter{Week 9: Large Language Models in Practice}
+\label{ch:week9}
+
+\begin{quickref}[Chapter Overview]
+\textbf{Core goal:} Understand how large language models are aligned, extended, and deployed in real-world applications.
+
+\textbf{Key topics:}
+\begin{itemize}
+    \item AI alignment: hallucinations, bias, offensive content
+    \item Post-training: Supervised Fine-Tuning (SFT) and RLHF
+    \item The Bitter Lesson and scaling philosophy
+    \item Reasoning models and Large Reasoning Models (LRMs)
+    \item Retrieval-Augmented Generation (RAG)
+    \item Fine-tuning: LoRA and parameter-efficient methods
+    \item Few-shot learning and prompt engineering
+    \item Structured outputs, tool calling, and AI agents
+\end{itemize}
+
+\textbf{Key equations:}
+\begin{itemize}
+    \item LoRA weight update: $W_0 + \Delta W = W_0 + BA$ where $B \in \mathbb{R}^{d \times r}$, $A \in \mathbb{R}^{r \times k}$
+    \item Parameter reduction: Full fine-tuning uses $d \times k$ parameters; LoRA uses $d \times r + r \times k$
+    \item Cosine similarity for RAG retrieval: $\cos(\theta) = \frac{q \cdot d}{\|q\| \|d\|}$
+\end{itemize}
+\end{quickref}
+
+%==============================================================================
+\section{AI Alignment}
+\label{sec:alignment}
+%==============================================================================
+
+The remarkable fluency of modern LLMs conceals fundamental challenges that arise from how these models are trained and deployed. AI alignment addresses the core question: \textit{How can we build AI systems that behave in accordance with human intentions and values?}
+
+This section examines the three primary issues that motivate post-training techniques: hallucinations, data-based bias, and offensive content generation.
+
+\subsection{Hallucinations}
+
+\begin{rigour}[Definition: Hallucination]
+A \textbf{hallucination} in generative AI occurs when the model produces output that is fluent and confident but factually incorrect or entirely fabricated. This phenomenon arises because the model has learned to model \textit{language patterns} rather than \textit{factual knowledge}-the generated output inherently contains an element of randomness from the sampling process.
+\end{rigour}
+
+The term ``hallucination'' captures the peculiar nature of these errors: the model is not lying (it has no concept of truth) nor making a computational error (the mathematics is correct). Instead, it is generating plausible-sounding text that happens to be wrong, much as a dreamer might construct coherent but fictional scenarios.
+
+\begin{quickref}[Temperature and Variability]
+The \textbf{temperature} parameter $T$ controls the randomness in token selection:
+\begin{itemize}
+    \item \textbf{Low temperature} ($T \to 0$): More deterministic, selects highest-probability tokens
+    \item \textbf{High temperature} ($T > 1$): More random, flatter probability distribution
+\end{itemize}
+
+Mathematically, temperature scales the logits before softmax:
+\[
+P(w_i) = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}
+\]
+
+Some variability is \textit{desirable}-we want creative, non-repetitive responses. The challenge is that this same variability enables hallucinations.
+\end{quickref}
+
+Modern chatbots attempt to mitigate hallucinations by including source citations, but this creates a new failure mode: the model may cite sources that do not exist or do not support its claims. The fundamental issue is \textbf{inherent to how the model works}-it generates text that \textit{looks like} the training data, not text that \textit{is true}.
+
+\begin{redbox}
+\textbf{Warning: Do Not Use LLMs as Search Engines}
+
+LLMs are optimised to produce fluent, helpful-sounding text-not to retrieve accurate information. When factual accuracy is critical:
+\begin{itemize}
+    \item Verify claims against authoritative sources
+    \item Use RAG systems (Section~\ref{sec:rag}) to ground responses in retrieved documents
+    \item Treat LLM outputs as drafts requiring verification, not as authoritative answers
+\end{itemize}
+
+The confidence of an LLM's response is not correlated with its accuracy.
+\end{redbox}
+
+\subsection{Data-Based Bias}
+
+LLMs learn patterns from their training data, including societal biases embedded in that data. These biases manifest in model outputs, sometimes in subtle ways that are difficult to detect or counteract.
+
+\begin{rigour}[Bias Propagation]
+If the training corpus contains systematic associations (e.g., certain professions predominantly described in connection with one gender), the model will learn and reproduce these associations. Formally, if the training distribution $P_{\text{train}}(y \mid x)$ contains bias, then the learned distribution $P_{\theta}(y \mid x)$ will approximate this biased distribution.
+
+Attempts to counteract bias include:
+\begin{itemize}
+    \item Filtering training data for balanced representation
+    \item Post-training alignment to ``sensitise'' models to bias
+    \item Prompt engineering to request balanced perspectives
+\end{itemize}
+
+However, subtle biases persist, including political leanings, cultural assumptions, and implicit stereotypes.
+\end{rigour}
+
+\begin{quickref}[Example: Gender Bias in Career Suggestions]
+When asked for job recommendations, models may exhibit systematic gender bias:
+
+\textbf{Suggestions for granddaughter:}
+\begin{itemize}
+    \item Digital Content Creator
+    \item Healthcare Support Roles
+    \item Graphic Designer / UX Designer
+\end{itemize}
+
+\textbf{Suggestions for grandson:}
+\begin{itemize}
+    \item Software Developer / Data Analyst
+    \item Tradesperson (Electrician, Plumber, Mechanic)
+    \item Entrepreneur / E-Commerce Specialist
+\end{itemize}
+
+These differences reflect biases in the training data, not inherent differences in suitability.
+\end{quickref}
+
+An important philosophical question emerges: \textit{Is a model without bias always preferable?} A completely unbiased model might produce outputs that feel less realistic or that fail to capture genuine statistical patterns in the world. The goal is not necessarily to eliminate all correlation with demographic factors, but to ensure the model does not perpetuate harmful stereotypes or discriminate unfairly.
+
+\subsection{Offensive and Illegal Content}
+
+Models trained on internet-scale data inevitably encounter offensive, harmful, and illegal content. Without intervention, these models can generate:
+\begin{itemize}
+    \item Hate speech and discriminatory content
+    \item Instructions for harmful activities
+    \item Sexually explicit or violent material
+    \item Content that violates privacy or intellectual property
+\end{itemize}
+
+Post-training techniques (Section~\ref{sec:post-training}) attempt to prevent such outputs, but determined users can often circumvent these safeguards through indirect prompting, jailbreaks, or prompt injection attacks.
+
+\subsection{LLMs vs Chatbots: The Alignment Gap}
+
+\begin{rigour}[The Raw LLM Problem]
+A ``raw'' LLM-one that has only undergone pre-training-does not produce realistic conversational responses. Pre-training teaches the model to predict the next token given previous tokens, which means it learns to \textit{continue} text in the style of its training corpus.
+
+\textbf{Example comparison:}
+
+\textbf{GPT-3 (2022, minimal post-training):}
+
+Prompt: ``Tell me about the Hertie School's Data Science program.''
+
+Output: Often incoherent, may continue as if writing a different document, may ignore the question entirely.
+
+\textbf{ChatGPT/GPT-3.5 (2023, with RLHF):}
+
+Output: Coherent, relevant text describing the program's interdisciplinary nature, responding appropriately to the instruction.
+\end{rigour}
+
+The transformation from raw LLM to useful chatbot requires \textbf{instruction tuning}-training the model to follow instructions and produce helpful, harmless, and honest responses.
+
+\begin{quickref}[Instruction-Tuned LLMs]
+\textbf{Definition:} Language models precisely adapted to provide realistic answers to instructions.
+
+\textbf{Critical observation:} In current systems, \textit{sounding} realistic is often more important than \textit{being} truthful. The model is optimised for human preference, which correlates with but does not guarantee accuracy.
+
+This creates a tension: the most persuasive response is not always the most accurate one.
+\end{quickref}
+
+%==============================================================================
+\section{Post-Training: Aligning LLMs}
+\label{sec:post-training}
+%==============================================================================
+
+The journey from a raw language model to a useful assistant involves two distinct training phases, each with different objectives and methodologies.
+
+\subsection{The LLM Training Pipeline}
+
+\begin{rigour}[Two-Stage Training Process]
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Stage} & \textbf{Training Type} & \textbf{Task} \\
+\midrule
+Pre-training & Unsupervised & Next-word prediction on raw text \\
+Post-training & (Self-)Supervised + RL & Dialogue management with human feedback \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Pre-training:}
+\begin{itemize}
+    \item Trained on massive corpora (trillions of tokens)
+    \item Objective: Predict next token given context
+    \item Result: Model that can continue any text fluently
+\end{itemize}
+
+\textbf{Post-training:}
+\begin{itemize}
+    \item Trained on curated instruction-response pairs
+    \item Uses human feedback to shape behaviour
+    \item Result: Model that follows instructions helpfully
+\end{itemize}
+\end{rigour}
+
+% TODO: Add figure showing pre-training + post-training pipeline diagram
+
+\subsection{LLM Inference: Behind the Scenes}
+
+When you interact with a chatbot, your message is wrapped in a structured format that the model has been trained to recognise. This structure separates different roles (system, user, assistant) and guides the model's response generation.
+
+\begin{rigour}[Token Structure for Chat]
+Modern chat models use special tokens to delimit different parts of the conversation:
+
+\begin{verbatim}
+<|begin_of_text|>
+<|start_header_id|>system<|end_header_id|>
+You are a helpful assistant. <|eot_id|>
+
+<|start_header_id|>user<|end_header_id|>
+What is the capital of France? <|eot_id|>
+
+<|start_header_id|>assistant<|end_header_id|>
+The capital of France is Paris.
+\end{verbatim}
+
+The model generates tokens after the final \texttt{assistant} header until it produces an end-of-turn token. This structured format:
+\begin{itemize}
+    \item Enables multi-turn conversations by concatenating exchanges
+    \item Allows system prompts to set behaviour guidelines
+    \item Provides clear boundaries for training on assistant responses only
+\end{itemize}
+\end{rigour}
+
+\subsection{Supervised Fine-Tuning (SFT)}
+
+The first step in post-training uses supervised learning on human-written responses.
+
+\begin{rigour}[Supervised Fine-Tuning]
+\textbf{Process:}
+\begin{enumerate}
+    \item Collect a dataset of (prompt, ideal\_response) pairs
+    \item Fine-tune the pre-trained model to replicate these responses
+    \item Use cross-entropy loss computed only over the assistant's response tokens
+\end{enumerate}
+
+\textbf{Loss function:}
+\[
+\mathcal{L}_{\text{SFT}} = -\sum_{t \in \text{response}} \log P_\theta(w_t \mid w_{<t}, \text{prompt})
+\]
+
+where the sum is only over tokens in the assistant's response, not the prompt.
+
+\textbf{Key difference from pre-training:}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Aspect} & \textbf{Pre-training} & \textbf{Post-training (SFT)} \\
+\midrule
+Input & Raw text sequences & Structured prompt with context \\
+Loss & Over all tokens & Only over assistant response \\
+Objective & Continue any text & Respond helpfully to instructions \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{rigour}
+
+Both pre-training and SFT use \textbf{teacher forcing}-during training, the model conditions on the ground-truth previous tokens rather than its own predictions. This stabilises training but can lead to exposure bias at inference time.
+
+\begin{redbox}
+\textbf{SFT Limitation}
+
+Supervised fine-tuning can only be as good as the training dataset. If human annotators make mistakes or the dataset lacks diversity, these limitations transfer to the model.
+
+Reinforcement learning from human feedback (RLHF) can potentially improve \textit{beyond} the quality of any single human response by learning to optimise for human preferences rather than imitating specific responses.
+\end{redbox}
+
+\subsection{Reinforcement Learning from Human Feedback (RLHF)}
+
+RLHF extends beyond SFT by learning from comparative human judgements rather than absolute demonstrations.
+
+\begin{rigour}[RLHF: Three-Step Process]
+The RLHF pipeline, as used in training ChatGPT, consists of three sequential steps:
+
+\textbf{Step 1: Supervised Policy Training}
+\begin{enumerate}
+    \item Sample prompts from a prompt dataset
+    \item Human labellers demonstrate desired output behaviour
+    \item Fine-tune the model using supervised learning (SFT)
+    \item Result: Initial policy $\pi_{\text{SFT}}$
+\end{enumerate}
+
+\textbf{Step 2: Reward Model Training}
+\begin{enumerate}
+    \item Sample prompts and generate multiple model outputs
+    \item Human labellers rank outputs from best to worst
+    \item Train a reward model $R_\phi$ to predict human preferences
+    \item The reward model learns: $R_\phi(x, y) \in \mathbb{R}$ where higher scores indicate better responses
+\end{enumerate}
+
+\textbf{Step 3: Policy Optimisation with PPO}
+\begin{enumerate}
+    \item Sample new prompts from the dataset
+    \item Initialise policy $\pi_\theta$ from $\pi_{\text{SFT}}$
+    \item For each prompt, generate a response $y \sim \pi_\theta(y \mid x)$
+    \item Compute reward $r = R_\phi(x, y)$
+    \item Update policy using Proximal Policy Optimisation (PPO) to maximise expected reward
+\end{enumerate}
+
+The PPO objective includes a KL-divergence penalty to prevent the policy from deviating too far from the SFT model:
+\[
+\mathcal{L}_{\text{PPO}} = \mathbb{E}_{x, y \sim \pi_\theta}\left[R_\phi(x, y) - \beta \cdot \text{KL}(\pi_\theta \| \pi_{\text{SFT}})\right]
+\]
+\end{rigour}
+
+% TODO: Add figure showing the 3-step RLHF process diagram
+
+\begin{quickref}[Why Preferences Over Demonstrations?]
+\textbf{Comparative judgement is easier than generation.}
+
+It is often easier for humans to say ``Response A is better than Response B'' than to write the ideal response from scratch. This insight enables:
+\begin{itemize}
+    \item More efficient use of human annotator time
+    \item Capture of nuanced preferences that are hard to articulate
+    \item Potential to exceed the quality of any single demonstration
+\end{itemize}
+
+The reward model distils these comparative judgements into a scalar signal that can guide policy optimisation.
+\end{quickref}
+
+\begin{redbox}
+\textbf{Ethical Concerns in RLHF}
+
+The human feedback that powers RLHF often comes from low-paid workers in challenging conditions:
+\begin{itemize}
+    \item OpenAI employed workers in Kenya through Sama for content labelling
+    \item Workers labelled toxic content (violence, abuse) for 8+ hours daily
+    \item Compensation: \$1--2 per hour (average clickworker wage: \$2.15/hour globally)
+\end{itemize}
+
+This raises questions about the ethical foundations of ``aligned'' AI systems and who bears the psychological costs of alignment work.
+
+\textbf{Source:} Oxford Internet Institute Fairwork reports
+\end{redbox}
+
+%==============================================================================
+\section{The Bitter Lesson}
+\label{sec:bitter-lesson}
+%==============================================================================
+
+In 2019, Richard S. Sutton-a foundational figure in reinforcement learning and 2024 Turing Award winner-articulated a perspective that has become increasingly influential in AI research.
+
+\begin{quickref}[The Bitter Lesson]
+\textbf{Core claim:}
+
+``The biggest lesson that can be read from 70 years of AI research is that general methods that leverage computation are ultimately the most effective, and by a large margin.''
+
+\textbf{The lesson in four parts:}
+\begin{enumerate}
+    \item AI researchers have often tried to build knowledge into their agents
+    \item This always helps in the short term, and is personally satisfying to the researcher
+    \item But in the long run it plateaus and even inhibits further progress
+    \item Breakthrough progress eventually arrives by an opposing approach based on scaling computation through search and learning
+\end{enumerate}
+
+\textbf{Source:} Sutton, R.S. (2019). \textit{The Bitter Lesson}.
+\end{quickref}
+
+The lesson is ``bitter'' because it suggests that clever algorithmic innovations and domain expertise-the things researchers take pride in-are ultimately less important than scaling up compute and data. Historical examples include:
+\begin{itemize}
+    \item \textbf{Chess:} Hand-crafted evaluation functions were surpassed by search-based approaches
+    \item \textbf{Computer vision:} Hand-engineered features (SIFT, HOG) were surpassed by learned features (CNNs)
+    \item \textbf{Speech recognition:} Phonetic expertise was surpassed by end-to-end neural approaches
+    \item \textbf{NLP:} Linguistic rules were surpassed by statistical and neural methods
+\end{itemize}
+
+\begin{rigour}[Implications for LLM Development]
+The Bitter Lesson suggests that continued progress in LLMs will come primarily from:
+\begin{enumerate}
+    \item \textbf{Scaling model size:} More parameters capture more patterns
+    \item \textbf{Scaling training data:} More diverse data improves generalisation
+    \item \textbf{Scaling compute:} More computation enables larger models and longer training
+\end{enumerate}
+
+This perspective has driven the ``scaling laws'' research agenda, which empirically characterises how model performance improves with scale.
+
+However, the Bitter Lesson is not universally accepted. Critics argue that:
+\begin{itemize}
+    \item Scaling has diminishing returns without architectural innovations
+    \item Efficiency improvements (better algorithms) can be equivalent to more compute
+    \item Domain knowledge can guide where to apply compute most effectively
+\end{itemize}
+\end{rigour}
+
+%==============================================================================
+\section{Reasoning Models}
+\label{sec:reasoning}
+%==============================================================================
+
+A significant development in LLM capability has been the emergence of models that can engage in multi-step reasoning, often called \textbf{reasoning models} or \textbf{Large Reasoning Models (LRMs)}.
+
+\subsection{What Are Reasoning Models?}
+
+\begin{rigour}[Definition: Reasoning Model]
+A \textbf{reasoning model} is a language model that solves complex tasks through multiple explicit reasoning steps, rather than generating an answer directly. Key characteristics include:
+\begin{itemize}
+    \item \textbf{Chain of thought:} The model generates intermediate reasoning steps before the final answer
+    \item \textbf{Revision capability:} The model can revisit and revise earlier reasoning steps
+    \item \textbf{Extended inference:} More computation is spent at inference time, not just training time
+\end{itemize}
+
+\textbf{Examples of reasoning models:}
+\begin{itemize}
+    \item OpenAI o-series (o1, o3)
+    \item GPT-5 (expected)
+    \item Google Gemini Pro
+    \item DeepSeek (open weights)
+    \item Anthropic Claude (with extended thinking)
+    \item Llama Nemotron (open weights)
+\end{itemize}
+\end{rigour}
+
+The key insight is that \textbf{test-time compute}-computation spent during inference-can substitute for training-time compute. A smaller model reasoning carefully can outperform a larger model answering immediately.
+
+\begin{quickref}[Test-Time Compute Scaling]
+Experiments by Snell et al. (2024) demonstrated a striking result:
+
+A \textbf{3 billion parameter} model with reasoning at inference time could outperform a \textbf{70 billion parameter} model on complex tasks.
+
+This suggests a new scaling dimension: rather than only scaling model size, we can scale the amount of ``thinking'' the model does at inference time.
+\end{quickref}
+
+\subsection{Performance Characteristics of LRMs}
+
+Reasoning models excel at certain tasks but come with trade-offs.
+
+\begin{rigour}[LRM Performance Trade-offs]
+\textbf{Strengths:}
+\begin{itemize}
+    \item Complex problem solving and multi-step reasoning
+    \item Coding and debugging tasks
+    \item Scientific and mathematical reasoning
+    \item Multi-step planning for agentic workflows
+\end{itemize}
+
+\textbf{Trade-offs:}
+\begin{itemize}
+    \item Generate many more tokens per response
+    \item Higher latency (user waits longer for response)
+    \item Higher computational cost per query
+    \item May ``overthink'' simple questions
+\end{itemize}
+\end{rigour}
+
+Recent research has identified nuanced patterns in when reasoning models help:
+
+\begin{quickref}[Three Performance Regimes (Shojaee et al., 2025)]
+When comparing LRMs with standard LLMs under equivalent inference compute:
+
+\textbf{1. Low-complexity tasks:}
+
+Standard models surprisingly \textit{outperform} LRMs. The overhead of reasoning is not justified for simple queries.
+
+\textbf{2. Medium-complexity tasks:}
+
+LRMs demonstrate clear advantage. The additional thinking enables better solutions.
+
+\textbf{3. High-complexity tasks:}
+
+Both model types experience performance collapse. The tasks exceed current capabilities regardless of reasoning.
+
+\textbf{Implication:} Reasoning models should be deployed selectively based on task complexity.
+
+\textbf{Source:} Shojaee et al. (2025). arXiv:2506.06941
+\end{quickref}
+
+\subsection{Training Reasoning Models}
+
+\begin{rigour}[How Reasoning Models Are Trained]
+\textbf{Pre-training:} The base model is trained identically to standard LLMs-next-token prediction on large corpora.
+
+\textbf{Eliciting reasoning:} Even without special training, prompts like ``Let's think step by step'' can initiate chain-of-thought reasoning in base models.
+
+\textbf{Post-training for reasoning:}
+\begin{itemize}
+    \item Reinforcement learning optimises for correct final answers
+    \item Higher performance achieved when feedback is provided for \textit{each reasoning step}, not just outcomes
+    \item Step-level human feedback labels guide the model toward sound reasoning processes
+\end{itemize}
+
+\textbf{Connection to the Bitter Lesson:}
+
+Chain-of-thought reasoning and RL-driven training represent another form of scaling-scaling inference-time computation. Performance is constrained primarily by compute and data availability, consistent with Sutton's observation.
+\end{rigour}
+
+%==============================================================================
+\section{Retrieval-Augmented Generation (RAG)}
+\label{sec:rag}
+%==============================================================================
+
+A fundamental limitation of LLMs is that their knowledge is frozen at training time. Retrieval-Augmented Generation addresses this by combining LLMs with external knowledge retrieval.
+
+\subsection{Motivation}
+
+\begin{quickref}[The Problem: Generic Responses]
+Without access to specific context, LLM responses are often too generic to be useful.
+
+\textbf{Example without RAG:}
+
+\textit{Prompt:} ``For a deep learning class project, how would a good table of contents look like?''
+
+\textit{Output:} A generic 15-section outline (Introduction, Prerequisites, Overview, etc.) that could apply to any course.
+
+\textbf{Example with RAG:}
+
+\textit{Same prompt + retrieved course syllabus content}
+
+\textit{Output:} A specific 7-section table aligned with the actual course requirements, topics covered, and assessment criteria.
+
+The difference is dramatic: RAG enables \textit{grounded}, contextually appropriate responses.
+\end{quickref}
+
+\subsection{RAG Architecture}
+
+\begin{rigour}[RAG Pipeline]
+The RAG architecture augments an LLM with a retrieval system:
+
+\textbf{Components:}
+\begin{enumerate}
+    \item \textbf{Document corpus:} Collection of documents to search (your knowledge base)
+    \item \textbf{Embedding model:} Converts text to vector representations
+    \item \textbf{Vector store:} Database optimised for similarity search
+    \item \textbf{Retriever:} Finds relevant documents given a query
+    \item \textbf{LLM:} Generates response using retrieved context
+\end{enumerate}
+
+\textbf{Process flow:}
+\begin{enumerate}
+    \item User provides a prompt/query
+    \item Query is embedded using the embedding model
+    \item Retriever searches vector store for similar document embeddings
+    \item Top-$k$ relevant documents are retrieved
+    \item Augmented prompt = original query + retrieved documents
+    \item LLM generates response conditioned on augmented prompt
+\end{enumerate}
+\end{rigour}
+
+% TODO: Add figure showing RAG architecture diagram
+
+\subsection{Document Retrieval Methods}
+
+The retrieval step is critical to RAG performance. Common approaches include:
+
+\begin{rigour}[Retrieval Techniques]
+\textbf{Dense retrieval (embedding-based):}
+\begin{itemize}
+    \item Encode query and documents as dense vectors
+    \item Retrieve documents with highest cosine similarity:
+    \[
+    \text{similarity}(q, d) = \frac{q \cdot d}{\|q\| \|d\|}
+    \]
+    \item Tools: Sentence transformers, OpenAI embeddings
+\end{itemize}
+
+\textbf{Sparse retrieval (keyword-based):}
+\begin{itemize}
+    \item TF-IDF or BM25 scoring
+    \item Matches based on term overlap
+    \item Often combined with dense methods (hybrid retrieval)
+\end{itemize}
+
+\textbf{Vector databases:}
+\begin{itemize}
+    \item \textbf{Elasticsearch:} Full-text search with vector capabilities
+    \item \textbf{Pinecone:} Purpose-built vector database
+    \item \textbf{Chroma, Weaviate, Milvus:} Open-source alternatives
+\end{itemize}
+\end{rigour}
+
+\subsection{Benefits and Limitations}
+
+\begin{quickref}[RAG Summary]
+\textbf{Benefits:}
+\begin{itemize}
+    \item \textbf{Reduces hallucinations:} Grounds responses in retrieved evidence
+    \item \textbf{Up-to-date knowledge:} Can access information newer than training cutoff
+    \item \textbf{Domain specificity:} Can incorporate proprietary or specialised documents
+    \item \textbf{Traceability:} Can cite sources for generated claims
+\end{itemize}
+
+\textbf{Limitations:}
+\begin{itemize}
+    \item Does not \textit{guarantee} factual correctness
+    \item Quality depends heavily on retrieval accuracy
+    \item Does not inherently structure outputs
+    \item Primary objective remains chat functionality, not information retrieval
+\end{itemize}
+
+\textbf{Critical insight:} Document retrieval is the bottleneck. The best LLM cannot compensate for poor retrieval.
+\end{quickref}
+
+\begin{redbox}
+\textbf{RAG Does Not Eliminate Hallucination}
+
+Even with retrieved context, models can:
+\begin{itemize}
+    \item Misinterpret or selectively quote retrieved documents
+    \item Confidently state information not present in retrieved context
+    \item Fail to acknowledge when retrieved documents do not answer the question
+\end{itemize}
+
+RAG is a mitigation strategy, not a solution. Always verify critical claims.
+\end{redbox}
+
+%==============================================================================
+\section{Fine-Tuning LLMs}
+\label{sec:finetuning}
+%==============================================================================
+
+While RAG augments LLMs with external knowledge at inference time, fine-tuning adapts the model's weights for specific tasks or domains.
+
+\subsection{Openness of LLMs}
+
+The landscape of LLM availability spans a spectrum from fully open to completely proprietary:
+
+\begin{rigour}[Categories of LLM Openness]
+\begin{center}
+\begin{tabular}{lp{8cm}}
+\toprule
+\textbf{Category} & \textbf{Description} \\
+\midrule
+\textbf{Fully open} & Model weights + training data + training code + documentation + recipes (e.g., OLMo) \\
+\textbf{Open weights} & Final model published and downloadable, but training details withheld (e.g., Llama) \\
+\textbf{Partially open} & Various intermediate levels of access \\
+\textbf{Proprietary} & Access only through API; no weights available (e.g., GPT-4, Claude) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The distinction matters for fine-tuning: open-weights models can be fine-tuned locally, while proprietary models require using the provider's fine-tuning API.
+\end{rigour}
+
+\subsection{Challenges in Fine-Tuning}
+
+\begin{redbox}
+\textbf{Fine-Tuning Challenges}
+
+\textbf{1. Computational expense:}
+
+LLMs have billions of parameters. Fine-tuning all parameters requires:
+\begin{itemize}
+    \item Storing gradients for all parameters (memory)
+    \item Computing gradient updates (compute)
+    \item Multiple passes through the fine-tuning dataset
+\end{itemize}
+
+A 7B parameter model requires approximately 28GB just for model weights in FP32, plus additional memory for gradients and optimiser states.
+
+\textbf{2. Catastrophic forgetting:}
+
+Fine-tuning on a narrow dataset can cause the model to ``forget'' capabilities learned during pre-training. The model becomes specialised but loses general knowledge.
+\end{redbox}
+
+\subsection{Parameter-Efficient Fine-Tuning (PEFT)}
+
+PEFT methods address these challenges by training only a small subset of parameters.
+
+\begin{rigour}[PEFT Approaches]
+\textbf{Key strategies:}
+\begin{enumerate}
+    \item \textbf{Freezing:} Keep most pre-trained parameters fixed; only train specific layers (e.g., final layers)
+
+    \item \textbf{Adapters:} Add small trainable modules between frozen layers
+
+    \item \textbf{Prompt tuning:} Learn continuous prompt embeddings while keeping the model frozen
+
+    \item \textbf{LoRA:} Add low-rank decomposition matrices to weight updates
+\end{enumerate}
+
+These methods typically train $<1\%$ of the original parameters while achieving comparable performance to full fine-tuning on many tasks.
+\end{rigour}
+
+\subsection{LoRA: Low-Rank Adaptation}
+
+LoRA has become the dominant PEFT method due to its simplicity and effectiveness.
+
+\begin{rigour}[LoRA: Mathematical Foundation]
+\textbf{Key assumption:} During fine-tuning, the change in weight matrices has \textit{low rank}-the adaptation lies in a low-dimensional subspace.
+
+\textbf{Background-matrix rank:}
+
+The \textbf{rank} of a matrix is the maximum number of linearly independent columns (equivalently, rows). A rank-$r$ matrix can be expressed as the product of two smaller matrices.
+
+\textbf{LoRA formulation:}
+
+Given pre-trained weights $W_0 \in \mathbb{R}^{d \times k}$, instead of learning a full update $\Delta W \in \mathbb{R}^{d \times k}$, LoRA parameterises the update as:
+\[
+W_0 + \Delta W = W_0 + BA
+\]
+
+where:
+\begin{itemize}
+    \item $B \in \mathbb{R}^{d \times r}$ (down-projection)
+    \item $A \in \mathbb{R}^{r \times k}$ (up-projection)
+    \item $r \ll \min(d, k)$ is the rank (a hyperparameter)
+\end{itemize}
+
+The product $BA$ has rank at most $r$, hence ``low-rank adaptation.''
+\end{rigour}
+
+\begin{quickref}[LoRA Training Procedure]
+\textbf{Initialisation:}
+\begin{itemize}
+    \item $A$: Random Gaussian initialisation, $A \sim \mathcal{N}(0, \sigma^2)$
+    \item $B$: Zero initialisation, $B = 0$
+\end{itemize}
+
+At initialisation, $BA = 0$, so the model starts exactly at the pre-trained weights.
+
+\textbf{Training:}
+\begin{itemize}
+    \item Pre-trained weights $W_0$ are \textbf{frozen} (no gradients computed)
+    \item Only $A$ and $B$ are trained
+    \item Forward pass: $h = (W_0 + BA)x$
+    \item Backward pass: Gradients only for $A$ and $B$
+\end{itemize}
+
+\textbf{Inference:}
+\begin{itemize}
+    \item Can merge: $W_{\text{merged}} = W_0 + BA$
+    \item No additional inference latency after merging
+\end{itemize}
+\end{quickref}
+
+\begin{rigour}[LoRA Parameter Efficiency]
+\textbf{Numerical example:}
+
+Consider a weight matrix with $d = 100$ rows and $k = 50$ columns, with LoRA rank $r = 2$.
+
+\textbf{Full fine-tuning:}
+\[
+\text{Parameters} = d \times k = 100 \times 50 = 5000
+\]
+
+\textbf{LoRA fine-tuning:}
+\[
+\text{Parameters} = d \times r + r \times k = 100 \times 2 + 2 \times 50 = 200 + 100 = 300
+\]
+
+\textbf{Reduction factor:} $\frac{5000}{300} \approx 16.7\times$ fewer parameters.
+
+For a model with many weight matrices, this reduction is applied to each adapted layer, yielding massive memory and compute savings.
+
+\textbf{Source:} Hu et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models. arXiv:2106.09685
+\end{rigour}
+
+% TODO: Add figure showing LoRA architecture with matrices A, B, and W_0
+
+\subsection{Fine-Tuning Proprietary Models}
+
+For models without publicly available weights, providers offer fine-tuning through their APIs.
+
+\begin{quickref}[API-Based Fine-Tuning]
+\textbf{Process:}
+\begin{enumerate}
+    \item Upload training data in required format (typically JSONL)
+    \item Configure hyperparameters through the API
+    \item Submit fine-tuning job
+    \item Access fine-tuned model through a new model endpoint
+\end{enumerate}
+
+\textbf{Example: Amazon Bedrock (Claude fine-tuning)}
+
+Configurable hyperparameters:
+\begin{itemize}
+    \item Epochs: 1--10
+    \item Batch size: 4--256
+    \item Learning rate multiplier: 0.1--2.0
+    \item Early stopping: enabled/disabled
+    \item Early stopping threshold: 0--0.1
+    \item Early stopping patience: 1--10
+\end{itemize}
+
+\textbf{Trade-offs:}
+\begin{itemize}
+    \item[+] No infrastructure management
+    \item[+] Access to state-of-the-art models
+    \item[$-$] Limited control over training process
+    \item[$-$] Data must be shared with provider
+    \item[$-$] Ongoing API costs for inference
+\end{itemize}
+\end{quickref}
+
+%==============================================================================
+\section{Few-Shot Learning}
+\label{sec:fewshot}
+%==============================================================================
+
+Few-shot learning provides an alternative to fine-tuning that requires no weight updates at all.
+
+\begin{rigour}[Definition: Few-Shot Learning]
+\textbf{Few-shot learning} improves LLM performance on a task by including a small number of input-output examples directly in the prompt.
+
+\textbf{This is NOT fine-tuning.} The model weights remain unchanged. Instead, the examples provide in-context demonstrations that guide the model's response format and behaviour.
+
+\textbf{Terminology:}
+\begin{itemize}
+    \item \textbf{Zero-shot:} Prompt contains only the task description and query, no examples. May include instructions.
+    \item \textbf{One-shot:} Prompt includes one example before the query.
+    \item \textbf{Few-shot:} Prompt includes several (typically 2--10) examples before the query.
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[Few-Shot Example]
+\textbf{Task:} Sentiment classification
+
+\textbf{Zero-shot prompt:}
+\begin{verbatim}
+Classify the sentiment as positive or negative.
+Text: "The movie was a waste of time."
+Sentiment:
+\end{verbatim}
+
+\textbf{Few-shot prompt:}
+\begin{verbatim}
+Classify the sentiment as positive or negative.
+
+Text: "I loved every minute of this film!"
+Sentiment: positive
+
+Text: "Boring and predictable."
+Sentiment: negative
+
+Text: "The movie was a waste of time."
+Sentiment:
+\end{verbatim}
+
+The examples demonstrate:
+\begin{itemize}
+    \item Expected output format (single word)
+    \item Label vocabulary (``positive'' vs ``negative'')
+    \item Task interpretation
+\end{itemize}
+\end{quickref}
+
+\begin{rigour}[When to Use Few-Shot vs Fine-Tuning]
+\textbf{Few-shot learning is preferred when:}
+\begin{itemize}
+    \item Limited training data available
+    \item Task can be demonstrated in a few examples
+    \item Rapid iteration is needed
+    \item No computational resources for fine-tuning
+\end{itemize}
+
+\textbf{Fine-tuning is preferred when:}
+\begin{itemize}
+    \item Large task-specific dataset available
+    \item Consistent, production-level performance required
+    \item Examples are too complex to fit in context
+    \item Domain requires extensive adaptation
+\end{itemize}
+
+\textbf{Trade-off:} Few-shot uses context window (limited tokens); fine-tuning uses compute (GPU hours).
+\end{rigour}
+
+%==============================================================================
+\section{Structured Outputs}
+\label{sec:structured}
+%==============================================================================
+
+Many applications require LLM outputs in specific formats-not free-form text but structured data that can be parsed and processed programmatically.
+
+\subsection{JSON Schema}
+
+\begin{rigour}[Structured Output with JSON Schema]
+\textbf{Motivation:} Model output as structured data rather than prose.
+
+\textbf{Key points:}
+\begin{itemize}
+    \item JSON is a standard format for data storage and exchange
+    \item Models can be constrained to output valid JSON
+    \item JSON Schema defines the required structure (fields, types, constraints)
+    \item Eliminates hallucinations that would produce invalid format
+\end{itemize}
+
+\textbf{Use cases:}
+\begin{itemize}
+    \item Information extraction from unstructured text
+    \item API response generation
+    \item Form filling and data entry automation
+    \item Converting natural language to database queries
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[Example: Research Paper Extraction]
+\textbf{Task:} Extract structured information from research paper abstracts.
+
+\textbf{Python schema definition (using Pydantic):}
+\begin{verbatim}
+from pydantic import BaseModel
+
+class ResearchPaperExtraction(BaseModel):
+    title: str
+    authors: list[str]
+    abstract: str
+    keywords: list[str]
+\end{verbatim}
+
+\textbf{Input:} Unstructured paper abstract text
+
+\textbf{Output:} JSON conforming to schema:
+\begin{verbatim}
+{
+  "title": "LoRA: Low-Rank Adaptation...",
+  "authors": ["Edward Hu", "Yelong Shen", ...],
+  "abstract": "We propose Low-Rank Adaptation...",
+  "keywords": ["fine-tuning", "transformers", "PEFT"]
+}
+\end{verbatim}
+
+The schema constraint guarantees parseable, consistent output.
+\end{quickref}
+
+\subsection{Chain-of-Thought with Structured Output}
+
+Structured outputs can also enforce reasoning processes, not just final answers.
+
+\begin{rigour}[Structured Chain-of-Thought]
+\textbf{Purpose:} Force the model to show its reasoning, even if not specifically trained as a reasoning model.
+
+\textbf{Approach:} Define a schema that includes reasoning steps:
+\begin{verbatim}
+class MathSolution(BaseModel):
+    problem_understanding: str
+    approach: str
+    steps: list[str]
+    final_answer: str
+    confidence: float
+\end{verbatim}
+
+\textbf{Benefits:}
+\begin{itemize}
+    \item Guides user through solution in structured steps
+    \item Makes reasoning auditable and debuggable
+    \item Can improve accuracy by forcing explicit reasoning
+    \item Consistent format enables downstream processing
+\end{itemize}
+\end{rigour}
+
+%==============================================================================
+\section{Tool Calling}
+\label{sec:tools}
+%==============================================================================
+
+Tool calling extends LLM capabilities beyond text generation by enabling models to invoke external functions and APIs.
+
+\begin{rigour}[Definition: Tool Calling]
+\textbf{Tool calling} (also called function calling) connects a language model to external tools, allowing it to access data and perform actions beyond text generation.
+
+\textbf{Examples of tools:}
+\begin{itemize}
+    \item Web search APIs
+    \item Code execution environments
+    \item Database queries
+    \item Calculator functions
+    \item External service APIs (weather, maps, etc.)
+\end{itemize}
+
+The model does not execute tools directly-it generates structured requests that an orchestration layer executes.
+\end{rigour}
+
+\begin{quickref}[Tool Calling Flow: 5 Steps]
+\textbf{Step 1: Define tools and send messages}
+
+Developer provides tool definitions (function signatures) and user message:
+\begin{verbatim}
+Tools: get_weather(location: str) -> dict
+Message: "What's the weather in Paris?"
+\end{verbatim}
+
+\textbf{Step 2: Model generates tool call}
+
+Model recognises the need for external data and outputs:
+\begin{verbatim}
+Tool call: get_weather("paris")
+\end{verbatim}
+
+\textbf{Step 3: Execute function}
+
+Developer's code executes the actual function:
+\begin{verbatim}
+result = get_weather("paris")
+# Returns: {"temperature": 14, "conditions": "cloudy"}
+\end{verbatim}
+
+\textbf{Step 4: Return results to model}
+
+Send conversation history plus tool result back to model.
+
+\textbf{Step 5: Model generates final response}
+
+Model incorporates tool result into natural language:
+\begin{verbatim}
+"It's currently 14C and cloudy in Paris."
+\end{verbatim}
+\end{quickref}
+
+% TODO: Add figure showing tool calling flow diagram
+
+\begin{rigour}[Tool Calling Architecture]
+\textbf{Key architectural points:}
+\begin{enumerate}
+    \item \textbf{Model as orchestrator:} The LLM decides \textit{when} and \textit{which} tools to call, but does not execute them.
+
+    \item \textbf{Structured tool calls:} Tool invocations are structured (typically JSON) to enable reliable parsing.
+
+    \item \textbf{Tool results as context:} Results are added to the conversation as a new message type, enabling multi-turn tool use.
+
+    \item \textbf{Safety boundary:} Separating decision (model) from execution (code) provides a control point for safety checks.
+\end{enumerate}
+
+\textbf{Training for tool use:}
+
+Models are post-trained on conversations that include tool calls and results, teaching them:
+\begin{itemize}
+    \item When a tool would help answer a question
+    \item How to format tool calls correctly
+    \item How to interpret and incorporate tool results
+\end{itemize}
+\end{rigour}
+
+\begin{redbox}
+\textbf{Tool Calling Security Considerations}
+
+Tool calling introduces security risks not present in pure text generation:
+\begin{itemize}
+    \item \textbf{Prompt injection:} Malicious input may trick the model into calling unintended tools
+    \item \textbf{Data exfiltration:} Tools with external access could leak sensitive information
+    \item \textbf{Unintended actions:} Write-capable tools (send email, modify database) can cause harm
+\end{itemize}
+
+\textbf{Mitigations:}
+\begin{itemize}
+    \item Validate tool calls before execution
+    \item Use read-only tools where possible
+    \item Implement rate limiting and access controls
+    \item Log all tool invocations for audit
+\end{itemize}
+\end{redbox}
+
+%==============================================================================
+\section{AI Agents}
+\label{sec:agents}
+%==============================================================================
+
+AI agents represent the frontier of LLM applications, combining language understanding with autonomous action over extended interactions.
+
+\subsection{What Are AI Agents?}
+
+\begin{rigour}[Definition: AI Agent]
+Multiple definitions exist in the literature. A useful characterisation from Shavit et al. (2023):
+
+``Agentic AI systems are characterised by the ability to take actions which consistently contribute towards achieving goals over an extended period of time, without their behaviour having been specified in advance.''
+
+\textbf{Key characteristics:}
+\begin{itemize}
+    \item \textbf{Goal-directed:} Works towards objectives, not just responding to prompts
+    \item \textbf{Autonomous:} Makes decisions without step-by-step human guidance
+    \item \textbf{Extended operation:} Functions over multiple steps or sessions
+    \item \textbf{Tool use:} Interacts with external systems to achieve goals
+    \item \textbf{Adaptive:} Adjusts approach based on intermediate results
+\end{itemize}
+\end{rigour}
+
+\subsection{Examples of AI Agents}
+
+\begin{quickref}[Deep Research Agents]
+\textbf{Google Gemini Deep Research / OpenAI Deep Research:}
+
+\textbf{Capabilities:}
+\begin{itemize}
+    \item Combines data analysis with web search
+    \item Uses reasoning to interpret text, images, and PDFs
+    \item Pivots research direction based on findings
+    \item Operates autonomously for extended periods
+\end{itemize}
+
+\textbf{Outputs:}
+\begin{itemize}
+    \item Comprehensive research reports with citations
+    \item Summary of reasoning and search process
+    \item Audio summaries of findings
+\end{itemize}
+
+\textbf{Architecture:}
+\begin{itemize}
+    \item Task manager coordinates multiple model calls
+    \item Error handling ensures process completion
+    \item Documented outputs with provenance
+\end{itemize}
+\end{quickref}
+
+\begin{quickref}[AI Browsers]
+\textbf{Example: Perplexity Comet}
+
+\textbf{Capabilities:}
+\begin{itemize}
+    \item Browser with integrated AI agent functionality
+    \item Can perform multi-step web tasks (e.g., finding train connections)
+    \item Operates at near-human speed on web interfaces
+\end{itemize}
+
+\textbf{Limitations:}
+\begin{itemize}
+    \item Hallucination issues persist (may invent information)
+    \item Makes assumptions that may be incorrect (e.g., postal codes)
+    \item Error accumulation over multi-step tasks
+\end{itemize}
+
+\textbf{Privacy concern:} AI browsers provide companies with detailed data about user behaviour across the web, not just within AI applications.
+\end{quickref}
+
+\subsection{Agent Categorisation and Governance}
+
+As agents become more capable, understanding their characteristics becomes important for governance and safety.
+
+\begin{rigour}[Gabriel and Kasirzadeh (2025) Framework]
+A framework for categorising AI systems with relevance for governance:
+
+\textbf{Dimensions:}
+\begin{enumerate}
+    \item \textbf{Autonomy:} Degree of independent decision-making
+    \item \textbf{Efficacy:} Ability to achieve intended outcomes
+    \item \textbf{Goal complexity:} Sophistication of objectives pursued
+    \item \textbf{Generality:} Range of domains/tasks covered
+\end{enumerate}
+
+\textbf{Example systems on this spectrum:}
+\begin{itemize}
+    \item AlphaGo: High efficacy, low generality
+    \item LLM chatbots: Moderate autonomy, high generality
+    \item Autonomous vehicles: High autonomy, moderate generality
+    \item Deep research agents: High on multiple dimensions
+\end{itemize}
+
+This framework helps identify which regulatory approaches apply to different agent types.
+
+\textbf{Source:} Gabriel and Kasirzadeh (2025). arXiv:2504.21848
+\end{rigour}
+
+\subsection{Future Implications}
+
+\begin{quickref}[Agent Development Trajectory]
+\textbf{Current trends:}
+\begin{itemize}
+    \item Rapid development of new agent capabilities
+    \item Integration of agents into productivity tools
+    \item Increasing autonomy and task complexity
+\end{itemize}
+
+\textbf{Policy implications:}
+\begin{itemize}
+    \item Need for frameworks to assign responsibility for agent actions
+    \item Questions about disclosure when agents act on behalf of users
+    \item Potential for agents to be used for harmful purposes at scale
+\end{itemize}
+
+\textbf{Resource implications:}
+\begin{itemize}
+    \item Agents multiply compute requirements (many LLM calls per task)
+    \item Significant energy consumption implications
+    \item Infrastructure requirements for reliable agent operation
+\end{itemize}
+\end{quickref}
+
+\begin{redbox}
+\textbf{Agent Safety Considerations}
+
+Autonomous agents introduce risks beyond those of chat-based LLMs:
+\begin{itemize}
+    \item \textbf{Goal misalignment:} Agent pursues goals differently than intended
+    \item \textbf{Unintended side effects:} Actions have unforeseen consequences
+    \item \textbf{Compounding errors:} Mistakes early in a chain propagate and amplify
+    \item \textbf{Accountability gaps:} Unclear who is responsible for agent actions
+\end{itemize}
+
+Current agents are narrow enough that failures are typically recoverable, but as capabilities increase, the stakes of misalignment grow.
+\end{redbox}
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+\begin{quickref}[Week 9 Summary]
+\textbf{AI Alignment:}
+\begin{itemize}
+    \item LLMs suffer from hallucinations, bias, and potential for harmful content
+    \item Raw LLMs do not produce realistic chat responses-instruction tuning is required
+    \item Sounding realistic is currently prioritised over factual accuracy
+\end{itemize}
+
+\textbf{Post-Training:}
+\begin{itemize}
+    \item Two-stage pipeline: pre-training (next-token prediction) + post-training (instruction following)
+    \item SFT teaches models to imitate human-written responses
+    \item RLHF optimises for human preferences using a learned reward model
+\end{itemize}
+
+\textbf{The Bitter Lesson:}
+\begin{itemize}
+    \item General methods leveraging computation outperform domain-specific approaches
+    \item Scaling (compute, data, model size) drives breakthrough progress
+\end{itemize}
+
+\textbf{Reasoning Models:}
+\begin{itemize}
+    \item Multi-step reasoning improves performance on complex tasks
+    \item Test-time compute can substitute for model size
+    \item Three regimes: LRMs underperform on simple, excel on medium, collapse on hard tasks
+\end{itemize}
+
+\textbf{RAG:}
+\begin{itemize}
+    \item Augments LLMs with retrieved documents for grounded responses
+    \item Retrieval quality is the critical bottleneck
+    \item Reduces but does not eliminate hallucinations
+\end{itemize}
+
+\textbf{Fine-Tuning:}
+\begin{itemize}
+    \item Full fine-tuning is computationally expensive and risks catastrophic forgetting
+    \item LoRA enables efficient adaptation by learning low-rank weight updates
+    \item Proprietary models offer fine-tuning through APIs
+\end{itemize}
+
+\textbf{Few-Shot Learning:}
+\begin{itemize}
+    \item Include examples in prompt to guide model behaviour
+    \item No weight updates required
+    \item Trade-off: uses context window rather than compute
+\end{itemize}
+
+\textbf{Structured Outputs and Tools:}
+\begin{itemize}
+    \item JSON Schema constrains outputs to parseable formats
+    \item Tool calling extends LLMs beyond text generation
+    \item Security considerations are critical for tool-using systems
+\end{itemize}
+
+\textbf{AI Agents:}
+\begin{itemize}
+    \item Autonomous systems that pursue goals over extended periods
+    \item Combine language understanding with tool use and planning
+    \item Raise new governance and safety challenges
+\end{itemize}
+\end{quickref}
+
+%==============================================================================
+% References
+%==============================================================================
+
+\section*{References and Further Reading}
+
+\subsection*{Academic Papers}
+\begin{itemize}
+    \item Hu, E. J., et al. (2021). LoRA: Low-Rank Adaptation of Large Language Models. \textit{arXiv:2106.09685}
+    \item Shojaee, P., et al. (2025). Performance of Large Reasoning Models. \textit{arXiv:2506.06941}
+    \item Snell, C., et al. (2024). Scaling test-time compute. \textit{arXiv}
+    \item Sutton, R. S. (2019). The Bitter Lesson. \url{http://www.incompleteideas.net/IncIdeas/BitterLesson.html}
+    \item Gabriel, I., \& Kasirzadeh, A. (2025). AI Agents Categorisation. \textit{arXiv:2504.21848}
+    \item Shavit, Y., et al. (2023). Practices for governing agentic AI systems.
+    \item OLMo Team (2025). OLMo: Open Language Model. \textit{arXiv:2501.00656}
+\end{itemize}
+
+\subsection*{Documentation and Resources}
+\begin{itemize}
+    \item OpenAI Platform: Prompt Engineering Guide. \url{https://platform.openai.com/docs/guides/prompt-engineering}
+    \item OpenAI Platform: Structured Outputs. \url{https://platform.openai.com/docs/guides/structured-outputs}
+    \item OpenAI Platform: Function Calling. \url{https://platform.openai.com/docs/guides/function-calling}
+    \item PyTorch Blog: A Primer on LLM Post-Training
+    \item AWS Blog: Fine-tune Claude 3 Haiku in Amazon Bedrock
+\end{itemize}

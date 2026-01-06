@@ -1,0 +1,625 @@
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf ML Lecture Notes 2024 \\ Henry Baker}
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf ML Lecture Notes: Wk 3\\ High-dimensional methods and Regularisation}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Supervised Learning}
+
+\begin{itemize}
+    \item Given $X$ with labels $y$: prediction
+    \item Classification: learn $f(x):\mathcal{X} \rightarrow {0,1}$
+    \item Regression: learn $f(x): \mathcal{X} \rightarrow \mathbb{R}$
+    \item Performance based on some distance between predicted vs actual labels: $d(\Hat{f}(x), y) \quad$ - for example in OLS $(\hat{f}(x) - y)^2$
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_03_highdim/reg-class.png}
+    \caption{Regression vs classification in supervised learning}
+    \label{fig:enter-label}
+\end{figure}
+
+\section{OLS}
+\begin{itemize}
+    \item optimal solution of OLS regression:
+    $$\hat{\beta} = (X^TX)^{-1} X^T y$$
+    \item this gives us the optimal coefficients; we then plug these back (take matrix product) to get predictions:
+    $$\hat{y} = X \hat{\beta}$$
+    \item in general, we assume first column of $X$ is a column of 1s - the intercept. This gives us matrix $n \times (p + 1)$
+    \item prediction result: $\hat{y} = \hat{\beta_0} + \hat{\beta_1}X_1 + \cdots + \hat{\beta_p}X_p$
+\end{itemize}
+
+\section{Polynomial regression}
+
+\begin{itemize}
+    \item Allows us to introduce non-linearity; \textit{NB: the 'linear' in linear regression, refers to linearity in \textit{parameters}, NOT the produced line}
+    \item polynomial order = measure of complexity of the model = how well it can fit the training data
+    \item we can encode non-linearity into OLS with feature expansion through polynomials
+    \begin{itemize}
+        \item assume we have a single feature:
+        \item feature expansion: $f(X) = \beta_0 + \beta_1 X + \beta_2 X^2 + \beta_3 X^3 \cdots + \beta_M X^M$
+    \end{itemize}
+    \item BUT this creates a new question: how to choose appropriate $M$
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_03_highdim/choosing M.png}
+    \caption{High degree polynomials: overfitting}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Challenges with polynomial regression: Numerical Instability}
+
+Polynomials can represent a huge class of functions (highly flexible + mathematically straightforward): Taylor series / Weierstrass approx theorem (anything can be closely approx'd)\\
+
+BUT, \textcolor{red}{Polynomials are \textbf{global approximates} -> problems with \textbf{edges} and \textbf{variance}}:
+    \begin{itemize}
+        \item Runge's Phenomenon. This phenomenon occurs when using high-degree polynomials to interpolate a set of points, leading to large oscillations at the edges of the interval. The polynomial fits the given points well in the middle of the domain but exhibits large and erratic fluctuations at the ends (or edges) of the domain.
+        \item \textbf{High Variance at Edges}: The edges or extremities of the domain cause a lot of variance in the polynomial approximation. As you increase the degree of the polynomial to achieve a better fit through the dataset, the polynomial's behavior becomes increasingly erratic near the boundaries. This is because \textcolor{red}{polynomials are global approximates, meaning changes to the polynomial to improve the fit in one part of the domain can have far-reaching effects throughout the entire domain}, including unwanted oscillations at the edges.
+        \item \textbf{Sensitivity to Data (Variance)}: High-degree polynomials are \textcolor{red}{very sensitive to the data they are fitting. Small changes in the data points (input) can lead to significant changes in the polynomial (radically large differences in output estimations), particularly affecting its behavior at the domain's edges}. This sensitivity is a direct consequence of the polynomial trying to accommodate all data points in a global manner, leading to a lack of robustness.
+        \item = While polynomial functions are powerful tools for function approximation due to their global nature, they can be \textbf{problematic when it comes to accurately representing functions with sharp edges or rapid changes}. The global nature of polynomial approximation means that \textbf{trying to fit parts of the function with high curvature or discontinuities can lead to high variance and oscillatory behavior, especially at the domain's boundaries}. This issue necessitates careful consideration when choosing the degree of the polynomial for approximation tasks and often encourages the use of alternative approaches, such as piecewise polynomials or spline functions, which can provide local approximations that mitigate some of these challenges.
+    \end{itemize}
+
+For polynomials of large degrees ($x^k$ where $k$ is large), two main issues contribute to \textbf{numerical instability}:
+\begin{enumerate}
+    \item \textbf{Magnitude of Polynomial Terms}: As the degree of the polynomial increases, the magnitude of \(x^k\) (where \(k\) is the degree of the polynomial) grows rapidly for values of \(x\) greater than 1 or less than -1. This can lead to extremely large values that are difficult to manage computationally. \\
+    \textit{i.e. when $k$ gets large, $x^k$ gets super large}
+    \item \textbf{Magnitude of Coefficients}: To compensate for the large values produced by high-degree terms, the fitting process often results in very small (or very large, in magnitude) coefficients (\(\beta\)). These coefficients attempt to scale the polynomial terms back down to a reasonable size to fit the data accurately.\\
+    \textit{i.e. as $x^k$ gets super large, in order to smooth things out, $\beta_k$ then has to shrink: to return to fit the line, we have to multiply our super large value by something small}
+\end{enumerate}
+
+ => \textbf{Numerical Instability}: The combination of very large polynomial terms and small coefficients can lead to numerical instability. This is because small changes in the data or in the coefficients can result in disproportionately large changes in the polynomial's value, making the polynomial approximation sensitive and unpredictable.
+ 
+\begin{itemize}
+    \item \textbf{Condition Number = measure of Numerical Instability}: condition number of the matrix \(X^TX\), where \(X\) is the matrix of polynomial basis functions. The condition number, \(\kappa(X^TX) = \frac{\text{max eigenvalue}}{\text{min eigenvalue}}\), measures the sensitivity of the polynomial fit to errors in the data. \\
+    \begin{itemize}
+        \item \textit{A high condition number indicates that the polynomial fit is likely to be numerically unstable, as it is highly sensitive to small changes in the input data.} 
+        \item \textit{think of SVD: condition number is how hard it is to invert this matrix whether it is hard to inverse is based around the difference between the max and the min}
+    \end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_03_highdim/numerical_instability.png}
+    \caption{Numerical Instability}
+    \label{fig:enter-label}
+\end{figure}
+
+\section{Bias-Variance tradeoff}
+$$bias(\hat{\theta}) = E[\hat{\theta}] - \theta$$
+$$MSE(\hat{\theta}) = Var(\hat{\theta}) + bias(\theta)^2$$
+
+\begin{itemize}
+    \item as complexity increases, the model becomes more expressive:
+    \begin{itemize}
+        \item bias decreases: \textit{the function can now 'express' the data better}
+        \item variance increases: \textit{the function is harder to estimate}
+    \end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_03_highdim/bias_variance_MSE.png}
+    \caption{Bias Variance Trade off}
+    \label{fig:enter-label}
+\end{figure}
+
+\section{Evaluating Model Performance}
+This process typically involves defining the criteria of interest, estimating population risk, and employing strategies like Empirical Risk Minimization (ERM) to approximate this risk based on available data.
+
+\subsection{Defining Criteria of Interest -> "Risk"}
+
+\begin{tcolorbox}
+    \begin{enumerate}
+        \item \textbf{Model}: how you predict $f(x)$ from $X$
+        \item \textbf{A measure of distance... or is this the loss function???} dependent on selected feature space: eg euclidean distance vs ..?
+        \item \textbf{Loss function}: quantifies the discrepancy or error between the actual outcome $y$ and predicted outcome $f(x)$. Gives you errors / losses:
+        $$(d(f(x),y)$$
+        \item \textbf{Risk}: measure of expected loss of a model. The metric you minimise in ERM.
+    \end{enumerate}
+\end{tcolorbox}
+"Risk" is a generalized concept that refers to the \textbf{expected loss or error of a model with respect to its predictions on new data}; essentially an expected loss quantifying how much, on average, the model's predictions deviate from the actual values according to the chosen metric (i.e. the loss function).
+
+\begin{itemize}
+    \item \textbf{Accuracy} -  measures the proportion of all predictions that the model gets right. \textit{Used when the costs of false positives and false negatives are roughly equivalent.}
+\end{itemize}
+...In classification problems, precision and recall are often more insightful than accuracy, especially in imbalanced datasets. \textbf{These metrics can serve as the "risk" by framing the loss in terms of incorrect predictions}: false positives for precision and false negatives for recall....
+\begin{itemize}
+    \item \textbf{Precision} - (Positive Predictive Value) measures the proportion of positive identifications that were actually correct. \textit{Used when the cost of false positives is high} 
+    \item \textbf{Recall} - (Sensitivity) measures the proportion of actual positives that were identified correctly. \textit{Used when the cost of false negatives is high.}
+    \item \textbf{Area Under the ROC Curve (AUC)} provides a single measure summarizing the performance of a classifier across all possible threshold values, reflecting the model's ability to discriminate between positive and negative classes. \begin{itemize}
+        \item A higher AUC indicates a better model. 
+        \item In this context, risk could be considered as 1 - AUC, representing the model's inability to discriminate correctly. 
+    \end{itemize}
+    \item \textbf{Mean Squared Error (MSE)} - average squared difference between the observed actual outcomes and the outcomes predicted by the model. It is commonly used in regression problems. The MSE directly quantifies the risk as the expectation of squared errors. 
+    \item Other relevant metrics
+\end{itemize}
+
+\subsection{Population Risk ($R_{f,p}^*$)}  
+\begin{itemize}
+    \item Population risk is what we really care about, but we can't observe it directly!
+    \item A theoretical measure of the expected loss or error of a model $f$ over the entire population of interest.
+    \item Often denoted as $E_{P^*} [\ell(y,f(x))]$... 
+    \item ... where $\ell (y, f(x))$ is a loss function measuring the discrepancy between the true outcomes $y$ and the model predictions $f(x)$. 
+    \item = a gold standard for model performance: indicates how well model would perform in general beyond just the observed data.
+    \item BUT not directly observable (we don't have access to entire population of data / all possible scenarios) -> have to estimate it. 
+    \item We sample from the full population, and then we have labels for those observations in the sample: ERM...
+\end{itemize}
+
+\begin{tcolorbox}
+\textbf{Population Risk:}
+\[R_{f,p^*} = R_f = \mathbb{E}_{p^*}[\ell(y, f(x))]\]
+This notation represents the concept of the \textbf{population risk} or \textbf{expected risk} for a predictive model \(f\). Let's break down the meaning and components of this expression:
+
+\begin{enumerate}
+    \item \textbf{\(R_{f,p^*}\) or \(R_f\)}: This denotes the population risk associated with the predictive model \(f\). The population risk is a theoretical measure of the average loss or error of the model \(f\) when predicting outcomes (\(y\)) from inputs (\(x\)) across the entire population distribution \(p^*\).
+    
+    \item \textbf{\(\mathbb{E}_{p^*}[\cdot]\)}: This is the expectation operator, indicating that the following expression is to be averaged over the probability distribution \(p^*\), which represents the true underlying distribution of the data. The subscript \(p^*\) emphasizes that the expectation is with respect to the true population distribution of the input-output pairs \((x, y)\).
+    
+    \item \textbf{\(\ell(y, f(x))\)}: This is the loss function, which quantifies the discrepancy or error between the actual outcome \(y\) and the predicted outcome \(f(x)\) for a given input \(x\). The choice of loss function (\(\ell\)) depends on the specific problem and goals of the model (e.g., mean squared error for regression tasks, or cross-entropy loss for classification tasks).
+    
+    \item \textbf{Interpretation}: The expression as a whole, \(\mathbb{E}_{p^*}[\ell(y, f(x))]\), represents the expected value of the loss \(\ell(y, f(x))\) when the model \(f\) is used to predict \(y\) from \(x\), averaged over all possible input-output pairs \((x, y)\) according to their true distribution in the population (\(p^*\)). This expected loss is what the model aims to minimize; however, since the true distribution \(p^*\) is usually unknown, direct computation of \(R_{f,p^*}\) is not feasible in practice.
+\end{enumerate}
+
+In summary, \(R_{f,p^*} = \mathbb{E}_{p^*}[\ell(y, f(x))]\) encapsulates the goal of supervised learning: to find a model \(f\) that minimizes the average loss incurred when predicting outcomes from inputs, as averaged over the true, but unknown, distribution of the data. This concept underpins the rationale for using empirical risk minimization (ERM) as an approach to approximate and minimize the population risk based on a sample from the population.
+
+\end{tcolorbox}
+
+\subsection{Empirical Risk Minimization (ERM)}
+\begin{itemize}
+    \item ERM \textbf{approximates the (theoretical) Population Risk} using the available sample data 
+    \item \textbf{Empirical Risk = average loss over the sample set} (using a given loss function): $\frac{1}{n} \sum_{i=1}^{n} \ell(y_i, f(x_i))$
+    \item ERM Process: aims to find the function (from a hypothesis space $H$), that minimises Empirical Risk $f^* = \text{arg} \min_{f \in \mathcal{H}} \frac{1}{n} \sum_{i=1}^{n} \ell(y_i, f(x_i))$
+    \item  = minimising loss on the observed dataset (as proxy for minimising true population risk)
+    \item The empirical risk is based on the empirical distribution of the sample data, which represents an approximation of the true underlying distribution of the population. By minimizing the loss over the empirical distribution, ERM seeks to approximate the best possible model performance on the population level.
+\end{itemize}
+
+\begin{tcolorbox}
+    \textbf{Empirical Risk Minimisation:}
+
+\[ \hat{f}_{ERM} = \arg \min_{f \in \mathcal{H}} \frac{1}{n} \sum_{i=1}^{n} \ell(y_i, f(x_i)) \]
+
+Here's what each part means:
+
+\begin{itemize}
+    \item \textbf{\(\hat{f}_{ERM}\)}: the \textbf{predictive model or function} that we are trying to find. It's the function that, given input \(x\), produces an output \(f(x)\) which is the prediction of the true output \(y\).
+    
+    \item \textbf{\(\arg \min_{f \in \mathcal{H}}\)}: the argument of the \textbf{minimization problem}. It means we are looking for the function \(f\) within a hypothesis space \(\mathcal{H}\) that minimizes the following expression. The hypothesis space \(\mathcal{H}\) is the set of all models or functions that we are considering as potential solutions.
+    
+    \item \textbf{\(\frac{1}{n} \sum_{i=1}^{n} \ell(y_i, f(x_i))\)}: the \textbf{empirical risk}, which is the average loss over the sample dataset consisting of \(n\) data points. Each data point consists of an input \(x_i\) and the corresponding true output \(y_i\). The function \(\ell(y, f(x))\) is a loss function that measures the discrepancy or error between the predicted output \(f(x_i)\) and the true output \(y_i\) for each data point. The empirical risk is thus the average of these individual losses over all data points in the sample.
+    
+    \item \textbf{Empirical Distribution of Your Data}: The empirical risk is calculated based on the empirical distribution of the data, which is the distribution represented by the sample data points \((x_i, y_i)\). Unlike the true underlying distribution \(p^*\) of the population, the empirical distribution is what we have access to through the collected data.
+\end{itemize}
+
+\textbf{Overall Explanation}:
+The process of Empirical Risk Minimization involves selecting the best predictive model \(f\) from a set of possible models (\(\mathcal{H}\)) based on how well they perform on the available data. Specifically, ERM seeks the model that minimizes the average loss (as measured by some loss function \(\ell\)) incurred on the sample data. This approach is fundamental in machine learning for fitting models to data, with the ultimate goal of finding a model that not only performs well on the sample data but also generalizes well to new, unseen data.
+
+\end{tcolorbox}
+
+\begin{redbox}
+BUT, if you a choose a model based on your ERM alone, you will ovefit to the training data and end up with a high order polynomial - which is problematic! We need to include other considerations...
+\end{redbox}
+
+\subsection{Different Kinds of Error: Approximation vs Estimation}
+
+\begin{enumerate}
+    \item \textbf{Best possible function:} 
+    $$f^{**} = \arg \min_f \mathcal{R}(f)$$
+    \begin{itemize}
+        \item represents the theoretical best possible predictive model across all conceivable models; minimizes the true risk $R(f)$, which is the expected loss over the entire population distribution. 
+        \item This function serves as a benchmark for the best performance that could be achieved in theory, regardless of any constraints or limitations.
+        \item this is an ideal function;  maybe we can't estimate it with our chosen class - eg. it's more complex than a polynomial, maybe it has discontinuities etc
+        \item can never be observed
+    \end{itemize}
+    
+    \item \textbf{Best function within a considered hypothesis space: }
+    $$f^{*} = \arg \min_{f \in \mathcal{H}} \mathcal{R}(f)$$
+        \begin{itemize}
+        \item best function within a specific hypothesis class $H$ (i.e. the set of all models we are considering)
+        \item \textbf{minimises true risk}$R(f)$ 
+        \item represents the best performance we can hope to achieve given the constraints of our model class or hypothesis space
+        \item we can't get to $f^{**}$ if the actual function is not in the class of functions we are using
+    \end{itemize}
+    
+    \item \textbf{Our empirical best guess:}
+    \begin{align*}
+        f^{*}_n &= \arg \min_{f \in \mathcal{H}} \mathcal{R}(f,\mathcal{D}) \\
+        &= \arg \min_{f \in \mathcal{H}} \frac{1}{n} \sum_{i=1}^{n} \ell(y_i, f(x_i)
+    \end{align*}
+    \begin{itemize}
+        \item \textbf{minimises empirical risk} $\mathcal{R}(f,\mathcal{D})$
+        \item Empirical risk is the average loss computed over a specific dataset $\mathcal{D}$
+        \item Empirical best guess aims to approximate the true best function $f^*$ within $\mathcal{H}$ by minimising the observed errors on the training data $\mathcal{D}$
+        \item this is our best estimate, based on the available data - trained on $n$ samples - a subset of the full population
+    \end{itemize}
+\end{enumerate}
+\\
+... this allows us to rethink what our error is... \\
+
+Decomposing the difference in risk (expected loss) between (1) the theoretical best possible model ($Rf^{**})$ and (3) the best empirical model ($Rf^*_n)$:\\
+
+\textit{NB we are dealing with the risks associated with each of these 3 model types; the $E_{p^*}$ deals with the \textbf{empirical} risk of our best guess model, whereas the other two are associated with the (theoretical) \textbf{true}} risk}. \\
+
+$$R3 - R1 = \textcolor{blue}{(R2 - R1)} + \textcolor{red}{(R3 - R2)}$$
+
+    \[
+\mathbb{E}_{p^{*}} \mathcal{R}(f^{*}_n) - \mathcal{R}(f^{**}) = \underbrace{\textcolor{blue}{\mathcal{R}(f^{*}) - \mathcal{R}(f^{**})}}_{\text{Approximation Error}} + \underbrace{\textcolor{red}{ \mathbb{E}_{p^{*}} \mathcal{R}(f^{*}_n) - \mathcal{R}(f^{*})}}_{\text{Estimation/Generalization Error}}
+\]
+
+\textcolor{blue}{\textbf{Approximation error:}  how much worse our chosen model class is compared to the best possible model class. We can never eradicate this, just do a better job of selecting functions, but we  will always pay some cost based on our modelling choice. \textit{(Theory-based)}}
+    \begin{itemize}
+        \item R(1) - R(2)
+        \item Measures the gap between (1) the best possible function $f^{**}$ and (2) the best function we consider $f^*$. 
+        \item Reflects the inherent limitations of the hypothesis space in approximating the true best model.
+        \item Quantifies how much performance is lost simply because our model class cannot capture the true underlying relationship in the data perfectly.
+        \item Quantifies how well the best theoretical model in our chosen hypothesis space can approximate the true best model. 
+        \item This error is inherent to the choice of the model class and does not decrease with more data.
+    \end{itemize}
+    
+\textcolor{red}{\textbf{Estimation / Generalization error:} errors from estimating the model from finite data. We CAN do something about this; this is (1) sampling variation and (2) modelling problems \textit{(Empirically-based)}}
+    \begin{itemize}
+        \item R(3) - R(2)
+        \item This error measures the difference between the expected risk of (2) the best model within the hypothesis space ($R(f^*)$), vs the risk of (3) the empirically best model $R(f^*_n)$ - which is the model obtained by training on $n$ samples.
+        \item Captures the error introduced by the process of estimating the model from a finite sample size $n$, rather than having access to the entire population.
+        \item Refers to the model's performance on new, unseen data compared to the training data.
+        \begin{redbox}
+        \item The estimation error is influenced by (1) the size of the training data, and (2) the model's capacity;
+        \begin{itemize}
+            \item Decreases as the sample size $n$ increases.
+            \item Increases if the model complexity is too high relative to the amount of data (overfitting).
+        \end{itemize}
+        \end{redbox} 
+    \end{itemize}
+
+\textbf{Generalization Error = total error of our best guess, including errors from both (1) model class limitations, and (2) from estimating the model from finite data.}
+
+ \begin{tcolorbox}
+ Balancing Approximation error vs Generalization error:
+     \begin{itemize}
+         \item The total difference in risk between the theoretical best possible model and our empirically best model from a sample can be understood in terms of two fundamental challenges in machine learning: choosing the right model class (approximation error) and accurately estimating the best model within that class from limited data (estimation error).
+         \item Minimizing the total error involves balancing these two sources of error. \textbf{Improving the model class to reduce approximation error might increase the complexity of the model, potentially increasing the estimation error if additional data is not available.}
+         \item This equation highlights the trade-off in machine learning between the complexity of the hypothesis space (which can reduce approximation error but increase estimation error) and the amount of data needed to effectively estimate models within that space.
+     \end{itemize}
+ \end{tcolorbox}
+
+Similar to bias-variance trade off: could make $f*$ a huge class of functions, but this makes it more complex
+so we want to choose a model that balances the trade off between approximation vs estimation errors.
+
+\subsubsection{Estimating the Generalisation Error}
+
+Generalization error refers to the model's performance on new, unseen data compared to the training data on which it was learned. This can be \textbf{estimated using test data} - providing insight into the model's performance in real-world or unseen scenarios. \\
+
+We take 2 samples of population:
+\begin{itemize}
+    \item \textbf{Training data}: $p_{train}(x,y)$ - do ERM: minimize the loss (or error) on these data points, effectively learning the underlying pattern or relationship between features ($X$) and targets ($y$)
+    \item \textbf{Testing data}: $p_{test}(x,y)$ - \textit{again/also} do ERM: \textbf{comparing the ERM between the testing and the training (= Generalisation error)}. To evaluate the model's performance, specifically its ability to generalize the learned patterns to new, unseen data
+\end{itemize}  
+
+By evaluating the model on the testing data, we can estimate the generalization error: 
+\[
+\underbrace{\mathbb{E}_{p^*} \mathcal{R}(f^{*}_n) - \mathcal{R}(f^{*})}_{\textcolor{red}{\text{Estimation/Generalisation Err}}} \approx \underbrace{\mathbb{E}_{p_{\text{train}}} [\ell(y, f^{*}_n)]}_{\textcolor{orange}{\text{Training Loss}}} - \underbrace{\mathbb{E}_{p_{\text{test}}} [\ell(y, f^*_n)]}_{\textcolor{green}{\text{Test Loss}}}
+\]
+
+
+we are taking a new sample, and comparing:
+\begin{itemize}
+    \item \textcolor{orange}{Training Loss: how well we thought we did} - represents the average loss of the model on the training dataset. It measures how well the model fits the data it was trained on.
+    \item \textcolor{green}{Test Loss: how well we actually did} - represents the average loss of the model on a separate test dataset. It measures the model's ability to generalize to new, unseen data.
+\end{itemize}
+
+\begin{redbox}
+    \textbf{Generalisation/Estimation error} is a concept how overly-optimistic we were: the optimism of pure-ERM.
+\end{redbox}
+
+\textbf{Expected risk} is a measure of generalisation error. We can actually observe how overly optimistic we were.
+
+\begin{redbox}
+    Generalisation/Estimation error: quantifies the \textbf{error introduced by estimating the model from finite data}. \\
+    
+    It represents \textbf{difference between the expected risk of the model trained on $n$ samples} and the \textbf{best possible model within the hypothesis space}. 
+\end{redbox}
+
+The ERM makes us overly optimistic, because we are overfitting to the data (will reduce the Training Loss to 0, but will increase the Test Loss\\
+
+In fact, we need to consider how well it generalises - again it is always a balance (no free lunch).\\
+
+Trade offs: \begin{itemize}
+    \item Approximation loss vs Estimation loss \
+    \item (> within that > ) Training Loss vs Test Loss
+    \item wait, actually these are measuring the smae thing (overfit?)
+\end{itemize}
+
+In the over fitted model: the Approximation Error is basically 0, but will give us high Estimation / Generalisation error (the difference between the training loss (towards 0) and the Test Loss (high!) will be much increased)
+
+\begin{tcolorbox}
+
+1. \textbf{Generalisation/Estimation error (\(\textcolor{red}{\mathbb{E}_{p^*} \mathcal{R}(f^{*}_n) - \mathcal{R}(f^{*})}\)):} \begin{itemize}
+    \item represents the difference in expected risk (or performance) between the best empirical model \(f^{*}_n\) obtained from training on \(n\) samples and the best possible model \(f^{*}\) within the hypothesis space \( \mathcal{H} \) across the true distribution \(p^*\) of the data. 
+    \item Essentially, it quantifies how much worse our model \(f^{*}_n\), trained on finite data, performs compared to the theoretically optimal model \(f^{*}\) that could be achieved with complete knowledge of the distribution \(p^*\).
+\end{itemize}
+
+2. \textbf{Training Loss (\(\textcolor{orange}{\mathbb{E}_{p_{train}} [\ell(y, f^{*}_n)]}\)):} This is the expected loss (average loss) of the model \(f^{*}_n\) on the training data. It represents how well the model fits the data it was trained on.\\
+   
+3. \textbf{Test Loss (\(\textcolor{green}{\mathbb{E}_{p_{test}} [\ell(y, f^*_n)]}\)):} This is the expected loss of the model \(f^{*}_n\) on a separate test dataset that was not used during training. This measures how well the model generalizes to new, unseen data.\\
+
+The approximation essentially states that the difference in expected risk between the empirically best model and the optimal model can be estimated by the difference in the model's performance (in terms of loss) on the training set versus its performance on the test set. \\
+
+\subsubsubsection{Key Takeaways:}
+
+- \textbf{Generalization Gap:} The difference between the model's performance on the training data and the test data = practical estimate of the generalization gap. 
+\begin{itemize}
+    \item small gap indicates that the model generalizes well
+    \item large gap suggests that the model may be overfitting to the training data and not performing as well on unseen data.
+\end{itemize}
+
+\textbf{Estimating Model Performance:} Since we cannot directly observe the true expected risk over the entire data distribution (\(p^*\)), we use the training and test datasets to estimate how well our model is likely to perform in practice. This approach allows us to gauge the model's ability to generalize beyond the specific examples it has seen during training.
+\end{tcolorbox}\\
+
+\textit{It's important to note that while this method can provide a good estimate of generalization error, it's not perfect. The testing data can only offer an estimate, and the model's true performance could vary in completely new contexts. Furthermore, factors like overfitting to the training data or biases in the data collection process can affect the accuracy of the generalization error estimate.}
+
+
+\section{Regularisation: as viewed from multiple angles}
+
+\subsection{Regularisation overview}
+
+\subsubsection{Mechanics}
+
+Regularization prevents models from overfitting to the training data, thereby improving their generalization to unseen data. Overfitting occurs when a model \textbf{learns patterns specific to the training data, including noise}, to the extent that it performs poorly on new data. Regularization addresses this by introducing additional information or constraints into the model to discourage overly complex models without compromising the model's ability to learn from the data.\\
+
+Regularization works by adding a \textbf{penalty on the size of the model parameters} to the loss function that the model optimizes. There are two common types of regularization:
+\begin{enumerate}
+    \item \textbf{L1 Regularization (Lasso Regression)}: Adds the sum of the absolute values of the coefficients to the loss function. This can lead to coefficients being exactly zero, thus performing feature selection.
+    \item \textbf{L2 Regularization (Ridge Regression)}: Adds the sum of the squares of the coefficients to the loss function. This tends to distribute the penalty among all coefficients, shrinking them but rarely making them exactly zero.
+\end{enumerate}
+
+\subsubsection{Uses}
+\begin{enumerate}
+    \item \textbf{Prevent Overfitting}: By penalizing large coefficients, regularization reduces the model's complexity, leading to lower variance and less overfitting.
+    \item \textbf{Improve Generalization}: A simpler model with smaller coefficients is less sensitive to the noise in the training data, making it better at predicting outcomes for unseen data.
+    \item \textbf{Feature Selection (L1 Regularization)}: By driving some coefficients to zero, L1 regularization can help in identifying the most important features of the data.
+\end{enumerate}
+
+\subsubsection{Comprehensive View}
+
+Regularization extends beyond L1 and L2 methods. For example, Elastic Net combines the penalties of L1 and L2 regularization, enjoying the benefits of both feature selection and coefficient shrinkage. Dropout, primarily used in deep learning, is another form of regularization where randomly selected neurons are ignored during training, preventing the network from becoming too dependent on any one neuron and thus reducing overfitting.
+
+\subsubsection{Formally}
+
+Where:
+\begin{itemize}
+    \item $J(\theta)$ is regularized objective function
+    \item $Loss(\theta)$ original loss function (eg MSE for regression)
+    \item $\lambda$ is regularisation strength parameter
+\end{itemize}
+
+\textbf{L1 Regularisation (Lasso)}
+$$J(\theta) = \text{Loss}(\theta) + \lambda \sum_{j=1}^{n} |\theta_j|$$
+
+$\sum_{j=1}^{n} |\theta_j|$ adds absolute values of the model coefficients, encouraging sparsity.\\
+
+\textbf{L2 Regularisation (Ridge)}
+$$J(\theta) = \text{Loss}(\theta) + \lambda \sum_{j=1}^{n} \theta_j^2$$
+
+\begin{tcolorbox}
+    And when we manipulate this to get the minimisation objective function for beta:
+$$ \hat{\beta}_{ridge} = (X^TX + \textcolor{red}{\lambda I_p})^{-1} X^T y$$
+NB  when Lambda = 0, it is just the same as the normal linear regression
+\end{tcolorbox}
+
+\textbf{Elastic Net:}
+$$J(\theta) = \text{Loss}(\theta) + \lambda_1 \sum_{j=1}^{n} |\theta_j| + \lambda_2 \sum_{j=1}^{n} \theta_j^2$$
+where $\lambda_1$ and $\lambda_2$ are parameters that control impact of L1 and L2 terms respectively
+
+
+\subsection{Regularisation: as necessity}
+\begin{itemize}
+    \item OLS: $\hat{\beta} = (X^T X)^{-1} X^T y$
+    \item \textbf{BUT, only calculable when $X^T X$ is inevitable} 
+    \begin{itemize}
+        \item non-zero determinant
+        \item full rank: each dimension / column of X is linearly independent (cannot predict a column of X based on a linear combination of another)
+        \iten equivalent to an eigen value condition
+    \end{itemize}
+    In cases where features are linearly dependent...(?) 
+    \item $\rightarrow$ \textbf{regularisation can guarantee $(X^TX)^{-1}$ to exist}
+    \begin{itemize}
+        \item The easiest way to make sure that the inverse exists: to ensure the diagonal > off-diagonals
+        \item i.e.: if $\sum_j | A_{ij} | < A_{ij}$ for all $i$, then is $A$ invertible
+        \item i.e. the \textbf{ridge} dominates the matrix.
+        \item This make $(X^TX)_{ii}$ bigger $\rightarrow$ eventually make it convertible.
+        \item $ \hat{\beta}_{ridge} = (X^TX + \textcolor{red}{\lambda I_p})^{-1} X^T y$ - here the scaling factor makes $(X^TX)_{ii}$ term bigger.
+    \end{itemize}
+\end{itemize}
+
+\subsection{Regularisation: as optimisation}
+\begin{itemize}
+    \item We can also express this directly as a restriction on our coefficients
+    \item \textbf{Standard regularisation} adds a penalty in our basic ERM setup: 
+    $$\mathcal{L}(\theta;\lambda) = \textcolor{blue}{\underbrace{\left[\frac{1}{n} \sum^n_i \ell(y_i,\theta;x_i)\right]}_{\text{Loss}}} + \lambda  \textcolor{red}{\underbrace{C(\theta)}_{\text{complexity}}}$$
+    This penalises complexity: lambda manages the trade off between complexity and loss.
+    \item \textbf{Ridge Regression}: MSE for loss function and $C$ is the squared sum of coefficients
+    $$\mathcal{L}_{ridge}(\theta;\lambda) = \textcolor{blue}{\underbrace{\left[\frac{1}{n} \sum^n_i (y_i - x_i \beta)^2}_{\text{squared loss}\right ]}} + \lambda  \textcolor{red}{\underbrace{\beta^T \beta}_{\text{sq sum coefs}}}$$
+     this penalises large $\beta$ coefficients, lambda manages trade off.
+\end{itemize}
+
+     I skipped the next slide - not sure what it's demonstrating.
+
+\subsection{Regularisation: the intuition behind it}
+\begin{redbox}
+    TL;DR: Regularisation \textbf{introduces bias} in order to \textbf{reduce variance}.
+\end{redbox}
+
+\begin{itemize}
+    \item Suppose $X$ is orthonormal (each column is independent, and normalised so var = 1)
+    \item then $\hat{\beta}_{ridge} = \frac{\hat{\beta}_{ols}}{1+\lambda}$
+    \item regularisation is re-scaling the OLS coefficients downwards.
+    \item it introduces bias in order to reduce variance
+\end{itemize}
+
+\begin{tcolorbox}
+    NB: social scientists use un-regularised regression because they care about
+    \begin{enumerate}
+        \item Bias
+        \item Interpretability
+    \end{enumerate}
+
+Bias is first order concern in social science: you first find an unbiased estimator, and only then do you work to improve it. (Whereas ridge introduces bias (scaling down) for good reason: reduce variance)
+
+\end{tcolorbox}
+
+\subsection{Regularisaion: SVD}
+I skipped the SVD slide - I think basic point was that this is how python does regression; intuition ridge is scaling up the singular values, and this has significance for something (?) i think it makes it invertible?
+
+\subsection{Regularisation: geometrically}
+
+skipped - basically the prior pulls it towards it --> balances out
+
+\subsection{Regularisation as measurement error}
+
+[skipped]\\
+
+if you add gaussian corruption to every one of your features this is just the same as ridge regression \\
+
+we used to have one row of $y$ and $X$ now we have a 100 rows of $X$
+
+Intuition: you add infinite Gaussian noise to each $x$ feature --> you will get minimal coefficients because it will all be random: there will be no linear relationship between the $X$ features and the $y$ output. Less linear relationship means smaller coefficients. So, adding noise effectively shrinks the coefficients \\
+
+simplifies to, $R(\theta) = \frac{1}{n} \sum_i^n (X \beta - y_i)^2 + \sigma^2 \| \beta \|^2$
+
+\subsection{Regularisation: as a Bayesian}
+
+\begin{redbox}
+    TL;DR: Bayesian MAP estimator \textit{is} ridge regression. There's a 1:1 correspondence. 
+\end{redbox}
+
+
+\begin{tcolorbox}
+  
+Regularization, a method to prevent overfitting by penalizing large model coefficients, has a direct analogy in Bayesian statistics through the concept of priors, which encode prior beliefs about parameters before observing the data.\\
+
+\textbf{Regularization as Implicit Priors}\\
+
+In a Bayesian framework, priors are assumptions about the distribution of model parameters before any data is observed. When you apply regularization in a machine learning model, you're implicitly making assumptions about the distribution of the parameters you're trying to estimate, similar to specifying a prior in Bayesian terms:\\
+
+\begin{itemize}
+    \item \textbf{L1 Regularization (Lasso)} corresponds to assuming a \textbf{Laplace distribution} (a double exponential distribution) as the prior for the parameters. This creates a preference for solutions where many parameters are exactly zero, mirroring the sparsity induced by a Laplace prior.
+  
+    \item \textbf{L2 Regularization (Ridge)} corresponds to assuming a \textbf{Gaussian (normal) distribution} as the prior for the parameters. This encourages the parameters to be small overall but does not necessarily force them to zero, reflecting the properties of a Gaussian distribution.
+\end{itemize}
+
+\textbf{Intuitive Understanding}\\
+
+The idea can be understood intuitively: If you believe that the true parameters of your model should be small (to avoid overfitting), you can express this belief by imposing a penalty on the size of the parameters (regularization) or by choosing priors that favor smaller values (Bayesian priors). Regularization in the optimization problem then acts to incorporate this belief directly into the model fitting process, similar to how Bayesian inference would update the prior beliefs in the light of observed data to arrive at the posterior distribution of parameters.\\
+
+\textbf{Mathematical Formulation}\\
+
+In both cases, you are adding extra information to guide the solution of the optimization problem towards certain properties:\\
+
+\begin{itemize}
+    \item In regularization, this guidance comes in the form of an added penalty term to the loss function, which directly influences the optimization process.
+  
+    \item In Bayesian statistics, the guidance comes through the prior distribution, which is mathematically combined with the likelihood of the observed data to form the posterior distribution of the parameters.
+\end{itemize}
+
+\textbf{Practical Implications}\\
+
+This relationship highlights a beautiful cross-over between frequentist (regularization) and Bayesian approaches. It suggests that by choosing a specific form of regularization, you're implicitly making assumptions akin to choosing a prior in Bayesian analysis. This perspective can help in selecting the appropriate regularization technique based on prior knowledge about the data or the domain.\\
+
+\end{tcolorbox}
+
+\begin{itemize}
+    \item Take Normal MLE model, add a prior on $\beta$
+    \item suppose $p(\beta = N(0, \tau, I)$ (tau is stan.dev)
+    \begin{itemize}
+        \item $\tau -> \inf$ = weak regularisation: indifferent to prior = MLE
+        \item $\tau -> 0$ = strong regularisation: ignores the data = assumes $\beta = 0$ 
+    \end{itemize}
+    \item MAP = ridge regression
+    \item there is a relationship between tau and lambda
+\end{itemize}
+
+
+
+\subsection{Regularisation in Polynomial Regression}
+
+Polynomial regression is a way to get high dimensional model, but we want some regularisation to penalise the complexity. This wasy we can get the best of both worlds by having high dimensionality (expressive), but regularised. This allows for complex, expressive models which do not overfit.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_03_highdim/regularised_polynomial.png}
+    \caption{Right 4: all with L2 Regularisation. Especially (c): this is a smooth model in the way that a polynomial doesn't normally look. In this way, regularization allows us to get best of all}
+    \label{fig:enter-label}
+\end{figure}
+
+
+
+
+\subsection{Validation Sets \& Hyperparameter selection ($\lambda$)}
+
+To choose the correct $\lambda$ value (a hyperparameter) for regularisation $\rightarrow$ Validation sets
+
+$$ \hat{\beta}_{ridge} = (X^TX + \textcolor{red}{\lambda I_p})^{-1} X^T y$$
+
+\begin{itemize}
+    \item We want to choose hyperparameter values to \textbf{minimise Generalisation Error}:
+    \[
+    \mathbb{E}_{p^{*}} \mathcal{R}(f^{*}_n) - \mathcal{R}(f^{**}) = \underbrace{\textcolor{blue}{\mathcal{R}(f^{*}) - \mathcal{R}(f^{**})}}_{\text{Approximation Error}} + \underbrace{\textcolor{red}{ \mathbb{E}_{p^{*}} \mathcal{R}(f^{*}_n) - \mathcal{R}(f^{*})}}_{\text{Estimation/Generalization Error}}
+    \]
+    Remembering the following approximation:
+    \[
+    \underbrace{\mathbb{E}_{p^*} \mathcal{R}(f^{*}_n) - \mathcal{R}(f^{*})}_{\textcolor{red}{\text{Estimation/Generalisation Err}}} \approx \underbrace{\mathbb{E}_{p_{\text{train}}} [\ell(y, f^{*}_n)]}_{\textcolor{orange}{\text{Training Loss}}} - \underbrace{\mathbb{E}_{p_{\text{test}}} [\ell(y, f^*_n)]}_{\textcolor{green}{\text{Test Loss}}}
+    \]
+    We can say that decreasing the Training Loss/Risk, at the expense of increasing the Test Loss/Risk, reduces the Generalisation Error.
+    \item We parition data into additional validation set:
+    \begin{enumerate}
+        \item Train model on $p_{train}$
+        \item Choose hyperparameters \& model selection with $p_{validation}$
+        \item Measure generalisation error with $p_{test}$
+    \end{enumerate}
+\end{itemize}
+
+\section{Lasso regression}
+\begin{itemize}
+    \item Whereas Ridge gives us small $\beta^T \beta$, Lasso makes it \textbf{sparse} (betas to 0)
+    \item we replace $\textcolor{red}{\beta^T \beta = \|\beta\|_2} \Rightarrow \textcolor{blue}{|\beta| = \|\beta\|}$
+    \item $\textcolor{red}{\text{Beta-squared: quadratic}} \Rightarrow \textcolor{blue}{\text{absolute value of the coefficient vector: linear}}$
+\end{itemize}
+
+\[\mathcal{L}_{lasso}(\theta;\lambda) = \frac{1}{n} \sum^n_i(y_i - x_i\beta)^2 + \textcolor{blue}{\lambda \|\beta\|_1}]
+
+So, \textbf{with orthonormal $X$: Lasso becomes a threhold function:}
+\begin{itemize}
+    \item MLE: $\hat{\beta}_{mle}$ 
+    \begin{itemize}
+        \item \textit{linear regression w/o regularization: least squares = equivalent to MSE if the errors are assumed to be normally distributed}
+    \end{itemize}
+    \item Ridge: $\frac{\hat{\beta}_{mle}}{1+\lambda}$ 
+    \begin{itemize}
+        \item \textit{scaled down uniformly from the MLE estimate }
+    \end{itemize}
+    \item Lasso: $(sign(\hat{\beta}_{mle})(|\hat{\beta}_{mle}| - \lambda)_+$ 
+    \begin{itemize}
+    \item Where:
+    \begin{itemize}
+        \item $sign(\hat{\beta}^{\text{mle}})$ determines the direction of the coefficient  (+ or -). 
+        \item $|\hat{\beta}^{mle}| - \lambda$ subtracts a constant $\lambda$  (the regularization strength) from the absolute value of the MLE estimate. 
+        \item The result is set to zero if it is negative (denoted by $(\cdot)_+$, which means taking the positive part), effectively performing variable selection by setting small coefficients to exactly zero.}
+    \end{itemize}
+        \item \textit{Thresholding function: take the magnitude of normal regression, subtract lambda, then take the \\
+so when lambda is ? then this is just 0\\
+basically we don;'t need to know, just take it as a given}
+    \end{itemize}
+\end{itemize}

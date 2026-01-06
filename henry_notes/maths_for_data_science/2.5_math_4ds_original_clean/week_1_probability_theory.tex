@@ -1,0 +1,113 @@
+% =============================================================================
+% Week 1: Probability Theory
+% =============================================================================
+
+\chapter{Probability Theory}
+\label{ch:week1}
+
+\thispagestyle{empty}
+{\large \textbf{Mid Terms Fall 2023 -- Henry Baker}}
+\par\noindent\rule{\textwidth}{0.4pt} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid-term Revision \\ 
+ Session 1: Probability Theory}
+	\vspace{2mm}
+\end{center}  
+\vspace{0.4cm}
+
+\textbf{De Morgan's Law:}
+\begin{align*}
+(A \cup B)^c &= A^c \cap B^c \\
+(A \cap B)^c &= A^c \cup B^c
+\end{align*}
+
+\textbf{Notation:}\\
+Let $A_n$ be the event that the $nth$ flip is Heads
+\begin{itemize}
+    \item \( A_1 = \{(1, s_2, \ldots, s_{10}) : s_j \in \{0, 1\} \text{ for } 2 \leq j \leq 10\} \) : \textbf{First flip = H}
+    \item \( B = \bigcup_{n=1}^{10} A_n = A_1 \cup A_2 \cup \dots \cup A_{10} \) : \textbf{Event that at least one flip was Heads}
+    \item \( C = \bigcap_{n=1}^{10} A_n = A_1 \cap A_2 \cap \dots \cap A_{10} \) : \textbf{ Event that all flips were Heads}
+    \item \( D = \bigcup_{n=1}^{9} (A_n \cap A_{n+1}) \) : \textbf{Event that there were at least two consecutive Heads}
+\end{itemize}
+\vspace{0.4cm}
+
+
+\textbf{Naive Definition of Prob:}
+\[P_{\text{naive}}(A) = \frac{|A|}{|S|} = \frac{\text{number of outcomes favorable to } A}{\text{total number of outcomes in } S} \]
+In general, \(P_{\text{naive}}(A^c) = 1 --- P_{\text{naive}}(A)\)\\
+\vspace{0.4cm}
+
+
+\textbf{Multiplication Rule}: 
+\begin{itemize}
+    \item Think of it in terms of trees (see slide 26) 
+    \item NB: doesn't matter which order the events are structured in (counter intuitive).
+    \item All sampling derives from multiplication rule\\
+\end{itemize}
+\vspace{0.4cm}
+
+
+\textbf{Combinations} = when order does not matter: think of multiplication rule \\
+\textbf{permutations} = when order/position matters: \(n!\) \\
+
+\vskip 0.4 cm
+
+$\begin{array}{c|c|c}
+ & \textbf{Order Matters} & \textbf{Order Doesn't Matter} \\
+\par\noindent\rule{\textwidth}{0.4pt}
+\textbf{With Replacement} & n^k & \binom{n+k-1}{k} \\
+\par\noindent\rule{\textwidth}{0.4pt}
+\textbf{Without Replacement} & \frac{n!}{(n-k)!} & \binom{n}{k} = \frac{n!}{k!(n-k)!} \\
+\end{array}$
+
+\vskip 0.4 cm
+
+NB: order matters, sampling w/ replacement also written as $n\cdot (n-1) \cdot (n-2) \cdot \dots (n-k+1)$ \\
+\textbf{Sampling with replacement}: \(n^k\)\\
+\textbf{Sampling w/o replacement}: \(n * (n-1)*\ldots{}(n --- k + 1)\) \\
+\textbf{Birthday Problem} --- counting complement\\
+What’s the probability of no matching birthdays? \\
+This amounts to sampling the days of the year without replacement:
+\begin{align*}
+    P(\text{no birthday match}) &= \frac{\text{number of ways to not repeat birthdays}}{\text{number of total possibilities}} \\
+    &= \frac{365 \times 364 \times \dots \times (365 --- k + 1)}{365^k} \\
+    P(\text{birthday match}) &= 1 --- \frac{365 \times 364 \times \dots \times (365 --- k + 1)}{365^k}
+\end{align*}
+
+\textbf{Leibniz' mistake:} when order matters, make sure to label items:
+
+2 dice --> 2x ways to get 11, 1x way to get 12
+
+\textbf{Binomial Coefficient}:
+\[\binom{n}{k}\]
+= number of subsets of size k for set n.
+
+Order does not matter.
+\begin{align*}
+    \binom{n}{k} &= \frac{n(n-1) \dots (n-k+1)}{k!} \\
+     &= \frac{n!}{(n-k)!k!}
+\end{align*}
+For $k > n$, we have $\binom{n}{k} = 0.$\\
+PRACTICE QS: SLIDE 35\\
+\textbf{Non-Naive Probabilities: Probability Functions} \\    
+\begin{itemize}
+    \item a probability space consisting of a \emph{sample space $S$} and a \emph{probability function $P$}
+    \item which takes an event $A \subseteq S$ as input and returns $P(A)$, a real number between 0 and 1, as output. 
+     \item The function P must satisfy the following two axioms:
+            \begin{itemize}
+                \item \( P(\emptyset) = 0, P(S) = 1 \).
+                \item If \( A_1, A_2, \dots \) are disjoint events, then 
+                    \[ P\left(\bigcup_{j=1}^{\infty} A_j\right) = \sum_{j=1}^{\infty} P(A_j) \].
+             \end{itemize}
+    \end{itemize}
+
+\textbf{Properties of Prob (cheat sheet)} \\
+        \begin{itemize}
+            \item $P(A^c) = 1 --- P(A)$ \\
+            \item If $A \subseteq B$, then $P(A) \leq P(B)$. \\
+            \item $P(A \cup B) = P(A) + P(B) --- P(A \cap B)$.
+        \end{itemize}
+
+% \end{enumerate}  % Note: no matching \begin{enumerate} in original

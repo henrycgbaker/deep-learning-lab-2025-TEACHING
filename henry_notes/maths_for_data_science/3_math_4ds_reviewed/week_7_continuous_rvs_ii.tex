@@ -1,0 +1,1462 @@
+% =============================================================================
+% Week 7: Continuous Random Variables II
+% =============================================================================
+
+\chapter{Week 7: Continuous Random Variables II}
+\label{ch:week7}
+
+\begin{bluebox}[Learning Objectives]
+By the end of this week, you should be able to:
+\begin{itemize}
+    \item Define covariance and compute it using both the definitional and computational formulas
+    \item State and prove the key properties of covariance
+    \item Define the correlation coefficient and interpret its value
+    \item Explain why independence implies zero correlation, but not vice versa
+    \item Construct examples of uncorrelated but dependent random variables
+    \item State and interpret both the Weak and Strong Laws of Large Numbers
+    \item Derive the mean and variance of the sample mean
+    \item State the Central Limit Theorem precisely and explain its significance
+    \item Apply the Normal approximation to sums and means of random variables
+    \item Understand the EM algorithm as a method for maximum likelihood estimation with latent variables
+    \item Derive the E-step and M-step for Gaussian mixture models
+\end{itemize}
+\end{bluebox}
+
+\textbf{Prerequisites:} This week assumes familiarity with continuous random variables, PDFs, and CDFs (\cref{ch:week6}), expected value and variance for continuous random variables, the Normal distribution and standardisation, independence of random variables (\cref{ch:week3}), basic properties of expectation (linearity, $\E[g(X)]$ via LOTUS), and maximum likelihood estimation (conceptually).
+
+% =============================================================================
+\section{Covariance}
+\label{sec:covariance}
+% =============================================================================
+
+When working with multiple random variables, we often want to understand how they relate to each other. Covariance quantifies the degree to which two random variables vary together---whether they tend to be simultaneously above or below their respective means.
+
+\subsection{Definition and Interpretation}
+
+\begin{definition}[Covariance]
+\label{def:covariance}
+The \textbf{covariance} of two random variables $X$ and $Y$ is defined as:
+\begin{equation}
+\label{eq:cov-def}
+\Cov(X, Y) = \E\left[(X - \E[X])(Y - \E[Y])\right]
+\end{equation}
+provided the expectation exists.
+\end{definition}
+
+Let us unpack this definition term by term:
+\begin{itemize}
+    \item $\E[X]$ and $\E[Y]$: The expected values (means) of the random variables, denoted $\mu_X$ and $\mu_Y$.
+    \item $(X - \E[X])$ and $(Y - \E[Y])$: The deviations from the mean---how far each observation is from its expected value. These are called \emph{centred random variables}.
+    \item $(X - \E[X])(Y - \E[Y])$: The product of deviations. This product is:
+    \begin{itemize}
+        \item Positive when both variables are on the same side of their means (both above or both below)
+        \item Negative when the variables are on opposite sides of their means
+    \end{itemize}
+    \item $\E\left[(X - \E[X])(Y - \E[Y])\right]$: The expected value of these products, averaging over all possible outcomes. This quantifies the typical behaviour of the product of deviations.
+\end{itemize}
+
+\begin{intuition}[Interpreting Covariance]
+Think of covariance as measuring the average tendency of two variables to move together:
+\begin{itemize}
+    \item \textbf{Positive covariance} ($\Cov(X, Y) > 0$): When $X$ is above its mean, $Y$ tends to be above its mean too (and vice versa). The variables move together.
+    \item \textbf{Negative covariance} ($\Cov(X, Y) < 0$): When $X$ is above its mean, $Y$ tends to be below its mean. The variables move oppositely.
+    \item \textbf{Zero covariance} ($\Cov(X, Y) = 0$): There is no consistent linear relationship. Knowing whether $X$ is above or below its mean tells us nothing (on average) about where $Y$ is relative to its mean.
+\end{itemize}
+\end{intuition}
+
+\begin{remark}[Connection to Variance]
+Variance is a special case of covariance---the covariance of a random variable with itself:
+\[
+\Var(X) = \Cov(X, X) = \E\left[(X - \E[X])^2\right]
+\]
+This connection hints at why covariance and variance share many algebraic properties.
+\end{remark}
+
+\subsection{The Computational Formula}
+
+In practice, the definitional formula is cumbersome for calculations. We derive a more convenient form.
+
+\begin{theorem}[Computational Formula for Covariance]
+\label{thm:cov-computational}
+\begin{equation}
+\label{eq:cov-computational}
+\Cov(X, Y) = \E[XY] - \E[X]\E[Y]
+\end{equation}
+In words: covariance is the expectation of the product minus the product of the expectations.
+\end{theorem}
+
+\begin{proof}
+Starting from the definition:
+\begin{align*}
+\Cov(X, Y) &= \E\left[(X - \E[X])(Y - \E[Y])\right] \\
+&= \E\left[XY - X\E[Y] - Y\E[X] + \E[X]\E[Y]\right]
+\end{align*}
+We expand using the FOIL method (First, Outer, Inner, Last) and then apply linearity of expectation:
+\[
+\Cov(X, Y) = \E[XY] - \E[X\E[Y]] - \E[Y\E[X]] + \E[\E[X]\E[Y]]
+\]
+Now we use the key fact that $\E[X]$ and $\E[Y]$ are constants (not random variables), so:
+\begin{itemize}
+    \item $\E[X\E[Y]] = \E[Y] \cdot \E[X]$ (pulling the constant $\E[Y]$ out)
+    \item $\E[Y\E[X]] = \E[X] \cdot \E[Y]$ (pulling the constant $\E[X]$ out)
+    \item $\E[\E[X]\E[Y]] = \E[X]\E[Y]$ (expectation of a constant is itself)
+\end{itemize}
+Substituting:
+\begin{align*}
+\Cov(X, Y) &= \E[XY] - \E[Y]\E[X] - \E[X]\E[Y] + \E[X]\E[Y] \\
+&= \E[XY] - \E[X]\E[Y] \qedhere
+\end{align*}
+\end{proof}
+
+\begin{bluebox}[Quick Reference: Covariance Formulas]
+\textbf{Definitional formula} (for conceptual understanding):
+\[
+\Cov(X, Y) = \E\left[(X - \mu_X)(Y - \mu_Y)\right]
+\]
+
+\textbf{Computational formula} (for calculations):
+\[
+\Cov(X, Y) = \E[XY] - \E[X]\E[Y]
+\]
+
+\textbf{Mnemonic:} Expected product minus product of expectations.
+\end{bluebox}
+
+\begin{example}[Computing Covariance]
+\label{ex:cov-computation}
+Let $X$ and $Y$ be discrete random variables with joint PMF:
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{c|cc|c}
+\toprule
+& $Y=0$ & $Y=1$ & $P(X=x)$ \\
+\midrule
+$X=0$ & 0.1 & 0.2 & 0.3 \\
+$X=1$ & 0.3 & 0.4 & 0.7 \\
+\midrule
+$P(Y=y)$ & 0.4 & 0.6 & 1.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Step 1: Compute marginal expectations.}
+\begin{align*}
+\E[X] &= 0 \times 0.3 + 1 \times 0.7 = 0.7 \\
+\E[Y] &= 0 \times 0.4 + 1 \times 0.6 = 0.6
+\end{align*}
+
+\textbf{Step 2: Compute $\E[XY]$.}
+
+The product $XY$ takes values:
+\begin{itemize}
+    \item $XY = 0$ when $(X, Y) \in \{(0,0), (0,1), (1,0)\}$
+    \item $XY = 1$ when $(X, Y) = (1,1)$
+\end{itemize}
+So:
+\[
+\E[XY] = 0 \times (0.1 + 0.2 + 0.3) + 1 \times 0.4 = 0.4
+\]
+
+\textbf{Step 3: Apply the computational formula.}
+\[
+\Cov(X, Y) = \E[XY] - \E[X]\E[Y] = 0.4 - 0.7 \times 0.6 = 0.4 - 0.42 = -0.02
+\]
+
+The small negative covariance suggests a very weak tendency for $X$ and $Y$ to move in opposite directions.
+\end{example}
+
+\subsection{Properties of Covariance}
+
+Covariance satisfies several important algebraic properties that make it a powerful analytical tool.
+
+\begin{theorem}[Properties of Covariance]
+\label{thm:cov-properties}
+Let $X$, $Y$, and $Z$ be random variables with finite second moments, and let $a$, $b$, $c$ be constants. Then:
+\begin{enumerate}[(i)]
+    \item \textbf{Covariance with itself is variance:} $\Cov(X, X) = \Var(X)$
+    \item \textbf{Symmetry:} $\Cov(X, Y) = \Cov(Y, X)$
+    \item \textbf{Covariance with a constant:} $\Cov(X, c) = 0$
+    \item \textbf{Scaling:} $\Cov(aX, Y) = a \cdot \Cov(X, Y)$
+    \item \textbf{Bilinearity:} $\Cov(aX + bY, Z) = a \cdot \Cov(X, Z) + b \cdot \Cov(Y, Z)$
+    \item \textbf{Variance of a sum:} $\Var(X + Y) = \Var(X) + \Var(Y) + 2\Cov(X, Y)$
+    \item \textbf{Adding a constant:} $\Cov(X + c, Y) = \Cov(X, Y)$
+\end{enumerate}
+\end{theorem}
+
+\begin{rigour}[Proofs of Covariance Properties]
+\textbf{Property (i):} $\Cov(X, X) = \Var(X)$
+\[
+\Cov(X, X) = \E\left[(X - \E[X])(X - \E[X])\right] = \E\left[(X - \E[X])^2\right] = \Var(X)
+\]
+by definition of variance.
+
+\textbf{Property (ii):} $\Cov(X, Y) = \Cov(Y, X)$
+
+Immediate from the computational formula, since multiplication is commutative:
+\[
+\Cov(X, Y) = \E[XY] - \E[X]\E[Y] = \E[YX] - \E[Y]\E[X] = \Cov(Y, X)
+\]
+
+\textbf{Property (iii):} $\Cov(X, c) = 0$
+
+A constant $c$ has $\E[c] = c$, so:
+\[
+\Cov(X, c) = \E[Xc] - \E[X]\E[c] = c\E[X] - \E[X] \cdot c = 0
+\]
+Intuitively: a constant has no variability, so it cannot co-vary with anything.
+
+\textbf{Property (iv):} $\Cov(aX, Y) = a \cdot \Cov(X, Y)$
+\begin{align*}
+\Cov(aX, Y) &= \E[aXY] - \E[aX]\E[Y] \\
+&= a\E[XY] - a\E[X]\E[Y] \\
+&= a\left(\E[XY] - \E[X]\E[Y]\right) \\
+&= a \cdot \Cov(X, Y)
+\end{align*}
+
+\textbf{Property (v):} $\Cov(aX + bY, Z) = a \cdot \Cov(X, Z) + b \cdot \Cov(Y, Z)$
+\begin{align*}
+\Cov(aX + bY, Z) &= \E[(aX + bY)Z] - \E[aX + bY]\E[Z] \\
+&= a\E[XZ] + b\E[YZ] - (a\E[X] + b\E[Y])\E[Z] \\
+&= a\E[XZ] + b\E[YZ] - a\E[X]\E[Z] - b\E[Y]\E[Z] \\
+&= a\left(\E[XZ] - \E[X]\E[Z]\right) + b\left(\E[YZ] - \E[Y]\E[Z]\right) \\
+&= a \cdot \Cov(X, Z) + b \cdot \Cov(Y, Z)
+\end{align*}
+
+\textbf{Property (vi):} $\Var(X + Y) = \Var(X) + \Var(Y) + 2\Cov(X, Y)$
+\begin{align*}
+\Var(X + Y) &= \Cov(X + Y, X + Y) && \text{(by property (i))} \\
+&= \Cov(X, X + Y) + \Cov(Y, X + Y) && \text{(by property (v) with $a = b = 1$)} \\
+&= \Cov(X, X) + \Cov(X, Y) + \Cov(Y, X) + \Cov(Y, Y) \\
+&= \Var(X) + 2\Cov(X, Y) + \Var(Y)
+\end{align*}
+
+\textbf{Property (vii):} $\Cov(X + c, Y) = \Cov(X, Y)$
+\begin{align*}
+\Cov(X + c, Y) &= \Cov(X, Y) + \Cov(c, Y) && \text{(by property (v))} \\
+&= \Cov(X, Y) + 0 && \text{(by property (iii))} \\
+&= \Cov(X, Y)
+\end{align*}
+Intuitively: shifting a distribution does not change how it co-varies with other variables.
+\end{rigour}
+
+\begin{warning}[Variance of a Sum]
+The formula $\Var(X + Y) = \Var(X) + \Var(Y) + 2\Cov(X, Y)$ is frequently needed. Note that variances are \emph{not} simply additive unless $\Cov(X, Y) = 0$.
+
+The simpler formula $\Var(X + Y) = \Var(X) + \Var(Y)$ holds \emph{only} when $X$ and $Y$ are uncorrelated.
+
+\textbf{Common mistake:} Assuming variances add without checking for correlation.
+\end{warning}
+
+\begin{remark}[Bilinearity and Inner Products]
+Property (v) shows that covariance is \emph{bilinear}: linear in each argument separately. Combined with symmetry (property ii) and the fact that $\Cov(X, X) \geq 0$, covariance can be viewed as an inner product on the space of centred, square-integrable random variables.
+
+This perspective connects probability theory to linear algebra and explains why many results about covariance parallel results about dot products.
+\end{remark}
+
+\begin{corollary}[Variance of a Linear Combination]
+\label{cor:var-linear-combo}
+For random variables $X_1, \ldots, X_n$ and constants $a_1, \ldots, a_n$:
+\begin{equation}
+\label{eq:var-linear-combo}
+\Var\left(\sum_{i=1}^{n} a_i X_i\right) = \sum_{i=1}^{n} a_i^2 \Var(X_i) + 2\sum_{i<j} a_i a_j \Cov(X_i, X_j)
+\end{equation}
+
+In matrix notation, if $\mathbf{X} = (X_1, \ldots, X_n)^T$ and $\mathbf{a} = (a_1, \ldots, a_n)^T$:
+\begin{equation}
+\label{eq:var-matrix}
+\Var(\mathbf{a}^T \mathbf{X}) = \mathbf{a}^T \Sigma \mathbf{a}
+\end{equation}
+where $\Sigma$ is the covariance matrix with $\Sigma_{ij} = \Cov(X_i, X_j)$.
+\end{corollary}
+
+\subsection{Covariance and Independence}
+
+There is an important relationship between covariance and independence.
+
+\begin{theorem}[Independence Implies Zero Covariance]
+\label{thm:independence-zero-cov}
+If $X$ and $Y$ are independent random variables, then $\Cov(X, Y) = 0$.
+\end{theorem}
+
+\begin{proof}
+Recall from \cref{ch:week3} the key property of independent random variables: for independent $X$ and $Y$,
+\begin{equation}
+\label{eq:independence-expectation}
+\E[g(X)h(Y)] = \E[g(X)] \cdot \E[h(Y)]
+\end{equation}
+for any functions $g$ and $h$ (provided the expectations exist).
+
+Taking $g(x) = x$ and $h(y) = y$:
+\[
+\E[XY] = \E[X]\E[Y]
+\]
+
+Using the computational formula:
+\[
+\Cov(X, Y) = \E[XY] - \E[X]\E[Y] = \E[X]\E[Y] - \E[X]\E[Y] = 0 \qedhere
+\]
+\end{proof}
+
+\begin{definition}[Uncorrelated Random Variables]
+\label{def:uncorrelated}
+Random variables $X$ and $Y$ are said to be \textbf{uncorrelated} if $\Cov(X, Y) = 0$, or equivalently, if $\E[XY] = \E[X]\E[Y]$.
+\end{definition}
+
+The theorem above states:
+\[
+\text{Independence} \implies \text{Uncorrelated}
+\]
+
+\begin{warning}[The Converse is False]
+The converse does \emph{not} hold in general:
+\[
+\text{Uncorrelated} \centernot\implies \text{Independence}
+\]
+
+Two random variables can be perfectly dependent yet have zero covariance. This is one of the most important distinctions in probability theory.
+
+\textbf{Why?} Independence requires $\E[g(X)h(Y)] = \E[g(X)]\E[h(Y)]$ for \emph{all} functions $g$ and $h$. Being uncorrelated only requires this for the specific case $g(x) = x$ and $h(y) = y$. A relationship can satisfy one condition but not the other.
+\end{warning}
+
+% =============================================================================
+\section{Correlation}
+\label{sec:correlation}
+% =============================================================================
+
+Covariance measures how two variables move together, but its magnitude depends on the scales of the variables. The correlation coefficient provides a standardised, scale-free measure.
+
+\subsection{Definition and Basic Properties}
+
+\begin{definition}[Correlation Coefficient]
+\label{def:correlation}
+The \textbf{(Pearson) correlation coefficient} of two random variables $X$ and $Y$ is:
+\begin{equation}
+\label{eq:correlation}
+\rho_{X,Y} = \Corr(X, Y) = \frac{\Cov(X, Y)}{\sqrt{\Var(X) \cdot \Var(Y)}} = \frac{\Cov(X, Y)}{\sigma_X \sigma_Y}
+\end{equation}
+provided $\Var(X) > 0$ and $\Var(Y) > 0$.
+\end{definition}
+
+\begin{remark}[Alternative Expression]
+We can also write:
+\[
+\rho_{X,Y} = \Cov\left(\frac{X - \mu_X}{\sigma_X}, \frac{Y - \mu_Y}{\sigma_Y}\right) = \E\left[\frac{X - \mu_X}{\sigma_X} \cdot \frac{Y - \mu_Y}{\sigma_Y}\right]
+\]
+
+That is, correlation is the covariance of the standardised versions of $X$ and $Y$. Since standardised variables have variance 1, the denominator in the correlation formula equals 1, and correlation simply becomes the covariance of the standardised variables.
+\end{remark}
+
+\begin{theorem}[Correlation is Bounded]
+\label{thm:correlation-bounded}
+For any random variables $X$ and $Y$ with finite, positive variances:
+\begin{equation}
+\label{eq:correlation-bounds}
+-1 \leq \rho_{X,Y} \leq 1
+\end{equation}
+\end{theorem}
+
+\begin{rigour}[Proof of Theorem~\ref{thm:correlation-bounded}]
+The proof uses the Cauchy--Schwarz inequality for expectations.
+
+\textbf{Cauchy--Schwarz Inequality:} For any random variables $U$ and $V$ with finite second moments:
+\[
+|\E[UV]|^2 \leq \E[U^2] \cdot \E[V^2]
+\]
+with equality if and only if $U = cV$ almost surely for some constant $c$.
+
+Let $U = X - \mu_X$ and $V = Y - \mu_Y$. Then:
+\begin{align*}
+|\Cov(X, Y)|^2 &= |\E[(X - \mu_X)(Y - \mu_Y)]|^2 \\
+&\leq \E[(X - \mu_X)^2] \cdot \E[(Y - \mu_Y)^2] \\
+&= \Var(X) \cdot \Var(Y)
+\end{align*}
+
+Taking square roots:
+\[
+|\Cov(X, Y)| \leq \sqrt{\Var(X) \cdot \Var(Y)} = \sigma_X \sigma_Y
+\]
+
+Dividing by $\sigma_X \sigma_Y > 0$:
+\[
+|\rho_{X,Y}| = \frac{|\Cov(X, Y)|}{\sigma_X \sigma_Y} \leq 1
+\]
+
+Hence $-1 \leq \rho_{X,Y} \leq 1$.
+\end{rigour}
+
+\begin{theorem}[When Correlation Equals $\pm 1$]
+\label{thm:correlation-one}
+$|\rho_{X,Y}| = 1$ if and only if there exist constants $a \neq 0$ and $b$ such that
+\[
+Y = aX + b \quad \text{with probability 1}
+\]
+
+Specifically:
+\begin{itemize}
+    \item $\rho_{X,Y} = +1$ when $a > 0$ (perfect positive linear relationship)
+    \item $\rho_{X,Y} = -1$ when $a < 0$ (perfect negative linear relationship)
+\end{itemize}
+\end{theorem}
+
+\begin{proof}
+By Cauchy--Schwarz, equality $|\E[UV]|^2 = \E[U^2]\E[V^2]$ holds if and only if $U$ and $V$ are linearly dependent, i.e., $U = cV$ for some constant $c$.
+
+With $U = X - \mu_X$ and $V = Y - \mu_Y$, this means:
+\[
+X - \mu_X = c(Y - \mu_Y) \quad \Rightarrow \quad X = cY + (\mu_X - c\mu_Y)
+\]
+
+Or equivalently, $Y = aX + b$ where $a = 1/c$ and $b = \mu_Y - \mu_X/c$.
+
+The sign of $\rho$ matches the sign of $\Cov(X, Y)$:
+\[
+\Cov(X, aX + b) = a\Cov(X, X) + \Cov(X, b) = a\Var(X)
+\]
+
+Since $\Var(X) > 0$:
+\begin{itemize}
+    \item If $a > 0$, then $\Cov(X, Y) > 0$, so $\rho = +1$
+    \item If $a < 0$, then $\Cov(X, Y) < 0$, so $\rho = -1$ \qedhere
+\end{itemize}
+\end{proof}
+
+\begin{bluebox}[Interpreting Correlation Values]
+\begin{center}
+\begin{tabular}{cl}
+\toprule
+$\rho_{X,Y}$ & Interpretation \\
+\midrule
+$+1$ & Perfect positive linear relationship \\
+$0.7$ to $0.9$ & Strong positive association \\
+$0.4$ to $0.6$ & Moderate positive association \\
+$0.1$ to $0.3$ & Weak positive association \\
+$0$ & No linear association \\
+$-0.1$ to $-0.3$ & Weak negative association \\
+$-0.4$ to $-0.6$ & Moderate negative association \\
+$-0.7$ to $-0.9$ & Strong negative association \\
+$-1$ & Perfect negative linear relationship \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Key caveat:} These interpretations assume the relationship is approximately linear. Non-linear relationships can produce misleading correlation values.
+\end{bluebox}
+
+\subsection{Properties of Correlation}
+
+\begin{theorem}[Properties of Correlation]
+\label{thm:correlation-properties}
+Let $X$ and $Y$ be random variables with positive variances, and let $a$, $b$, $c$, $d$ be constants with $a \neq 0$ and $c \neq 0$. Then:
+\begin{enumerate}[(i)]
+    \item \textbf{Bounded:} $-1 \leq \rho_{X,Y} \leq 1$
+    \item \textbf{Symmetric:} $\rho_{X,Y} = \rho_{Y,X}$
+    \item \textbf{Scale invariance:} $\rho_{aX+b, cY+d} = \operatorname{sign}(ac) \cdot \rho_{X,Y}$
+    \item \textbf{Correlation with itself:} $\rho_{X,X} = 1$
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}[Proof of Scale Invariance]
+For $U = aX + b$ and $V = cY + d$:
+\[
+\Cov(U, V) = \Cov(aX + b, cY + d) = ac \cdot \Cov(X, Y)
+\]
+
+And:
+\begin{align*}
+\sigma_U &= |a|\sigma_X \\
+\sigma_V &= |c|\sigma_Y
+\end{align*}
+
+Therefore:
+\[
+\rho_{U,V} = \frac{ac \cdot \Cov(X, Y)}{|a|\sigma_X \cdot |c|\sigma_Y} = \frac{ac}{|a||c|} \cdot \rho_{X,Y} = \operatorname{sign}(ac) \cdot \rho_{X,Y} \qedhere
+\]
+\end{proof}
+
+\begin{intuition}[Scale Invariance]
+Correlation is unchanged by:
+\begin{itemize}
+    \item \textbf{Shifting:} Adding constants ($b$, $d$) does not affect correlation
+    \item \textbf{Positive scaling:} Multiplying by positive constants does not affect correlation
+    \item \textbf{Negative scaling:} Multiplying by a negative constant flips the sign of correlation
+\end{itemize}
+
+This makes correlation a unitless measure. Whether heights are in centimetres or inches, the correlation between height and weight is the same.
+\end{intuition}
+
+\subsection{Correlation Measures Linear Relationships}
+
+A crucial limitation of correlation is that it measures only linear association.
+
+\begin{warning}[Correlation and Non-Linear Relationships]
+Two random variables can be perfectly dependent (one is a deterministic function of the other) yet have zero correlation if the relationship is non-linear.
+
+Correlation detects linear patterns \emph{only}. Before concluding that two variables are unrelated based on zero correlation, always check for non-linear relationships.
+\end{warning}
+
+\begin{example}[Uncorrelated but Perfectly Dependent]
+\label{ex:uncorrelated-dependent}
+Let $X \sim N(0, 1)$ and define $Y = X^2$. Then $Y$ is a deterministic function of $X$---knowing $X$ tells us exactly what $Y$ is. Yet:
+
+\textbf{Claim:} $\Cov(X, Y) = 0$, hence $\rho_{X,Y} = 0$.
+
+\textbf{Proof:} Using the computational formula:
+\[
+\Cov(X, Y) = \E[XY] - \E[X]\E[Y]
+\]
+
+We need three quantities:
+\begin{enumerate}
+    \item $\E[X] = 0$ (since $X \sim N(0, 1)$)
+    \item $\E[Y] = \E[X^2] = \Var(X) + (\E[X])^2 = 1 + 0 = 1$
+    \item $\E[XY] = \E[X \cdot X^2] = \E[X^3]$
+\end{enumerate}
+
+For $X \sim N(0, 1)$, all odd moments are zero (by symmetry of the standard Normal about zero):
+\[
+\E[X^3] = 0
+\]
+
+Therefore:
+\[
+\Cov(X, Y) = \E[X^3] - \E[X]\E[Y] = 0 - 0 \cdot 1 = 0
+\]
+
+So $X$ and $Y = X^2$ are uncorrelated, despite $Y$ being completely determined by $X$.
+
+\textbf{Geometric interpretation:} The parabolic relationship $Y = X^2$ is symmetric about the $Y$-axis. Positive deviations of $X$ from its mean (0) give the same $Y$ values as negative deviations. The positive and negative contributions to covariance cancel exactly.
+\end{example}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{images/week_7/correlation_linear_quadratic.png}
+    \caption{Left: A linear relationship produces high correlation. Right: A quadratic relationship ($Y = X^2$) can produce zero correlation despite perfect dependence. Correlation captures linear patterns only.}
+    \label{fig:correlation-patterns}
+\end{figure}
+
+\subsection{Independence versus Uncorrelated: Summary}
+
+\begin{bluebox}[Independence vs Uncorrelated]
+\textbf{Independence is the stronger condition:}
+\begin{itemize}
+    \item Independence $\implies$ Uncorrelated (always)
+    \item Uncorrelated $\centernot\implies$ Independence (in general)
+\end{itemize}
+
+\textbf{Independence:} $P(X \in A, Y \in B) = P(X \in A) \cdot P(Y \in B)$ for all events $A$, $B$
+\begin{itemize}
+    \item Knowing $X$ tells us nothing about $Y$
+    \item Implies $\E[g(X)h(Y)] = \E[g(X)] \cdot \E[h(Y)]$ for all functions $g$, $h$
+\end{itemize}
+
+\textbf{Uncorrelated:} $\Cov(X, Y) = 0$, equivalently $\E[XY] = \E[X]\E[Y]$
+\begin{itemize}
+    \item Knowing $X$ tells us nothing about $Y$ \emph{on average, linearly}
+    \item Only requires $\E[XY] = \E[X]\E[Y]$ (one specific choice of functions)
+\end{itemize}
+
+\textbf{Important exception:} If $(X, Y)$ are jointly Normally distributed, then:
+\[
+\text{Uncorrelated} \iff \text{Independent}
+\]
+This is a special property of the multivariate Normal distribution.
+\end{bluebox}
+
+\begin{example}[Verifying Independence via Covariance]
+\label{ex:independence-covariance}
+Suppose $X$ and $Y$ are discrete random variables where $X \in \{1, 2\}$ with equal probability, and $Y \in \{3, 4\}$ with equal probability. Assume $X$ and $Y$ are independent.
+
+\textbf{Step 1: Compute marginal expectations.}
+\begin{align*}
+\E[X] &= \frac{1}{2}(1) + \frac{1}{2}(2) = 1.5 \\
+\E[Y] &= \frac{1}{2}(3) + \frac{1}{2}(4) = 3.5
+\end{align*}
+
+\textbf{Step 2: Compute $\E[XY]$.}
+
+By independence, each combination $(x, y)$ has probability $\frac{1}{2} \times \frac{1}{2} = \frac{1}{4}$:
+\begin{align*}
+\E[XY] &= \frac{1}{4}(1 \times 3) + \frac{1}{4}(1 \times 4) + \frac{1}{4}(2 \times 3) + \frac{1}{4}(2 \times 4) \\
+&= \frac{1}{4}(3 + 4 + 6 + 8) = \frac{21}{4} = 5.25
+\end{align*}
+
+\textbf{Step 3: Verify the covariance.}
+\[
+\Cov(X, Y) = \E[XY] - \E[X]\E[Y] = 5.25 - (1.5 \times 3.5) = 5.25 - 5.25 = 0
+\]
+
+As expected for independent random variables.
+\end{example}
+
+% =============================================================================
+\section{Law of Large Numbers}
+\label{sec:lln}
+% =============================================================================
+
+The Law of Large Numbers (LLN) is one of the fundamental theorems of probability theory. It formalises the intuition that sample averages converge to population means as the sample size grows.
+
+\subsection{Setup and Notation}
+
+Consider a sequence of independent and identically distributed (i.i.d.) random variables $X_1, X_2, X_3, \ldots$ with common mean $\mu = \E[X_i]$ and variance $\sigma^2 = \Var(X_i)$.
+
+\begin{definition}[Sample Mean]
+\label{def:sample-mean}
+The \textbf{sample mean} of $n$ observations is:
+\begin{equation}
+\label{eq:sample-mean}
+\bar{X}_n = \frac{1}{n}\sum_{i=1}^{n} X_i = \frac{X_1 + X_2 + \cdots + X_n}{n}
+\end{equation}
+\end{definition}
+
+The sample mean $\bar{X}_n$ is itself a random variable---its value depends on which particular observations we draw. Different samples give different values of $\bar{X}_n$.
+
+\begin{example}[Sample Mean as a Random Variable]
+\label{ex:sample-mean-rv}
+Suppose we measure daily temperatures $X_1, X_2, \ldots, X_5$ over five days:
+\[
+X_1 = 3^\circ\text{C}, \quad X_2 = 5^\circ\text{C}, \quad X_3 = 7^\circ\text{C}, \quad X_4 = 2^\circ\text{C}, \quad X_5 = 4^\circ\text{C}
+\]
+
+The sample mean is:
+\[
+\bar{X}_5 = \frac{3 + 5 + 7 + 2 + 4}{5} = 4.2^\circ\text{C}
+\]
+
+If we had measured a different five days, we would get a different value of $\bar{X}_5$. This is why $\bar{X}_5$ is a random variable---it varies across different possible samples.
+\end{example}
+
+\subsection{Properties of the Sample Mean}
+
+What are the expectation and variance of $\bar{X}_n$? These properties are fundamental to understanding sampling.
+
+\begin{theorem}[Expectation of the Sample Mean]
+\label{thm:sample-mean-expectation}
+For i.i.d.\ random variables $X_1, \ldots, X_n$ with mean $\mu$:
+\begin{equation}
+\label{eq:sample-mean-expectation}
+\E[\bar{X}_n] = \mu
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Using linearity of expectation:
+\begin{align*}
+\E[\bar{X}_n] &= \E\left[\frac{1}{n}(X_1 + X_2 + \cdots + X_n)\right] \\
+&= \frac{1}{n}\left(\E[X_1] + \E[X_2] + \cdots + \E[X_n]\right) \\
+&= \frac{1}{n}(\mu + \mu + \cdots + \mu) \quad \text{($n$ terms)} \\
+&= \frac{1}{n} \cdot n\mu = \mu \qedhere
+\end{align*}
+\end{proof}
+
+\begin{remark}[Unbiasedness]
+This result says that $\bar{X}_n$ is an \emph{unbiased} estimator of $\mu$: on average, the sample mean equals the population mean, regardless of sample size $n$.
+
+Unbiasedness is a desirable property for estimators---it means we are not systematically over- or under-estimating the parameter of interest.
+\end{remark}
+
+\begin{theorem}[Variance of the Sample Mean]
+\label{thm:sample-mean-variance}
+For i.i.d.\ random variables $X_1, \ldots, X_n$ with variance $\sigma^2$:
+\begin{equation}
+\label{eq:sample-mean-variance}
+\Var(\bar{X}_n) = \frac{\sigma^2}{n}
+\end{equation}
+
+The standard deviation of the sample mean is therefore:
+\begin{equation}
+\label{eq:standard-error}
+\SD(\bar{X}_n) = \frac{\sigma}{\sqrt{n}}
+\end{equation}
+This quantity is called the \textbf{standard error} of the mean.
+\end{theorem}
+
+\begin{proof}
+Since the $X_i$ are independent, they are uncorrelated, so variances add:
+\[
+\Var(X_1 + X_2 + \cdots + X_n) = \Var(X_1) + \Var(X_2) + \cdots + \Var(X_n) = n\sigma^2
+\]
+
+For the sample mean, we use the property $\Var(aX) = a^2\Var(X)$:
+\begin{align*}
+\Var(\bar{X}_n) &= \Var\left(\frac{1}{n}(X_1 + \cdots + X_n)\right) \\
+&= \frac{1}{n^2}\Var(X_1 + \cdots + X_n) \\
+&= \frac{1}{n^2} \cdot n\sigma^2 = \frac{\sigma^2}{n} \qedhere
+\end{align*}
+\end{proof}
+
+\begin{intuition}[Why Variance Decreases]
+The variance of the sample mean decreases as $n$ increases because averaging smooths out individual variability. Extreme values in one observation tend to be balanced by less extreme values in others.
+
+The $1/n$ factor (not $1/n^2$) arises because:
+\begin{itemize}
+    \item The sum has variance proportional to $n$ (variances add)
+    \item Dividing by $n$ squares this factor in the variance, giving $n/n^2 = 1/n$
+\end{itemize}
+\end{intuition}
+
+\begin{bluebox}[Sample Mean: Key Properties]
+For i.i.d.\ random variables $X_1, \ldots, X_n$ with mean $\mu$ and variance $\sigma^2$, the sample mean $\bar{X}_n = \frac{1}{n}\sum_{i=1}^{n} X_i$ satisfies:
+
+\begin{align*}
+\text{Mean:} \quad & \E[\bar{X}_n] = \mu \\
+\text{Variance:} \quad & \Var(\bar{X}_n) = \frac{\sigma^2}{n} \\
+\text{Standard error:} \quad & \SD(\bar{X}_n) = \frac{\sigma}{\sqrt{n}}
+\end{align*}
+
+\textbf{Key insight:} The variance decreases as $n$ increases, making the sample mean increasingly concentrated around the true mean. This is the essence of the Law of Large Numbers.
+\end{bluebox}
+
+\subsection{Two Forms of Convergence}
+
+Before stating the Laws of Large Numbers, we need to clarify what convergence means for random variables. There are several types; two are relevant here.
+
+\begin{definition}[Convergence in Probability]
+\label{def:convergence-probability}
+A sequence of random variables $Y_n$ \textbf{converges in probability} to a constant $c$, written $Y_n \xrightarrow{P} c$, if for every $\varepsilon > 0$:
+\[
+\lim_{n \to \infty} P(|Y_n - c| > \varepsilon) = 0
+\]
+Equivalently, $\lim_{n \to \infty} P(|Y_n - c| \leq \varepsilon) = 1$.
+\end{definition}
+
+\begin{definition}[Almost Sure Convergence]
+\label{def:convergence-as}
+A sequence of random variables $Y_n$ \textbf{converges almost surely} (or with probability 1) to $c$, written $Y_n \xrightarrow{a.s.} c$, if:
+\[
+P\left(\lim_{n \to \infty} Y_n = c\right) = 1
+\]
+\end{definition}
+
+\begin{intuition}[Comparing Convergence Types]
+\begin{itemize}
+    \item \textbf{Convergence in probability:} For any tolerance $\varepsilon$, the probability of being more than $\varepsilon$ away from the limit goes to zero. But for any finite $n$, there is still some probability of being far away.
+    \item \textbf{Almost sure convergence:} The sequence \emph{actually converges} (in the ordinary calculus sense) for almost all outcomes. There may be a set of ``bad'' outcomes (of probability zero) where convergence fails, but for all other outcomes, the sequence converges to $c$.
+\end{itemize}
+
+Almost sure convergence is stronger: $Y_n \xrightarrow{a.s.} c$ implies $Y_n \xrightarrow{P} c$, but not vice versa.
+\end{intuition}
+
+\subsection{Statement of the Law of Large Numbers}
+
+\begin{theorem}[Weak Law of Large Numbers (WLLN)]
+\label{thm:wlln}
+Let $X_1, X_2, \ldots$ be i.i.d.\ random variables with mean $\mu$ and finite variance $\sigma^2$. Then for any $\varepsilon > 0$:
+\begin{equation}
+\label{eq:wlln}
+\lim_{n \to \infty} P\left(|\bar{X}_n - \mu| > \varepsilon\right) = 0
+\end{equation}
+Equivalently, $\bar{X}_n \xrightarrow{P} \mu$ (convergence in probability).
+\end{theorem}
+
+\begin{intuition}[What the Weak Law Says]
+No matter how small a margin of error $\varepsilon$ you specify, the probability that the sample mean differs from the true mean by more than $\varepsilon$ goes to zero as $n \to \infty$.
+
+In practical terms: with a large enough sample, the sample mean will be arbitrarily close to the population mean, with arbitrarily high probability.
+\end{intuition}
+
+\begin{rigour}[Proof of WLLN via Chebyshev's Inequality]
+Recall Chebyshev's inequality: for any random variable $Y$ with mean $\mu_Y$ and variance $\sigma_Y^2$:
+\[
+P(|Y - \mu_Y| \geq \varepsilon) \leq \frac{\sigma_Y^2}{\varepsilon^2}
+\]
+
+Apply this to $Y = \bar{X}_n$, which has mean $\mu$ and variance $\sigma^2/n$:
+\[
+P(|\bar{X}_n - \mu| \geq \varepsilon) \leq \frac{\sigma^2/n}{\varepsilon^2} = \frac{\sigma^2}{n\varepsilon^2}
+\]
+
+As $n \to \infty$, the right-hand side $\to 0$, so:
+\[
+\lim_{n \to \infty} P(|\bar{X}_n - \mu| \geq \varepsilon) = 0
+\]
+\end{rigour}
+
+\begin{theorem}[Strong Law of Large Numbers (SLLN)]
+\label{thm:slln}
+Let $X_1, X_2, \ldots$ be i.i.d.\ random variables with finite mean $\mu$. Then:
+\begin{equation}
+\label{eq:slln}
+P\left(\lim_{n \to \infty} \bar{X}_n = \mu\right) = 1
+\end{equation}
+That is, $\bar{X}_n \xrightarrow{a.s.} \mu$ (almost sure convergence).
+\end{theorem}
+
+\begin{bluebox}[Weak vs Strong Law]
+\begin{itemize}
+    \item \textbf{Weak Law:} For any fixed $\varepsilon$, the probability of being wrong by more than $\varepsilon$ goes to zero. But it does not preclude occasional large deviations for finite $n$.
+    \item \textbf{Strong Law:} The sample mean \emph{actually converges} to $\mu$ with probability 1. There is a set of ``bad'' outcomes (of probability zero) where convergence fails, but for every other outcome, convergence occurs.
+\end{itemize}
+
+The strong law is indeed stronger---it implies the weak law but not vice versa.
+\end{bluebox}
+
+\begin{remark}[Technical Notes]
+\begin{itemize}
+    \item The strong law requires only finite mean (not variance), while the Chebyshev-based proof of the weak law requires finite variance. More sophisticated proofs of the weak law also need only finite mean.
+    \item The proof of the strong law is considerably more technical, typically using the Borel--Cantelli lemmas or martingale theory. We omit it here.
+    \item For distributions without finite mean (e.g., Cauchy), the LLN does not hold---the sample mean does not stabilise.
+\end{itemize}
+\end{remark}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{images/week_7/lln_illustration.png}
+    \caption{Illustration of the Law of Large Numbers: sample means from repeated experiments converge to the population mean as sample size increases. The variance of the sample mean distribution shrinks at rate $1/n$.}
+    \label{fig:lln}
+\end{figure}
+
+\subsection{Applications of the LLN}
+
+\begin{example}[Monte Carlo Integration]
+\label{ex:monte-carlo}
+To estimate $\theta = \E[g(X)]$ where $X$ has a known distribution:
+\begin{enumerate}
+    \item Generate i.i.d.\ samples $X_1, \ldots, X_n$ from the distribution of $X$
+    \item Compute $Y_i = g(X_i)$ for each sample
+    \item Estimate $\theta$ by $\hat{\theta}_n = \frac{1}{n}\sum_{i=1}^{n} Y_i$
+\end{enumerate}
+
+By the LLN, $\hat{\theta}_n \to \theta$ as $n \to \infty$.
+
+This is the foundation of Monte Carlo methods in statistics and machine learning.
+\end{example}
+
+\begin{example}[Relative Frequency Interpretation of Probability]
+\label{ex:relative-frequency}
+If $A$ is an event with $P(A) = p$, define indicator variables:
+\[
+X_i = \begin{cases}
+1 & \text{if $A$ occurs on trial $i$} \\
+0 & \text{otherwise}
+\end{cases}
+\]
+
+Then $\E[X_i] = p$, and the sample mean is:
+\[
+\bar{X}_n = \frac{\text{number of times $A$ occurred}}{n} = \text{relative frequency of $A$}
+\]
+
+By the LLN, relative frequency $\to p$ as $n \to \infty$. This justifies the long-run frequency interpretation of probability.
+\end{example}
+
+\subsection{Common Misconceptions}
+
+\begin{warning}[The Gambler's Fallacy]
+The LLN does \emph{not} say that short-term deviations will be ``corrected'' by opposite outcomes. A sequence of 10 heads does not make tails more likely on the next flip.
+
+Convergence occurs through \emph{swamping}, not correction: past deviations become negligible compared to the growing number of future observations. The past tosses are not ``undone''; they simply become a smaller and smaller fraction of the total.
+\end{warning}
+
+\begin{example}[Swamping, Not Correction]
+\label{ex:swamping}
+Suppose you flip a fair coin and get 10 heads in a row. Your current proportion of heads is $10/10 = 100\%$.
+
+After 10 more flips (with expected 5 heads), your expected proportion is $(10 + 5)/20 = 75\%$.
+
+After 100 more flips (with expected 50 heads), your expected proportion is $(10 + 50)/110 \approx 54.5\%$.
+
+After 1000 more flips (with expected 500 heads), your expected proportion is $(10 + 500)/1010 \approx 50.5\%$.
+
+The initial streak is not ``corrected''---it is simply \emph{swamped} by subsequent data. Each flip remains 50-50 regardless of past outcomes.
+\end{example}
+
+% =============================================================================
+\section{Central Limit Theorem}
+\label{sec:clt}
+% =============================================================================
+
+The Central Limit Theorem (CLT) is arguably the most important theorem in probability and statistics. It explains why the Normal distribution appears so frequently in nature and provides the theoretical foundation for many statistical procedures.
+
+\subsection{Statement of the Central Limit Theorem}
+
+\begin{theorem}[Central Limit Theorem]
+\label{thm:clt}
+Let $X_1, X_2, \ldots$ be i.i.d.\ random variables with mean $\mu$ and finite variance $\sigma^2 > 0$. Then the standardised sample mean:
+\begin{equation}
+\label{eq:clt-standardised}
+Z_n = \frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}} = \frac{\sqrt{n}(\bar{X}_n - \mu)}{\sigma}
+\end{equation}
+converges in distribution to the standard Normal as $n \to \infty$:
+\begin{equation}
+\label{eq:clt-convergence}
+Z_n \xrightarrow{d} N(0, 1)
+\end{equation}
+Equivalently, for any $z \in \mathbb{R}$:
+\[
+\lim_{n \to \infty} P(Z_n \leq z) = \Phi(z)
+\]
+where $\Phi$ is the standard Normal CDF.
+\end{theorem}
+
+Let us unpack the standardisation:
+\begin{itemize}
+    \item $\bar{X}_n$ has mean $\mu$ and variance $\sigma^2/n$ (from our earlier results)
+    \item Subtracting $\mu$ centres the distribution at zero: $\E[\bar{X}_n - \mu] = 0$
+    \item Dividing by $\sigma/\sqrt{n}$ (the standard deviation of $\bar{X}_n$) scales the variance to 1
+    \item The result $Z_n$ is a standardised random variable with mean 0 and variance 1
+    \item The CLT says the \emph{shape} of $Z_n$'s distribution approaches the standard Normal bell curve
+\end{itemize}
+
+\begin{bluebox}[Central Limit Theorem: Key Points]
+\textbf{What it says:} The standardised sample mean converges in distribution to $N(0, 1)$.
+
+\textbf{What it does NOT require:} The original $X_i$ do not need to be Normally distributed. They can be Uniform, Exponential, Bernoulli, Poisson, or \emph{any} distribution with finite variance.
+
+\textbf{What it DOES require:}
+\begin{itemize}
+    \item Independence (or weak dependence---there are extensions)
+    \item Identical distributions (same $\mu$ and $\sigma^2$)
+    \item Finite variance $\sigma^2 < \infty$
+\end{itemize}
+
+\textbf{Practical rule of thumb:} The Normal approximation is usually adequate for $n \geq 30$, though this depends on how non-Normal the original distribution is. Symmetric distributions need smaller $n$; highly skewed distributions need larger $n$.
+\end{bluebox}
+
+\begin{definition}[Convergence in Distribution]
+\label{def:convergence-distribution}
+A sequence $Y_n$ \textbf{converges in distribution} to $Y$, written $Y_n \xrightarrow{d} Y$, if for all $y$ where the CDF $F_Y$ is continuous:
+\[
+\lim_{n \to \infty} P(Y_n \leq y) = P(Y \leq y)
+\]
+
+This is the weakest form of convergence---it only requires that the CDFs converge, not that the random variables themselves become close.
+\end{definition}
+
+\subsection{Equivalent Formulations}
+
+The CLT can be restated in several equivalent and practically useful ways.
+
+\begin{corollary}[CLT for the Sample Mean]
+\label{cor:clt-sample-mean}
+For large $n$, the sample mean is approximately Normal:
+\begin{equation}
+\label{eq:clt-sample-mean}
+\bar{X}_n \stackrel{\cdot}{\sim} N\left(\mu, \frac{\sigma^2}{n}\right)
+\end{equation}
+where $\stackrel{\cdot}{\sim}$ denotes ``approximately distributed as''.
+\end{corollary}
+
+\begin{proof}[Derivation]
+If $Z_n = \frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}} \xrightarrow{d} N(0, 1)$, then for large $n$:
+\[
+Z_n \stackrel{\cdot}{\sim} N(0, 1)
+\]
+
+Rearranging: $\bar{X}_n = \mu + \frac{\sigma}{\sqrt{n}} Z_n$.
+
+Since a linear transformation of a Normal is Normal:
+\[
+\bar{X}_n \stackrel{\cdot}{\sim} N\left(\mu, \frac{\sigma^2}{n}\right) \qedhere
+\]
+\end{proof}
+
+\begin{corollary}[CLT for the Sum]
+\label{cor:clt-sum}
+The sum $S_n = X_1 + \cdots + X_n$ is approximately Normal:
+\begin{equation}
+\label{eq:clt-sum}
+S_n \stackrel{\cdot}{\sim} N(n\mu, n\sigma^2)
+\end{equation}
+\end{corollary}
+
+\begin{proof}[Derivation]
+Since $S_n = n\bar{X}_n$ and $\bar{X}_n \stackrel{\cdot}{\sim} N(\mu, \sigma^2/n)$:
+\begin{align*}
+\E[S_n] &= n\E[\bar{X}_n] = n\mu \\
+\Var(S_n) &= n^2 \Var(\bar{X}_n) = n^2 \cdot \frac{\sigma^2}{n} = n\sigma^2
+\end{align*}
+
+Hence $S_n \stackrel{\cdot}{\sim} N(n\mu, n\sigma^2)$.
+\end{proof}
+
+\subsection{Visualising the CLT}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/week_7/clt_geometric.png}
+    \caption{The Central Limit Theorem in action. Top row: sampling distributions for different sample sizes from a Geometric distribution. As $n$ increases, the distribution of $\bar{X}_n$ becomes increasingly Normal, regardless of the skewed shape of the original distribution.}
+    \label{fig:clt}
+\end{figure}
+
+\begin{intuition}[Understanding the CLT Visualisation]
+\begin{itemize}
+    \item $n = 1$: Each ``sample mean'' is just a single observation, so the distribution of $\bar{X}_1$ is identical to the original distribution (here, Geometric---highly right-skewed).
+    \item $n$ small: We start averaging multiple observations. The distribution becomes more symmetric and concentrated.
+    \item $n$ moderate ($\sim 30$): The distribution is close to Normal, despite the original being highly skewed.
+    \item Large $n$: The distribution of sample means is nearly indistinguishable from Normal.
+    \item \textbf{Variance shrinking:} Notice that the distribution becomes narrower as $n$ increases, reflecting $\Var(\bar{X}_n) = \sigma^2/n$.
+\end{itemize}
+\end{intuition}
+
+\subsection{Normal Approximation to the Binomial}
+
+An important and historically significant application of the CLT is approximating the Binomial distribution.
+
+\begin{theorem}[Normal Approximation to Binomial]
+\label{thm:normal-approx-binomial}
+If $X \sim \text{Binomial}(n, p)$, then for large $n$:
+\begin{equation}
+\label{eq:normal-approx-binomial}
+X \stackrel{\cdot}{\sim} N(np, np(1-p))
+\end{equation}
+\end{theorem}
+
+\begin{proof}[Derivation via CLT]
+Recall that $X \sim \text{Binomial}(n, p)$ can be written as a sum of i.i.d.\ Bernoulli trials:
+\[
+X = Y_1 + Y_2 + \cdots + Y_n
+\]
+where $Y_i \sim \text{Bernoulli}(p)$ are i.i.d.\ with:
+\begin{align*}
+\E[Y_i] &= p \\
+\Var(Y_i) &= p(1-p)
+\end{align*}
+
+By the CLT for sums (\cref{cor:clt-sum}):
+\[
+X = \sum_{i=1}^{n} Y_i \stackrel{\cdot}{\sim} N(n \cdot p, n \cdot p(1-p)) = N(np, np(1-p)) \qedhere
+\]
+\end{proof}
+
+\begin{remark}[Rule of Thumb for Normal Approximation to Binomial]
+The approximation is generally considered adequate when both:
+\begin{itemize}
+    \item $np \geq 10$ (enough expected successes)
+    \item $n(1-p) \geq 10$ (enough expected failures)
+\end{itemize}
+Some sources use 5 instead of 10 as the threshold.
+\end{remark}
+
+\begin{remark}[Continuity Correction]
+Since the Binomial is discrete and the Normal is continuous, accuracy can be improved using a \emph{continuity correction}:
+\[
+P(X \leq k) \approx \Phi\left(\frac{k + 0.5 - np}{\sqrt{np(1-p)}}\right)
+\]
+
+The $+0.5$ adjustment accounts for the fact that the continuous Normal must approximate a discrete distribution.
+\end{remark}
+
+\begin{example}[Normal Approximation to Binomial]
+\label{ex:normal-approx-binomial}
+Suppose $X \sim \text{Binomial}(100, 0.3)$. Find $P(X \leq 25)$.
+
+\textbf{Setup:}
+\begin{align*}
+\mu &= np = 100 \times 0.3 = 30 \\
+\sigma^2 &= np(1-p) = 100 \times 0.3 \times 0.7 = 21 \\
+\sigma &= \sqrt{21} \approx 4.58
+\end{align*}
+
+\textbf{Check conditions:} $np = 30 \geq 10$ and $n(1-p) = 70 \geq 10$. Approximation is appropriate.
+
+\textbf{Without continuity correction:}
+\[
+P(X \leq 25) \approx P\left(Z \leq \frac{25 - 30}{4.58}\right) = P(Z \leq -1.09) \approx 0.138
+\]
+
+\textbf{With continuity correction:}
+\[
+P(X \leq 25) \approx P\left(Z \leq \frac{25.5 - 30}{4.58}\right) = P(Z \leq -0.98) \approx 0.164
+\]
+
+The exact value (from Binomial tables or software) is approximately 0.163, so the continuity correction improves accuracy.
+\end{example}
+
+\subsection{Why Does the CLT Work?}
+
+\begin{intuition}[Why Sums Become Normal]
+The CLT is remarkable because it works for \emph{any} starting distribution (with finite variance). The key insight is that summing many independent contributions has a smoothing effect:
+\begin{enumerate}
+    \item \textbf{Extreme values average out:} Very large or very small individual values become rare when averaged with many others.
+    \item \textbf{Moderate values accumulate:} Most sums end up near the middle because there are exponentially more ways to achieve middle values than extreme values.
+    \item \textbf{Symmetry emerges:} Even if the original distribution is skewed, the sum of many independent copies tends to be symmetric because positive and negative deviations from the mean tend to cancel.
+\end{enumerate}
+\end{intuition}
+
+\begin{rigour}[Sketch of Proof via Characteristic Functions]
+The rigorous proof uses characteristic functions (or moment generating functions):
+\begin{enumerate}
+    \item The characteristic function of a sum of independent RVs is the product of their characteristic functions.
+    \item For i.i.d.\ $X_i$ with mean $\mu$ and variance $\sigma^2$, the characteristic function of $X_i$ near 0 behaves like $\varphi(t) = 1 + i\mu t - \frac{\sigma^2 t^2}{2} + O(t^3)$.
+    \item The characteristic function of the standardised sum converges to $e^{-t^2/2}$, which is the characteristic function of $N(0, 1)$.
+    \item By Lévy's continuity theorem, convergence of characteristic functions implies convergence in distribution.
+\end{enumerate}
+
+The full proof requires careful analysis of the higher-order terms.
+\end{rigour}
+
+\subsection{Extensions and Generalisations}
+
+\begin{remark}[Beyond i.i.d.]
+The CLT has been generalised in many directions:
+\begin{itemize}
+    \item \textbf{Lindeberg--Feller CLT:} Allows non-identical distributions, provided no single term dominates the sum.
+    \item \textbf{Lyapunov CLT:} Gives conditions based on moments rather than distributions.
+    \item \textbf{Martingale CLT:} Extends to dependent sequences with martingale structure.
+    \item \textbf{Multivariate CLT:} Vector-valued random variables converge to multivariate Normal.
+\end{itemize}
+These generalisations are important in advanced probability and statistics.
+\end{remark}
+
+\begin{warning}[When the CLT Fails]
+The CLT requires finite variance. For heavy-tailed distributions like the Cauchy, which has no finite variance (or even mean), the CLT does \emph{not} apply.
+
+For Cauchy random variables, the sample mean has the \emph{same distribution} as a single observation---averaging does not concentrate the distribution at all!
+\end{warning}
+
+% =============================================================================
+\section{The Expectation-Maximisation (EM) Algorithm}
+\label{sec:em}
+% =============================================================================
+
+The Expectation-Maximisation (EM) algorithm is a powerful iterative method for finding maximum likelihood estimates when the model involves latent (hidden) variables. It is particularly useful for mixture models, where observations arise from one of several possible distributions but we do not know which.
+
+\subsection{Motivation: Mixture Models and Latent Variables}
+
+Consider the Old Faithful geyser data: eruption durations appear to come from two distinct populations---short eruptions and long eruptions---corresponding to different geological processes. However, we do not directly observe which type each eruption is. The eruption type is a \emph{latent variable}.
+
+\begin{definition}[Latent Variable]
+\label{def:latent-variable}
+A \textbf{latent variable} is a variable that affects the observed data but is not directly observed. It is ``hidden'' or ``unobserved''.
+\end{definition}
+
+\begin{definition}[Gaussian Mixture Model]
+\label{def:gmm}
+A \textbf{Gaussian mixture model (GMM)} with $K$ components assumes that each observation $x$ is generated by:
+\begin{enumerate}
+    \item First, selecting a component $k \in \{1, \ldots, K\}$ with probability $\pi_k$ (the \emph{mixing proportions}, with $\sum_{k=1}^{K} \pi_k = 1$)
+    \item Then, drawing $x$ from $N(\mu_k, \sigma_k^2)$
+\end{enumerate}
+
+The marginal density of $X$ is:
+\begin{equation}
+\label{eq:gmm-density}
+f(x) = \sum_{k=1}^{K} \pi_k \cdot \phi(x; \mu_k, \sigma_k^2)
+\end{equation}
+where $\phi(x; \mu, \sigma^2) = \frac{1}{\sigma\sqrt{2\pi}} \exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)$ is the Normal PDF.
+\end{definition}
+
+\begin{intuition}[Mixture Models]
+A mixture model says: Each data point comes from one of $K$ different populations, but we do not know which. The populations may have different means, variances, or even different distributional shapes.
+
+\textbf{Examples:}
+\begin{itemize}
+    \item Customer segments (high-value vs low-value)
+    \item Genetic subpopulations
+    \item Topic models in text analysis (each document is a mixture of topics)
+\end{itemize}
+
+For the Old Faithful example with $K = 2$ components:
+\begin{itemize}
+    \item $Z_i \in \{1, 2\}$: Latent variable indicating eruption type (unobserved)
+    \item $\pi_1 = P(Z_i = 1)$: Probability of short eruption type
+    \item $\pi_2 = P(Z_i = 2) = 1 - \pi_1$: Probability of long eruption type
+    \item $X_i | Z_i = k \sim N(\mu_k, \sigma_k^2)$: Duration given type
+\end{itemize}
+
+The parameters to estimate are: $\theta = (\pi_1, \pi_2, \mu_1, \mu_2, \sigma_1^2, \sigma_2^2)$.
+\end{intuition}
+
+\subsection{Why Standard MLE Fails}
+
+For a sample $x_1, \ldots, x_n$, the likelihood is:
+\begin{equation}
+\label{eq:gmm-likelihood}
+L(\theta) = \prod_{i=1}^{n} f(x_i; \theta) = \prod_{i=1}^{n} \left[\pi_1 \phi(x_i; \mu_1, \sigma_1^2) + \pi_2 \phi(x_i; \mu_2, \sigma_2^2)\right]
+\end{equation}
+
+The log-likelihood is:
+\begin{equation}
+\label{eq:gmm-loglik}
+\ell(\theta) = \sum_{i=1}^{n} \log\left[\pi_1 \phi(x_i; \mu_1, \sigma_1^2) + \pi_2 \phi(x_i; \mu_2, \sigma_2^2)\right]
+\end{equation}
+
+\begin{warning}[The Log-Sum Problem]
+Standard MLE requires taking derivatives and setting them to zero. The problem is that the log-likelihood contains $\log(\text{sum})$, which does not simplify nicely.
+
+Differentiating $\ell$ with respect to $\mu_1$:
+\[
+\frac{\partial \ell}{\partial \mu_1} = \sum_{i=1}^{n} \frac{\pi_1 \cdot \frac{\partial}{\partial \mu_1} \phi(x_i; \mu_1, \sigma_1^2)}{\pi_1 \phi(x_i; \mu_1, \sigma_1^2) + \pi_2 \phi(x_i; \mu_2, \sigma_2^2)}
+\]
+
+Setting this to zero yields equations where all parameters are intertwined---there is no closed-form solution.
+
+\textbf{Contrast with simple MLE:} For a single Normal distribution, $\ell = \sum \log \phi(x_i; \mu, \sigma^2)$, and the log pulls through to give clean, separable equations.
+\end{warning}
+
+\subsection{The Key Insight: Responsibilities}
+
+The EM algorithm is based on a clever observation. Looking at the derivative above, we notice a recurring term:
+\begin{equation}
+\label{eq:responsibility}
+\gamma_{ik} = \frac{\pi_k \phi(x_i; \mu_k, \sigma_k^2)}{\sum_{j=1}^{K} \pi_j \phi(x_i; \mu_j, \sigma_j^2)}
+\end{equation}
+
+This is recognisable via Bayes' theorem as the \emph{posterior probability} that observation $i$ belongs to component $k$:
+\[
+\gamma_{ik} = P(Z_i = k \mid X_i = x_i, \theta)
+\]
+
+\begin{definition}[Responsibilities]
+\label{def:responsibilities}
+The \textbf{responsibility} $\gamma_{ik}$ is the posterior probability that data point $i$ was generated by component $k$, given the observed data and current parameter estimates:
+\begin{equation}
+\label{eq:responsibility-def}
+\gamma_{ik} = P(Z_i = k \mid x_i) = \frac{\pi_k \phi(x_i; \mu_k, \sigma_k^2)}{\sum_{j=1}^{K} \pi_j \phi(x_i; \mu_j, \sigma_j^2)}
+\end{equation}
+\end{definition}
+
+\begin{rigour}[Deriving Responsibilities via Bayes' Theorem]
+By Bayes' theorem:
+\[
+P(Z_i = k \mid X_i = x_i) = \frac{P(X_i = x_i \mid Z_i = k) \cdot P(Z_i = k)}{P(X_i = x_i)}
+\]
+
+The terms are:
+\begin{itemize}
+    \item $P(X_i = x_i \mid Z_i = k) = \phi(x_i; \mu_k, \sigma_k^2)$ (likelihood given component)
+    \item $P(Z_i = k) = \pi_k$ (prior probability of component)
+    \item $P(X_i = x_i) = \sum_{j=1}^{K} \pi_j \phi(x_i; \mu_j, \sigma_j^2)$ (marginal likelihood)
+\end{itemize}
+
+Substituting gives the responsibility formula.
+\end{rigour}
+
+\begin{intuition}[What Responsibilities Mean]
+The responsibility $\gamma_{ik}$ is a \emph{soft assignment} of observation $i$ to component $k$:
+\begin{itemize}
+    \item If $\gamma_{i1} = 0.9$, we are 90\% confident observation $i$ came from component 1
+    \item Responsibilities sum to 1 across components: $\sum_k \gamma_{ik} = 1$ for each $i$
+    \item If we knew the true assignments (the $Z_i$), MLE would be straightforward---just fit a Normal to each subset. The responsibilities provide probabilistic guesses of these assignments.
+\end{itemize}
+\end{intuition}
+
+\subsection{The EM Algorithm: Structure}
+
+The EM algorithm exploits this insight by alternating between two steps:
+\begin{enumerate}
+    \item \textbf{E-step (Expectation):} Given current parameter estimates, compute the expected value of the latent variables---i.e., the responsibilities.
+    \item \textbf{M-step (Maximisation):} Given the responsibilities, update parameters to maximise the expected complete-data log-likelihood.
+\end{enumerate}
+
+The key idea: if we knew the latent variables, MLE would be easy. If we knew the parameters, computing the latent variable posteriors would be easy. EM alternates between these, using each to inform the other.
+
+\begin{bluebox}[EM Algorithm: High-Level Structure]
+\textbf{Goal:} Find MLE for parameters $\theta$ when some variables $Z$ are unobserved.
+
+\textbf{Initialisation:} Choose starting values $\theta^{(0)}$.
+
+\textbf{Iterate until convergence:}
+
+\textbf{E-Step:} Compute $Q(\theta \mid \theta^{(t)}) = \E_{Z|X,\theta^{(t)}}\left[\log L(\theta; X, Z)\right]$
+
+This is the expected complete-data log-likelihood, where the expectation is over the latent variables $Z$ given observed data $X$ and current parameters $\theta^{(t)}$.
+
+\textbf{M-Step:} Set $\theta^{(t+1)} = \arg\max_\theta Q(\theta \mid \theta^{(t)})$
+\end{bluebox}
+
+\subsection{EM for Gaussian Mixture Models}
+
+For Gaussian mixture models, the E-step and M-step take particularly clean forms.
+
+\begin{bluebox}[The EM Algorithm for Gaussian Mixtures]
+\textbf{Initialisation:} Choose initial values for parameters $\pi_k^{(0)}$, $\mu_k^{(0)}$, $(\sigma_k^2)^{(0)}$ for $k = 1, \ldots, K$.
+
+\textbf{Iterate until convergence:}
+
+\textbf{E-Step:} For each observation $i$ and component $k$, compute the responsibility:
+\begin{equation}
+\label{eq:em-estep}
+\gamma_{ik}^{(t)} = \frac{\pi_k^{(t)} \phi(x_i; \mu_k^{(t)}, (\sigma_k^2)^{(t)})}{\sum_{j=1}^{K} \pi_j^{(t)} \phi(x_i; \mu_j^{(t)}, (\sigma_j^2)^{(t)})}
+\end{equation}
+
+\textbf{M-Step:} Update parameters using weighted averages based on responsibilities:
+
+First, compute the effective number of points in each component:
+\begin{equation}
+\label{eq:em-nk}
+N_k^{(t)} = \sum_{i=1}^{n} \gamma_{ik}^{(t)}
+\end{equation}
+
+Then update:
+\begin{align}
+\mu_k^{(t+1)} &= \frac{1}{N_k^{(t)}} \sum_{i=1}^{n} \gamma_{ik}^{(t)} x_i \label{eq:em-mu} \\
+(\sigma_k^2)^{(t+1)} &= \frac{1}{N_k^{(t)}} \sum_{i=1}^{n} \gamma_{ik}^{(t)} (x_i - \mu_k^{(t+1)})^2 \label{eq:em-sigma} \\
+\pi_k^{(t+1)} &= \frac{N_k^{(t)}}{n} \label{eq:em-pi}
+\end{align}
+
+\textbf{Convergence check:} Evaluate the log-likelihood:
+\[
+\ell^{(t+1)} = \sum_{i=1}^{n} \log\left[\sum_{k=1}^{K} \pi_k^{(t+1)} \phi(x_i; \mu_k^{(t+1)}, (\sigma_k^2)^{(t+1)})\right]
+\]
+
+Stop when $|\ell^{(t+1)} - \ell^{(t)}| < \varepsilon$ for some tolerance $\varepsilon$.
+\end{bluebox}
+
+\begin{bluebox}[EM for GMM: Summary]
+\textbf{E-Step} (soft assignment):
+\[
+\gamma_{ik} = \frac{\pi_k \phi(x_i; \mu_k, \sigma_k^2)}{\sum_{j=1}^{K} \pi_j \phi(x_i; \mu_j, \sigma_j^2)}
+\]
+
+\textbf{M-Step} (weighted parameter updates):
+\begin{align*}
+N_k &= \sum_{i=1}^{n} \gamma_{ik} && \text{(effective count)} \\
+\hat{\mu}_k &= \frac{1}{N_k} \sum_{i=1}^{n} \gamma_{ik} x_i && \text{(weighted mean)} \\
+\hat{\sigma}_k^2 &= \frac{1}{N_k} \sum_{i=1}^{n} \gamma_{ik} (x_i - \hat{\mu}_k)^2 && \text{(weighted variance)} \\
+\hat{\pi}_k &= \frac{N_k}{n} && \text{(fraction of responsibility)}
+\end{align*}
+\end{bluebox}
+
+\subsection{Derivation of the M-Step Updates}
+
+Why do the M-step updates take this form? They come from maximising the expected complete-data log-likelihood.
+
+\begin{rigour}[Derivation of $\hat{\mu}_k$]
+If we observed the latent variables $Z_i$, the complete-data log-likelihood would be:
+\[
+\ell_c(\theta) = \sum_{i=1}^{n} \sum_{k=1}^{K} \mathbf{1}_{Z_i=k} \left[\log \pi_k + \log \phi(x_i; \mu_k, \sigma_k^2)\right]
+\]
+
+Taking expectation over $Z$ given $X$ and current parameters, and using $\E[\mathbf{1}_{Z_i=k}] = \gamma_{ik}$:
+\[
+Q(\theta \mid \theta^{(t)}) = \sum_{i=1}^{n} \sum_{k=1}^{K} \gamma_{ik} \left[\log \pi_k - \frac{1}{2}\log(2\pi\sigma_k^2) - \frac{(x_i - \mu_k)^2}{2\sigma_k^2}\right]
+\]
+
+Differentiating with respect to $\mu_k$ and setting to zero:
+\begin{align*}
+\frac{\partial Q}{\partial \mu_k} &= \sum_{i=1}^{n} \gamma_{ik} \cdot \frac{x_i - \mu_k}{\sigma_k^2} = 0 \\
+\sum_{i=1}^{n} \gamma_{ik} (x_i - \mu_k) &= 0 \\
+\sum_{i=1}^{n} \gamma_{ik} x_i &= \mu_k \sum_{i=1}^{n} \gamma_{ik} \\
+\mu_k &= \frac{\sum_{i=1}^{n} \gamma_{ik} x_i}{\sum_{i=1}^{n} \gamma_{ik}} = \frac{\sum_{i=1}^{n} \gamma_{ik} x_i}{N_k}
+\end{align*}
+
+This is a weighted average of the observations, where the weight for observation $i$ is its responsibility $\gamma_{ik}$.
+\end{rigour}
+
+\begin{intuition}[Interpreting the M-Step]
+The M-step updates have natural interpretations:
+\begin{itemize}
+    \item $\hat{\mu}_k$: Weighted mean of observations, where weights reflect how much each observation ``belongs'' to component $k$. If responsibilities were hard (0 or 1), this would be the sample mean of points assigned to component $k$.
+    \item $\hat{\sigma}_k^2$: Weighted variance around the new mean.
+    \item $N_k = \sum_i \gamma_{ik}$: The effective number of points in component $k$. Not an integer, because points are softly assigned.
+    \item $\hat{\pi}_k = N_k/n$: The fraction of total responsibility mass assigned to component $k$.
+\end{itemize}
+\end{intuition}
+
+\subsection{Convergence Properties}
+
+\begin{theorem}[EM Monotonically Increases Likelihood]
+\label{thm:em-monotone}
+Each iteration of the EM algorithm increases (or maintains) the observed-data log-likelihood:
+\[
+\ell(\theta^{(t+1)}) \geq \ell(\theta^{(t)})
+\]
+with equality only at a stationary point.
+\end{theorem}
+
+\begin{intuition}[Why EM Works: The Lower Bound Perspective]
+The EM algorithm can be understood through the lens of \emph{lower bounds}:
+\begin{enumerate}
+    \item The E-step constructs a lower bound $Q(\theta \mid \theta^{(t)})$ on the log-likelihood that touches the log-likelihood at $\theta^{(t)}$.
+    \item The M-step maximises this lower bound, finding $\theta^{(t+1)}$.
+    \item Because $Q$ is a lower bound that equals $\ell$ at $\theta^{(t)}$, we have:
+    \[
+    \ell(\theta^{(t+1)}) \geq Q(\theta^{(t+1)} \mid \theta^{(t)}) \geq Q(\theta^{(t)} \mid \theta^{(t)}) = \ell(\theta^{(t)})
+    \]
+\end{enumerate}
+
+Each iteration ``lifts'' the lower bound, which in turn lifts the log-likelihood.
+\end{intuition}
+
+\begin{warning}[EM Convergence Caveats]
+\begin{enumerate}
+    \item \textbf{Local, not global:} EM converges to a local maximum (or saddle point), not necessarily the global maximum. The final solution depends on initialisation.
+    \item \textbf{Multiple initialisations:} In practice, run EM multiple times with different starting values and choose the solution with highest log-likelihood.
+    \item \textbf{Convergence can be slow:} Near the optimum, convergence is often linear (each iteration reduces the error by a constant factor), which can be slower than Newton-type methods that converge quadratically.
+    \item \textbf{Degeneracies:} With insufficient data or poor initialisation, a component may ``collapse'' onto a single point, causing $\sigma_k \to 0$ and $\ell \to \infty$. Regularisation or variance constraints can help.
+\end{enumerate}
+\end{warning}
+
+\subsection{Practical Considerations}
+
+\begin{enumerate}
+    \item \textbf{Initialisation strategies:}
+    \begin{itemize}
+        \item \textbf{Random:} Sample initial means from the data points
+        \item \textbf{K-means:} Use K-means clustering to get initial hard assignments, then estimate parameters from each cluster
+        \item \textbf{K-means++:} A more careful random initialisation that spreads out initial centres
+        \item \textbf{Heuristic:} Use domain knowledge (e.g., for bimodal data, initialise means near the modes)
+    \end{itemize}
+
+    \item \textbf{Choosing $K$:} The number of components is typically chosen using:
+    \begin{itemize}
+        \item \textbf{Information criteria:} AIC, BIC (penalise model complexity)
+        \item \textbf{Cross-validation:} Hold out data and evaluate predictive performance
+        \item \textbf{Domain knowledge:} Sometimes the number of groups is known a priori
+    \end{itemize}
+
+    \item \textbf{Numerical stability:} When computing responsibilities, work with log-probabilities to avoid underflow. The log-sum-exp trick is essential:
+    \[
+    \log\left(\sum_k e^{a_k}\right) = m + \log\left(\sum_k e^{a_k - m}\right)
+    \]
+    where $m = \max_k a_k$.
+\end{enumerate}
+
+\begin{remark}[EM Beyond Mixture Models]
+The EM algorithm applies to any model with latent variables, not just mixtures:
+\begin{itemize}
+    \item Hidden Markov models
+    \item Factor analysis
+    \item Missing data problems
+    \item Variational autoencoders (variational EM)
+\end{itemize}
+
+The general principle---alternate between inferring latent variables and updating parameters---is widely applicable.
+\end{remark}
+
+% =============================================================================
+\section{Summary}
+\label{sec:week7-summary}
+% =============================================================================
+
+\begin{bluebox}[Week 7 Summary]
+\textbf{Covariance and Correlation:}
+\begin{itemize}
+    \item $\Cov(X, Y) = \E[XY] - \E[X]\E[Y]$ measures joint variability
+    \item $\rho_{X,Y} = \Cov(X, Y)/(\sigma_X \sigma_Y) \in [-1, 1]$ is the standardised, scale-free version
+    \item Independence $\implies$ uncorrelated, but uncorrelated $\centernot\implies$ independent
+    \item Correlation measures linear association only; non-linear relationships can produce $\rho = 0$
+    \item Exception: For jointly Normal $(X, Y)$, uncorrelated $\iff$ independent
+\end{itemize}
+
+\textbf{Law of Large Numbers:}
+\begin{itemize}
+    \item Sample mean $\bar{X}_n$ has $\E[\bar{X}_n] = \mu$ (unbiased) and $\Var(\bar{X}_n) = \sigma^2/n$
+    \item WLLN: $P(|\bar{X}_n - \mu| > \varepsilon) \to 0$ as $n \to \infty$ (convergence in probability)
+    \item SLLN: $\bar{X}_n \to \mu$ almost surely (stronger)
+    \item Convergence is by swamping, not correction (avoid gambler's fallacy)
+\end{itemize}
+
+\textbf{Central Limit Theorem:}
+\begin{itemize}
+    \item Standardised sample mean converges in distribution to $N(0, 1)$:
+    \[
+    \frac{\sqrt{n}(\bar{X}_n - \mu)}{\sigma} \xrightarrow{d} N(0, 1)
+    \]
+    \item Holds regardless of the original distribution (given finite variance)
+    \item Enables Normal approximations: $\bar{X}_n \stackrel{\cdot}{\sim} N(\mu, \sigma^2/n)$
+    \item Applications: confidence intervals, hypothesis tests, approximating Binomial
+\end{itemize}
+
+\textbf{EM Algorithm:}
+\begin{itemize}
+    \item Iterative method for MLE with latent variables
+    \item E-step: Compute responsibilities (posterior probabilities of latent states)
+    \item M-step: Update parameters using responsibility-weighted averages
+    \item Guarantees monotonic increase in likelihood
+    \item Converges to local (not necessarily global) maximum
+    \item Widely applicable: mixture models, HMMs, missing data, factor analysis
+\end{itemize}
+\end{bluebox}

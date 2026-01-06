@@ -1,0 +1,63 @@
+% Shared preamble for ML Lecture Notes
+% Include with: \input{preamble}
+
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\setlength{\parskip}{0.5\baselineskip plus 2pt minus 1pt}
+\raggedbottom
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tcolorbox}
+\usepackage{xcolor}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\sign}{sign}
+
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
+
+% Red warning box (caveats, common mistakes)
+\newtcolorbox{redbox}{
+    colback=red!10!white,
+    colframe=red!80!black,
+    fonttitle=\bfseries,
+    title=NB!,
+    sharp corners
+}
+
+% Grey box (graduate-level rigour: formal definitions, proofs, derivations)
+\newtcolorbox{greybox}[1][]{
+    colback=gray!10!white,
+    colframe=gray!60!black,
+    fonttitle=\bfseries,
+    title=#1,
+    sharp corners
+}
+
+% Blue box (quick reference: key takeaways, formulas, summaries)
+\newtcolorbox{bluebox}[1][]{
+    colback=blue!5!white,
+    colframe=blue!60!black,
+    fonttitle=\bfseries,
+    title=#1,
+    sharp corners
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\footnotesize Henry Baker}
+\rhead{\footnotesize Machine Learning - 2024 (Prerequisite for DL 2025 Labs)}
+\cfoot{\footnotesize \thepage}

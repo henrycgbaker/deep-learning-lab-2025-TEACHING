@@ -1,0 +1,78 @@
+\documentclass[a4paper,11pt]{book}
+
+% Page geometry
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+
+% Encoding
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+% Tables and figures
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{float}
+
+% Spacing and lists
+\usepackage{setspace}
+\usepackage{enumerate}
+\setlength{\parindent}{0in}
+
+% Headers and footers
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\footnotesize\thepage}
+\fancyhead[LO]{\footnotesize\nouppercase{\rightmark}}
+\fancyhead[RE]{\footnotesize DL Lecture Notes}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Mathematics
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Coloured boxes
+\usepackage{tcolorbox}
+\usepackage{xcolor}
+
+% Define red box environment
+\newtcolorbox{redbox}{
+    colback=red!10!white,
+    colframe=red!80!black,
+    fonttitle=\bfseries,
+    title=NB!,
+    sharp corners
+}
+
+% PDF navigation
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    pdftitle={Deep Learning Lecture Notes},
+    pdfauthor={Henry Baker}
+}
+
+% Title information
+\title{Deep Learning Lecture Notes}
+\author{Henry Baker}
+\date{2024}
+
+\begin{document}
+
+% Title page
+\maketitle
+\tableofcontents
+\newpage
+
+% Weekly content
+\input{week_1_content}
+\input{week_2_content}
+\input{week_3_content}
+\input{week_4_content}
+\input{week_5_content}
+\input{week_6_content}
+\input{week_7_content}
+
+\end{document}

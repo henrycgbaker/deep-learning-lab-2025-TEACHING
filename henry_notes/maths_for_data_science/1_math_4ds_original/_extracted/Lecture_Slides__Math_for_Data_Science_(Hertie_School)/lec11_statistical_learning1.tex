@@ -1,0 +1,440 @@
+%\documentclass[xcolor=dvipsnames]{beamer}
+\documentclass[xcolor=dvipsnames,handout]{beamer}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\usepackage{etex}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epsfig}
+\usepackage[english]{babel}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{fancyvrb}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{caption}
+%\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{epsdice}
+
+\definecolor{newred}{RGB}{127,0,0}
+\let\iitemize=\itemize \let\endiitemize=\enditemize \renewenvironment{itemize}{\iitemize \vspace{1mm} \itemsep2mm}{\endiitemize}
+\let\eenumerate=\enumerate \let\endeenumerate=\endenumerate \renewenvironment{enumerate}{\eenumerate \vspace{1mm} \itemsep2mm}{\endeenumerate}
+% == theme & colors
+\mode<presentation>
+{
+
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usecolortheme{beaver}
+  \setbeamercovered{invisible} %or transparent
+  \metroset{block=fill}
+  \setbeamercolor{block title example}{fg=gray!40!black}
+  \setbeamercolor{itemize item}{fg=gray!40!black} 
+  \setbeamercolor{title}{fg=newred} 
+}
+
+      
+\setbeamercolor{background canvas}{bg=white}
+
+
+% === tikz for pictures ===
+\usepackage{tikz}
+\usepackage[latin1]{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning}
+\usetikzlibrary{decorations.pathreplacing}
+\tikzstyle{doublearr}=[latex-latex, black, line width=0.5pt]
+
+% === if you want more than one slides on one page ===
+\usepackage{pgfpages}
+
+
+
+\title{Mathematics for Data Science}
+\subtitle[]{Lecture 11: Statistical Learning } 
+\author[Asya Magazinnik]{Asya Magazinnik}
+\institute{Hertie School}
+\date{\today}
+
+\renewcommand\r{\right}
+\renewcommand\l{\left}
+% \newcommand\sign{{\rm sign}}
+
+%% == change spacing for itemize
+%\let\oldframe\frame
+%\renewcommand{\frame}[1][1]{
+%\oldframe[#1]
+%\let\olditemize\itemize
+%\renewcommand\itemize{\olditemize\addtolength{\itemsep}{.25\baselineskip}}
+%}
+
+
+
+\def\insertnavigation#1{\relax}
+% \usefonttheme{serif}
+\usepackage[all]{xy}
+\usepackage{geometry,colortbl,wrapfig}
+\usepackage{tikz}  
+\usepackage{graphicx,setspace,subfigure}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\newcommand{\Ex}{\textsc{Example  }}
+\newcommand{\series}{\sum_{n=1}^{\infty}} 
+\newcommand{\ball}[1]{B( #1)} 
+\newcommand{\inner}[1]{\ensuremath{\langle #1 \rangle}}
+\newcommand{\e}{\epsilon}
+\newcommand{\grad}{\nabla}
+\newcommand{\pa}{\pause \item}
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+\newcommand{\R}{\mathbb{R}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+\newcommand{\matr}[1]{\bm{#1}}     % ISO complying version
+
+
+
+\newcommand{\indep}{{\bot\negthickspace\negthickspace\bot}}
+
+\begin{document}
+
+\subject{Talks}
+\AtBeginSection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection,currentsubsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+
+\frame[plain]{
+  \titlepage
+  \addtocounter{framenumber}{-1}
+}
+
+\section{Introduction to Statistical Learning}
+
+            \begin{frame}{Introduction to Statistical Learning}
+            First things first: let's define terms. \\
+            \vspace{5mm}
+            \alert{Statistical learning} refers to a vast set of tools for understanding data. \\
+            \vspace{5mm}
+            \alert{Supervised statistical learning} involves building a model for predicting, or estimating, an output based on one or more inputs. \\
+            \vspace{5mm}
+               With \alert{unsupervised statistical learning}, there are only inputs and no ``supervising'' output.
+           \end{frame}
+
+\begin{frame}{Development of Statistical Learning}
+\begin{enumerate}
+    \item \textbf{Least squares regression} (early 19th century) 
+    \begin{itemize} \small 
+        \item First applied to models of astronomy
+    \end{itemize}
+    \item \textbf{Logistic regression} (1940s) 
+    \begin{itemize} \small 
+        \item Developed for binary/categorical data 
+    \end{itemize}
+    \item \textbf{Generalized linear models} (GLMs)  (1970s) 
+    \item Fitting \textbf{nonlinear models} becomes computationally feasible (1980s) 
+    \begin{itemize}
+        \item $\rightarrow$ development of classification and regression trees, generalized additive models, neural networks (1980s), support vector machines (1990s)
+    \end{itemize}
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Early Statistical Computing}
+    \includegraphics[width=\textwidth]{images/DFVLRfortran.jpg}
+    
+    \vspace{5mm}
+    See other examples \href{https://homepage.cs.uiowa.edu/~jones/cards/collection/i-program.html}{here}.
+\end{frame}
+
+\begin{frame}{Early Statistical Computing}
+  Each card expresses a line of Fortran code. This one does $Z(1) = Y + W(1)$. (Looks like an assignment statement.) 
+  
+  \vspace{5mm}
+        \includegraphics[width=\textwidth]{images/punchcard.jpg}
+\end{frame}
+
+\section{Unsupervised Learning}
+\begin{frame}{Examples of Unsupervised Learning}
+    \begin{enumerate}
+        \item Clustering ($k$-means, hierarchical, ... ) 
+        \item Dimensionality Reduction (PCA, factor analysis...) 
+        \item Anomaly Detection 
+        \item Matrix Factorization (recommendation algorithms) 
+        \item Density Estimation
+        \item Topic Modeling (LDA, text as data)
+    \end{enumerate}
+\end{frame}
+
+\subsection{Clustering}
+\begin{frame}{Clustering}
+\vspace{2mm}
+    \includegraphics[width=\textwidth]{images/clust.png}
+\end{frame}
+
+
+
+\begin{frame}{$k$-Means Clustering}
+The goal of $k$-means clustering is to partition a dataset into $k$ clusters such that:
+\begin{enumerate} \small 
+    \item Each data point is assigned to the cluster with the nearest mean (centroid); 
+    \item The sum of squared distances between data points and their cluster centroids is minimized.
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{PCA + Clustering}
+\vspace{2mm}
+    \includegraphics[width=\textwidth]{images/pca_clust.png}
+\end{frame}
+
+\subsection{Matrix Factorization}
+\begin{frame}{Matrix Factorization: An Application to Recommendation \\ Algorithms}
+    \vspace{2mm}
+    \includegraphics[width=\textwidth]{images/recommendation.png} 
+    
+    Example from Google Developers.
+\end{frame}
+
+\begin{frame}{Matrix Factorization: An Application to Recommendation \\ Algorithms}
+\begin{itemize}
+    \item \textbf{Input:} A \alert{sparse matrix} $\mathbf{R}$ of size $m \times n$
+    \begin{itemize}
+        \item Rows ($m$) represent users
+        \item Columns ($n$) represent items
+        \item Entries $r_{ui}$ represent interactions (clicks, likes, purchases) with most entries unobserved
+    \end{itemize}
+    \item \textbf{Task:} predict the missing values (whether a user would like an item they haven't engaged with) based on the information that is observed 
+\end{itemize}    
+\end{frame}
+
+\begin{frame}{Matrix Factorization: An Application to Recommendation \\ Algorithms}
+\vspace{2mm}
+\begin{itemize}
+    \item \textbf{Model:} $\mathbf{R} \approx \mathbf{P} \mathbf{Q}^T$, where: 
+    \begin{itemize}
+        \item $\mathbf{P}$ is an $m \times k$ matrix representing \alert{latent factors} for users
+  \item $\mathbf{Q}$ is an $n \times k$ matrix representing  \alert{latent factors} for items
+  \item $k$ is the dimensionality, or number of latent factors (e.g. romance, mystery, sci-fi, comedy...)
+  \end{itemize}
+  \item \textbf{Prediction:} For a given user $u$ and item $i$, the predicted interaction $\hat{r}_{ui}$ is computed as: 
+  \[
+  \hat{r}_{ui} = \mathbf{p}_u^T \mathbf{q}_i
+  \]
+  where $\mathbf{p}_u$ is the user's \alert{latent feature vector} and $\mathbf{q}_i$ is the item's \alert{latent feature vector}
+\end{itemize}    
+\end{frame}
+
+\begin{frame}{Matrix Factorization: An Application to Recommendation \\ Algorithms}
+\begin{itemize}
+    \item \textbf{Objective:} We want to \alert{learn} $\mathbf{P}$ and $\mathbf{Q}$ such that $\hat{r}_{ui}$ is as close as possible to the observed $r_{ui}$ for the known interactions, while generalizing well to the the missing entries.
+    \item To train the model, \textbf{minimize the loss function:}
+    \[
+\mathcal{L}(\textbf{P}, \textbf{Q}) = \sum_{(u, i) \in \mathcal{D}} \left( r_{ui} - \mathbf{p}_u^\top \mathbf{q}_i \right)^2 + \lambda \left( \|\mathbf{P}\|_2^2 + \|\mathbf{Q}\|_2^2 \right)
+\]
+\begin{itemize} \small 
+    \item where we are minimizing the \alert{mean squared error} of the prediction with two constraints
+    \item $\lambda$ is a \alert{regularizaton parameter} to prevent overfitting
+\end{itemize}
+\end{itemize}    
+\end{frame}
+
+\begin{frame}{Big Data $\rightarrow$ big $k$}
+    \includegraphics[width=\textwidth]{images/decade.png}
+    \includegraphics[width=\textwidth]{images/mood.png}
+\end{frame}
+
+\begin{frame}{Big Data $\rightarrow$ big $k$ (Read more \href{https://newsroom.spotify.com/2022-11-30/learn-about-those-music-genres-you-may-not-have-heard-of/}{here}.)}
+    \includegraphics[width=\textwidth]{images/subgenre1.png}
+    \includegraphics[width=\textwidth]{images/subgenre2.png}
+\end{frame}
+
+\section{Supervised Learning}
+\subsection{The Basic Enterprise}
+\begin{frame}{Supervised Learning}
+    \alert{Inputs:} predictors, independent variables, features, or sometimes just variables; $X$ \\
+    \vspace{5mm}
+    \alert{Outputs:} response variable, dependent variable; $Y$
+\end{frame}
+
+\begin{frame}{Supervised Learning: The Basic Enterprise}
+\vspace{2mm}
+We assume our data is generated according to the following process: 
+\begin{center}
+     $Y = f(X) + \varepsilon$
+\end{center}
+where $\varepsilon$ is mean 0 and uncorrelated with $X$. We call $f(X)$ the \alert{systematic} component and $\varepsilon$ \alert{random}. \\
+\vspace{3mm}
+How to interpret $\varepsilon$?
+\begin{itemize} \small 
+    \item \alert{Unmeasured} sources of variation
+    \item \alert{Unmeasurable} sources of variation
+\end{itemize}
+(This gets us into some existential territory.) 
+\end{frame}
+
+
+
+\subsection{Prediction vs. Inference}
+\begin{frame}{Prediction or Inference?}
+    What comes next depends on our goal: \alert{prediction} or \alert{inference}. \\
+    \vspace{5mm} \pause
+    \textbf{Prediction:} I don't really care about what $f(X)$ looks like; I want to get as close as possible to $Y$ (out of sample).
+    \\
+        \vspace{5mm} \pause 
+    \textbf{Inference:} I am interested directly in $f(X)$.
+\end{frame}
+
+\begin{frame}{Prediction} 
+\vspace{2mm}
+The task is to find some \alert{model} $\hat{f}(X)$ that generates a \alert{predicted value} for the outcome, $\hat{Y}$:
+\[
+\hat{Y} = \hat{f}(X)
+\]
+    \begin{itemize} \small 
+    \vspace{-8mm}
+        \item We are generally trying to minimize the \alert{mean squared error}:
+        \begin{align*}
+                    E [ (Y - \hat{Y})^2 ] &= E[(\underbrace{f(X) + \varepsilon}_Y - \underbrace{\hat{f}(X)}_{\hat{Y}})^2 ] \\
+                    &= \underbrace{(f(X) - \hat{f}(X))^2}_{\text{reducible}} + \underbrace{\text{Var}(\varepsilon) }_{\text{irreducible}}
+        \end{align*}
+        \item We aim to minimize the reducible error, potentially to 0
+        \item But the irreducible error is an upper bound on the accuracy of our prediction for $Y$. \alert{This bound is almost always unknown in practice. }
+    \end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Inference}
+\vspace{2mm}
+Once again we propose a \alert{model} for $Y$:
+       \[ \hat{Y} = \hat{f}(X) \]
+    But our goal is to learn something about the true $f(X)$:
+     \begin{itemize} \small 
+        \item What goes into $X$?
+        \begin{itemize} \small 
+            \item[] \textit{What are the main \alert{causes} of the outcome?}
+        \end{itemize}
+        \item What is the functional form of $f(X)$?
+        \begin{itemize} \small 
+            \item[] \textit{Is it linear, quadratic, higher order? Are there interactions?}
+        \end{itemize}
+        \item What is the relationship between particular variables and the outcome? 
+        \begin{itemize} \small 
+            \item[] \textit{If I change $X$ in a certain way, how will $Y$ respond?} 
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\subsection{Parametric vs. Nonparametric Estimation}
+\begin{frame}{Parametric Estimation}
+   \vspace{2mm}
+    With the distinction between prediction and inference in mind, we can come back and reconsider the task of estimating $f(X)$. \\
+    \vspace{5mm}
+    Let's introduce another distinction: \alert{parametric} vs. \alert{nonparametric} estimation. 
+    \\ \vspace{5mm}
+    In \alert{parametric estimation}, we: 
+    \begin{enumerate} \small 
+        \item Make an assumption about the function form of $f(X)$, such as: 
+        \[ f(X) = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + ... + \beta_p X_p \]
+        \item Estimate the \alert{parameters} of the model, e.g. $\beta_0, \beta_1, ..., \beta_p$, on some \alert{training data}, usually by minimizing some \alert{loss function} such as MSE
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Nonparametric Estimation}
+   \vspace{2mm}
+  By contrast, in nonparametric estimation, the analyst provides no such structure, allowing for a better fit.
+  \includegraphics[width=\textwidth]{images/splin.png}
+\end{frame}
+
+\begin{frame}{Why Not Aim for a Perfect Fit?}
+    There are two reasons, both involving fundamental trade-offs. 
+    \begin{enumerate}
+        \item Prediction accuracy vs. model interpretability
+        \item Bias vs. variance 
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Accuracy vs. Interpretability}
+\vspace{2mm}
+In a \alert{linear model} (or otherwise parameterized model), you know exactly how one variable relates to another. 
+\begin{itemize} \small 
+    \item This helps humans make decisions, adopt policies, propose and test general theories about the world...
+    \item If your goal is \alert{inference}, you really care about interpretability 
+\end{itemize} \pause 
+\vspace{2mm}
+In a \alert{flexible model}, you may have no idea of how any particular predictor relates to the outcome.
+\begin{itemize} \small
+    \item It might depend on the value of the predictor
+    \item It might depend on the values of the other predictors 
+    \item But if your goal is \alert{prediction}, you're happy to trade interpretability a better fit
+\end{itemize} 
+\end{frame}
+
+\begin{frame}{Accuracy vs. Interpretability}
+\vspace{5mm}
+\includegraphics[width=\textwidth]{images/flex.png}
+\end{frame}
+
+\begin{frame}{The Methods on the Right Are a ``Black Box''}
+\vspace{2mm}
+\begin{center}
+    \includegraphics[width=.7\textwidth]{images/black_box.png}
+\end{center}
+\end{frame}
+
+\subsection{The Bias-Variance Trade-off}
+\begin{frame}{The Bias-Variance Trade-off}
+    The mean squared error can be further decomposed as follows: 
+    \begin{align*}
+    E[(Y - \hat{Y})^2]  &= \underbrace{(f(X) - \hat{f}(X))^2}_{\text{reducible}} + \underbrace{\text{Var}(\varepsilon) }_{\text{irreducible}} \\ &= \underbrace{\text{Var}(\hat{f}(X))}_{\text{Variance}} ~+~ \underbrace{[\text{Bias}(\hat{f}(X))]^2}_{\text{Bias}} ~+~ \text{Var}(\varepsilon)
+    \end{align*}
+    \begin{itemize} \small 
+        \item Where \alert{bias} tells you how close you get to the true model on average 
+        \begin{itemize} \small 
+            \item Bias is introduced when you approximate a complicated model with a simpler one, or use the wrong parameterization.
+        \end{itemize}
+        
+        \item \alert{Variance} is how much your prediction varies over repeated samples of the  data
+    \item Generally, we want to minimize both bias and variance. But in practice, there is often a trade-off. 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Overfitting and Underfitting}
+\small 
+\textbf{More flexible models} generally have lower bias and higher variance. 
+\begin{itemize}
+    \item But they are in danger of \alert{overfitting}: in chasing low bias, becoming too sensitive to variation in the training data
+    \item Overfitting can be controlled by \alert{regularization methods} (see problem set 4)
+\end{itemize}
+By contrast, \textbf{parametric/less flexible models} have higher bias and lower variance
+\begin{itemize}
+    \item The danger is underfitting: not getting a good enough model for the data
+\end{itemize}
+\end{frame}
+
+\begin{frame}{}
+    \centering
+    \includegraphics[width=\textwidth]{images/bias_variance.png}
+\end{frame}
+\end{document}

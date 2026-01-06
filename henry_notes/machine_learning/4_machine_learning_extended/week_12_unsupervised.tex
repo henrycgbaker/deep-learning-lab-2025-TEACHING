@@ -1,0 +1,1425 @@
+% Week 12: Unsupervised Learning
+
+\section{Overview}
+
+\begin{bluebox}[Chapter Summary: Unsupervised Learning]
+This chapter develops the theory and practice of \textbf{unsupervised learning}-finding structure in data without labels:
+\begin{itemize}
+    \item \textbf{Dimensionality reduction}: PCA, factor analysis, ICA
+    \item \textbf{Manifold learning}: t-SNE, UMAP, and the manifold hypothesis
+    \item \textbf{Clustering}: K-means, hierarchical methods, DBSCAN, Gaussian mixture models
+    \item \textbf{Representation learning}: Autoencoders, variational autoencoders
+    \item \textbf{Self-supervised learning}: Contrastive methods and pretext tasks
+\end{itemize}
+
+\textbf{Unifying theme}: Compression and structure discovery-finding low-dimensional representations that preserve meaningful information.
+\end{bluebox}
+
+\subsection{What is Unsupervised Learning?}
+
+In supervised learning, we have input-output pairs $(x_i, y_i)$ and seek to learn the mapping $x \mapsto y$. In unsupervised learning, we have only inputs $\{x_1, \ldots, x_n\}$ and seek to discover \textbf{structure} in the data itself. There is no ``correct answer'' to check against-the data must speak for itself.
+
+A useful mental model: unsupervised learning is sometimes called ``supervised learning in a trenchcoat.'' Many unsupervised methods can be reframed as predicting something about the data from the data itself. PCA predicts the input from a compressed version of itself. Autoencoders do the same with neural networks. Clustering predicts which group a point belongs to. The key insight is that \textbf{structure enables prediction}, so finding structure is equivalent to finding predictable patterns.
+
+\begin{greybox}[Core Tasks in Unsupervised Learning]
+\textbf{1. Dimensionality reduction}: Find a low-dimensional representation $z_i \in \mathbb{R}^L$ for each $x_i \in \mathbb{R}^D$ where $L \ll D$, preserving relevant structure.
+
+\textbf{What this means}: High-dimensional data (like images with thousands of pixels) often has an underlying structure that can be described with far fewer numbers. A photo of a face might have millions of pixels, but we can describe its essential content with a handful of parameters: age, gender, expression, lighting direction, pose angle. Dimensionality reduction finds these compact descriptions automatically.
+
+\textbf{2. Clustering}: Partition data into groups such that points within a group are more similar to each other than to points in other groups.
+
+\textbf{What this means}: The assumption is that data naturally forms discrete groups or categories. Customer segments, document topics, species of flowers-clustering discovers these groupings without being told what to look for.
+
+\textbf{3. Density estimation}: Model the probability distribution $p(x)$ from which the data were drawn.
+
+\textbf{What this means}: Instead of finding a single representation or partition, we model the entire distribution. This enables generation of new samples, anomaly detection (low probability regions), and understanding what ``typical'' data looks like.
+
+\textbf{4. Representation learning}: Learn features that are useful for downstream tasks (transfer learning, visualisation, compression).
+
+\textbf{What this means}: Often we don't know what task we'll eventually care about. Representation learning finds general-purpose features that capture meaningful structure, which can then be reused for many purposes.
+
+These tasks are interrelated: clustering assumes a mixture model (density estimation), autoencoders perform dimensionality reduction while learning representations, and so forth.
+\end{greybox}
+
+\subsection{Why is Unsupervised Learning Hard?}
+
+\begin{redbox}
+Unsupervised learning lacks the clear objective that supervised learning enjoys. Key challenges:
+\begin{itemize}
+    \item \textbf{No ground truth}: Without labels, we cannot directly measure ``correctness''
+    \item \textbf{Ill-defined objectives}: What makes one clustering ``better'' than another? It depends on the application
+    \item \textbf{Evaluation difficulty}: Metrics like reconstruction error or cluster compactness may not correlate with usefulness
+    \item \textbf{The curse of dimensionality}: High-dimensional data is sparse; notions of distance and density become unreliable
+\end{itemize}
+Despite these challenges, unsupervised learning is essential-most real-world data is unlabelled, and discovering structure is often the first step in understanding a new domain.
+\end{redbox}
+
+The key insight is that unsupervised learning requires \textbf{inductive biases}-assumptions about what kinds of structure are meaningful. PCA assumes linear structure matters; clustering assumes discrete groups exist; autoencoders assume smooth, compressible representations exist. Different methods encode different assumptions.
+
+\textbf{Why does this matter?} Consider clustering: there are infinitely many ways to partition a dataset. K-means assumes clusters are roughly spherical and equally sized. DBSCAN assumes clusters are dense regions separated by sparse regions. Neither is ``correct''-they encode different assumptions that are appropriate for different problems. Choosing an algorithm is choosing an inductive bias.
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Principal Component Analysis}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary: PCA]
+\begin{itemize}
+    \item \textbf{Goal}: Find orthogonal directions of maximum variance
+    \item \textbf{Two equivalent views}: Maximise variance $\Leftrightarrow$ minimise reconstruction error
+    \item \textbf{Solution}: Eigenvectors of the covariance matrix
+    \item \textbf{Key result}: First $L$ principal components give the best $L$-dimensional linear approximation
+    \item \textbf{Practical use}: Preprocessing, visualisation, noise reduction, feature extraction
+\end{itemize}
+\end{bluebox}
+
+\subsection{Motivation}
+
+High-dimensional data often lies near a lower-dimensional subspace. Consider $D$-dimensional data where most variation occurs along a few directions-the remaining dimensions contain mostly noise. PCA finds these directions of maximum variation.
+
+\textbf{Example}: Handwritten digit images might have $784$ pixels ($28 \times 28$), but the ``space of plausible digits'' is much smaller. Strokes, curves, and angles can be described with far fewer parameters. Most combinations of 784 pixel values would look like random static, not recognisable digits. The actual digits occupy a tiny, structured subset of the full 784-dimensional space.
+
+\textbf{Geometric intuition}: Imagine your data points form an elongated cloud in 3D space-like a cigar shape. Most of the variation is along the cigar's length, with much less variation in the two perpendicular directions. PCA finds that the cigar's long axis is the first principal component (most variance), and the two short axes are the second and third components (less variance). If we project onto just the first component, we capture most of the structure while reducing from 3D to 1D.
+
+\subsection{Two Equivalent Formulations}
+
+PCA can be derived from two perspectives that yield identical solutions. Understanding both provides complementary intuition.
+
+\begin{greybox}[Formulation 1: Maximum Variance]
+\textbf{Objective}: Find the direction $w_1 \in \mathbb{R}^D$ along which projections have maximum variance.
+
+Given centred data $\{x_1, \ldots, x_n\}$ (i.e., $\sum_i x_i = 0$), the projection of $x_i$ onto unit vector $w$ is $z_i = w^\top x_i$. The variance of projections is:
+\[
+\text{Var}(z) = \frac{1}{n} \sum_{i=1}^{n} (w^\top x_i)^2 = \frac{1}{n} \sum_{i=1}^{n} w^\top x_i x_i^\top w = w^\top \left( \frac{1}{n} X^\top X \right) w = w^\top \Sigma w
+\]
+where $\Sigma = \frac{1}{n} X^\top X$ is the sample covariance matrix (for centred data).
+
+\textbf{Breaking down the algebra}:
+\begin{itemize}
+    \item $w^\top x_i$ is a scalar: the projection of point $x_i$ onto direction $w$
+    \item $(w^\top x_i)^2 = (w^\top x_i)(x_i^\top w) = w^\top (x_i x_i^\top) w$ using the fact that $w^\top x_i$ is a scalar
+    \item Summing over all points and pulling $w$ outside: $w^\top \left(\frac{1}{n}\sum_i x_i x_i^\top\right) w = w^\top \Sigma w$
+    \item The matrix $\Sigma = \frac{1}{n} X^\top X$ is the covariance matrix of centred data
+\end{itemize}
+
+\textbf{Optimisation problem}:
+\[
+w_1 = \argmax_{\|w\|=1} w^\top \Sigma w
+\]
+
+The constraint $\|w\|=1$ is essential-otherwise we could make the variance arbitrarily large by scaling $w$.
+
+Subsequent components $w_2, w_3, \ldots$ maximise variance subject to orthogonality: $w_k \perp w_1, \ldots, w_{k-1}$.
+\end{greybox}
+
+The maximum variance view asks: ``If I can only look at one direction, which direction shows me the most variation in my data?'' Then: ``Given I've already captured that, which orthogonal direction shows the next most variation?''
+
+\begin{greybox}[Formulation 2: Minimum Reconstruction Error]
+\textbf{Objective}: Find an $L$-dimensional subspace such that projecting onto it and back minimises squared reconstruction error.
+
+Let $W \in \mathbb{R}^{D \times L}$ be a matrix of orthonormal columns spanning the subspace. The projection of $x$ is $\hat{x} = WW^\top x$. The reconstruction error is:
+\[
+\mathcal{L}(W) = \frac{1}{n} \sum_{i=1}^{n} \|x_i - WW^\top x_i\|^2
+\]
+
+\textbf{Understanding the reconstruction}:
+\begin{itemize}
+    \item $W^\top x_i \in \mathbb{R}^L$ gives the coordinates of $x_i$ in the $L$-dimensional subspace
+    \item $W(W^\top x_i) \in \mathbb{R}^D$ reconstructs from those coordinates back to the original space
+    \item $WW^\top$ is a projection matrix: it projects any vector onto the subspace spanned by $W$'s columns
+    \item $\|x_i - WW^\top x_i\|^2$ measures how much information is lost in this projection
+\end{itemize}
+
+\textbf{Optimisation problem}:
+\[
+W^* = \argmin_{W^\top W = I_L} \frac{1}{n} \sum_{i=1}^{n} \|x_i - WW^\top x_i\|^2
+\]
+
+\textbf{Equivalence}: These formulations yield the same solution because
+\[
+\|x_i - WW^\top x_i\|^2 = \|x_i\|^2 - \|W^\top x_i\|^2
+\]
+
+\textbf{Derivation of equivalence}:
+\begin{align*}
+\|x_i - WW^\top x_i\|^2 &= (x_i - WW^\top x_i)^\top (x_i - WW^\top x_i) \\
+&= x_i^\top x_i - 2x_i^\top WW^\top x_i + x_i^\top WW^\top WW^\top x_i \\
+&= \|x_i\|^2 - 2\|W^\top x_i\|^2 + \|W^\top x_i\|^2 \quad \text{(since $W^\top W = I$)} \\
+&= \|x_i\|^2 - \|W^\top x_i\|^2
+\end{align*}
+
+Since $\|x_i\|^2$ is fixed, minimising reconstruction error is equivalent to maximising $\sum_i \|W^\top x_i\|^2$, the variance of projections.
+\end{greybox}
+
+The minimum reconstruction error view asks: ``If I compress my data to $L$ dimensions and then try to recover the original, how can I minimise the information loss?'' The answer is the same: project onto the directions of maximum variance.
+
+\subsection{Solution via Eigendecomposition}
+
+\begin{greybox}[Derivation of PCA Solution]
+To solve $\max_{\|w\|=1} w^\top \Sigma w$, form the Lagrangian:
+\[
+\mathcal{L}(w, \lambda) = w^\top \Sigma w - \lambda(w^\top w - 1)
+\]
+
+\textbf{What this means}: The Lagrangian incorporates the constraint $\|w\|^2 = w^\top w = 1$ into the objective. The multiplier $\lambda$ will turn out to have a meaningful interpretation.
+
+Taking the gradient and setting to zero:
+\[
+\nabla_w \mathcal{L} = 2\Sigma w - 2\lambda w = 0 \quad \Rightarrow \quad \Sigma w = \lambda w
+\]
+
+\textbf{Key recognition}: This is the eigenvalue equation! The solution $w$ must be an eigenvector of $\Sigma$, and $\lambda$ is the corresponding eigenvalue.
+
+\textbf{Which eigenvector?} Substituting back:
+\[
+w^\top \Sigma w = w^\top (\lambda w) = \lambda \|w\|^2 = \lambda
+\]
+
+The variance equals the eigenvalue. To maximise variance, choose the eigenvector with the \textbf{largest eigenvalue}.
+
+\textbf{General solution}: Order eigenvalues $\lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_D \geq 0$ with corresponding eigenvectors $v_1, v_2, \ldots, v_D$. The first $L$ principal components are $v_1, \ldots, v_L$.
+
+\textbf{Why orthogonality comes for free}: The covariance matrix $\Sigma$ is symmetric (since $\Sigma = \frac{1}{n}X^\top X$). Symmetric matrices have orthogonal eigenvectors-this is a fundamental result from linear algebra. So the principal components are automatically orthogonal without us needing to enforce it explicitly.
+\end{greybox}
+
+\begin{bluebox}[Key Properties of PCA Solution]
+\begin{enumerate}
+    \item The covariance matrix $\Sigma$ is symmetric positive semi-definite, so eigenvalues are real and non-negative
+    \item Eigenvectors are orthogonal: $v_i^\top v_j = 0$ for $i \neq j$
+    \item Total variance is preserved: $\sum_{l=1}^{D} \lambda_l = \text{tr}(\Sigma) = \sum_{d=1}^{D} \text{Var}(X_d)$
+    \item Variance explained by first $L$ components: $\frac{\sum_{l=1}^{L} \lambda_l}{\sum_{l=1}^{D} \lambda_l}$
+\end{enumerate}
+
+\textbf{Intuition for property 3}: The total variance in your data is fixed-it's just redistributed among the principal components. The trace of the covariance matrix equals the sum of variances along each original axis, which equals the sum of eigenvalues. PCA doesn't create or destroy variance; it reorganises it so that maximum variance is concentrated in the first few components.
+\end{bluebox}
+
+\subsection{The PCA Algorithm}
+
+\begin{greybox}[PCA Algorithm]
+\textbf{Input}: Data matrix $X \in \mathbb{R}^{n \times D}$, number of components $L$
+
+\textbf{Output}: Principal components $W \in \mathbb{R}^{D \times L}$, projected data $Z \in \mathbb{R}^{n \times L}$
+
+\begin{enumerate}
+    \item \textbf{Centre the data}: $\bar{x} = \frac{1}{n}\sum_{i=1}^n x_i$, then $\tilde{X} = X - \mathbf{1}\bar{x}^\top$
+
+    \textit{What this does}: Subtracts the mean from each feature so that the centred data has zero mean. The matrix $\mathbf{1}\bar{x}^\top$ has identical rows, each equal to the mean vector.
+
+    \item \textbf{Compute covariance matrix}: $\Sigma = \frac{1}{n}\tilde{X}^\top \tilde{X}$
+
+    \textit{What this does}: Creates a $D \times D$ matrix where entry $(i,j)$ is the covariance between features $i$ and $j$.
+
+    \item \textbf{Eigendecomposition}: Compute eigenpairs $(\lambda_l, v_l)$ of $\Sigma$
+
+    \textit{What this does}: Finds the directions (eigenvectors) and variances (eigenvalues) of the principal components.
+
+    \item \textbf{Select top $L$ eigenvectors}: $W = [v_1 \mid v_2 \mid \cdots \mid v_L]$
+
+    \textit{What this does}: Keeps only the $L$ directions with highest variance.
+
+    \item \textbf{Project data}: $Z = \tilde{X}W$
+
+    \textit{What this does}: Computes the $L$-dimensional representation of each data point.
+\end{enumerate}
+
+\textbf{Reconstruction}: $\hat{X} = ZW^\top + \mathbf{1}\bar{x}^\top$
+
+\textit{What this does}: Recovers an approximation to the original data by mapping back from the low-dimensional representation and adding back the mean.
+\end{greybox}
+
+\begin{redbox}
+\textbf{Common mistakes with PCA}:
+\begin{itemize}
+    \item \textbf{Forgetting to centre}: PCA assumes zero-mean data; failing to centre gives incorrect results. The first ``principal component'' would point toward the mean rather than the direction of maximum variance.
+
+    \item \textbf{Not scaling features}: If features have different units/scales, PCA will be dominated by high-variance features. Consider standardising (mean 0, variance 1) when features are not comparable. Example: if one feature is height in metres (range 1.5--2.0) and another is income in pounds (range 20000--100000), the income feature will dominate all principal components.
+
+    \item \textbf{Interpreting components as features}: Principal components are linear combinations-they may not have intuitive meaning. PC1 might be ``0.3 $\times$ height + 0.7 $\times$ income + ...'', which is hard to interpret.
+
+    \item \textbf{Assuming linearity suffices}: PCA only captures linear structure; nonlinear manifolds require different methods (kernel PCA, autoencoders, t-SNE).
+\end{itemize}
+\end{redbox}
+
+\subsection{Choosing the Number of Components}
+
+A critical practical question: how many principal components should we keep?
+
+\begin{greybox}[Methods for Selecting $L$]
+\textbf{1. Cumulative explained variance}: Choose $L$ such that $\frac{\sum_{l=1}^{L} \lambda_l}{\sum_{l=1}^{D} \lambda_l} \geq \tau$ for some threshold $\tau$ (e.g., 0.95).
+
+\textit{Intuition}: Keep enough components to explain 95\% (or 90\%, or 99\%) of the total variance. The remaining components explain mostly noise.
+
+\textbf{2. Scree plot}: Plot eigenvalues $\lambda_l$ vs $l$. Look for an ``elbow'' where eigenvalues drop sharply-components beyond the elbow contribute little.
+
+\textit{Intuition}: The eigenvalues often decay smoothly, but sometimes there's a clear break between ``signal'' components (large eigenvalues) and ``noise'' components (small eigenvalues). The elbow marks this transition.
+
+\textbf{3. Kaiser criterion}: Keep components with $\lambda_l > \bar{\lambda}$ (eigenvalue above average). For standardised data, this means $\lambda_l > 1$.
+
+\textit{Intuition}: If a component explains less variance than the average original feature, it's not capturing meaningful structure.
+
+\textbf{4. Cross-validation}: If using PCA for a downstream task, choose $L$ that optimises performance on held-out data.
+
+\textit{Intuition}: Let the task tell you how much compression is acceptable. If 10 components give the same classification accuracy as 50, prefer 10.
+
+\textbf{5. Parallel analysis}: Compare eigenvalues to those from random data with the same dimensions. Keep components with eigenvalues significantly larger than random.
+
+\textit{Intuition}: Random noise also produces eigenvalues, but they follow a predictable distribution. Only keep components whose eigenvalues exceed what chance would produce.
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_12_unsupervised/PCA.png}
+    \caption{PCA projection: data points (blue) projected onto the first principal component (red line). The principal component direction captures maximum variance; projections minimise perpendicular distance to this line. The residuals (perpendicular distances from points to the line) represent the reconstruction error.}
+    \label{fig:pca}
+\end{figure}
+
+\subsection{PCA and Singular Value Decomposition}
+
+In practice, PCA is usually computed via SVD rather than eigendecomposition, for both numerical and computational reasons.
+
+\begin{greybox}[SVD Formulation of PCA]
+The singular value decomposition of the centred data matrix $\tilde{X} \in \mathbb{R}^{n \times D}$ is:
+\[
+\tilde{X} = U S V^\top
+\]
+where:
+\begin{itemize}
+    \item $U \in \mathbb{R}^{n \times r}$: left singular vectors (orthonormal columns)
+    \item $S \in \mathbb{R}^{r \times r}$: diagonal matrix of singular values $s_1 \geq s_2 \geq \cdots \geq s_r > 0$
+    \item $V \in \mathbb{R}^{D \times r}$: right singular vectors (orthonormal columns)
+    \item $r = \text{rank}(\tilde{X}) \leq \min(n, D)$
+\end{itemize}
+
+\textbf{Connection to PCA}:
+\[
+\Sigma = \frac{1}{n}\tilde{X}^\top \tilde{X} = \frac{1}{n} V S U^\top U S V^\top = V \left(\frac{S^2}{n}\right) V^\top
+\]
+
+\textbf{Breaking this down}:
+\begin{itemize}
+    \item $U^\top U = I$ because $U$ has orthonormal columns
+    \item So $\tilde{X}^\top \tilde{X} = VS^2V^\top$
+    \item This is the eigendecomposition of $\tilde{X}^\top \tilde{X}$: $V$ are eigenvectors, $S^2$ are eigenvalues
+\end{itemize}
+
+Thus:
+\begin{itemize}
+    \item The right singular vectors $V$ are the principal components
+    \item The eigenvalues of $\Sigma$ are $\lambda_l = s_l^2 / n$
+    \item The projected data is $Z = \tilde{X}V = US$
+\end{itemize}
+\end{greybox}
+
+\begin{bluebox}[Why Use SVD for PCA?]
+\begin{itemize}
+    \item \textbf{Numerical stability}: SVD is more stable than forming $\tilde{X}^\top \tilde{X}$ (which squares condition number). If your data has features on very different scales, forming the covariance matrix can lose precision.
+
+    \item \textbf{Efficiency for tall matrices}: When $n \gg D$, compute $\tilde{X}^\top \tilde{X}$ ($D \times D$). When $n \ll D$ (more features than samples, common in genomics), compute $\tilde{X}\tilde{X}^\top$ ($n \times n$) instead.
+
+    \item \textbf{Truncated SVD}: Can compute only the top $L$ singular vectors without full decomposition (important for large $D$). Libraries like \texttt{sklearn.decomposition.TruncatedSVD} use randomised algorithms that are much faster.
+
+    \item \textbf{Direct computation}: Avoid explicitly forming covariance matrix, which can be memory-intensive for large $D$.
+\end{itemize}
+\end{bluebox}
+
+\subsection{Kernel PCA}
+
+PCA finds linear projections, but data may have nonlinear structure. \textbf{Kernel PCA} applies PCA in a high-dimensional feature space implicitly defined by a kernel function.
+
+\begin{greybox}[Kernel PCA]
+\textbf{Idea}: Map data via $\phi: \mathbb{R}^D \to \mathcal{H}$ to a (possibly infinite-dimensional) feature space and perform PCA there.
+
+\textbf{Problem}: We cannot explicitly compute $\phi(x)$ for kernels like the RBF. The feature space might be infinite-dimensional!
+
+\textbf{Solution}: Express PCA in terms of dot products only, then replace with kernel evaluations. This is the kernel trick (see Week 6: Kernel Methods).
+
+In feature space, the covariance matrix is $C = \frac{1}{n}\sum_{i=1}^n \phi(x_i)\phi(x_i)^\top$. Principal components $v$ satisfy $Cv = \lambda v$.
+
+Key insight: $v$ lies in the span of the data:
+\[
+v = \sum_{i=1}^n \alpha_i \phi(x_i)
+\]
+
+\textbf{Why?} Any component orthogonal to the data has zero variance, so it cannot be a principal component. This is the representer theorem in action.
+
+Substituting and taking inner products with $\phi(x_j)$:
+\[
+K \alpha = n\lambda \alpha
+\]
+where $K_{ij} = k(x_i, x_j) = \langle \phi(x_i), \phi(x_j) \rangle$ is the kernel matrix.
+
+\textbf{Algorithm}:
+\begin{enumerate}
+    \item Centre the kernel matrix: $\tilde{K} = K - \frac{1}{n}\mathbf{1}K - \frac{1}{n}K\mathbf{1} + \frac{1}{n^2}\mathbf{1}K\mathbf{1}$
+    \item Compute eigenvectors $\alpha^{(l)}$ of $\tilde{K}$
+    \item Project new point $x$ as: $z_l = \sum_{i=1}^n \alpha_i^{(l)} k(x_i, x)$
+\end{enumerate}
+
+\textbf{Common kernels}:
+\begin{itemize}
+    \item RBF/Gaussian: $k(x,y) = \exp(-\gamma\|x-y\|^2)$ - infinite-dimensional feature space
+    \item Polynomial: $k(x,y) = (x^\top y + c)^d$ - captures polynomial interactions
+\end{itemize}
+\end{greybox}
+
+Kernel PCA can capture nonlinear structure (e.g., unrolling a Swiss roll), but choosing the kernel and its parameters requires care. See Week 6 (Kernel Methods) for kernel theory and the kernel trick.
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Other Linear Dimensionality Reduction Methods}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary: Beyond PCA]
+\begin{itemize}
+    \item \textbf{Factor Analysis}: Probabilistic model assuming latent factors plus noise
+    \item \textbf{ICA}: Find statistically independent (not just uncorrelated) components
+    \item Key difference: PCA maximises variance, FA models noise, ICA maximises independence
+\end{itemize}
+\end{bluebox}
+
+\subsection{Factor Analysis}
+
+Factor analysis assumes observed variables are linear combinations of latent factors plus noise. Unlike PCA, it explicitly models measurement noise.
+
+\begin{greybox}[Factor Analysis Model]
+\textbf{Generative model}:
+\[
+x = Wz + \mu + \epsilon
+\]
+where:
+\begin{itemize}
+    \item $z \sim \mathcal{N}(0, I_L)$: latent factors (standard normal)
+    \item $W \in \mathbb{R}^{D \times L}$: factor loadings (how factors influence observations)
+    \item $\mu \in \mathbb{R}^D$: mean
+    \item $\epsilon \sim \mathcal{N}(0, \Psi)$: noise with diagonal covariance $\Psi = \text{diag}(\psi_1, \ldots, \psi_D)$
+\end{itemize}
+
+\textbf{Reading the model}: Each observed dimension $x_d$ is a weighted combination of the latent factors (given by row $d$ of $W$), plus a mean, plus noise specific to that dimension.
+
+\textbf{Implied distribution}:
+\[
+x \sim \mathcal{N}(\mu, WW^\top + \Psi)
+\]
+
+\textbf{Key difference from PCA}: Factor analysis models \textbf{feature-specific noise} $\Psi$, while PCA treats all variance as signal. Each feature can have its own noise level $\psi_d$.
+\end{greybox}
+
+\textbf{Comparison}:
+\begin{itemize}
+    \item \textbf{PCA}: Deterministic, finds directions of maximum variance, reconstructs via projection. Makes no distinction between signal and noise.
+    \item \textbf{FA}: Probabilistic, models latent structure plus noise, fit via maximum likelihood or EM. Explicitly separates shared variance (from factors) and unique variance (noise).
+\end{itemize}
+
+When noise is homoscedastic ($\Psi = \sigma^2 I$), factor analysis reduces to probabilistic PCA (PPCA). Factor analysis is more appropriate when different features have different noise levels-common in psychometric applications (where different survey questions have different reliability).
+
+\subsection{Independent Component Analysis (ICA)}
+
+\begin{greybox}[The Cocktail Party Problem]
+\textbf{Scenario}: $L$ people speak simultaneously at a party. $D$ microphones record mixtures of all voices. Can we recover the original voices?
+
+\textbf{Model}:
+\[
+x = As
+\]
+where:
+\begin{itemize}
+    \item $s \in \mathbb{R}^L$: source signals (the original voices)
+    \item $A \in \mathbb{R}^{D \times L}$: mixing matrix (how sources combine at each microphone)
+    \item $x \in \mathbb{R}^D$: observed mixtures (what the microphones record)
+\end{itemize}
+
+\textbf{Goal}: Recover $s$ from $x$ without knowing $A$. This seems impossible-we have one equation with two unknowns ($A$ and $s$).
+
+\textbf{Key assumption}: Source signals are \textbf{statistically independent} and \textbf{non-Gaussian}.
+
+\textbf{Why this helps}: If we can find a transformation that makes the outputs maximally independent, we've found the original sources (up to scaling and ordering).
+\end{greybox}
+
+\begin{greybox}[ICA vs PCA]
+\textbf{PCA}: Finds uncorrelated components (second-order statistics only)
+\[
+\text{Cov}(z_i, z_j) = 0 \text{ for } i \neq j
+\]
+
+Uncorrelated means: no \textit{linear} relationship between components.
+
+\textbf{ICA}: Finds independent components (all orders of statistics)
+\[
+p(s_1, \ldots, s_L) = \prod_{l=1}^L p(s_l)
+\]
+
+Independent means: no relationship \textit{whatsoever} between components-knowing one tells you nothing about the others.
+
+Independence is strictly stronger than uncorrelatedness. For Gaussian distributions, uncorrelated implies independent (a special property of Gaussians), but not in general.
+
+\textbf{Example}: Let $s_1 \sim \text{Uniform}(-1, 1)$ and $s_2 = s_1^2$. These are uncorrelated (covariance is zero) but clearly dependent ($s_2$ is determined by $s_1$).
+
+\textbf{Why non-Gaussianity matters}: The Central Limit Theorem implies mixtures tend toward Gaussianity. When you add many independent random variables, the sum approaches a Gaussian. ICA exploits non-Gaussianity to identify the original (unmixed) sources. If sources were Gaussian, the problem would be unidentifiable-all rotations of Gaussian independent sources are also Gaussian and independent.
+\end{greybox}
+
+\textbf{ICA algorithms} (e.g., FastICA) typically maximise non-Gaussianity measures like kurtosis or negentropy. ICA is widely used in signal processing, neuroimaging (separating brain signals from artifacts), and financial data analysis.
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Manifold Learning}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary: Manifold Learning]
+\begin{itemize}
+    \item \textbf{Manifold hypothesis}: High-dimensional data lies on/near a low-dimensional manifold
+    \item \textbf{Why linear fails}: Manifolds can be curved; linear projections distort structure
+    \item \textbf{t-SNE}: Preserve local neighbourhoods via probability matching
+    \item \textbf{UMAP}: Topology-preserving, scalable, maintains more global structure
+    \item \textbf{Use case}: Primarily visualisation; interpret with caution
+\end{itemize}
+\end{bluebox}
+
+\subsection{The Manifold Hypothesis}
+
+\begin{greybox}[The Manifold Hypothesis]
+\textbf{Claim}: Real-world high-dimensional data (images, text, audio) typically lies on or near a low-dimensional \textbf{manifold} embedded in the ambient space.
+
+\textbf{What is a manifold?} A topological space that locally resembles Euclidean space. A $d$-dimensional manifold in $\mathbb{R}^D$ can be locally parameterised by $d$ coordinates.
+
+\textbf{Intuitive examples}:
+\begin{itemize}
+    \item A sphere is a 2D manifold in 3D space-locally it looks flat, but globally it curves
+    \item A torus (doughnut shape) is also 2D in 3D
+    \item The surface of the Earth is approximately a 2D sphere embedded in 3D
+\end{itemize}
+
+\textbf{Data examples}:
+\begin{itemize}
+    \item Images of a rotating 3D object: 1D manifold (parameterised by angle). As the object rotates, the pixel values change continuously, tracing out a 1D curve in pixel space.
+    \item Face images varying in pose, lighting, expression: low-dimensional manifold. A face image might have millions of pixels, but pose has 3 degrees of freedom, lighting maybe 5--10, expression maybe 10--20.
+    \item Natural images: vast majority of $28 \times 28$ pixel arrays are ``noise''-real digits form a tiny, structured subset of the $28^2 = 784$-dimensional space.
+\end{itemize}
+
+\textbf{Implication}: The intrinsic dimensionality of the data is much lower than the ambient dimension, but the manifold may be highly curved and nonlinear.
+\end{greybox}
+
+\subsection{Why Linear Methods Fail on Manifolds}
+
+Consider the ``Swiss roll''-a 2D surface rolled up in 3D space. Points nearby on the roll surface might be far apart in 3D Euclidean distance (through the roll), and points far apart on the surface might be close in 3D (on adjacent layers of the roll).
+
+PCA would project onto a plane, collapsing points that are nearby in 3D but far apart along the manifold surface. Linear methods cannot ``unroll'' the manifold.
+
+\textbf{What we need}: Methods that preserve \textbf{geodesic distances} (distances along the manifold) rather than Euclidean distances in ambient space.
+
+\subsection{Stochastic Neighbour Embedding (SNE)}
+
+\begin{greybox}[SNE: Probability Model]
+\textbf{Idea}: Convert pairwise distances into probabilities representing ``neighbour'' relationships, then find a low-dimensional embedding that matches these probabilities.
+
+\textbf{High-dimensional similarities}:
+\[
+p_{j|i} = \frac{\exp\left(-\frac{\|x_i - x_j\|^2}{2\sigma_i^2}\right)}{\sum_{k \neq i} \exp\left(-\frac{\|x_i - x_k\|^2}{2\sigma_i^2}\right)}
+\]
+
+\textbf{Reading this equation}:
+\begin{itemize}
+    \item $p_{j|i}$ represents the probability that $x_i$ would choose $x_j$ as a neighbour
+    \item The numerator is a Gaussian kernel: nearby points (small $\|x_i - x_j\|$) get high values
+    \item The denominator normalises so probabilities sum to 1 over all $j \neq i$
+    \item $\sigma_i$ controls how ``local'' point $i$'s neighbourhood is (set adaptively per point)
+\end{itemize}
+
+This is essentially a softmax over negative squared distances.
+
+\textbf{Low-dimensional similarities}:
+\[
+q_{j|i} = \frac{\exp\left(-\|z_i - z_j\|^2\right)}{\sum_{k \neq i} \exp\left(-\|z_i - z_k\|^2\right)}
+\]
+
+where $z_i, z_j$ are low-dimensional representations (typically 2D for visualisation).
+
+\textbf{Objective}: Minimise KL divergence between distributions:
+\[
+\mathcal{L} = \sum_{i} D_{\text{KL}}(P_i \| Q_i) = \sum_{i} \sum_{j} p_{j|i} \log \frac{p_{j|i}}{q_{j|i}}
+\]
+
+\textbf{What this means}: For each point $i$, we have two probability distributions over neighbours-one from high dimensions ($P_i$), one from the embedding ($Q_i$). We want these to match. KL divergence measures how different they are.
+\end{greybox}
+
+\textbf{Perplexity}: The bandwidth $\sigma_i$ is set per-point to achieve a target perplexity (effective number of neighbours). Higher perplexity considers more neighbours, affecting global vs local structure.
+
+\textbf{Perplexity intuition}: Perplexity $\approx 2^{\text{entropy}}$ of the neighbour distribution. A perplexity of 30 means each point effectively has about 30 neighbours. Low perplexity focuses on very local structure; high perplexity considers broader context.
+
+\subsection{t-Distributed SNE (t-SNE)}
+
+\begin{greybox}[t-SNE: Heavy-Tailed Embedding]
+\textbf{Problem with SNE}: The Gaussian kernel in embedding space has light tails. This creates the ``crowding problem'':
+\begin{itemize}
+    \item In high dimensions, a point can have many ``moderately distant'' neighbours
+    \item In 2D, there's limited space-you can't fit all those neighbours at moderate distances
+    \item SNE forces moderately distant points too close together, crushing clusters
+\end{itemize}
+
+\textbf{Solution}: Use the Student's t-distribution (1 degree of freedom = Cauchy) for low-dimensional similarities:
+\[
+q_{ij} = \frac{\left(1 + \|z_i - z_j\|^2\right)^{-1}}{\sum_{k \neq l} \left(1 + \|z_k - z_l\|^2\right)^{-1}}
+\]
+
+\textbf{Why this helps}: The t-distribution has \textbf{heavier tails} than the Gaussian. Points that are far apart in high dimensions can be modelled as \emph{very} far apart in the embedding without excessive penalty. This creates better-separated clusters with more space between them.
+
+t-SNE also symmetrises the high-dimensional probabilities:
+\[
+p_{ij} = \frac{p_{j|i} + p_{i|j}}{2n}
+\]
+
+This ensures the relationship between $i$ and $j$ is symmetric: if $i$ considers $j$ a neighbour, $j$ should also consider $i$ a neighbour.
+
+\textbf{Gradient}:
+\[
+\frac{\partial \mathcal{L}}{\partial z_i} = 4 \sum_{j} (p_{ij} - q_{ij})(z_i - z_j)(1 + \|z_i - z_j\|^2)^{-1}
+\]
+
+\textbf{Interpreting the gradient}:
+\begin{itemize}
+    \item When $p_{ij} > q_{ij}$: points are closer in high-D than embedding $\Rightarrow$ attractive force pulls them together
+    \item When $p_{ij} < q_{ij}$: points are farther in high-D than embedding $\Rightarrow$ repulsive force pushes them apart
+    \item The $(1 + \|z_i - z_j\|^2)^{-1}$ factor comes from the t-distribution
+\end{itemize}
+\end{greybox}
+
+\begin{redbox}
+\textbf{t-SNE limitations and interpretation}:
+\begin{itemize}
+    \item \textbf{$O(n^2)$ complexity}: Computing all pairwise interactions is expensive; approximations (Barnes-Hut) help but still limit scalability to tens of thousands of points
+
+    \item \textbf{Non-parametric}: Cannot embed new points without re-running on full dataset. There's no learned function $f: \mathbb{R}^D \to \mathbb{R}^2$.
+
+    \item \textbf{Perplexity sensitivity}: Results change significantly with perplexity; try multiple values (typically 5--50)
+
+    \item \textbf{Global structure}: t-SNE prioritises local structure; distances \emph{between} clusters are not meaningful. Two clusters appearing far apart may or may not be far in the original space.
+
+    \item \textbf{Cluster sizes}: Visual cluster sizes don't reflect true cluster densities. A visually large cluster might have few points; a small tight cluster might have many.
+
+    \item \textbf{Stochasticity}: Different runs give different results; use fixed random seeds for reproducibility. Consistent patterns across runs are more trustworthy.
+\end{itemize}
+t-SNE is primarily a \textbf{visualisation tool}-interpret cautiously and avoid drawing conclusions about global geometry.
+\end{redbox}
+
+\subsection{UMAP}
+
+\begin{greybox}[UMAP: Uniform Manifold Approximation and Projection]
+UMAP addresses t-SNE's limitations through a topological approach:
+
+\textbf{Key innovations}:
+\begin{enumerate}
+    \item \textbf{$k$-nearest neighbour graph}: Only consider local neighbourhoods, not all pairs. This reduces complexity from $O(n^2)$ to $O(n \log n)$ using efficient nearest neighbour algorithms.
+
+    \item \textbf{Local metric adaptation}: Each point has its own distance scale, handling varying densities:
+    \[
+    d_i(x_i, x_j) = \max(0, \|x_i - x_j\| - \rho_i) / \sigma_i
+    \]
+    where $\rho_i$ is the distance to the nearest neighbour.
+
+    \textit{What this means}: Distances are measured relative to each point's local density. In a dense region, ``nearby'' means very close; in a sparse region, ``nearby'' can mean farther away.
+
+    \item \textbf{Fuzzy simplicial sets}: Build a weighted graph representing local connectivity. Edges have weights in $[0,1]$ representing strength of connection.
+
+    \item \textbf{Cross-entropy loss}: Optimise binary cross-entropy on edge existence:
+    \[
+    \mathcal{L} = \sum_{i,j} \left[ p_{ij} \log\frac{p_{ij}}{q_{ij}} + (1-p_{ij})\log\frac{1-p_{ij}}{1-q_{ij}} \right]
+    \]
+
+    \textit{What this means}: We're asking ``does an edge exist between $i$ and $j$?'' and optimising so the embedding's answer matches the high-dimensional answer. This is more symmetric than KL divergence.
+\end{enumerate}
+
+\textbf{Advantages over t-SNE}:
+\begin{itemize}
+    \item \textbf{Speed}: Near-linear scaling $O(n \log n)$ via approximate nearest neighbours
+    \item \textbf{Global structure}: Preserves more large-scale relationships between clusters
+    \item \textbf{Parametric option}: Can learn a mapping for embedding new points
+    \item \textbf{Theoretical foundation}: Grounded in algebraic topology and Riemannian geometry
+\end{itemize}
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_12_unsupervised/embeddings1.png}
+    \caption{High-dimensional data projected to 2D, with colours indicating cluster membership. The goal of manifold learning is to find an embedding that reveals this structure.}
+    \label{fig:embedding1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_12_unsupervised/embeddings2.png}
+    \caption{UMAP constructs a $k$-nearest neighbour graph; shaded circles represent local neighbourhoods. Each point connects to its $k$ closest neighbours, capturing local structure efficiently.}
+    \label{fig:embedding2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_12_unsupervised/embeddings3.png}
+    \caption{The embedding preserves neighbourhood structure: connected points in high dimensions remain close in the projection.}
+    \label{fig:embedding3}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_12_unsupervised/embeddings4.png}
+    \caption{UMAP adapts to varying local densities, using different distance scales in dense vs sparse regions. The varying neighbourhood sizes (shaded regions) show this adaptation.}
+    \label{fig:embedding4}
+\end{figure}
+
+\begin{bluebox}[Choosing Between PCA, t-SNE, and UMAP]
+\begin{tabular}{llll}
+\textbf{Method} & \textbf{Structure} & \textbf{Complexity} & \textbf{Use Case} \\
+\hline
+PCA & Global, linear & $O(D^2 n)$ & Pre-processing, interpretable axes \\
+t-SNE & Local, non-linear & $O(n^2)$ & Visualisation (small data) \\
+UMAP & Local + global & $O(n \log n)$ & Visualisation (large data) \\
+\end{tabular}
+
+\textbf{Guidelines}:
+\begin{itemize}
+    \item Start with PCA to understand linear structure and reduce noise
+    \item Use t-SNE/UMAP for visualisation, not quantitative analysis
+    \item UMAP for large datasets or when global structure matters
+    \item Always try multiple hyperparameter settings
+\end{itemize}
+
+\textbf{Interactive exploration}: For building intuition about how t-SNE and UMAP behave with different hyperparameters, see \url{https://pair-code.github.io/understanding-umap/}
+\end{bluebox}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Clustering}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary: Clustering]
+\begin{itemize}
+    \item \textbf{Goal}: Partition data into groups of similar points
+    \item \textbf{K-means}: Minimise within-cluster variance; fast, assumes spherical clusters
+    \item \textbf{Hierarchical}: Build tree of nested clusters; no need to prespecify $K$
+    \item \textbf{DBSCAN}: Density-based; finds arbitrary shapes, handles noise
+    \item \textbf{GMMs}: Soft clustering via mixture of Gaussians; probabilistic framework
+\end{itemize}
+\end{bluebox}
+
+Clustering partitions data into groups such that points within a group are more similar than points in different groups. Unlike classification, we have no labels-the algorithm must discover groupings from structure alone.
+
+\subsection{K-Means Clustering}
+
+\begin{greybox}[K-Means Algorithm]
+\textbf{Objective}: Partition $n$ points into $K$ clusters $\{C_1, \ldots, C_K\}$ minimising within-cluster sum of squares:
+\[
+\mathcal{L} = \sum_{k=1}^{K} \sum_{x_i \in C_k} \|x_i - \mu_k\|^2
+\]
+where $\mu_k = \frac{1}{|C_k|}\sum_{x_i \in C_k} x_i$ is the centroid of cluster $k$.
+
+\textbf{What this measures}: The total squared distance from each point to its cluster centre. Low values mean points are close to their assigned centres.
+
+\textbf{Algorithm} (Lloyd's algorithm):
+\begin{enumerate}
+    \item \textbf{Initialise}: Choose $K$ initial centroids $\mu_1, \ldots, \mu_K$ (e.g., random points, K-means++)
+
+    \item \textbf{Assign}: Assign each point to nearest centroid:
+    \[
+    c_i = \argmin_{k} \|x_i - \mu_k\|^2
+    \]
+
+    \textit{What this does}: Each point ``votes'' for the nearest centre.
+
+    \item \textbf{Update}: Recompute centroids:
+    \[
+    \mu_k = \frac{1}{|C_k|}\sum_{i: c_i = k} x_i
+    \]
+
+    \textit{What this does}: Move each centre to the mean of its assigned points.
+
+    \item \textbf{Repeat} steps 2--3 until convergence (assignments don't change)
+\end{enumerate}
+
+\textbf{Convergence}: The objective decreases (or stays constant) at each step. Since there are finitely many partitions, the algorithm converges in finite time.
+
+\textbf{Why it works}: The assign step minimises $\mathcal{L}$ with respect to assignments (holding centres fixed). The update step minimises $\mathcal{L}$ with respect to centres (holding assignments fixed). Alternating these can only decrease or maintain the objective.
+\end{greybox}
+
+\begin{redbox}
+\textbf{K-means limitations}:
+\begin{itemize}
+    \item \textbf{Assumes spherical clusters}: Poorly handles elongated or irregular shapes. K-means uses Euclidean distance, which is isotropic-it doesn't know about cluster shape.
+
+    \item \textbf{Sensitive to initialisation}: Different starting points can give different results. Use multiple restarts (run 10--100 times, keep best) or K-means++ (smart initialisation that spreads initial centres).
+
+    \item \textbf{Must specify $K$}: Number of clusters is a hyperparameter that must be chosen in advance.
+
+    \item \textbf{Sensitive to outliers}: Outliers can pull centroids away from true cluster centres. A single outlier can dramatically shift a centroid.
+
+    \item \textbf{Equal variance assumption}: Implicitly assumes clusters have similar sizes and variances. A tiny tight cluster and a large diffuse cluster will be treated equally.
+\end{itemize}
+\end{redbox}
+
+\subsection{Choosing $K$}
+
+\begin{greybox}[Methods for Selecting $K$]
+\textbf{1. Elbow method}: Plot within-cluster sum of squares vs $K$. Look for an ``elbow'' where the rate of decrease slows.
+
+\textit{Intuition}: Adding more clusters always reduces the objective (in the limit, $K=n$ gives zero error). But there's often a point of diminishing returns-the elbow.
+
+\textbf{2. Silhouette score}: For each point $i$, compute:
+\[
+s_i = \frac{b_i - a_i}{\max(a_i, b_i)}
+\]
+where:
+\begin{itemize}
+    \item $a_i$ = average distance to points in same cluster (cohesion)
+    \item $b_i$ = average distance to points in nearest other cluster (separation)
+\end{itemize}
+$s_i \in [-1, 1]$; values near 1 indicate good clustering (tight within, separated between). Choose $K$ maximising average silhouette.
+
+\textbf{3. Gap statistic}: Compare within-cluster dispersion to that expected under a null reference distribution (uniform random data). Choose $K$ where the gap is largest.
+
+\textit{Intuition}: How much better is our clustering than clustering random noise? The gap measures this improvement.
+
+\textbf{4. Information criteria}: For probabilistic models (GMMs), use BIC or AIC. These penalise model complexity, balancing fit against number of parameters.
+\end{greybox}
+
+\subsection{Hierarchical Clustering}
+
+\begin{greybox}[Agglomerative Hierarchical Clustering]
+\textbf{Idea}: Build a hierarchy of clusters by iteratively merging the most similar clusters.
+
+\textbf{Algorithm}:
+\begin{enumerate}
+    \item Start with $n$ clusters, one per point
+    \item Compute pairwise distances between all clusters
+    \item Merge the two closest clusters
+    \item Repeat until all points are in one cluster
+\end{enumerate}
+
+\textbf{Result}: A \textbf{dendrogram}-a tree showing the order and distances of merges. Cut the tree at a chosen height to obtain a partition.
+
+\textbf{Dendrogram interpretation}: The y-axis shows the distance at which clusters merge. Cutting at height $h$ gives all clusters that exist at distance $h$. Higher cut = fewer, larger clusters.
+
+\textbf{Linkage criteria} (how to measure distance between clusters $A$ and $B$):
+\begin{itemize}
+    \item \textbf{Single linkage}: $d(A,B) = \min_{a \in A, b \in B} d(a,b)$ - distance to nearest point
+
+    \textit{Effect}: Can produce elongated ``chaining'' clusters. Two clusters might merge because of a single pair of close points, even if most points are far apart.
+
+    \item \textbf{Complete linkage}: $d(A,B) = \max_{a \in A, b \in B} d(a,b)$ - distance to farthest point
+
+    \textit{Effect}: Produces compact clusters. Forces all points to be within a certain distance.
+
+    \item \textbf{Average linkage}: $d(A,B) = \frac{1}{|A||B|}\sum_{a,b} d(a,b)$ - average pairwise distance
+
+    \textit{Effect}: Compromise between single and complete.
+
+    \item \textbf{Ward's method}: Minimise increase in total within-cluster variance
+
+    \textit{Effect}: Tends to produce balanced clusters of similar size.
+\end{itemize}
+\end{greybox}
+
+\textbf{Advantages}: No need to prespecify $K$; produces interpretable hierarchy; works with any distance metric.
+
+\textbf{Disadvantages}: $O(n^2)$ space and $O(n^3)$ time (or $O(n^2 \log n)$ with optimisations); cannot undo merges (greedy algorithm).
+
+\subsection{DBSCAN: Density-Based Clustering}
+
+\begin{greybox}[DBSCAN Algorithm]
+\textbf{Idea}: Clusters are dense regions separated by sparse regions. Points in sparse regions are noise.
+
+\textbf{Parameters}:
+\begin{itemize}
+    \item $\epsilon$: neighbourhood radius
+    \item $\text{minPts}$: minimum points to form a dense region
+\end{itemize}
+
+\textbf{Point classification}:
+\begin{itemize}
+    \item \textbf{Core point}: Has $\geq \text{minPts}$ points within distance $\epsilon$
+
+    \textit{Intuition}: In a ``crowded'' region with many neighbours.
+
+    \item \textbf{Border point}: Within $\epsilon$ of a core point, but not itself core
+
+    \textit{Intuition}: On the edge of a dense region.
+
+    \item \textbf{Noise point}: Neither core nor border
+
+    \textit{Intuition}: Isolated, not part of any cluster.
+\end{itemize}
+
+\textbf{Algorithm}:
+\begin{enumerate}
+    \item Mark all points as core, border, or noise
+    \item Form clusters by connecting core points within $\epsilon$ of each other (density-reachable)
+    \item Assign border points to nearby clusters
+    \item Noise points remain unassigned
+\end{enumerate}
+
+\textbf{Advantages}:
+\begin{itemize}
+    \item Finds clusters of arbitrary shape (not just spheres)
+    \item Automatically identifies noise/outliers
+    \item Does not require specifying $K$
+\end{itemize}
+\end{greybox}
+
+\begin{redbox}
+\textbf{DBSCAN challenges}:
+\begin{itemize}
+    \item \textbf{Parameter sensitivity}: Results depend heavily on $\epsilon$ and minPts. Wrong values can merge distinct clusters or fragment single clusters.
+
+    \item \textbf{Varying densities}: Struggles when clusters have very different densities. A single $\epsilon$ can't be right for both a tight dense cluster and a loose sparse one.
+
+    \item \textbf{High dimensions}: Density becomes less meaningful (curse of dimensionality). All points become approximately equidistant.
+\end{itemize}
+\end{redbox}
+
+\subsection{Gaussian Mixture Models}
+
+\begin{greybox}[Gaussian Mixture Models (GMMs)]
+\textbf{Model}: Data is generated from a mixture of $K$ Gaussian distributions:
+\[
+p(x) = \sum_{k=1}^{K} \pi_k \mathcal{N}(x \mid \mu_k, \Sigma_k)
+\]
+where:
+\begin{itemize}
+    \item $\pi_k$: mixing coefficient (probability of cluster $k$), with $\sum_k \pi_k = 1$
+    \item $\mu_k$: mean of cluster $k$
+    \item $\Sigma_k$: covariance of cluster $k$ (determines shape and orientation)
+\end{itemize}
+
+\textbf{Generative story}:
+\begin{enumerate}
+    \item Choose cluster $k$ with probability $\pi_k$
+    \item Sample $x$ from $\mathcal{N}(\mu_k, \Sigma_k)$
+\end{enumerate}
+
+\textbf{Soft clustering}: Each point has a probability of belonging to each cluster:
+\[
+\gamma_{ik} = P(z_i = k \mid x_i) = \frac{\pi_k \mathcal{N}(x_i \mid \mu_k, \Sigma_k)}{\sum_{j} \pi_j \mathcal{N}(x_i \mid \mu_j, \Sigma_j)}
+\]
+
+This is the \textbf{responsibility}-how much cluster $k$ is responsible for point $i$.
+
+\textbf{Reading this equation}: It's Bayes' theorem. The numerator is the prior ($\pi_k$) times likelihood (Gaussian density); the denominator normalises.
+
+\textbf{Relation to K-means}: K-means is a special case where all covariances are $\sigma^2 I$ (spherical) and we take the limit $\sigma^2 \to 0$ (hard assignment). In this limit, responsibilities become binary (0 or 1), and we recover K-means.
+\end{greybox}
+
+\begin{greybox}[EM Algorithm for GMMs]
+The EM algorithm iteratively maximises the likelihood:
+
+\textbf{E-step} (compute responsibilities):
+\[
+\gamma_{ik} = \frac{\pi_k \mathcal{N}(x_i \mid \mu_k, \Sigma_k)}{\sum_{j} \pi_j \mathcal{N}(x_i \mid \mu_j, \Sigma_j)}
+\]
+
+\textit{What this does}: Given current parameters, compute how much each cluster ``claims'' each point.
+
+\textbf{M-step} (update parameters):
+\begin{align*}
+N_k &= \sum_{i=1}^{n} \gamma_{ik} \quad \text{(effective number of points in cluster $k$)} \\
+\mu_k &= \frac{1}{N_k} \sum_{i=1}^{n} \gamma_{ik} x_i \quad \text{(weighted mean)} \\
+\Sigma_k &= \frac{1}{N_k} \sum_{i=1}^{n} \gamma_{ik} (x_i - \mu_k)(x_i - \mu_k)^\top \quad \text{(weighted covariance)} \\
+\pi_k &= \frac{N_k}{n} \quad \text{(fraction of points in cluster $k$)}
+\end{align*}
+
+\textit{What this does}: Given responsibilities, find the best parameters. Each point contributes to each cluster's statistics, weighted by responsibility.
+
+\textbf{Convergence}: EM is guaranteed to increase the log-likelihood at each step (or leave it unchanged), converging to a local maximum.
+\end{greybox}
+
+\begin{bluebox}[Clustering Method Comparison]
+\begin{tabular}{lllll}
+\textbf{Method} & \textbf{Shape} & \textbf{$K$ needed?} & \textbf{Noise?} & \textbf{Scalability} \\
+\hline
+K-means & Spherical & Yes & No & $O(nKt)$ \\
+Hierarchical & Any & No & No & $O(n^2)$--$O(n^3)$ \\
+DBSCAN & Arbitrary & No & Yes & $O(n \log n)$ \\
+GMM & Elliptical & Yes & No & $O(nK^2D^2t)$ \\
+\end{tabular}
+
+\textbf{When to use what}:
+\begin{itemize}
+    \item \textbf{K-means}: Quick exploration, roughly spherical clusters, large datasets
+    \item \textbf{Hierarchical}: When you want to explore different granularities, small datasets
+    \item \textbf{DBSCAN}: Irregular shapes, when noise/outliers are expected
+    \item \textbf{GMM}: When you need soft assignments, elliptical clusters, probabilistic interpretation
+\end{itemize}
+\end{bluebox}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Autoencoders}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary: Autoencoders]
+\begin{itemize}
+    \item \textbf{Architecture}: Encoder compresses to bottleneck; decoder reconstructs
+    \item \textbf{Training}: Self-supervised-input is its own target
+    \item \textbf{Key insight}: Linear autoencoder = PCA; nonlinear captures manifold structure
+    \item \textbf{Variants}: Denoising (robustness), sparse (interpretability), variational (generation)
+\end{itemize}
+\end{bluebox}
+
+Autoencoders learn nonlinear dimensionality reduction using neural networks. The key idea is \textbf{self-supervision}: reconstruct the input from a compressed intermediate representation. No labels are needed-the input is its own target.
+
+\subsection{Architecture and Training}
+
+\begin{greybox}[Autoencoder Architecture]
+An autoencoder consists of:
+\begin{enumerate}
+    \item \textbf{Encoder} $f_\phi: \mathbb{R}^D \to \mathbb{R}^L$ compresses input to latent space
+
+    Typically a neural network with decreasing layer sizes: $D \to 512 \to 256 \to L$
+
+    \item \textbf{Bottleneck} layer with $L < D$ dimensions (the learned representation)
+
+    This is where the compression happens. The encoder must distil the input into $L$ numbers.
+
+    \item \textbf{Decoder} $g_\psi: \mathbb{R}^L \to \mathbb{R}^D$ reconstructs input from latent code
+
+    Typically mirrors the encoder: $L \to 256 \to 512 \to D$
+\end{enumerate}
+
+\textbf{Objective}:
+\[
+\hat{\phi}, \hat{\psi} = \argmin_{\phi, \psi} \frac{1}{n} \sum_{i=1}^{n} \left\| x_i - g_\psi(f_\phi(x_i)) \right\|^2
+\]
+
+\textbf{Breaking this down}:
+\begin{itemize}
+    \item $f_\phi(x_i) = z_i$: encode input to latent representation
+    \item $g_\psi(z_i) = \hat{x}_i$: decode latent back to reconstruction
+    \item $\|x_i - \hat{x}_i\|^2$: reconstruction error (squared L2 distance)
+    \item We minimise average reconstruction error over the dataset
+\end{itemize}
+
+The bottleneck forces the network to learn a compressed representation capturing the most important features.
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/week_12_unsupervised/autoencoder.png}
+    \caption{Autoencoder architecture: input is compressed through the encoder to a bottleneck layer, then reconstructed by the decoder. The bottleneck dimension $L$ is smaller than input dimension $D$, forcing compression.}
+    \label{fig:autoencoder}
+\end{figure}
+
+\textbf{Training}: Standard backpropagation through the entire network. The loss gradient flows from reconstruction error back through decoder and encoder. Both networks learn jointly.
+
+\subsection{Relationship to PCA}
+
+\begin{greybox}[Linear Autoencoders Recover PCA]
+Under specific conditions, autoencoders are equivalent to PCA:
+\begin{itemize}
+    \item Single hidden layer
+    \item Linear activations (no nonlinearities)
+    \item Mean squared error loss
+\end{itemize}
+
+\textbf{Proof sketch}: With linear encoder $z = W_{\text{enc}}^\top x$ and decoder $\hat{x} = W_{\text{dec}} z$, the objective is:
+\[
+\min_{W_{\text{enc}}, W_{\text{dec}}} \|X - X W_{\text{enc}} W_{\text{dec}}^\top\|_F^2
+\]
+
+The optimal solution has $W_{\text{dec}} = W_{\text{enc}}$ and $W_{\text{enc}}$ spans the same subspace as the top $L$ principal components. The columns of $W_{\text{enc}}$ need not be the eigenvectors exactly (any rotation within the subspace works), but the span is identical.
+
+\textbf{Why this matters}: It shows PCA is a special case of autoencoders. The autoencoder framework is strictly more general-adding nonlinearities lets us capture manifold structure that PCA cannot.
+
+With nonlinear activations and multiple layers, autoencoders can learn \textbf{nonlinear manifolds} that PCA cannot capture.
+\end{greybox}
+
+\subsection{Bottleneck Dimension and Regularisation}
+
+\begin{redbox}
+\textbf{Avoiding trivial solutions}:
+\begin{itemize}
+    \item If $L \geq D$, the autoencoder can learn the identity function-just copy the input through without compression
+    \item Even with $L < D$, an overly expressive network might memorise rather than generalise
+    \item The bottleneck must constrain capacity to force meaningful compression
+\end{itemize}
+
+\textbf{Regularisation strategies}:
+\begin{itemize}
+    \item Use smaller bottleneck dimension
+    \item Add weight decay to encoder/decoder weights
+    \item Use dropout during training
+    \item Add noise (denoising autoencoder)
+    \item Impose sparsity on latent activations
+\end{itemize}
+\end{redbox}
+
+\subsection{Autoencoder Variants}
+
+\begin{greybox}[Denoising Autoencoders]
+\textbf{Idea}: Corrupt inputs and train to reconstruct the clean version.
+
+\textbf{Training}:
+\begin{enumerate}
+    \item Corrupt input: $\tilde{x}_i = x_i + \epsilon$, where $\epsilon \sim \mathcal{N}(0, \sigma^2 I)$ (or masking, dropout)
+    \item Train to reconstruct clean input: $\min \|x_i - g_\psi(f_\phi(\tilde{x}_i))\|^2$
+\end{enumerate}
+
+Note: The target is the \textit{clean} input $x_i$, not the corrupted input $\tilde{x}_i$.
+
+\textbf{Benefits}:
+\begin{itemize}
+    \item Forces robust representations invariant to small perturbations
+    \item Prevents identity learning even with large bottleneck (can't memorise random noise)
+    \item Learns to denoise as a side effect
+\end{itemize}
+
+\textbf{Interpretation}: The autoencoder learns to project noisy inputs onto the data manifold. It learns what ``clean'' data looks like.
+\end{greybox}
+
+\begin{greybox}[Sparse Autoencoders]
+\textbf{Idea}: Encourage most latent units to be inactive for any given input.
+
+\textbf{Objective}:
+\[
+\mathcal{L} = \underbrace{\frac{1}{n}\sum_i \|x_i - \hat{x}_i\|^2}_{\text{reconstruction}} + \lambda \underbrace{\sum_i \|z_i\|_1}_{\text{sparsity}}
+\]
+
+The L1 penalty $\|z_i\|_1 = \sum_l |z_{il}|$ encourages sparsity-many components being exactly zero.
+
+\textbf{Benefits}:
+\begin{itemize}
+    \item Encourages disentangled representations (each unit captures distinct feature)
+    \item Can use overcomplete representations ($L > D$) without learning identity
+    \item Analogous to L1 regularisation in linear models (Lasso)
+\end{itemize}
+
+\textbf{Intuition}: Different inputs activate different subsets of latent units. This can lead to more interpretable representations where each latent dimension means something specific.
+\end{greybox}
+
+\subsection{Variational Autoencoders}
+
+VAEs combine autoencoders with probabilistic modelling, enabling both representation learning and generation.
+
+\begin{greybox}[VAE: Generative Model]
+\textbf{Generative story}:
+\begin{enumerate}
+    \item Sample latent code: $z \sim p(z) = \mathcal{N}(0, I)$
+    \item Generate observation: $x \sim p_\theta(x \mid z)$
+\end{enumerate}
+
+\textbf{What this describes}: A generative process for creating data. First sample a random ``recipe'' $z$ from a simple distribution, then use the decoder to generate an observation.
+
+\textbf{Goal}: Learn $\theta$ (decoder parameters) to maximise $\log p_\theta(x)$.
+
+\textbf{Problem}: The marginal likelihood $p_\theta(x) = \int p_\theta(x \mid z) p(z) dz$ is intractable-we can't compute this integral analytically.
+
+\textbf{Solution}: Introduce an approximate posterior $q_\phi(z \mid x)$ (the encoder) and optimise a lower bound.
+\end{greybox}
+
+\begin{greybox}[Evidence Lower Bound (ELBO)]
+For any distribution $q_\phi(z \mid x)$:
+\begin{align*}
+\log p_\theta(x) &= \log \int p_\theta(x \mid z) p(z) dz \\
+&= \log \int q_\phi(z \mid x) \frac{p_\theta(x \mid z) p(z)}{q_\phi(z \mid x)} dz \\
+&\geq \int q_\phi(z \mid x) \log \frac{p_\theta(x \mid z) p(z)}{q_\phi(z \mid x)} dz \quad \text{(Jensen's inequality)}
+\end{align*}
+
+\textbf{Step-by-step}:
+\begin{itemize}
+    \item Line 1: The quantity we want to maximise
+    \item Line 2: Multiply and divide by $q_\phi(z \mid x)$ inside the integral
+    \item Line 3: Apply Jensen's inequality: $\log \mathbb{E}[X] \geq \mathbb{E}[\log X]$ for concave $\log$
+\end{itemize}
+
+Rearranging:
+\[
+\log p_\theta(x) \geq \underbrace{\mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x \mid z)]}_{\text{reconstruction term}} - \underbrace{D_{\text{KL}}(q_\phi(z \mid x) \| p(z))}_{\text{regularisation term}}
+\]
+
+This is the \textbf{Evidence Lower Bound (ELBO)}.
+
+\textbf{Interpretation}:
+\begin{itemize}
+    \item \textbf{Reconstruction}: Encode $x$ to $z$, decode back; should recover $x$. This is the expected log-likelihood of the data given the latent code.
+
+    \item \textbf{Regularisation}: Keep the approximate posterior $q_\phi(z \mid x)$ close to the prior $p(z) = \mathcal{N}(0, I)$. This prevents the encoder from learning arbitrary, unstructured latent codes.
+\end{itemize}
+\end{greybox}
+
+\begin{greybox}[VAE Architecture and Training]
+\textbf{Encoder} outputs distribution parameters:
+\[
+q_\phi(z \mid x) = \mathcal{N}(\mu_\phi(x), \text{diag}(\sigma^2_\phi(x)))
+\]
+A neural network takes $x$ and outputs vectors $\mu$ and $\log \sigma^2$.
+
+\textbf{Reparameterisation trick}: To backpropagate through sampling:
+\[
+z = \mu_\phi(x) + \sigma_\phi(x) \odot \epsilon, \quad \epsilon \sim \mathcal{N}(0, I)
+\]
+
+\textbf{Why this is needed}: We can't backpropagate through a random sample. But we can backpropagate through a deterministic function of the parameters plus external randomness. The trick rewrites sampling as a deterministic transformation of $\mu$, $\sigma$, and noise $\epsilon$.
+
+\textbf{Decoder} outputs reconstruction distribution:
+\[
+p_\theta(x \mid z) = \mathcal{N}(x \mid \mu_\theta(z), \sigma^2 I)
+\]
+(For images, often use Bernoulli with cross-entropy loss.)
+
+\textbf{Loss function}:
+\[
+\mathcal{L} = -\mathbb{E}_{\epsilon}[\log p_\theta(x \mid z)] + D_{\text{KL}}(q_\phi(z \mid x) \| \mathcal{N}(0, I))
+\]
+
+The KL term has closed form for Gaussians:
+\[
+D_{\text{KL}} = \frac{1}{2}\sum_{j=1}^{L}\left(\mu_j^2 + \sigma_j^2 - \log \sigma_j^2 - 1\right)
+\]
+
+\textbf{Practical training}: Sample one $\epsilon$ per data point, compute loss, backpropagate. The Monte Carlo estimate has low variance because the reparameterisation makes gradients well-behaved.
+\end{greybox}
+
+\begin{bluebox}[VAE: Key Properties]
+\begin{itemize}
+    \item \textbf{Generation}: Sample $z \sim \mathcal{N}(0, I)$, decode to get new data. Because the prior is simple, sampling is easy.
+
+    \item \textbf{Interpolation}: Interpolate in latent space between two points; decode to see smooth transitions. The regularised latent space makes this work.
+
+    \item \textbf{Regularised latent space}: KL term encourages smooth, organised latent space where nearby points decode to similar outputs.
+
+    \item \textbf{Trade-off}: Stronger KL penalty $\Rightarrow$ smoother latent space but blurrier reconstructions (the ``posterior collapse'' problem in extreme cases, where the encoder ignores the input and the decoder learns to generate from the prior alone).
+\end{itemize}
+\end{bluebox}
+
+\begin{bluebox}[When to Use Each Autoencoder Variant]
+\begin{itemize}
+    \item \textbf{Standard autoencoder}: Feature learning, pre-training, anomaly detection (high reconstruction error indicates anomaly)
+    \item \textbf{Denoising}: Robust features, when data is noisy, preventing identity shortcuts
+    \item \textbf{Sparse}: Interpretable, disentangled representations
+    \item \textbf{Variational}: Generative modelling, sampling new data, smooth latent space
+\end{itemize}
+\end{bluebox}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Self-Supervised Learning}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary: Self-Supervised Learning]
+\begin{itemize}
+    \item \textbf{Idea}: Create supervision signal from data itself (no manual labels)
+    \item \textbf{Pretext tasks}: Predict transformations, rotations, masked content
+    \item \textbf{Contrastive learning}: Pull similar pairs together, push dissimilar pairs apart
+    \item \textbf{Goal}: Learn representations useful for downstream tasks
+\end{itemize}
+\end{bluebox}
+
+Self-supervised learning occupies the space between supervised and unsupervised learning. It uses the structure of unlabelled data to create pseudo-labels, then trains with standard supervised objectives. This has become the dominant paradigm for pre-training large models.
+
+\textbf{Key insight}: We can create labels automatically from the data's structure. Predict the next word in a sentence (language models). Predict whether two image patches came from the same image. Predict the rotation applied to an image. None of these requires human annotation.
+
+\subsection{Pretext Tasks}
+
+\begin{greybox}[Pretext Tasks for Representation Learning]
+\textbf{Idea}: Design a task where labels can be generated automatically from the data. Solving this task requires learning useful representations.
+
+\textbf{Examples}:
+\begin{itemize}
+    \item \textbf{Rotation prediction}: Rotate images by $\{0^\circ, 90^\circ, 180^\circ, 270^\circ\}$; predict the rotation.
+
+    \textit{Why it works}: To predict rotation, the network must understand object orientation-what's ``up'' vs ``down''. This requires understanding object structure.
+
+    \item \textbf{Jigsaw puzzles}: Divide image into patches, shuffle; predict the original arrangement.
+
+    \textit{Why it works}: Requires understanding spatial relationships-what typically appears next to what.
+
+    \item \textbf{Colourisation}: Given grayscale image, predict colours.
+
+    \textit{Why it works}: Requires understanding object semantics-grass is green, sky is blue, skin is skin-toned.
+
+    \item \textbf{Masked prediction}: Mask part of input (e.g., words in text, patches in images); predict the masked content.
+
+    \textit{Why it works}: Requires understanding context-what words/features typically occur in this context? This is the foundation of BERT and masked autoencoders.
+
+    \item \textbf{Context prediction}: Given a patch, predict which of several candidate patches was its neighbour.
+
+    \textit{Why it works}: Requires understanding spatial context and co-occurrence patterns.
+\end{itemize}
+
+\textbf{Key insight}: The pretext task itself is not the goal. We care about the representations learned in the process, which transfer to downstream tasks.
+\end{greybox}
+
+\subsection{Contrastive Learning}
+
+\begin{greybox}[Contrastive Learning Framework]
+\textbf{Core idea}: Learn representations where similar items are close and dissimilar items are far apart.
+
+\textbf{Setup}:
+\begin{itemize}
+    \item Create \textbf{positive pairs}: Two views of the same data point (e.g., different augmentations of the same image-crop, flip, colour jitter)
+    \item Create \textbf{negative pairs}: Views from different data points
+\end{itemize}
+
+\textbf{Objective}: Learn an encoder $f$ such that:
+\[
+\text{sim}(f(x), f(x^+)) \gg \text{sim}(f(x), f(x^-))
+\]
+where $x^+$ is a positive pair with $x$ and $x^-$ is a negative.
+
+Similarity is typically cosine similarity: $\text{sim}(u, v) = u^\top v / (\|u\| \|v\|)$
+
+\textbf{InfoNCE loss} (used in SimCLR, MoCo, etc.):
+\[
+\mathcal{L} = -\log \frac{\exp(\text{sim}(z_i, z_j) / \tau)}{\sum_{k \neq i} \exp(\text{sim}(z_i, z_k) / \tau)}
+\]
+where:
+\begin{itemize}
+    \item $z_i, z_j$ are representations of positive pair (same image, different augmentations)
+    \item $\tau$ is temperature (controls sharpness-lower temperature makes the loss focus more on hard negatives)
+    \item Denominator includes all other examples in the batch as negatives
+\end{itemize}
+
+\textbf{Reading this loss}: It's a softmax classification loss. We want to classify the positive pair correctly among all negatives. Minimising this loss pushes the positive pair together and all negatives apart.
+\end{greybox}
+
+\begin{greybox}[SimCLR: A Simple Framework for Contrastive Learning]
+\textbf{Architecture}:
+\begin{enumerate}
+    \item \textbf{Data augmentation}: Apply random transformations to create two views of each image (crop, flip, colour jitter, blur)
+
+    \item \textbf{Encoder}: CNN (e.g., ResNet) extracts representations $h = f(x)$
+
+    \item \textbf{Projection head}: MLP maps to space where contrastive loss is applied: $z = g(h)$
+
+    \item \textbf{Contrastive loss}: InfoNCE treating other images in batch as negatives
+\end{enumerate}
+
+\textbf{Key findings}:
+\begin{itemize}
+    \item Strong augmentations are crucial (composition of multiple transforms). The harder the augmentation, the more the network must learn semantic features to recognise same-image pairs.
+
+    \item Larger batch sizes help (more negatives). With 4096 batch size, each positive has 8190 negatives.
+
+    \item The projection head is essential during training but discarded for downstream tasks. The pre-projection representation $h$ transfers better.
+
+    \item Learned representations transfer well to supervised tasks with limited labels.
+\end{itemize}
+\end{greybox}
+
+\subsection{Non-Contrastive Methods}
+
+\begin{greybox}[Beyond Contrastive Learning]
+Recent methods avoid explicit negative pairs, addressing challenges like needing large batch sizes:
+
+\textbf{BYOL (Bootstrap Your Own Latent)}:
+\begin{itemize}
+    \item Two networks: online and target (momentum-updated, i.e., slowly-moving average of online)
+    \item Online network predicts target network's representation
+    \item Asymmetry prevents collapse (both networks outputting constant)
+\end{itemize}
+
+\textit{Why it doesn't collapse}: The target network changes slowly (momentum update), so the online network must keep improving to predict it. The asymmetry breaks the trivial equilibrium.
+
+\textbf{SimSiam}:
+\begin{itemize}
+    \item Siamese network with stop-gradient on one branch
+    \item No negatives, no momentum encoder
+    \item Stop-gradient is crucial for preventing collapse
+\end{itemize}
+
+\textit{Key insight}: Stop-gradient prevents the network from learning a trivial constant solution.
+
+\textbf{Masked Autoencoders (MAE)}:
+\begin{itemize}
+    \item Mask large portion (75\%) of image patches
+    \item Train to reconstruct masked patches
+    \item Works well for Vision Transformers
+\end{itemize}
+
+\textit{Key insight}: With so much masked, the task is genuinely hard. The network must understand image structure to fill in missing regions.
+\end{greybox}
+
+\begin{bluebox}[Self-Supervised Learning: Key Takeaways]
+\begin{itemize}
+    \item Self-supervision enables learning from vast unlabelled data
+    \item Learned representations often rival or exceed supervised pre-training
+    \item Data augmentation encodes inductive biases about what should be invariant
+    \item Foundation for modern large-scale models (GPT, BERT, CLIP)
+    \item Connection to unsupervised learning: both exploit data structure without labels
+\end{itemize}
+\end{bluebox}
+
+%══════════════════════════════════════════════════════════════════════════════
+\section{Summary and Connections}
+%══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Chapter Summary: Unsupervised Learning]
+\textbf{Dimensionality Reduction}:
+\begin{itemize}
+    \item PCA: Linear projection maximising variance; optimal for Gaussian data
+    \item Factor Analysis: Adds feature-specific noise modelling
+    \item ICA: Finds independent (not just uncorrelated) components
+    \item Kernel PCA: Nonlinear extension via the kernel trick
+\end{itemize}
+
+\textbf{Manifold Learning}:
+\begin{itemize}
+    \item Manifold hypothesis: Data lies on low-dimensional manifold
+    \item t-SNE: Preserves local neighbourhoods; visualisation tool
+    \item UMAP: Scalable, preserves more global structure
+\end{itemize}
+
+\textbf{Clustering}:
+\begin{itemize}
+    \item K-means: Fast, assumes spherical clusters
+    \item Hierarchical: Produces dendrogram, no fixed $K$
+    \item DBSCAN: Density-based, handles noise
+    \item GMMs: Probabilistic soft clustering
+\end{itemize}
+
+\textbf{Representation Learning}:
+\begin{itemize}
+    \item Autoencoders: Neural compression; linear $\equiv$ PCA
+    \item VAEs: Probabilistic + generative; regularised latent space
+    \item Self-supervised: Pretext tasks and contrastive learning
+\end{itemize}
+\end{bluebox}
+
+\begin{bluebox}[Connections Across the Course]
+\begin{itemize}
+    \item \textbf{Linear autoencoder $\equiv$ PCA}: Constraint on architecture determines what structure is learned
+    \item \textbf{VAEs and Bayesian methods}: ELBO connects to variational inference (Week 9: Uncertainty)
+    \item \textbf{Kernel PCA and kernel methods}: Same kernel trick as kernel ridge regression (Week 6: Kernels)
+    \item \textbf{GMMs and EM}: Iterative optimisation like coordinate descent; local optima issues
+    \item \textbf{Self-supervised pre-training}: Improves supervised learning with limited labels
+    \item \textbf{Embeddings in neural networks}: Hidden layers learn representations (Weeks 10--11: Neural Networks)
+\end{itemize}
+\end{bluebox}
+
+\begin{greybox}[Terminology: Embeddings Revisited]
+An \textbf{embedding} is a mapping from high-dimensional or discrete data to a lower-dimensional continuous space that preserves relevant structure.
+
+Embeddings appear throughout machine learning:
+\begin{itemize}
+    \item Word embeddings (Word2Vec, GloVe): words $\to$ dense vectors capturing semantic relationships (``king'' - ``man'' + ``woman'' $\approx$ ``queen'')
+    \item Graph embeddings: nodes $\to$ vectors preserving graph structure
+    \item Image embeddings: images $\to$ feature vectors from CNN intermediate layers
+    \item PCA: Linear embedding maximising variance
+    \item t-SNE/UMAP: Nonlinear embedding preserving local structure
+    \item Autoencoders: Learned nonlinear embedding via reconstruction
+    \item Contrastive learning: Embedding where similar items are close
+\end{itemize}
+
+The term ``embedding'' emphasises that we're not just reducing dimensions but \textit{embedding} data into a space where geometric relationships carry semantic meaning.
+\end{greybox}
+
+\begin{bluebox}[Practical Guidelines]
+\textbf{When to use what}:
+\begin{itemize}
+    \item \textbf{PCA}: First step in exploration; interpretable, fast, removes noise
+    \item \textbf{t-SNE/UMAP}: Visualisation of clusters in high-dimensional data
+    \item \textbf{K-means}: Quick clustering when clusters are spherical
+    \item \textbf{DBSCAN}: Clusters of arbitrary shape; noise handling needed
+    \item \textbf{GMM}: Soft clustering; elliptical clusters; probabilistic interpretation needed
+    \item \textbf{Autoencoders}: Nonlinear dimensionality reduction; pre-training for deep learning
+    \item \textbf{VAEs}: Generation; interpolation in latent space
+    \item \textbf{Contrastive learning}: Pre-training with large unlabelled datasets
+\end{itemize}
+
+\textbf{Common workflow}:
+\begin{enumerate}
+    \item Standardise features (if not comparable scales)
+    \item PCA for initial exploration and noise reduction
+    \item t-SNE/UMAP for visualisation
+    \item Clustering to identify groups
+    \item Validate clusters with domain knowledge
+\end{enumerate}
+\end{bluebox}

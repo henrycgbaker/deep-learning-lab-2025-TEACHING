@@ -1,0 +1,931 @@
+% =============================================================================
+% Week 6: Continuous Random Variables I
+% =============================================================================
+
+\chapter{Week 6: Continuous Random Variables I}
+\label{ch:week6}
+
+\begin{bluebox}[Learning Objectives]
+By the end of this chapter, you should be able to:
+\begin{itemize}
+    \item Distinguish between discrete and continuous random variables based on properties of the CDF
+    \item State the relationship between PDF and CDF, and derive one from the other
+    \item Compute probabilities for continuous random variables using integration
+    \item Verify whether a function is a valid PDF
+    \item Compute the expected value and variance of continuous random variables
+    \item Work with the Uniform, Normal, and Exponential distributions---deriving their properties from first principles
+    \item Apply standardisation to transform any Normal random variable to the standard Normal
+    \item Understand and apply the memoryless property of the Exponential distribution
+    \item Extend probability concepts (joint distributions, marginals, conditionals, Bayes' rule) to continuous random variables
+\end{itemize}
+\end{bluebox}
+
+\textbf{Prerequisites:} This chapter assumes familiarity with discrete random variables, PMFs, and CDFs (from earlier chapters), expected value and variance for discrete random variables, basic differentiation and integration techniques (from Chapters 4 and 5), and the Geometric and Poisson distributions (conceptually, for comparison).
+
+% =============================================================================
+\section{From Discrete to Continuous: The Fundamental Distinction}
+\label{sec:discrete-to-continuous}
+% =============================================================================
+
+In earlier chapters, we studied discrete random variables---those taking values in a countable set (integers, for instance). The probability mass function (PMF) assigned positive probability to each possible outcome. However, many phenomena in nature and data science involve quantities that can take any value in an interval: heights, waiting times, temperatures, stock prices.
+
+\begin{definition}[Continuous Random Variable]
+\label{def:continuous-rv}
+A random variable $X$ is \textbf{continuous} if its cumulative distribution function (CDF) $F_X(x) = P(X \leq x)$ is a continuous function that can be expressed as
+\[
+    F_X(x) = \int_{-\infty}^{x} f_X(t) \, dt
+\]
+for some non-negative function $f_X$, called the \textbf{probability density function (PDF)}.
+\end{definition}
+
+The key distinction lies in the CDF's behaviour:
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.8\linewidth]{images/week_6/cdf_comparison.png}
+    \caption{Comparison of CDFs: Left: CDF of a discrete random variable showing characteristic staircase jumps at each point mass. Right: CDF of a continuous random variable, which is smooth and differentiable.}
+    \label{fig:cdf-comparison}
+\end{figure}
+
+\begin{bluebox}[Discrete vs Continuous: Key Differences]
+\begin{center}
+\begin{tabular}{l|l|l}
+\toprule
+\textbf{Property} & \textbf{Discrete} & \textbf{Continuous} \\
+\midrule
+CDF & Step function (jumps) & Smooth, differentiable \\
+Probability function & PMF: $P(X = x)$ & PDF: $f(x)$ \\
+$P(X = x)$ & Can be positive & Always zero \\
+$P(a < X \leq b)$ & $\sum_{x \in (a,b]} P(X = x)$ & $\int_a^b f(x) \, dx$ \\
+Total probability & $\sum_x P(X = x) = 1$ & $\int_{-\infty}^{\infty} f(x) \, dx = 1$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{bluebox}
+
+% =============================================================================
+\section{The PDF--CDF Relationship}
+\label{sec:pdf-cdf-relationship}
+% =============================================================================
+
+The relationship between the PDF and CDF is perhaps the most fundamental concept for continuous random variables. It mirrors the relationship between derivatives and integrals in calculus.
+
+\subsection{From CDF to PDF: Differentiation}
+
+\begin{theorem}[PDF as Derivative of CDF]
+\label{thm:pdf-derivative}
+If $X$ is a continuous random variable with CDF $F_X(x)$ that is differentiable, then the PDF is given by
+\begin{equation}
+    f_X(x) = \frac{d}{dx} F_X(x) = F_X'(x)
+    \label{eq:pdf-derivative}
+\end{equation}
+at all points where the derivative exists.
+\end{theorem}
+
+\begin{proof}
+By the definition of the CDF and the Fundamental Theorem of Calculus:
+\[
+    F_X(x) = \int_{-\infty}^{x} f_X(t) \, dt
+\]
+Taking the derivative with respect to $x$:
+\[
+    \frac{d}{dx} F_X(x) = \frac{d}{dx} \int_{-\infty}^{x} f_X(t) \, dt = f_X(x)
+\]
+The last equality follows from the Fundamental Theorem of Calculus, Part I.
+\end{proof}
+
+\subsection{From PDF to CDF: Integration}
+
+\begin{theorem}[CDF as Integral of PDF]
+\label{thm:cdf-integral}
+If $X$ is a continuous random variable with PDF $f_X(x)$, then the CDF is given by
+\begin{equation}
+    F_X(x) = \int_{-\infty}^{x} f_X(t) \, dt = P(X \leq x)
+    \label{eq:cdf-integral}
+\end{equation}
+\end{theorem}
+
+\begin{intuition}[The PDF--CDF Relationship]
+Think of the PDF as describing the \emph{density} of probability---how concentrated probability is at different values. The CDF accumulates this density from $-\infty$ up to $x$.
+
+\textbf{Analogy:} If the PDF represents the rate at which water flows into a tank at different times, the CDF represents the total amount of water in the tank up to time $x$.
+\end{intuition}
+
+\subsection{Computing Probabilities}
+
+For continuous random variables, we compute probabilities over intervals, not individual points.
+
+\begin{theorem}[Probability Over an Interval]
+\label{thm:prob-interval}
+For a continuous random variable $X$ with PDF $f_X$ and CDF $F_X$:
+\begin{equation}
+    P(a < X \leq b) = F_X(b) - F_X(a) = \int_a^b f_X(x) \, dx
+    \label{eq:prob-interval}
+\end{equation}
+\end{theorem}
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.6\linewidth]{images/week_6/area_under_pdf.png}
+    \caption{The probability $P(a < X \leq b)$ equals the shaded area under the PDF curve between $a$ and $b$. This geometric interpretation---probability as area---is fundamental to working with continuous distributions.}
+    \label{fig:area-under-pdf}
+\end{figure}
+
+\begin{warning}[Point Probabilities Are Zero]
+For any continuous random variable $X$ and any specific value $x$:
+\[
+    P(X = x) = 0
+\]
+This follows because:
+\[
+    P(X = x) = \lim_{\varepsilon \to 0} P(x - \varepsilon < X \leq x) = \lim_{\varepsilon \to 0} \int_{x-\varepsilon}^{x} f_X(t) \, dt = 0
+\]
+The integral over a set of measure zero vanishes.
+
+\textbf{Consequence:} For continuous random variables, the following are all equal:
+\[
+    P(a < X < b) = P(a \leq X < b) = P(a < X \leq b) = P(a \leq X \leq b)
+\]
+Including or excluding endpoints does not change the probability.
+\end{warning}
+
+\subsection{Interpreting the PDF}
+
+A common misconception is that the PDF value $f(x)$ represents a probability. It does not.
+
+\begin{bluebox}[What the PDF Value Means]
+The PDF $f(x)$ is a \textbf{probability density}, not a probability. Its interpretation:
+\begin{itemize}
+    \item $f(x)$ can exceed 1 (unlike probabilities)
+    \item Regions where $f(x)$ is larger have higher probability density---the random variable is more likely to fall near these values
+    \item Only the integral of $f(x)$ over an interval gives a probability
+    \item The PDF is normalised so that the total area under the curve equals 1
+\end{itemize}
+
+\textbf{Heuristic interpretation:} For small $\varepsilon > 0$,
+\[
+    P(x < X \leq x + \varepsilon) \approx f(x) \cdot \varepsilon
+\]
+The PDF tells us probability per unit length near $x$.
+\end{bluebox}
+
+\subsection{Valid PDFs}
+
+\begin{definition}[Valid PDF]
+\label{def:valid-pdf}
+A function $f: \mathbb{R} \to \mathbb{R}$ is a valid probability density function if and only if:
+\begin{enumerate}
+    \item \textbf{Non-negativity:} $f(x) \geq 0$ for all $x \in \mathbb{R}$
+    \item \textbf{Normalisation:} $\displaystyle\int_{-\infty}^{\infty} f(x) \, dx = 1$
+\end{enumerate}
+\end{definition}
+
+The \textbf{support} of a continuous random variable is the set of values where $f(x) > 0$. Outside the support, $f(x) = 0$.
+
+\begin{example}[Verifying a Valid PDF]
+\label{ex:valid-pdf}
+Consider $f(x) = 2x$ for $x \in [0, 1]$ and $f(x) = 0$ otherwise. Is this a valid PDF?
+
+\textbf{Check non-negativity:} For $x \in [0, 1]$, we have $2x \geq 0$. \checkmark
+
+\textbf{Check normalisation:}
+\[
+    \int_{-\infty}^{\infty} f(x) \, dx = \int_0^1 2x \, dx = \left[ x^2 \right]_0^1 = 1 - 0 = 1 \quad \checkmark
+\]
+
+Yes, $f(x) = 2x$ on $[0, 1]$ is a valid PDF.
+\end{example}
+
+% =============================================================================
+\section{Expected Value of Continuous Random Variables}
+\label{sec:expected-value-continuous}
+% =============================================================================
+
+The expected value (or mean) of a continuous random variable generalises the discrete case by replacing summation with integration.
+
+\begin{definition}[Expected Value]
+\label{def:expected-value-continuous}
+For a continuous random variable $X$ with PDF $f_X(x)$, the \textbf{expected value} (or \textbf{mean}) is:
+\begin{equation}
+    \E[X] = \int_{-\infty}^{\infty} x \cdot f_X(x) \, dx
+    \label{eq:expected-value-continuous}
+\end{equation}
+provided the integral converges absolutely.
+\end{definition}
+
+\begin{intuition}[Expected Value as Centre of Mass]
+Imagine the PDF as describing how mass is distributed along a beam:
+\begin{itemize}
+    \item $f(x)$ represents the density of mass at position $x$
+    \item $\E[X]$ is the \emph{centre of mass}---the balance point of the distribution
+    \item The integral $\int x f(x) \, dx$ computes the weighted average position, where each position $x$ is weighted by its density $f(x)$
+\end{itemize}
+\end{intuition}
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.6\linewidth]{images/week_6/centre_of_mass.png}
+    \caption{The expected value $\E[X]$ as the balance point (centre of mass) of the probability distribution. If the PDF were a physical object with density proportional to $f(x)$, it would balance at $\E[X]$.}
+    \label{fig:centre-of-mass}
+\end{figure}
+
+More generally, we can compute the expected value of any function of $X$:
+
+\begin{theorem}[Law of the Unconscious Statistician (LOTUS)]
+\label{thm:lotus}
+For a continuous random variable $X$ with PDF $f_X(x)$ and any function $g$:
+\begin{equation}
+    \E[g(X)] = \int_{-\infty}^{\infty} g(x) \cdot f_X(x) \, dx
+    \label{eq:lotus}
+\end{equation}
+\end{theorem}
+
+This theorem is remarkably useful: to find $\E[g(X)]$, we do not need to first derive the distribution of $g(X)$.
+
+\subsection{Variance of Continuous Random Variables}
+
+\begin{definition}[Variance]
+\label{def:variance-continuous}
+The \textbf{variance} of a continuous random variable $X$ is:
+\begin{equation}
+    \Var(X) = \E[(X - \E[X])^2] = \int_{-\infty}^{\infty} (x - \mu)^2 f_X(x) \, dx
+    \label{eq:variance-continuous}
+\end{equation}
+where $\mu = \E[X]$. The \textbf{standard deviation} is $\sigma = \sqrt{\Var(X)}$.
+\end{definition}
+
+\begin{bluebox}[Computational Formula for Variance]
+A more convenient formula for computing variance:
+\begin{equation}
+    \Var(X) = \E[X^2] - (\E[X])^2
+    \label{eq:variance-computational}
+\end{equation}
+This is often easier because it requires computing only $\E[X]$ and $\E[X^2]$, both of which follow directly from LOTUS.
+\end{bluebox}
+
+% =============================================================================
+\section{The Uniform Distribution}
+\label{sec:uniform-distribution}
+% =============================================================================
+
+The Uniform distribution is the simplest continuous distribution: all values in an interval are equally likely.
+
+\begin{definition}[Continuous Uniform Distribution]
+\label{def:uniform}
+A continuous random variable $X$ has the \textbf{Uniform distribution} on the interval $(a, b)$, written $X \sim \text{Unif}(a, b)$, if its PDF is:
+\begin{equation}
+    f_X(x) = \begin{cases}
+        \dfrac{1}{b - a} & \text{if } a < x < b \\[1em]
+        0 & \text{otherwise}
+    \end{cases}
+    \label{eq:uniform-pdf}
+\end{equation}
+\end{definition}
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.6\linewidth]{images/week_6/uniform_pdf.png}
+    \caption{PDF of the Uniform distribution on $(a, b)$. The constant height $\frac{1}{b-a}$ ensures that the total area (a rectangle) equals 1.}
+    \label{fig:uniform-pdf}
+\end{figure}
+
+\begin{remark}
+The PDF does not depend on $x$ within the support---this is what makes the distribution \emph{uniform}. Every infinitesimal interval within $(a, b)$ has the same probability density.
+\end{remark}
+
+\subsection{Verifying the Uniform PDF}
+
+\begin{rigour}[Verification that Uniform PDF is Valid]
+\textbf{Non-negativity:} $\frac{1}{b-a} > 0$ since $b > a$. \checkmark
+
+\textbf{Normalisation:} The integral over the support forms a rectangle:
+\[
+    \int_{-\infty}^{\infty} f_X(x) \, dx = \int_a^b \frac{1}{b-a} \, dx = \frac{1}{b-a} \cdot (b - a) = 1 \quad \checkmark
+\]
+\end{rigour}
+
+\subsection{CDF of the Uniform Distribution}
+
+\begin{theorem}[Uniform CDF]
+\label{thm:uniform-cdf}
+For $X \sim \text{Unif}(a, b)$, the CDF is:
+\begin{equation}
+    F_X(x) = \begin{cases}
+        0 & \text{if } x \leq a \\[0.5em]
+        \dfrac{x - a}{b - a} & \text{if } a < x < b \\[1em]
+        1 & \text{if } x \geq b
+    \end{cases}
+    \label{eq:uniform-cdf}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+\textbf{For $x \leq a$:} No probability mass exists below $a$, so $F_X(x) = 0$.
+
+\textbf{For $a < x < b$:} Integrate the PDF from $-\infty$ to $x$:
+\[
+    F_X(x) = \int_{-\infty}^{x} f_X(t) \, dt = \int_a^x \frac{1}{b-a} \, dt = \frac{1}{b-a} \cdot (x - a) = \frac{x - a}{b - a}
+\]
+
+\textbf{For $x \geq b$:} All probability mass has been accumulated, so $F_X(x) = 1$.
+\end{proof}
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.6\linewidth]{images/week_6/uniform_cdf.png}
+    \caption{CDF of the Uniform distribution. Note the linear increase between $a$ and $b$, reflecting the constant density of the PDF.}
+    \label{fig:uniform-cdf}
+\end{figure}
+
+\subsection{Mean of the Uniform Distribution}
+
+\begin{theorem}[Mean of Uniform Distribution]
+\label{thm:uniform-mean}
+For $X \sim \text{Unif}(a, b)$:
+\begin{equation}
+    \E[X] = \frac{a + b}{2}
+    \label{eq:uniform-mean}
+\end{equation}
+\end{theorem}
+
+This result is intuitive: the mean is the midpoint of the interval.
+
+\begin{proof}
+Applying the definition of expected value:
+\begin{align*}
+    \E[X] &= \int_{-\infty}^{\infty} x \cdot f_X(x) \, dx \\
+    &= \int_a^b x \cdot \frac{1}{b - a} \, dx \\
+    &= \frac{1}{b - a} \int_a^b x \, dx \\
+    &= \frac{1}{b - a} \left[ \frac{x^2}{2} \right]_a^b \\
+    &= \frac{1}{b - a} \cdot \frac{b^2 - a^2}{2} \\
+    &= \frac{1}{b - a} \cdot \frac{(b + a)(b - a)}{2} \quad \text{(difference of squares)} \\
+    &= \frac{a + b}{2}
+\end{align*}
+\end{proof}
+
+\subsection{Variance of the Uniform Distribution}
+
+\begin{theorem}[Variance of Uniform Distribution]
+\label{thm:uniform-variance}
+For $X \sim \text{Unif}(a, b)$:
+\begin{equation}
+    \Var(X) = \frac{(b - a)^2}{12}
+    \label{eq:uniform-variance}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Using the computational formula $\Var(X) = \E[X^2] - (\E[X])^2$:
+
+\textbf{Step 1:} Compute $\E[X^2]$ using LOTUS:
+\begin{align*}
+    \E[X^2] &= \int_a^b x^2 \cdot \frac{1}{b - a} \, dx \\
+    &= \frac{1}{b - a} \left[ \frac{x^3}{3} \right]_a^b \\
+    &= \frac{1}{b - a} \cdot \frac{b^3 - a^3}{3} \\
+    &= \frac{b^3 - a^3}{3(b - a)}
+\end{align*}
+Using the factorisation $b^3 - a^3 = (b - a)(b^2 + ab + a^2)$:
+\[
+    \E[X^2] = \frac{(b - a)(b^2 + ab + a^2)}{3(b - a)} = \frac{b^2 + ab + a^2}{3}
+\]
+
+\textbf{Step 2:} Compute $(\E[X])^2$:
+\[
+    (\E[X])^2 = \left( \frac{a + b}{2} \right)^2 = \frac{a^2 + 2ab + b^2}{4}
+\]
+
+\textbf{Step 3:} Subtract:
+\begin{align*}
+    \Var(X) &= \E[X^2] - (\E[X])^2 \\
+    &= \frac{b^2 + ab + a^2}{3} - \frac{a^2 + 2ab + b^2}{4} \\
+    &= \frac{4(b^2 + ab + a^2) - 3(a^2 + 2ab + b^2)}{12} \\
+    &= \frac{4b^2 + 4ab + 4a^2 - 3a^2 - 6ab - 3b^2}{12} \\
+    &= \frac{b^2 - 2ab + a^2}{12} \\
+    &= \frac{(b - a)^2}{12}
+\end{align*}
+\end{proof}
+
+\begin{bluebox}[Uniform Distribution Summary]
+For $X \sim \text{Unif}(a, b)$:
+\begin{align*}
+    \text{PDF:} \quad & f(x) = \frac{1}{b - a} \quad \text{for } a < x < b \\[0.5em]
+    \text{CDF:} \quad & F(x) = \frac{x - a}{b - a} \quad \text{for } a < x < b \\[0.5em]
+    \text{Mean:} \quad & \E[X] = \frac{a + b}{2} \\[0.5em]
+    \text{Variance:} \quad & \Var(X) = \frac{(b - a)^2}{12}
+\end{align*}
+\end{bluebox}
+
+% =============================================================================
+\section{The Normal Distribution}
+\label{sec:normal-distribution}
+% =============================================================================
+
+The Normal (or Gaussian) distribution is arguably the most important distribution in statistics. Its ubiquity stems from the Central Limit Theorem: sums and averages of many independent random variables tend towards normality, regardless of the original distribution.
+
+\begin{definition}[Normal Distribution]
+\label{def:normal}
+A continuous random variable $X$ has the \textbf{Normal distribution} with mean $\mu$ and variance $\sigma^2$, written $X \sim N(\mu, \sigma^2)$, if its PDF is:
+\begin{equation}
+    f_X(x) = \frac{1}{\sigma\sqrt{2\pi}} \exp\left( -\frac{(x - \mu)^2}{2\sigma^2} \right), \quad x \in \mathbb{R}
+    \label{eq:normal-pdf}
+\end{equation}
+\end{definition}
+
+Let us unpack each component of this formula:
+\begin{itemize}
+    \item $\mu$: The mean (or location parameter)---determines where the distribution is centred
+    \item $\sigma^2$: The variance (with $\sigma$ being the standard deviation)---determines the spread
+    \item $\frac{1}{\sigma\sqrt{2\pi}}$: The normalising constant---ensures the PDF integrates to 1
+    \item $\exp\left( -\frac{(x - \mu)^2}{2\sigma^2} \right)$: The exponential of a negative quadratic---creates the characteristic bell curve shape
+\end{itemize}
+
+\begin{remark}
+The support of the Normal distribution is the entire real line $(-\infty, \infty)$. Although the tails decay rapidly, technically any real value is possible.
+\end{remark}
+
+\subsection{The Standard Normal Distribution}
+
+\begin{definition}[Standard Normal Distribution]
+\label{def:standard-normal}
+The \textbf{Standard Normal distribution} is the Normal distribution with $\mu = 0$ and $\sigma^2 = 1$, written $Z \sim N(0, 1)$. Its PDF is:
+\begin{equation}
+    \phi(z) = \frac{1}{\sqrt{2\pi}} e^{-z^2/2}, \quad z \in \mathbb{R}
+    \label{eq:standard-normal-pdf}
+\end{equation}
+and its CDF is denoted $\Phi(z)$.
+\end{definition}
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.7\linewidth]{images/week_6/standard_normal.png}
+    \caption{The PDF $\phi(z)$ and CDF $\Phi(z)$ of the standard Normal distribution. The PDF is symmetric about zero; the CDF is an S-shaped curve passing through $(0, 0.5)$.}
+    \label{fig:standard-normal}
+\end{figure}
+
+\begin{remark}
+The CDF $\Phi(z)$ has no closed-form expression---it must be computed numerically or looked up in tables. This is why the standard Normal is so important: we can transform any Normal random variable to the standard Normal and use pre-computed tables.
+\end{remark}
+
+\subsection{Parameters: Location and Scale}
+
+The parameters $\mu$ and $\sigma$ have intuitive geometric interpretations:
+
+\begin{itemize}
+    \item \textbf{Location ($\mu$):} Shifting $\mu$ translates the entire distribution left or right without changing its shape
+    \item \textbf{Scale ($\sigma$):} Increasing $\sigma$ spreads the distribution out (flatter and wider); decreasing $\sigma$ concentrates it (taller and narrower)
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.6\linewidth]{images/week_6/normal_location.png}
+    \caption{Effect of the location parameter $\mu$: shifting the mean translates the distribution horizontally.}
+    \label{fig:normal-location}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.6\linewidth]{images/week_6/normal_scale.png}
+    \caption{Effect of the scale parameter $\sigma$: larger $\sigma$ produces a flatter, wider distribution; smaller $\sigma$ produces a taller, narrower distribution. The area under the curve remains 1.}
+    \label{fig:normal-scale}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.6\linewidth]{images/week_6/normal_combinations.png}
+    \caption{Normal distributions with different combinations of $\mu$ and $\sigma^2$.}
+    \label{fig:normal-combinations}
+\end{figure}
+
+\subsection{Standardisation and Z-Scores}
+
+Any Normal random variable can be transformed into a standard Normal through \emph{standardisation}.
+
+\begin{theorem}[Standardisation]
+\label{thm:standardisation}
+If $X \sim N(\mu, \sigma^2)$, then
+\begin{equation}
+    Z = \frac{X - \mu}{\sigma} \sim N(0, 1)
+    \label{eq:standardisation}
+\end{equation}
+Conversely, if $Z \sim N(0, 1)$, then $X = \mu + \sigma Z \sim N(\mu, \sigma^2)$.
+\end{theorem}
+
+\begin{rigour}[Why Standardisation Works]
+The transformation $Z = (X - \mu)/\sigma$ involves two operations:
+\begin{enumerate}
+    \item \textbf{Centring:} Subtracting $\mu$ shifts the mean to zero
+    \item \textbf{Scaling:} Dividing by $\sigma$ rescales the standard deviation to one
+\end{enumerate}
+
+Formally, if $X \sim N(\mu, \sigma^2)$:
+\[
+    \E[Z] = \E\left[ \frac{X - \mu}{\sigma} \right] = \frac{\E[X] - \mu}{\sigma} = \frac{\mu - \mu}{\sigma} = 0
+\]
+\[
+    \Var(Z) = \Var\left( \frac{X - \mu}{\sigma} \right) = \frac{1}{\sigma^2} \Var(X - \mu) = \frac{1}{\sigma^2} \cdot \sigma^2 = 1
+\]
+Moreover, the Normal family is closed under linear transformations, so $Z$ remains Normal.
+\end{rigour}
+
+\begin{definition}[Z-Score]
+\label{def:z-score}
+The \textbf{Z-score} of an observation $x$ from a distribution with mean $\mu$ and standard deviation $\sigma$ is:
+\begin{equation}
+    z = \frac{x - \mu}{\sigma}
+    \label{eq:z-score}
+\end{equation}
+The Z-score measures how many standard deviations $x$ is from the mean.
+\end{definition}
+
+\begin{bluebox}[Using Standardisation to Compute Probabilities]
+To find $P(X \leq x)$ for $X \sim N(\mu, \sigma^2)$:
+\begin{enumerate}
+    \item Standardise: $z = \frac{x - \mu}{\sigma}$
+    \item Look up $\Phi(z)$ in a standard Normal table or compute numerically
+\end{enumerate}
+\[
+    P(X \leq x) = P\left( Z \leq \frac{x - \mu}{\sigma} \right) = \Phi\left( \frac{x - \mu}{\sigma} \right)
+\]
+\end{bluebox}
+
+\subsection{Properties of the Normal Distribution}
+
+\begin{theorem}[Symmetry of the Normal]
+\label{thm:normal-symmetry}
+The Normal distribution is symmetric about its mean:
+\begin{enumerate}
+    \item \textbf{PDF symmetry:} $\phi(z) = \phi(-z)$ for the standard Normal
+    \item \textbf{CDF symmetry:} $\Phi(-z) = 1 - \Phi(z)$
+\end{enumerate}
+\end{theorem}
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.6\linewidth]{images/week_6/normal_symmetry.png}
+    \caption{Symmetry of the standard Normal: the probability in the left tail below $-z$ equals the probability in the right tail above $z$.}
+    \label{fig:normal-symmetry}
+\end{figure}
+
+\begin{bluebox}[Empirical Rule (68--95--99.7 Rule)]
+For $X \sim N(\mu, \sigma^2)$:
+\begin{align*}
+    P(|X - \mu| < \sigma) &\approx 0.68 \quad \text{(within 1 standard deviation)} \\
+    P(|X - \mu| < 2\sigma) &\approx 0.95 \quad \text{(within 2 standard deviations)} \\
+    P(|X - \mu| < 3\sigma) &\approx 0.997 \quad \text{(within 3 standard deviations)}
+\end{align*}
+These benchmarks are fundamental for interpreting Normal data and constructing confidence intervals.
+\end{bluebox}
+
+\subsection{The Central Limit Theorem (Preview)}
+
+The Normal distribution's importance stems largely from the Central Limit Theorem:
+
+\begin{theorem}[Central Limit Theorem---Informal Statement]
+\label{thm:clt-preview}
+Let $X_1, X_2, \ldots, X_n$ be independent and identically distributed (i.i.d.) random variables with mean $\mu$ and variance $\sigma^2$. Then as $n \to \infty$, the standardised sample mean
+\[
+    \frac{\bar{X}_n - \mu}{\sigma / \sqrt{n}} = \frac{\sqrt{n}(\bar{X}_n - \mu)}{\sigma}
+\]
+converges in distribution to the standard Normal $N(0, 1)$.
+\end{theorem}
+
+\begin{intuition}[Why the CLT Matters]
+\begin{itemize}
+    \item The original random variables $X_i$ do not need to be Normally distributed
+    \item Averages (and sums) of many independent observations tend to be approximately Normal
+    \item This justifies using Normal-based methods (confidence intervals, hypothesis tests) even when the underlying data is not Normal
+    \item The approximation improves as $n$ increases
+\end{itemize}
+\end{intuition}
+
+% =============================================================================
+\section{The Exponential Distribution}
+\label{sec:exponential-distribution}
+% =============================================================================
+
+The Exponential distribution models waiting times between events in a Poisson process---it is the continuous analogue of the Geometric distribution.
+
+\begin{definition}[Exponential Distribution]
+\label{def:exponential}
+A continuous random variable $X$ has the \textbf{Exponential distribution} with rate parameter $\lambda > 0$, written $X \sim \text{Expo}(\lambda)$, if its PDF is:
+\begin{equation}
+    f_X(x) = \lambda e^{-\lambda x}, \quad x > 0
+    \label{eq:exponential-pdf}
+\end{equation}
+and $f_X(x) = 0$ for $x \leq 0$.
+\end{definition}
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.7\linewidth]{images/week_6/exponential_pdf_cdf.png}
+    \caption{PDF and CDF of Exponential distributions with different rate parameters $\lambda$. Larger $\lambda$ means events occur more frequently, so waiting times are shorter (more probability mass near zero).}
+    \label{fig:exponential-pdf-cdf}
+\end{figure}
+
+\subsection{Connection to the Poisson Process}
+
+The Exponential distribution arises naturally from the Poisson process:
+
+\begin{intuition}[From Poisson to Exponential]
+Consider events occurring randomly in continuous time (customers arriving, radioactive decays, bus arrivals):
+\begin{itemize}
+    \item The Poisson distribution counts the number of events in a fixed time interval
+    \item The Exponential distribution measures the time until the next event
+\end{itemize}
+
+If events occur at rate $\lambda$ (average of $\lambda$ events per unit time), then:
+\begin{itemize}
+    \item Number of events in time $t$: $N(t) \sim \text{Poisson}(\lambda t)$
+    \item Time until first event: $T \sim \text{Expo}(\lambda)$
+\end{itemize}
+\end{intuition}
+
+\begin{rigour}[Derivation of Exponential from Poisson]
+Let $T$ be the time until the first event in a Poisson process with rate $\lambda$. We derive its CDF:
+\[
+    P(T > t) = P(\text{no events in } [0, t]) = P(N(t) = 0)
+\]
+Since $N(t) \sim \text{Poisson}(\lambda t)$:
+\[
+    P(N(t) = 0) = \frac{(\lambda t)^0 e^{-\lambda t}}{0!} = e^{-\lambda t}
+\]
+Therefore, the CDF is:
+\[
+    F_T(t) = P(T \leq t) = 1 - P(T > t) = 1 - e^{-\lambda t}, \quad t > 0
+\]
+Differentiating to obtain the PDF:
+\[
+    f_T(t) = \frac{d}{dt}(1 - e^{-\lambda t}) = \lambda e^{-\lambda t}
+\]
+This confirms the Exponential PDF.
+\end{rigour}
+
+\subsection{CDF of the Exponential Distribution}
+
+\begin{theorem}[Exponential CDF]
+\label{thm:exponential-cdf}
+For $X \sim \text{Expo}(\lambda)$:
+\begin{equation}
+    F_X(x) = 1 - e^{-\lambda x}, \quad x > 0
+    \label{eq:exponential-cdf}
+\end{equation}
+and $F_X(x) = 0$ for $x \leq 0$.
+\end{theorem}
+
+\begin{remark}
+The complement $P(X > x) = e^{-\lambda x}$ is the \textbf{survival function}---the probability of surviving (waiting) beyond time $x$.
+\end{remark}
+
+\subsection{Mean and Variance}
+
+\begin{theorem}[Exponential Mean and Variance]
+\label{thm:exponential-mean-variance}
+For $X \sim \text{Expo}(\lambda)$:
+\begin{align}
+    \E[X] &= \frac{1}{\lambda} \label{eq:exponential-mean} \\
+    \Var(X) &= \frac{1}{\lambda^2} \label{eq:exponential-variance}
+\end{align}
+\end{theorem}
+
+\begin{intuition}
+The mean $1/\lambda$ is intuitive: if events occur at rate $\lambda$ per unit time, then on average you wait $1/\lambda$ time units between events. For example, if buses arrive at rate 6 per hour ($\lambda = 6$), the average wait is $1/6$ hours $= 10$ minutes.
+\end{intuition}
+
+\begin{proof}[Derivation of Exponential Mean]
+Using integration by parts with $u = x$ and $dv = \lambda e^{-\lambda x} \, dx$:
+\begin{align*}
+    \E[X] &= \int_0^{\infty} x \cdot \lambda e^{-\lambda x} \, dx \\
+    &= \left[ -x e^{-\lambda x} \right]_0^{\infty} + \int_0^{\infty} e^{-\lambda x} \, dx \quad \text{(integration by parts)} \\
+    &= 0 + \left[ -\frac{1}{\lambda} e^{-\lambda x} \right]_0^{\infty} \\
+    &= 0 - \left( -\frac{1}{\lambda} \right) \\
+    &= \frac{1}{\lambda}
+\end{align*}
+\end{proof}
+
+\subsection{The Memoryless Property}
+
+The Exponential distribution has a remarkable property: it is \emph{memoryless}.
+
+\begin{theorem}[Memoryless Property]
+\label{thm:memoryless}
+A random variable $X$ is \textbf{memoryless} if for all $s, t \geq 0$:
+\begin{equation}
+    P(X > s + t \mid X > s) = P(X > t)
+    \label{eq:memoryless}
+\end{equation}
+The Exponential distribution is the only continuous distribution with this property.
+\end{theorem}
+
+\begin{proof}
+For $X \sim \text{Expo}(\lambda)$:
+\begin{align*}
+    P(X > s + t \mid X > s) &= \frac{P(X > s + t \text{ and } X > s)}{P(X > s)} \\
+    &= \frac{P(X > s + t)}{P(X > s)} \quad \text{(since } X > s + t \Rightarrow X > s\text{)} \\
+    &= \frac{e^{-\lambda(s + t)}}{e^{-\lambda s}} \\
+    &= e^{-\lambda t} \\
+    &= P(X > t)
+\end{align*}
+\end{proof}
+
+\begin{intuition}[What Memorylessness Means]
+Given that you have already waited $s$ time units without an event, the distribution of the \emph{additional} waiting time is the same as if you had just started waiting. The process has no memory of the time already elapsed.
+
+\textbf{Example:} Suppose light bulb lifetimes are Exponentially distributed. If a bulb has been working for 1000 hours, the probability it lasts another 500 hours is the same as the probability a brand-new bulb lasts 500 hours. The bulb does not ``wear out'' in a probabilistic sense.
+
+\textbf{Contrast with reality:} Human lifetimes are \emph{not} memoryless. An 80-year-old does not have the same life expectancy as a newborn. This is why more flexible distributions (like the Weibull) are used to model situations with aging or wear-out effects.
+\end{intuition}
+
+\begin{warning}[Memoryless Does Not Mean Constant]
+Memorylessness does \emph{not} mean that all waiting times are equal---waiting times still vary randomly according to the Exponential distribution. It means that the \emph{conditional distribution} of remaining time, given you have already waited, equals the unconditional distribution.
+\end{warning}
+
+\begin{bluebox}[Exponential Distribution Summary]
+For $X \sim \text{Expo}(\lambda)$:
+\begin{align*}
+    \text{PDF:} \quad & f(x) = \lambda e^{-\lambda x} \quad \text{for } x > 0 \\[0.5em]
+    \text{CDF:} \quad & F(x) = 1 - e^{-\lambda x} \quad \text{for } x > 0 \\[0.5em]
+    \text{Mean:} \quad & \E[X] = \frac{1}{\lambda} \\[0.5em]
+    \text{Variance:} \quad & \Var(X) = \frac{1}{\lambda^2} \\[0.5em]
+    \text{Key property:} \quad & \text{Memoryless}
+\end{align*}
+\end{bluebox}
+
+% =============================================================================
+\section{Joint, Marginal, and Conditional Distributions for Continuous Variables}
+\label{sec:joint-continuous}
+% =============================================================================
+
+The concepts of joint, marginal, and conditional distributions extend naturally from discrete to continuous random variables, with summation replaced by integration.
+
+\subsection{Joint CDF and PDF}
+
+\begin{definition}[Joint CDF for Continuous Random Variables]
+\label{def:joint-cdf-continuous}
+For continuous random variables $X$ and $Y$, the \textbf{joint CDF} is:
+\begin{equation}
+    F_{X,Y}(x, y) = P(X \leq x, Y \leq y)
+    \label{eq:joint-cdf-continuous}
+\end{equation}
+\end{definition}
+
+\begin{definition}[Joint PDF]
+\label{def:joint-pdf}
+The \textbf{joint PDF} is obtained by taking mixed partial derivatives of the joint CDF:
+\begin{equation}
+    f_{X,Y}(x, y) = \frac{\partial^2}{\partial x \, \partial y} F_{X,Y}(x, y)
+    \label{eq:joint-pdf}
+\end{equation}
+\end{definition}
+
+The joint PDF represents the density of probability in two-dimensional space. Integrating over a region gives the probability of $(X, Y)$ falling in that region.
+
+\begin{rigour}[Computing the Joint PDF from Joint CDF]
+The notation $\frac{\partial^2}{\partial x \, \partial y}$ means we take partial derivatives sequentially, not separately:
+\begin{enumerate}
+    \item First, differentiate $F_{X,Y}(x, y)$ with respect to $x$ (treating $y$ as constant)
+    \item Then, differentiate the result with respect to $y$ (treating $x$ as constant)
+\end{enumerate}
+
+\textbf{Example:} If $F_{X,Y}(x, y) = \frac{1}{2} x^2 y^3$ for $(x, y)$ in some region:
+\[
+    \frac{\partial F}{\partial x} = xy^3
+\]
+\[
+    f_{X,Y}(x, y) = \frac{\partial}{\partial y}(xy^3) = 3xy^2
+\]
+
+\textbf{Note:} This is different from computing the partial derivatives separately. The separate partial derivatives would give:
+\[
+    \frac{\partial F}{\partial x} = xy^3 \qquad \frac{\partial F}{\partial y} = \frac{3}{2} x^2 y^2
+\]
+These are \emph{not} the joint PDF. The joint PDF requires the \emph{mixed} partial derivative.
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.6\linewidth]{images/week_6/joint_pdf_surface.png}
+    \caption{Visualisation of a joint PDF for two continuous random variables. The height of the surface represents probability density. Integrating over a region gives the probability of $(X, Y)$ falling in that region.}
+    \label{fig:joint-pdf-surface}
+\end{figure}
+
+\subsection{Marginal Distributions}
+
+\begin{definition}[Marginal PDF]
+\label{def:marginal-pdf}
+The \textbf{marginal PDF of $X$} is obtained by integrating out $Y$ from the joint PDF:
+\begin{equation}
+    f_X(x) = \int_{-\infty}^{\infty} f_{X,Y}(x, y) \, dy
+    \label{eq:marginal-pdf-x}
+\end{equation}
+Similarly, the \textbf{marginal PDF of $Y$} is:
+\begin{equation}
+    f_Y(y) = \int_{-\infty}^{\infty} f_{X,Y}(x, y) \, dx
+    \label{eq:marginal-pdf-y}
+\end{equation}
+\end{definition}
+
+\begin{intuition}[Marginalisation]
+Integrating over $Y$ sums out the effect of $Y$, collapsing the two-dimensional distribution into a one-dimensional distribution for $X$ alone. Geometrically, this is like projecting the joint distribution onto the $x$-axis.
+
+This is analogous to the discrete case, where we summed over one variable to obtain the marginal distribution.
+\end{intuition}
+
+\subsection{Conditional Distributions}
+
+\begin{definition}[Conditional PDF]
+\label{def:conditional-pdf}
+The \textbf{conditional PDF of $Y$ given $X = x$} is:
+\begin{equation}
+    f_{Y|X}(y \mid x) = \frac{f_{X,Y}(x, y)}{f_X(x)}
+    \label{eq:conditional-pdf}
+\end{equation}
+provided $f_X(x) > 0$.
+\end{definition}
+
+This mirrors the discrete formula: the conditional equals the joint divided by the marginal.
+
+\begin{rigour}[Conditioning on a Zero-Probability Event]
+For continuous random variables, $P(X = x) = 0$ for any specific $x$. How can we condition on an event with probability zero?
+
+Formally, we condition on the event that $X$ falls in a small interval $(x - \varepsilon, x + \varepsilon)$ and take the limit as $\varepsilon \to 0$. This limiting procedure is what gives rise to the conditional PDF formula.
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.6\linewidth]{images/week_6/conditional_slice.png}
+    \caption{Conditional distribution: fixing $X = x$ corresponds to taking a ``slice'' through the joint distribution. The conditional PDF of $Y$ given $X = x$ describes the distribution along this slice (renormalised to integrate to 1).}
+    \label{fig:conditional-slice}
+\end{figure}
+
+\subsection{Bayes' Rule and LOTP for Continuous Variables}
+
+\begin{theorem}[Bayes' Rule for Continuous Random Variables]
+\label{thm:bayes-continuous}
+\begin{equation}
+    f_{Y|X}(y \mid x) = \frac{f_{X|Y}(x \mid y) \cdot f_Y(y)}{f_X(x)}
+    \label{eq:bayes-continuous}
+\end{equation}
+\end{theorem}
+
+\begin{theorem}[Law of Total Probability (LOTP) for Continuous Variables]
+\label{thm:lotp-continuous}
+\begin{equation}
+    f_X(x) = \int_{-\infty}^{\infty} f_{X|Y}(x \mid y) \cdot f_Y(y) \, dy
+    \label{eq:lotp-continuous}
+\end{equation}
+\end{theorem}
+
+These are direct analogues of the discrete versions, with sums replaced by integrals.
+
+\subsection{Mixed Discrete-Continuous Models}
+
+In practice, we often work with models involving both discrete and continuous random variables. For example, a mixture model might use a discrete variable to select a component, and a continuous variable for the observation within that component.
+
+\begin{figure}[H]
+    \centering
+    % \includegraphics[width=0.6\linewidth]{images/week_6/mixed_model.png}
+    \caption{Example of a mixed discrete-continuous model. A discrete variable $Y$ determines which component (distribution) is active; the continuous variable $X$ is then drawn from that component. This structure underlies mixture models and hierarchical models in statistics.}
+    \label{fig:mixed-model}
+\end{figure}
+
+When mixing discrete and continuous variables:
+\begin{itemize}
+    \item Condition discrete variables using probabilities (PMF)
+    \item Condition continuous variables using densities (PDF)
+    \item LOTP uses sums over discrete variables and integrals over continuous variables
+\end{itemize}
+
+% =============================================================================
+\section{Transformations of Random Variables (Introduction)}
+\label{sec:transformations}
+% =============================================================================
+
+A common task is to find the distribution of $Y = g(X)$ when we know the distribution of $X$. For monotonic transformations, there is a systematic approach.
+
+\begin{theorem}[Change of Variables (Monotonic Case)]
+\label{thm:change-of-variables}
+Let $X$ be a continuous random variable with PDF $f_X(x)$. Let $Y = g(X)$ where $g$ is a strictly monotonic (one-to-one) function with inverse $g^{-1}$. Then $Y$ has PDF:
+\begin{equation}
+    f_Y(y) = f_X(g^{-1}(y)) \cdot \left| \frac{d}{dy} g^{-1}(y) \right|
+    \label{eq:change-of-variables}
+\end{equation}
+The factor $\left| \frac{d}{dy} g^{-1}(y) \right|$ is called the \textbf{Jacobian}.
+\end{theorem}
+
+\begin{intuition}[Why the Jacobian?]
+The Jacobian accounts for how the transformation stretches or compresses probability. If $g$ stretches an interval by a factor of 2, the density must be divided by 2 to preserve total probability of 1. The absolute value of the derivative of the inverse function measures this stretching/compressing factor.
+\end{intuition}
+
+\begin{example}[Linear Transformation]
+\label{ex:linear-transformation}
+Let $X$ have PDF $f_X(x)$. Find the PDF of $Y = aX + b$ where $a \neq 0$.
+
+\textbf{Solution:} The transformation $g(x) = ax + b$ has inverse $g^{-1}(y) = (y - b)/a$. The derivative is:
+\[
+    \frac{d}{dy} g^{-1}(y) = \frac{1}{a}
+\]
+Applying the formula:
+\[
+    f_Y(y) = f_X\left( \frac{y - b}{a} \right) \cdot \left| \frac{1}{a} \right| = \frac{1}{|a|} f_X\left( \frac{y - b}{a} \right)
+\]
+\end{example}

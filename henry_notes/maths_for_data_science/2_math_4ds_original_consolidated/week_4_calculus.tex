@@ -1,0 +1,297 @@
+% =============================================================================
+% Week 4: Calculus I
+% =============================================================================
+
+\chapter{Calculus I}
+\label{ch:week4}
+
+\thispagestyle{empty}
+{\large \textbf{Mid Terms Fall 2023  --  Henry Baker}}
+\par\noindent\rule{\textwidth}{0.4pt} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: Session 4\\ Calculus I}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Differentiation Rules}
+\begin{itemize}
+    \item \textbf{Rule 0: Constants}: derivative = 0 --> can take out of the any differentiation
+    \item \textbf{Rule 1: Powers}: $\frac{d}{dx}x^n = nx^{n-1}$
+    \item \textbf{Rule 2: Sum/Differences}: 
+    \[\frac{d}{dx}(\text{f}(x) \pm g(x)) = \frac{d}{dx}\text{f}(x) \pm \frac{d}{dx}g(x)\]
+    \item \textbf{Rule 3: Constant Multiples}
+    \[\frac{d}{dx} [k f(x)] = k \frac{d}{dx} f(x)\]
+    \item \textbf{Rule 4: Products} 
+    \[\frac{d}{dx} [g(x) f(x)] = g'(x) \cdot f(x) + g(x) \cdot f'(x)\]
+    \item \textbf{Rule 5: Quotients} \\
+    \[\frac{d}{dx} \left( \frac{f(x)}{g(x)} \right) = \frac{g(x) \cdot f'(x) - f(x) \cdot g'(x)}{g(x)^2}\]
+    
+    \item \textbf{Rule 6: Chain} \\
+    If $y$ is a function of $u$, and $u$ is a function of $x$, \text{ then:} \\
+    \[\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}\]
+    Steps \begin{enumerate}
+        \item Identify inner + outer
+        \item differentiate both
+        \item multiply derivatives together
+    \end{enumerate}
+    \textit{Example:}  \[ \frac{d}{dx}f(x) = \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2} x^2} \]
+    1) strip out the constant: 
+    \[ f(x) = \frac{1}{\sqrt{2\pi}} \cdot \frac{d}{dx}e^{-\frac{1}{2} x^2} \]
+    2) break it into 2:
+     \begin{align}
+        \frac{dy}{dx} &= \frac{dy}{du} \cdot \frac{du}{dx} \\
+        u &= -\frac{1}{2}x^2\\
+        y &= e^u\\
+        \frac{dy}{du} &= e^u \\
+        \frac{dy}{dx} &= -x\\
+        \frac{dy}{dx} &= e^u \cdot (-x) \\
+        \frac{dy}{dx} &= -x e^{-\frac{1}{2} x^2} \\
+     \end{align}
+        
+    \item \textbf{Rule 7: Natural Exponential} \\
+    \[y(x) = e^x \rightarrow \frac{dy}{dx} = e^x\]
+    
+    \item \textbf{Rule 8: Natural Logarithms} \\
+    \[y = \ln(x)\rightarrow \frac{dy}{dx} = \frac{1}{x}\]
+    \\
+    \item \textbf{Exponential Functions} \\
+    Power rule is for when $x$ is a \textbf{constant}. \\
+    Exponential functions take $x$ as the exponent itself.
+    \[\frac{d}{dx} a^x = \ln(a) \times a^x\]
+    \[\frac{d}{dx} a^{bx} = b \times \ln(a) \times a^{bx}\]
+
+    \underline{Example: $a^x$} \\ $10^x$ becomes $ln(10)$ $\times 10^x$:
+    \begin{align*} 
+        f(x) &= \frac{10^x}{\ln(10)} \\
+        f'(x) &= \ln(10) \times 10^x \times \frac{1}{\ln(10)} = 10^x
+    \end{align*}
+    
+    \underline{Example: $a^{bx}$} \\
+    \begin{align*}
+    f(x) &= 2^{4x} + 4x^2 \\
+    f'(x) &= 4 \ln(2) \times 2^{4x} + 8x 
+    \end{align*}
+    \\
+
+    However, when differentiating $a^u$ where $u$ is a function of $x$ not just a simple constant multiplier like in the previous rule), we have to use the chain rule:
+    \[\frac{d}{dx} a^u = u' \times \ln(a) \times a^u\]
+
+
+
+\par\noindent\rule{\textwidth}{0.4pt}
+\section{Power Series}
+\[\sum_{k=0}^{\infty} c_k x^k = c_0 + c_1 x + c_2 x^2 + c_3 x^3 + \dots\]
+Where $x$ is coefficient, $c_k$ are some constants
+\[\sum_{k=0}^{\infty} c_k (x - a)^k = c_0 + c_1(x - a) + c_2(x - a)^2 + \dots\]
+Where $a$ is some constant $\rightarrow$ “centered at $x = a$.”
+Can diverge / converge - for the following:\\
+if $x = 0.5 \rightarrow$ converges\\
+if $x = 2 \rightarrow$ diverges \\
+\[\sum_{k=0}^{\infty} x^k = 1 + x + x^2 + x^3 + x^4 \dots\]
+
+
+Intuition: tricky functions can be represented as infinite polynomials (when they converge to a approximate a function). Infinite polynomials are easy to differentiate, integrate, manipulate. \\
+We can even truncate inf polynomial for some $k$ for a good enough approx
+
+DIDN'T UNDERSTAND SOME OF THIS - P31, 32, 34
+
+\end{itemize}
+
+% =============================================================================
+% MLE Section - Merged from three variant files
+% =============================================================================
+
+\section{Maximum Likelihood Estimation (MLE)}
+
+\begin{itemize}
+    \item We have some data.
+    \item We assume the events in the data are i.i.d.
+    \item Following an \{insert distribution\}, with \{insert parameters\}, but some unknown success probability $p$.
+    \item Aim: find value of $p$ that maximises the probability that this particular dataset is observed.
+    \item We can't observe the true $p$, but every possible value that $p$ could take corresponds to some joint probability of observing the data that we see $\rightarrow$ find value of $p$ that makes data most likely.
+\end{itemize}
+
+\subsection{Theoretical Overview}
+Given a set of independent and identically distributed (i.i.d) data points $\bm{X} = (X_1, X_2, \dots, X_n)$, the likelihood function, denoted by $\mathcal{L}(\theta; \bm{X})$, represents the joint probability of observing the given data as a function of the parameter(s) $\theta$. The aim is to find the value of $\theta$ that maximizes this likelihood function.
+
+\subsection{Steps for Maximum Likelihood Estimation}
+
+\begin{enumerate}
+    \item \textbf{Specify the Statistical Model:} Define the probability distribution that models your data, parameterized by $\theta$.
+
+    \item \textbf{Construct the Likelihood Function:} Write down the likelihood function $\mathcal{L}(\theta; \bm{X})$. For i.i.d data, this is often the product of the individual probabilities or probability densities.
+
+    \item \textbf{Take the Logarithm:} To simplify calculations, take the natural logarithm of the likelihood function. This is called the log-likelihood, and is denoted as $\ell(\theta) = \log \mathcal{L}(\theta; \bm{X})$. Maximizing the log-likelihood is equivalent to maximizing the likelihood because the natural logarithm is a monotonically increasing function.
+
+    \item \textbf{Differentiate and Set to Zero:} Find the derivative of the log-likelihood with respect to the parameter(s) $\theta$. Set the derivative (or gradient, for multiple parameters) to zero to find the critical points.
+
+    \item \textbf{Solve for $\theta$:} Solve the equation from the previous step to get the MLE of $\theta$, often denoted as $\hat{\theta}_{MLE}$.
+
+    \item \textbf{Check for Maximum:} Ensure that the critical point obtained is a maximum by checking the second derivative or the Hessian matrix (for multiple parameters).
+\end{enumerate}
+
+\subsection{Worked Example: Direct Approach (Without Logging)}
+
+\textbf{We will use goalie example:}
+
+\subsubsection{Express likelihood function}
+\paragraph{Specify the model}
+Let $X_i$ (number of saves in game $i$) be i.i.d., with distribution
+\[X_i \sim Binomial \binom{5}{\theta}\]
+
+\begin{tcolorbox}[colback=gray!20]
+
+Here $\theta$ represents unknown value of $p$.
+
+Given a statistical model with parameter(s) $\theta$, and some observed data $X$, the likelhood function $L(\theta; X)$ quantifies how likely the observed data is for different values of $\theta$:
+\[L(\theta; X) = f(X; \theta)\]
+Where $f(X; \theta)$ is the PMF/PDF of the oberved data, given the parameters $\theta$.
+
+\[L(x_1, x_2, \ldots, x_n; \theta) = P(X_1 = x_1, X_2 = x_2, \ldots, X_n = x_n; \theta)\]
+
+\end{tcolorbox}
+
+\paragraph{Write the PMF of $X_i$}
+\begin{enumerate}
+    \item Express the \textbf{generic PMF} given the distribution
+    \item Express the \textbf{probabilities for each} $X_i$
+    \item Express the \textbf{joint probabilities} of all events $X_i$.
+\end{enumerate}
+\begin{tcolorbox}
+Our dataset:\\
+1st game: 1 save / 2nd game: 3 saves / 3rd game 2: saves / 4th game: 2 saves)
+\end{tcolorbox}
+
+\paragraph{Generic PMF}
+Binomial PMF for 5 trials is given by:
+\[P(X_i = k) = \binom{5}{k} p^k (1 - p)^{5-k}\]
+
+\paragraph{Probabilities of each $X_i$}
+
+\begin{align*}
+P(X_1 = 1) &= \binom{5}{1} \theta^1 (1 - \theta)^{5-1}\\
+P(X_2 = 3) &= \binom{5}{3} \theta^3 (1 - \theta)^{5-3}\\
+P(X_3 = 2) = P(X_4 = 2) &= \binom{5}{2} \theta^2 (1 - \theta)^{5-2}
+\end{align*}
+
+\paragraph{Joint probabilities of all $X_i$}
+Since events are i.i.d, the joint probability of observing them all is the product of individual probabilities.
+\begin{align*}
+    P(X_1 = 1, X_2 = 3, X_3 = 2, X_4 = 2) &= \binom{5}{1} \theta^1 (1 - \theta)^{5-1} \times \binom{5}{3} \theta^3 (1 - \theta)^{5-3} \times \left( \binom{5}{2} \theta^2 (1 - \theta)^{5-2} \right)^2 \\
+    &= \binom{5}{1} \times \binom{5}{3} \times \binom{5}{2} \times \binom{5}{2} \theta^8 (1 - \theta)^{12} \\
+    &= 5000 \theta^8 (1 - \theta)^{12}
+\end{align*}
+
+\subsubsection{Maximise $\theta$}
+Maximising $5000\cdot\theta^8(1-\theta)^{12}$ tells us exactly which value of $\theta$ makes the joint probability of observing our data the largest. \\
+\[P(X_1 = 1, X_2 = 3, X_3 = 2, X_4 = 2) = L(1, 3, 2, 2; \theta) = 5000\cdot\theta^8(1-\theta)^{12} \]\\
+
+\begin{tcolorbox}
+    Maximisation:
+    \begin{enumerate}
+        \item take first derivative with respect to $\theta$,
+        \item set equal to 0.
+        \item solve for $\theta$
+    \end{enumerate}
+\end{tcolorbox}
+
+\begin{align*}
+\frac{d}{d\theta} L(1, 3, 2, 2; \theta) &= \frac{d}{d\theta}(5000\cdot\theta^8(1-\theta)^{12}) \\
+&= 5000 ((8\theta^7) (1 - \theta)^{12} + (\theta^8) (12(1 - \theta)^{11})(-1)) \\
+&= 5000 ((8\theta^7) (1 - \theta)^{12} - (\theta^8) (12(1 - \theta)^{11}) \\
+\text{Set that equal to 0.} \\
+\text{When we do so, } \theta &\text{ becomes } \hat{\theta}, \text{ the solution to the maximization problem.} \\
+0 &= 5000 ((8\hat{\theta}^7) (1 - \hat{\theta})^{12} - (\hat{\theta}^8) (12(1 - \hat{\theta})^{11})) \\
+0 &= 8\hat{\theta}^7 (1 - \hat{\theta})^{12} - \hat{\theta}^8 (12(1 - \hat{\theta})^{11}) \\
+\frac{12\hat{\theta}^8}{8\hat{\theta}^7} &= 1 - \hat{\theta} \\
+\frac{12\hat{\theta}}{8} &= 1 - \hat{\theta} \\
+20\hat{\theta} &= 8 \\
+\hat{\theta} &= \frac{8}{20}
+\end{align*}
+
+\subsection{Log-Likelihood Approach}
+Better behaved function; easier to maximise.
+
+\paragraph{Take the log}
+
+\begin{tcolorbox}
+Log rules:
+    \begin{align*}
+        \log(ab) &= \log(a) + \log(b) \\
+        \log\left(\frac{a}{b}\right) &= \log(a) - \log(b) \\
+        \log\left(\prod_{j=1}^{n} x_j\right) &= \sum_{j=1}^{n} \log(x_j) \\
+        \log(a^b) &= b \log a
+    \end{align*}
+\end{tcolorbox}
+
+\paragraph{Generic likelihood given $n$ events with $m$ trials}
+\[L(x_1, \ldots, x_n; \theta) = \prod_{j=1}^{n}  \binom{m}{x_j} \cdot \theta^{x_j} \cdot (1 - \theta)^{m-x_j}\]
+
+\paragraph{Log-likelihood}
+\[\ell(x_1, \ldots, x_n; \theta) = \sum_{j=1}^{n} \left[ \log\binom{m}{x_j} + x_j \log \theta + (m - x_j) \log(1 - \theta) \right]\]
+
+\paragraph{Derive the log}
+Term 1: constant drops out\\
+Term 2: $log \theta$ becomes $\frac{1}{\theta} \rightarrow \frac{x_j}{\theta}$ \\
+Term 3: For $log(1- \theta)$ we apply the chain rule:
+\begin{itemize}
+    \item inner: -1
+    \item outer: $\frac{1}{1- \theta}$
+    \item inner $\times$ outer: $-\frac{1}{1-\theta}$
+\end{itemize}
+
+\begin{align*}
+\frac{d\ell}{d\theta} = \sum_{j=1}^{n} \left( \frac{x_j}{\theta} \right) - \sum_{j=1}^{n} \left( \frac{m - x_j}{1 - \theta} \right)
+\end{align*}
+
+\paragraph{Set derivative to 0, solve for $\theta$}
+THIS BELOW IS NOT RIGHT, LOOK AT SLIDES
+\begin{align*}
+    0 &= \sum_{j=1}^{n}x_j(\frac{1}{\hat{\theta}} - \sum_{j=1}^{n}(m-x_j)(\frac{1}{1-\hat{\theta}}\\
+    \sum_{j=1}^{n} \frac{5 - x_j}{1 - \hat{\theta}} &= \sum_{j=1}^{n} \frac{x_j}{\hat{\theta}} \\
+    \hat{\theta} \sum_{j=1}^{n} (5 - x_j) &= (1 - \hat{\theta}) \sum_{j=1}^{n} x_j \\
+    5n\hat{\theta} - \hat{\theta} \sum_{j=1}^{n} x_j &= \sum_{j=1}^{n} x_j - \hat{\theta} \sum_{j=1}^{n} x_j \\
+    5n\hat{\theta} &= \sum_{j=1}^{n} x_j \\
+    \hat{\theta} &= \frac{\sum_{j=1}^{n} x_j}{5n}
+\end{align*}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_4/Screenshot 2023-10-23 184105.png}
+    \caption{NEED TO INTEGRATE}
+    \label{fig:mle-screenshot}
+\end{figure}
+
+\subsection{Practice Exercises}
+
+\begin{enumerate}
+    \item Given a sample from a Poisson distribution with parameter $\lambda$, find the MLE of $\lambda$.
+    \item Given a sample from a binomial distribution with parameters $n$ and $p$, and known $n$, find the MLE of $p$.
+    \item Given a sample from a uniform distribution on the interval $[0, \theta]$, find the MLE of $\theta$.
+\end{enumerate}
+
+\textit{Note:} Solutions to the practice exercises can be found in [reference textbook or solution manual].
+
+\subsection{Summary: What is MLE?}
+
+Maximum Likelihood Estimation (MLE) is a statistical method used for estimating the parameters of a statistical model. It is a fundamental concept in probability theory and statistics, widely used in various fields, including machine learning and optimization. The core idea of MLE is to find the parameter values that maximize the likelihood function, which measures how well the model with those parameters explains the observed data.
+
+Here's a more detailed breakdown of the MLE concept:
+
+Statistical Model: A statistical model is a mathematical representation of a real-world process, described by a set of parameters. For example, in a normal distribution, the mean and variance are its parameters.
+
+Likelihood Function: The likelihood function is a function of the model parameters given the observed data. It represents the probability of observing the given data under different parameter values of the model. The likelihood is different from probability as it treats the observed data as fixed and the parameters as variables.
+
+Maximizing the Likelihood: MLE seeks to find the parameter values that maximize the likelihood function. These values are called the maximum likelihood estimates. The idea is that the best model parameters are those under which the observed data is most probable.
+
+Log-Likelihood: In practice, it's common to work with the logarithm of the likelihood function, known as the log-likelihood. This transformation simplifies the calculations, especially for products, as it turns them into sums. The maximization principle remains the same since logarithm is a monotonic function.
+
+Finding the Maximum: To find the maximum of the likelihood or log-likelihood, we often use calculus, setting the derivative with respect to the parameters to zero and solving for the parameters. In complex models, this process may require numerical methods.
+
+Applications: MLE is used in various contexts like regression analysis, time series analysis, and machine learning models. It provides a way of fitting a model to data and is foundational in the field of inferential statistics.
+
+For example, in the case of a normal distribution, the MLE for the mean and variance can be calculated using the observed data, and these estimates will be the sample mean and sample variance, respectively.

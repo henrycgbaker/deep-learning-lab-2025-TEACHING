@@ -1,0 +1,1033 @@
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf ML Lecture Notes 2024 \\ Henry Baker}
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf ML Lecture Notes: Wk 4\\ Generalization and Complexity}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\textbf{Content}
+\begin{itemize}
+    \item practical advice on validation
+    \item theoretical bounds on generalization
+    \item conceptualising hardness of a problem: VC dimension
+    \item generalization performance of linear models: simple low/high dimensional setting
+\end{itemize}
+
+\section{Cross-validation}
+\subsection{Overview}
+
+\begin{itemize}
+    \item Cross-validation assesses how results of a statistical analysis will generalize to an independent data set $\rightarrow$ allows us to pick model with best tuned hyperparameters. 
+    \item involves partitioning a sample of data into complementary subsets, performing the analysis on one subset (called the training set), and validating the analysis on the other subset (called the validation set or testing set). 
+    \item To reduce variability, multiple rounds of cross-validation are performed using different partitions, and the validation results are averaged over the rounds.
+\end{itemize}
+
+A specific method for calculating the risk (/error) of a predictive model during cross validation:
+
+$$R_{\lambda}^{\text{cv}} = \frac{1}{K} \sum_{i=k}^{K} R_i}(\hat{\theta} (D_{-k}^{\text{train}}), D_{k}^{\text{test}})$$
+
+Where:
+\begin{itemize}
+    \item $R_i$ denotes model's risk (error rate) of the model on the $k$th fold, where 
+    \begin{itemize}
+        \item  the model parameters $\theta$ are learned using... 
+        \item ...training datasets (ie the full set without the $k$th validation set...
+        \item ... and evaluated on the $k$th test dataset
+    \end{itemize}
+    \item $R_{cv}$ is the cross-validation estimate of the risk (prediction error)
+    \item $K$ represents number of groups that a given sample is split into (number of folds)
+\end{itemize}
+
+\textbf{When $K = n$ : this is called the "leave-one-out CV (LOOCV).} The model is trained on all data points except one and the prediction error is computed on the left-out observation. This process is repeated for each data point in the dataset, and the results are averaged to get the final estimate of the model's prediction error.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_04_generalization/LOOCV.png}
+    \caption{$K = 5$}
+    \label{fig:enter-label}
+\end{figure}
+
+After completing the cross-validation process and obtaining an estimate of the model's prediction error, the final step is to fit the model again on the entire dataset to obtain the final model estimates. This step is crucial because it allows the model to learn from the entire dataset, maximizing its performance and ensuring that no data is wasted. This final model, trained on all available data, is then used for making predictions on new, unseen data.
+
+
+\subsection{LOOCV in linear regression}
+aka Linear regression is amazing. \\
+
+The expression for the prediction error in LOOCV for linear regression can be simplified due to the properties of linear models, leading to a more efficient computation that doesn't require refitting the model $n$ times. \\
+
+\textbf{Deriving formula for the LOOCV error ($MSE_{cv})$ in linear regression:}\\
+
+MSE / prediction risk calculated using OLS loss function for cross validation:
+$$MSE_{(cv)} = \frac{1}{n} \sum_{i=1}^{n} \epsilon^2_{-i}$$
+
+And we have the 'Hat matrix' $H$, which projects the vector of observed dependent variables $(y)$ onto the vector of predictions ($\hat{y}$). Hat matrix is defined as:
+
+$$H = X(X^T X)^{-1} X^T$$
+
+Then
+
+\begin{align*}
+\text{MSE}_{\text{cv}} &= \frac{1}{n} \sum_{i=1}^{n} \left( \frac{\epsilon_i}{1 - h_{ii}} \right)^2 \\
+&= \frac{1}{n} \sum_{i=1}^{n} \left( \frac{y_i - \hat{y}_i}{1 - h_{ii}} \right)^2
+\end{align*}
+
+
+Where:
+\begin{itemize}
+    \item $y_i$ = actual value of dependent var for $i$th observation
+    \item $\hat{y}_i$ = predicted value (based on model trained without the $i$th observation)
+    \item $h_{ii}$ is the $i$th diagonal element of the hat matrix $H$
+    \item $1-h_{ii}$ adjusts the errors for the $i$th observation, accounting for the leverage (influence) of the observation on its own prediction
+\end{itemize}
+
+\subsubsection{Significance}
+\begin{itemize}
+    \item This formula allows for the direct calculation of the LOOCV error without the need to explicitly leave out each observation and retrain the model each time. 
+    \item It leverages the mathematical properties of linear regression (specifically utilizing the leverage values from the hat matrix)... 
+    \item making LOOCV particularly efficient and appealing for linear models (without the computational burden of refitting the model $n$ times).
+\end{itemize}
+
+\subsection{One Standard Error Rule}
+\begin{itemize}
+    \item A heuristic that helps for model selection, balancing the trade-off between model complexity and generalization performance. 
+    \item Based on the principle of Occam's razor: preferring simpler models that are less likely to overfit the data.
+    \item When selecting models based on cross-validation (CV) risk estimates, it's tempting to just choose the model with the lowest CV risk.
+    \item However, rather than looking at point estimates of CV risk, we should look at the standard error whiskers.
+    \item  by ackowledging uncertainty in our risk estimates, we are basically saying that a slightly moe regularised model (simpler) is within reasonable margin of error as good as the very lowest --> since we have uncertainty here, we should favour the simpler one...
+    \item this model may be more complex than necessary and more prone to overfitting. 
+\end{itemize}
+
+\subsubsection{Process}
+\begin{enumerate}
+    \item \textbf{Calculate CV risk for each model}: perform K-fold CV for each model and calculate prediction error (risk) for each fold. Then compute the mean CV risk for each model.
+    \item \textbf{Calculate the standard error of the CV risks}: from the variation in the risk estimates across the K folds.
+    \begin{itemize}
+        \item Specifically, SE can be computed as the standard deviation of the $K$ CV risk estimates divided by the square root of $K$ 
+        \item $SE_{cv} = \frac{\sigma CV}{\sqrt(K)}$
+    \end{itemize}
+    \item \textbf{Apply One Standard Error Rule:} 
+    \begin{itemize}
+        \item identify the model with the lowest CV risk: $R_{\lambda}(\theta, D_{validation}$) 
+        \item then select a simpler model within one SE of the lowest CV risk.
+        \item formally: 
+        \begin{itemize}
+            \item if $\hat{R}_{min}$ is the model with the lowest CV risk observed 
+            \item and $SE_{min}$ is the SE of the cross validation risk estimate
+            \item then we consider any model with a CV risk of $\hat{R} \leq \hat{R}_{min} + SE_{min}$ as candidate 
+            \item And among these candidates, we prefer the simpler models (higher lambda coefficients
+        \end{itemize}
+    \end{itemize}
+\end{enumerate}
+
+ By allowing for the selection of a model within one SE of the lowest error, it incorporates a margin of uncertainty in the model selection process, preventing the selection of overly complex models that might not significantly outperform simpler models on new data. \\
+
+ This encourages the selection of the simplest model that is within an acceptable range of performance, thus promoting better generalization to unseen data. 
+
+\subsubsection{Optimism of the training error (overfitting)}
+
+\begin{tcolorbox}
+    The optimism of the training error refers to the tendency of a model's performance on the training data to be more optimistic (i.e., better) than its performance on unseen data. This phenomenon arises because the model $\theta$ are optimized on the training data, making the model potentially too complex and sensitive to the idiosyncrasies of the training set, a situation known as overfitting.
+\end{tcolorbox}
+
+Idea that the training error will be over optimisitic of a model's perfomance on real world data, and so \textbf{will lead us to select an overly complex model}.\\
+
+If we just optimise based on the training error, we would select our regularisation parameter $\lambda$ to be 0 (no regularisation). \\
+
+This is why we need to optimise (/select model) based on different criteria than just minimising the training error. This is where the One Standard Error Rule comes in.\\
+
+Formally, if we were to optimise our lamba value based on minimising the training error:
+
+\begin{align*}
+\hat{\lambda} &= \text{argmin}_{\lambda} \min_{\theta} \R_{\lambda}(\theta, D) \\
+&= \text{argmin}_{\lambda} \min_{\theta} \R_{\lambda}(\theta, D) + \lambda C(\theta) \\
+&= 0
+\end{align*}
+
+Where 
+\begin{itemize}
+    \item the $\hat{\lambda}$ is the value of $\lambda$ that minimises the risk $R_{\lambda}(\theta,D)$
+    \item the inner $min_{\theta}$ indicates process of find the model parameters $\theta$ that minimise the risk for a given $\lambda$
+    \item the outer $argmin_{\lambda}$ is finding the value of $\lambda$ that leads to the lowest prossible risk after $\theta$ has been optimised.
+\end{itemize}
+
+This 0 suggestes optimal value of reglarisation parameter is 0, under the defined optimisation problem. This shows the optimism of the training error. Using this as our metric would be overoptimistic of our model's ability, so instead we need to optimise (select model) on different criteria.\\
+
+\subsection{Grouping considerations for K-fold CV}
+\subsubsection{i.i.d violated: info leakage between observations}
+Assume a simple linear generative model: 
+$$y_i = X_i \beta + \epsilon_i$$
+Where 
+\begin{itemize}
+    \item all the features are neatly normally distributed $(X_{ij}~N(0,1)$ for each $i,j$ 
+    \item BUT the collective noise term $\epsilon_i = N(0, \Sigma)$: meaning the collective noise for a given unit $i$ follows a multivariate distribution (covariance condition)
+    \item this implied dependencies among the observations, within a unit $i$
+    \item each unit we observe is within a country, $c(i)$ (ie data points grouped by country)
+    \item $\Sigma_{ij} = 0$ if $c(i) \neq c(j)$ = non i.i.d
+    \begin{itemize}
+        \item this covariance condition specifies that observations from different countries are uncorrelated
+        \item however, observations within same country (where $c(i) = c(j)$) may have non-zero covariance
+        \item i.e. they are not independent of each other
+    \end{itemize}
+\end{itemize}
+
+$\rightarrow$ this introduction of country-specific covariance = structured dependencies and non-i.i.d\\
+
+In this case, how do we evaluate models? \\
+
+\begin{tcolorbox}
+    \textbf{Intuition:} \\
+    
+    When assigning data points into $K$ folds for CV, we need to account for the structured dependencies among observations: ensure that info from one observation does not bleed into another observation, by rethinking how we sample from the population\\
+    
+    Cross-validation adjustments that respect the country grouping.\\
+
+    \textbf{Ensure that observations from the same country are not split between training and testing sets inappropriately}
+\end{tcolorbox}
+
+\subsubsection{Group K-fold \& Timeseries Split}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_04_generalization/CV grouping.png}
+    \caption{CV Grouping. On Left: see that data from a given group remains in groups (ie groups not split across folds at any point) across all CV iterations. On Right: when there's a time series, use future data to validate models trained on past data}
+    \label{fig:enter-label}
+\end{figure}
+
+\textbf{Group K-Fold} 
+
+\begin{itemize}
+    \item When data contain groups that are expected to have similar properties, it's important to ensure that observations from the same group are \textbf{not} spread across both training and validation sets. This prevents \textbf{information leakage, where the model indirectly learns about the validation set during training}.
+    \item Each fold is a cross-validation iteration, and within each fold,\textbf{ all observations from a particular group are contained either entirely within the training set or entirely within the testing set}.
+    \item This respects the group structure, ensuring that when a model is trained, it does not see any data from the group that is in the testing set for that fold.
+\end{itemize}
+
+\textbf{Timeseries Split}
+
+\begin{itemize}
+    \item For time series data, the temporal order of the observations must be preserved. \textbf{Data from the future should not be used to predict past events} as this would constitute temporal leakage. 
+    \item This strategy involves training on an initial segment of the time series data and using the subsequent segment for validation. \textbf{With each fold, the training set grows}, always including the data up to the next testing period but \textbf{never mixing future data into the training set}.
+\end{itemize}
+
+\begin{tcolorbox}
+    \textbf{General Cross-Validation Principle}
+    \begin{itemize}
+        \item \textbf{Information Bleed:} Cross-validation should be designed in such a way that information from one observation doesn't "bleed" into another, meaning that the training data should not contain information that could give away the answers for the validation data.
+         \item \textbf{Same Fold Requirement:} Observations that are related or grouped by some inherent connection (like being from the same country, belonging to the same subject, or being sequentially related in time) should be placed within the same fold of the cross-validation process to avoid information leakage.
+          \item \textbf{Sampling Process:} When designing the folds for cross-validation, the sampling process that generated the data should be considered. If there's a structure or dependency in the sampling process, it needs to be accounted for in the way the data is split for training and testing.
+\end{itemize}
+\end{tcolorbox}
+
+\section{Bayes Risk}
+
+Definitions of risk so far have been \textbf{frequentest risk}. \\
+
+\textbf{Frequentist risk}
+\begin{itemize}
+    \item \textbf{Risk = expected loss / errors} of a decision function or estimator across different data samples, assuming that the true parameter $\theta$ is fixed.
+    \item Defined as a function of a loss function (e.g. MSE / other) 
+    \item Quantifies how far our estimates / decisions are from the true value of $\theta$
+    \item \textbf{Treats $\theta$ as a constant} that we aim to estimate as accurately as possible.
+    \item \textbf{Data is the r.v. (where the errors are)}
+\end{itemize}
+
+\textbf{Bayes risk}
+\begin{itemize}
+    \item \textbf{Treats parameters $\theta$ as r.v.} (not the data)
+    \item Integrates over all possible values of these parameters, weighted by their probability, as described by a prior distribution $\pi_0(\theta)$.
+    \begin{itemize}
+        \item NB integration is same as summing - integration is mathematical way to take the expectation of the risk with respect to the joint distribution of the parameters $\theta$ and the data $x$:
+    \end{itemize}
+\end{itemize}
+
+\begin{align*}
+    R{\pi_0}(f) &= E{\pi_0 (\theta)}\left[R(\theta, f)\right] \\
+    &= \int d\theta  dx  \pi_0 (\theta) p(x| \theta) \ell (\theta, f(z))
+\end{align*}
+
+Where
+\begin{itemize}
+    \item $R{\pi_0}(f)$ = Bayes risk for a decision function $f$. Represents:
+    \begin{itemize}
+        \item expected value of the risk $R(\theta, f)$ 
+        \item with respect to a prior distribution $\pi_0(\theta)$
+    \end{itemize}{}
+    \item the expectation ($E{\pi_0 (\theta)}\left[R(\theta, f)\right]$) is taken over the distribution of $\theta$, considering all possible values that $\theta$ could take, each weighted by its prior probability
+    \item the integral $\int d\theta dx \pi_0 (\theta) p(x| \theta) l(\theta, f(z))$ gives formal expression for this expectation.
+    \begin{itemize}
+        \item it is integrating over all values of $\theta$ and the data $x$, where:
+        \begin{itemize}
+            \item $\pi(\theta)$ is the prior distribution of $\theta$
+            \item $P(x|0)$ is the likelihood function of observing the data $x$, given parameter $\theta$
+            \item $l(\theta, f(z))$ is the loss function that quantifies cost of decisions of estimates made by $f$ when the true state of nature is $\theta$ and the observed data is $z$ 
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+\begin{tcolorbox}
+    \textbf{A note on use of integration}:
+
+    \begin{itemize}
+        \item \textbf{Expectation over continuous r.v.s:} integration is mathematical way to take the expectation of the risk with respect to the joint distribution of the parameters $\theta$ and the data $x$:
+        
+        \item When dealing with continuous random variables, expectations are calculated using integrals. This is \textbf{analogous to taking a weighted average, where the weights are given by the probability density function} of the variable. 
+        \item \textit{Think about taking a slice of the PDF: you are taking the whole area under the curve, which is higher (denser) at points more likely - thus weighting them more}
+        
+        \item \textbf{Prior distribution:} $\pi_0(\theta)$ represents our beliefs re: possible values of $\theta$ before observing any data. Since it is an r.v. we need to account for all possible values it can take. The integral computes the weighted avg of the risk over all these possible values.
+        
+        \item \textbf{Likelihood}: $p(x|\theta)$ is the likelihood of observing the data $x$ given a particular value of $\theta$. For each value of $\theta$, the likelihood can be different, and it indicates how well the data agree with the parameter.
+    
+        \item \textbf{Loss Function}: $\ell(\theta, f(z))$ quantifies the "cost" of using the decision function $f$ when the true parameter is $\theta$ and the observed data is $z$. This function is what we aim to minimize in making decisions or estimations.
+        
+        \item \textbf{Joint Distribution}: The product $\pi_0(\theta) p(x|\theta)$ gives us a joint distribution over $\theta$ and $x$. This joint distribution is what we integrate over to calculate the expected loss.
+        
+        \item \textbf{The Integral}: The integral $\int d\theta dx \pi_0 (\theta) p(x| \theta) \mathcal{l}(\theta, f(z))$ essentially sums up the weighted loss across all combinations of $\theta$ and $x$, where the weights are given by the joint probability of $\theta$ and $x$. This is why it's a double integral: it integrates over both the parameter space and the data space.
+    \end{itemize}
+    
+    Here is a step-by-step breakdown of what the integral does:
+    
+    \begin{itemize}
+        \item For each potential value of $\theta$, determine the likelihood of the observed data $x$.
+        \item Compute the loss for the decision function $f$ based on that $\theta$ and $x$.
+        \item Weight this loss by the joint probability of $\theta$ and $x$ (which comes from the prior and the likelihood).
+        \item Sum (integrate) this weighted loss across all possible values of $\theta$ and all possible observations $x$ to get the average (expected) loss.
+    \end{itemize}
+    
+\end{tcolorbox}
+
+Bayes risk thus reflects the avg performance of $f$ when both $\theta$ and $x$ are r.vs.  (???? does it)\\
+
+It accounts for uncertainty about $\theta$ by averaging over its distribution.\\
+
+Key difference is how uncertainty re: parameter $\theta$ is handled:
+\begin{itemize}
+    \item \textbf{Frequentest: assumes $\theta$ FIXED but unknown}. Does not use prior info. Risk is calculated relative to this fixed $\theta$
+    \item \textbf{Bayes: assumes $\theta$ is r.v, with its own distribution (the prior)}. The risk is calculated by averaging over all possible values of $\theta$ given by this prior distribution
+\end{itemize}
+
+\section{Generalisation Bounds}
+
+\textit{NB: all of this is using bound for a simple binary classification problem.}
+
+\begin{tcolorbox}
+    \textbf{Reminder: generalization error}
+
+    \begin{itemize}
+        \item \textbf{Best possible function:} $$f^{**} = \arg \min_f \mathcal{R}(f)$$
+        \item \textbf{Best function within a considered hypothesis space: }$$f^{*} = \arg \min_{f \in \mathcal{H}} \mathcal{R}(f)$$
+        \item \textbf{Our empirical best guess:} $$f^{*}_n = \arg \min_{f \in \mathcal{H}} \mathcal{R}(f,\mathcal{D}) = \arg \min_{f \in \mathcal{H}} \frac{1}{n} \sum_{i=1}^{n} \ell(y_i, f(x_i)$$ 
+    \end{itemize}
+        $$\mathbb{E}_{p^{*}} \mathcal{R}(f^{*}_n) - \mathcal{R}(f^{**}) = \underbrace{\textcolor{blue}{\mathcal{R}(f^{*}) - \mathcal{R}(f^{**})}}_{\text{Approximation Error}} + \underbrace{\textcolor{red}{ \mathbb{E}_{p^{*}} \mathcal{R}(f^{*}_n) - \mathcal{R}(f^{*})}}_{\text{Estimation/Generalization Error}}$$
+        $$R3 - R1 = \textcolor{blue}{(R2 - R1)} + \textcolor{red}{(R3 - R2)}$$
+
+\end{tcolorbox}
+
+\begin{tcolorbox}
+    \textbf{Concrete example of generalisation error: truncating polynomials}
+    \begin{itemize}
+        \item \textbf{True model:} $x\text{~ Unif}(0,1)$; $y = \beta_0 + \beta_1x + \beta_2x^2 + \epsilon $
+        \item \textbf{Best possible function:}  
+        \begin{align*}
+            f^{**} &= \arg \min_f \mathcal{R}(f) \\
+            &= \beta_0 + \beta_1x + \beta_2x^2
+        \end{align*} 
+        
+        \item \textbf{Best function within a considered hypothesis space: } \\
+        NB we are truncating the polynomial here
+        \begin{align*}
+            f^{*} &= \arg \min_{f \in \mathcal{H}} \mathcal{R}(f) \\
+            &= \beta_0^* + \beta_1^*x 
+        \end{align*}
+        
+        \item \textbf{Our empirical best guess:} 
+        \begin{align*}
+            f^{*}_n &= \arg \min_{f \in \mathcal{H}} \mathcal{R}(f, \mathcal{D}) \\
+            &= \hat{\beta_0} + \hat{\beta_1}x 
+        \end{align*}
+    \end{itemize}
+    We could then work out by hand:
+        $$\mathbb{E}_{p^{*}} \mathcal{R}(f^{*}_n) - \mathcal{R}(f^{**}) = \underbrace{\textcolor{blue}{\mathcal{R}(f^{*}) - \mathcal{R}(f^{**})}}_{\text{Approximation Error}} + \underbrace{\textcolor{red}{ \mathbb{E}_{p^{*}} \mathcal{R}(f^{*}_n) - \mathcal{R}(f^{*})}}_{\text{Estimation/Generalization Error}}$$
+        $$R3 - R1 = \textcolor{blue}{(R2 - R1)} + \textcolor{red}{(R3 - R2)}$$
+    This gives us:
+    \begin{itemize}
+        \item \textcolor{blue}{Approximation error} = neglecting the $x^2$ term
+        \item \textcolor{red}{Estimation/Generalisation error} = Estimation error in $\hat{\beta}$ (due to modeling deficiencies, or insufficient data)
+    \end{itemize}
+\end{tcolorbox}
+
+To know \textit{a-priori} how well a model will perform on unseen data: we seek a bound on \textcolor{red}{generalisation error}\\
+
+The tighter the bound, the more confident we can be about the performance of our model on unseen data.\\
+
+If we restrict ourselves to classification tasks $y \in {0,1}$, bound on the generalization error for classification problems might look as follows:\\
+\textit{NB this is the generic framework for setting up a bound}
+
+$$\textcolor{blue}{p\left( } \textcolor{green}{\max_{f^* \in \mathcal{H}}} \textcolor{red}{\left[ \mathcal{R}(f^*_n) - \mathcal{R}(f^*) \right] \text{is big}} \textcolor{blue}{\right) \text{ is small}}$$
+Where
+\begin{itemize}
+    \item \textcolor{blue}{$p(\cdot)$ is small}: the chance is small over datasets we might see; stating that with high probability (e.g., 95\%), the true generalization error will be below a certain threshold;
+    \item \textcolor{green}{$\max_{f^* \in \mathcal{H}}$}: considers the worst case over scenario across all models within a hypothesis space
+    \item \textcolor{red}{$\left[ \mathcal{R}(f^*_n) - \mathcal{R}(f^*) \right]$ is big}: generalisation error = the difference between the empirical and the true risk: we don't want big generalization error
+\end{itemize}
+
+NB this is crude, loose bound. We can do better - but this is nice and simple as a first pass.
+
+\subsection{Uses of bounds}
+
+NB bounds are NOT a replacement for estimate of the error. 
+\begin{itemize}
+    \item Typically, we estimate the error of a model by measuring its performance on a validation set or using cross-validation (Empirical Error Estimation) .
+    \item This gives us an empirical error rate that indicates how well the model is doing on data it hasn't seen during training. 
+    \item However, this approach has limitations, especially when the available data is limited or not representative of the full range of scenarios the model may encounter.
+\end{itemize}
+
+Instead, bounds they help us to:
+\begin{itemize}
+    \item \textbf{Reason over models} - especially when empirical estimates of error are close or not available. They provide a way to judge which models might be more robust or likely to generalize well.
+    \item \textbf{Reason how well models performance varies with sample size} - theoretical bounds often include terms that relate to the sample size, allowing us to predict how adding more data may impact model performance. This is crucial for planning data collection and understanding the trade-offs between data quantity and model complexity.
+    \item \textbf{Understand what assumptions we need for good performance} - for instance, they may highlight the need for certain data distribution properties, the importance of model assumptions, or the influence of parameter settings.
+    \item \textbf{Understand, will we be safe for the worst class} - can offer confidence that, even under unfavorable conditions, the model's error won't exceed a certain threshold with high probability.
+\end{itemize}
+
+To arrive at the bound statement given above, we have probability tools we need in place: (1) Hoeffding’s Inequality; (2) Boole's Inequality.
+
+\subsection{Composite Tool 1: Hoeffding's inequality}
+
+\begin{itemize}
+    \item provides a way to quantify the uncertainty of empirical estimates.
+    \item Gives us a way to bound the probability that the sum of bounded independent random variables deviates from its expected value. 
+    \item Useful for understanding how far estimates based on sample data (like the sample mean) are likely to be from the true population parameter (like the population mean).
+\end{itemize}
+
+For $X_1, \cdots, X_n ~ Bern(\theta)$ (ie independent r.v.s drawn from Bernoulli distr), we're interested in the probability that the sample mean $\bar{X} = \frac{1}{n} \sum_{i=1}^{n} X_i$ of these random variables \textbf{deviates} from the expected value $\mathbb{E}[\bar{X}] = \mu$ by more than some small positive amount $t$.\\
+
+\textbf{Deviation}: 
+\begin{itemize}
+    \item This is the absolute difference between the observed statistic (like a sample mean) and its expected value (population mean).
+    \item Hoeffding's inequality tells us that the probability of this deviation is bounded above by $2\exp{(-2\sigma^2)}$. 
+\end{itemize}
+
+Formally, for any $\epsilon > 0$:\\
+\textbf{where $\epsilon$ is a threshold of deviation}
+\[\textcolor{blue}{P(} \textcolor{red}{|\bar{X} - \mu| > \epsilon)} \leq \textcolor{green}{2\exp{(-2n\epsilon^2)}}\]
+
+NB $\theta = \mu$ - $\mu$ is just the mean as a possible parameter, whereas $\theta$ is generic complete set of parameters for a model
+
+Where
+\begin{itemize}
+    \item \textcolor{blue}{$P(\cdot)$}: the chance if small
+    \item \textcolor{red}{$|\bar{X} - \mu| > \epsilon$}: the deviation is large(r than the threshold $\epsilon$
+    \item \textcolor{green}{$2\exp{(-2n\epsilon^2)}$}: gets smaller quickly with sample size <- NB the negative $n$ term
+\end{itemize}
+
+Implications:
+
+\begin{itemize}
+    \item \textbf{The Chance is Small}: As $n$ increases, the probability of a large deviation becomes exponentially smaller, meaning that with more observations, the sample mean is very likely to be close to the true mean $\mu$.
+    \item \textbf{The Deviation is Large}: We are bounding the probability of a deviation that is more significant than our threshold $\epsilon$.
+    \item \textbf{Exponential Decrease}: The bound $2\exp{(-2\sigma^2)}$ decreases exponentially with the number of samples $n$, which reassures us that the law of large numbers holds – as we get more data, our sample mean gets closer to the expected value.
+\end{itemize}
+
+\begin{redbox}
+    \textbf{TL;DR: Hoeffding's inequality tells us that as $n$ increases, the sample parameter estimates converge v closely to their true population estimates}
+\end{redbox}
+
+Proof is in Markov's inequality...
+
+\subsection{Composite Tool 2: Boole's Inequality / Union Bound}
+
+Provides an upper bound on the probability of the union of multiple events. \\
+
+If $\mathcal{E}_1, \ldots, \mathcal{E}_d$ are events:
+\begin{itemize}
+    \item $P(\mathcal{E}_1 \cup \ldots \cup \mathcal{E}_d) \leq \sum_{i=1}^{d} P( \mathcal{E}_i)$
+    \item $P(\mathcal{E}_1 \text{ OR } \mathcal{E}_2) \leq P(\mathcal{E}_1) + P(\mathcal{E}_2) - P(\mathcal{E}_1 \cup \mathcal{E}_2)$
+\end{itemize}
+
+And so, doing away with the 'complex' RHS term about the intersection/union, we can say:
+
+$$P(A_1 \text{OR} A_2) \leq P(A_1) + P(A_2)$$
+
+\begin{redbox}
+    Boole's Inequality states that the probability of the union of a finite number of events is less than or equal to the sum of the probabilities of each event. 
+\end{redbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_04_generalization/venn diags.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+The Union Bound is often used in scenarios where calculating the exact probability of the union of events is complex or intractable due to intersections between events. It provides a quick way to get a conservative estimate. \\
+
+In machine learning, for example, it's commonly used to derive bounds on generalization error, as it simplifies the analysis by avoiding the need to directly calculate the intersections between events.\\
+
+Offers an easy way to estimate the probability of any one of a set of events happening, without needing to know the detailed relationship between those events. 
+
+
+\subsection{Combining Hoeffding \& Boole's inequality together $\rightarrow$ First Generalization bound}
+
+The generalization error of a binary classifier will be more than $\epsilon$, in the worst case is upper bounded by:
+
+\begin{tcolorbox}
+    $$
+    \textcolor{blue}{p\left(} \textcolor{orange}{\max_{f^* \in \mathcal{H}}} \textcolor{red}{\left[ \mathcal{R}(f^*_n) - \mathcal{R}(f^*) \, \big| \, > \epsilon \right]} \textcolor{blue}{\right)} \leq \textcolor{orange}{2\text{dim}(\mathcal{H})} \, \textcolor{green}{\exp(-2n\epsilon^2)}
+    $$
+\end{tcolorbox}
+Where
+\begin{itemize}
+    \item $\textcolor{blue}{p(\cdot)}$: \textbf{probability over different datasets.} It is the chance that the generalization error will be more than $\epsilon$ across different potential training datasets.
+    \item $\textcolor{orange}{\max_{f^* \in \mathcal{H}}}$: \textbf{Worst case over hypothesis space (of size $\textcolor{orange}{\text{dim} \, \mathcal{H}}$)}. This denotes taking the maximum over all hypotheses in the hypothesis space. It's looking at the worst possible model that we could obtain from our learning algorithm.
+    \item $\textcolor{red}{\mathcal{R}(f^*_0) - \mathcal{R}(f^*)}$: \textbf{Generalization error is worse than $\textcolor{red}{\epsilon}$} This denotes the actual generalization error, which is the difference between the true error rate (often the best error rate we could achieve on the distribution from which the data is drawn) and the empirical error rate (the error rate on the training set)
+    \item \textcolor{orange}{$2 \cdot dim(\mathcal{H}:$} a factor that scales with a measure of the complexity or size of the hypothesis space
+    \item $\textcolor{green}{$\exp(-2n\epsilon^2)$}: \textbf{A chance that disappears as $n \rightarrow \infty$} - This is the bound itself, an exponentially decreasing function of the number of sample and the square of the threshold. Shows that the probability decreases exponentially as the number of samples $n$ increases, or as the threshold $\epsilon$ becomes tighter.
+\end{itemize}
+
+\begin{redbox}
+    Indicates that as we increase the number of samples $n$, the probability of the generalization error being larger than threshold $\epsilon$ becomes exponentially smaller.\\
+
+    Gives us confidence in the reliability of our binary classifier: as our sample size grows, the "chance" that our classifier's generalization error will be worse than some threshold becomes very small, thus indicating that with sufficient data, our classifier is likely to perform well on unseen data. 
+\end{redbox}
+
+\subsection{Proof:} 
+
+THESE COLOURS AREN'T RIGHT - LOOK BACK AT SLIDES
+
+\begin{align*}
+\textcolor{blue}{\Pr} \left( \textcolor{orange}{\max_{f^* \in \mathcal{H}}} \left[ \textcolor{red}{\mathcal{R}(f^*_n) - \mathcal{R}(f^*) > \epsilon} \right] \right) 
+ &= \textcolor{blue}{\Pr} \left( \textcolor{orange}{\bigcup_{I^* \in \mathcal{H}}} \left[ \textcolor{red}{\mathcal{R}_{I^*}(f^*_n) - \mathcal{R}(f^*) > \epsilon} \right] \right) \\
+\text{(Union bound)} &\leq \textcolor{blue}{\sum_{I^* \in \mathcal{H}}} \textcolor{blue}{\Pr} \left( \textcolor{red}{\left[ \mathcal{R}_{I^*}(f^*_n) - \mathcal{R}(f^*) > \epsilon \right]} \right) \\
+\text{(Hoeffding Inequality)} &\leq \textcolor{orange}{\sum_{f^* \epsilon \mathcal{H}} 2 exp(-2n\textcolor{red}{\epsilon^2})}\\
+(\text{Finiteness of} \mathcal{H}) &\leq \textcolor{orange}{\text{2dim}} \, \mathcal{H} \, \exp \left( \textcolor{red}{-2n\epsilon^2} \right)
+\end{align*}
+
+\subsection{Implications}
+$$\textcolor{blue}{p\left(} \textcolor{orange}{\max_{f^* \in \mathcal{H}}} \textcolor{red}{\left[ \mathcal{R}(f^*_n) - \mathcal{R}(f^*) \, \big| \, > \epsilon \right]} \textcolor{blue}{\right)} \leq \textcolor{orange}{2\text{dim}(\mathcal{H})} \, \textcolor{green}{\exp(-2n\epsilon^2)}$$
+
+This inequality is making a statement about the probability of the generalization error of the best (worst???) hypothesis in the hypothesis space $H$ being greater than some threshold $\epsilon$
+
+\begin{itemize}
+    \item \textbf{Optimism in our training error:} the tendency of the empirical risk $R^*_S$ to underestimate the true risk $R^*_{D_0}$, because its measured on the same data that was used to train the model
+    \item \textbf{Error in the population...}: ie the true risk $R^*_{D_0}$, which is the expected performance of the model on the entire distribution of data, not just the training set.
+    \begin{itemize}
+\begin{redbox}
+            \item \textbf{...increases with size of hypothesis space} - larger hypothesis space, the more complex the models it contains, greater chance of overfitting. The factor \textcolor{orange}{$2 \cdot dim(H)$} reflects this by increasing the bound on the generalization error accordingly
+\end{redbox}
+\begin{redbox}
+            \item \textbf{... decreases with sample size} as we collect more data, less likely model will have large generalisation error (ie helps model learn true underlying patterns, rather than noise / idiosyncrasies). The term \textcolor{green}{$exp(-2n\epsilon^2)$} reflects this.
+\end{redbox}
+    \end{itemize}
+\end{itemize}
+
+This generalization bound provides a probability measure that tells us how confident we can be that our model, selected from a set of possible models, will perform well on new data. It balances the complexity of the model (as represented by the size of the hypothesis space) with the amount of data we have, giving us a way to predict and control for overfitting.
+
+\subsection{Issues with this bound}
+
+$$\textcolor{blue}{p\left(} \textcolor{orange}{\max_{f^* \in \mathcal{H}}} \textcolor{red}{\left[ \mathcal{R}(f^*_n) - \mathcal{R}(f^*) \, \big| \, > \epsilon \right]} \textcolor{blue}{\right)} \leq \textcolor{orange}{2\text{dim}(\mathcal{H})} \, \textcolor{green}{\exp(-2n\epsilon^2)}$$
+
+\begin{enumerate}
+    \item we have a \textcolor{orange}{finite hypothesis set}
+    \item assumes are data i.i.d
+    \item is the \textcolor{green}{Hoeffding} the best possible bound?
+\end{enumerate}
+
+\section{Intrinsic Dimensionality}
+
+\textit{ = the minimum number of parameters needed to accurately describe every point within a dataset or space.}
+\begin{itemize}
+    \item reflects the true 'complexity' or 'structure' of the data, 
+    \item as opposed to the ambient dimension, which is the space the data is embedded in. 
+\end{itemize}
+
+\textbf{Dimensionality of a circle; the earth etc}
+\begin{itemize}
+    \item A circle, despite being embedded in a 2D space, is essentially 1-dimensional if you consider only the path around it.
+    \item Earth's surface, while part of a 3D space, can be thought of as 2-dimensional because you only need two dimensions (latitude and longitude) to describe any location on it.
+    \item For the circle and the Earth, their intrinsic dimensions are 1 and 2, respectively, irrespective of the higher-dimensional space they may reside in.
+\end{itemize}
+
+\textbf{Manifold}
+\begin{itemize}
+    \item manifold is a space that might be complex globally but resembles simpler Euclidean spaces locally
+    \item "a surface in which every local area looks only $n$ dimensional
+    \item Manifolds are used to model complex shapes and structures in higher-dimensional spaces by considering them as collections of simpler, lower-dimensional pieces
+\end{itemize}
+
+\textbf{Manifold hypothesis}
+\begin{itemize}
+    \item \textbf{High Ambient Dimensionality Masks Low Underlying Intrinsic Dimensionality}
+    \item while data may exist in a high-dimensional space (high ambient dimensionality), the 'real' structure of the data occupies a much lower-dimensional space (low intrinsic dimensionality). 
+    \item eg \textbf{images of faces might exist in a space of thousands of dimensions (each pixel being a dimension), but the variations between faces (such as the shape of the nose, the distance between the eyes) can be described with far fewer dimensions}
+    \item applied to ML: even though we often deal with high-dimensional data, the effective complexity of our data might be much lower $\rightarrow$ development of algorithms that aim to uncover and exploit these lower-dimensional structures (e.g., dimensionality reduction techniques like PCA, t-SNE, autoencoders)
+\end{itemize}
+
+\subsection{Example: modeling how location predicts binary vote choice}
+
+\textbf{Location Features}: as predictors for voting preferences
+\begin{itemize}
+    \item latitude
+    \item longitude
+    \item height
+\end{itemize}
+
+\textbf{Restricted linear hypothesis space:}
+\begin{itemize}
+    \item \textbf{hypothesis space constraints:} each dimension of the location features $X_i$ can take on values from the set ${-1,0,1}$ - i.e. simplified model where each feature can have a neg, pos or no effect. ($\hat{\beta} \in {-1,0,1} \text{ for every dimension} i$)
+    \item \textbf{Model complexity of $n$ features}: the number of possible models in the restricted space is $3^n$ - as each feature can take on 3 possible values. For $K$ features we have $3^K$ possible models $\rightarrow$ exponential growth in number of models as more features added.
+\end{itemize}
+
+\textbf{Example Models \& Bounds}
+Bound for binary classification given by:
+$$\textcolor{orange}{2 \cdot \text{dim}(\mathcal{H})} \cdot \textcolor{green}{\exp(-2n\epsilon^2)}$$
+\begin{itemize}
+    \item \textbf{Model 1: w/ all 3 features (lat, long, height)}: 
+    \begin{itemize}
+        \item $k = 3 \rightarrow \textcolor{orange}{dim(\mathcal{H}) = 3^3}$
+        \item bound = $\textcolor{orange}{2 \cdot 3^3} \cdot \textcolor{green}{\exp(-2n\epsilon^2)}$
+    \end{itemize}
+    \item \textbf{Model 2: w/ 2 features (lat, long)}: 
+    \begin{itemize}
+        \item $k = 2 \rightarrow \textcolor{orange}{dim(\mathcal{H}) = 3^2}$
+        \item bound = $\textcolor{orange}{2 \cdot3^2} \cdot \textcolor{green}{exp(-2n\epsilon^2})$
+    \end{itemize}
+    \end{itemize}
+
+\begin{tcolorbox}
+    \begin{itemize}
+        \item \textbf{pos exponential relationship between features and bound} - as we add features -> exponential growth in hypothesis space (\textit{this in turn gets put through linear scalor factor in the bound definition})
+        \item \textbf{neg exponential relationship between observations and bound} - as we add observation -> exponential decrease in bound term
+    \end{itemize}
+\end{tcolorbox}
+
+\begin{redbox}
+    Significance: model with only 2 features has a tighter bound on the generalization error, indicating potentially better generalisability...\\
+
+    But remember, there's a trade off here between generalisation error vs approximation error: while fewer features might make the model more generalisable to new data, it might make the model itself less expressive, increasing the approximation error.
+\end{redbox}
+
+\subsection{... Question on feature redundancy}
+In the above example: \textbf{is height redundant?}
+\begin{itemize}
+    \item is $height = f(latitude, longitude)$? 
+    \item  if so, potentially redundant for the model. 
+    \item If height does \textbf{not provide additional, independent information} beyond what latitude and longitude already offer, excluding it might \textbf{simplify the model (reducing variation / generalisation error) without significantly sacrificing predictive power}.
+    \item Tighter bound on generalizability error, without a trade off for predictive power!
+\end{itemize}
+
+The complexity of a model (in terms of the number of features) affects the theoretical bounds on its generalization error, with implications for model selection and feature inclusion. 
+
+\section{On Complexity}
+
+How can we define the \textbf{expansiveness of a hypothesis class}?\\
+
+When discussing the complexity of a hypothesis class, the aim is to quantify \textbf{how "rich" or "flexible" the set of functions (or models) within} that class is. \\
+
+A more complex hypothesis class can fit a wider variety of data patterns, but it also has a higher risk of overfitting to the training data. There are several ways to define or measure the complexity of a hypothesis class:
+
+\begin{itemize}
+    \item \textbf{Count Parameters}, or degrees of freedom within it.
+    \item \textbf{Measuring 'Wiggliness' (derivatives)} - smoothness of a function quantified using derivatives.
+    \begin{itemize}
+        \item For a given function, areas where the derivative (rate of change) is large indicate rapid changes in the function's output, contributing to "wiggliness."
+        \item In some contexts, the total variation, which is a measure of how much a function varies, can be used. For smoother functions, this variation would be lower.
+        \item eg Sobolev spaces.
+    \end{itemize}
+    \item \textbf{VC-Dimension (Vapnik-Chervonenkis Dimension)} - a more sophisticated measure of hypothesis class complexity; quantifies the capacity of a hypothesis class based on the largest set of points that the class can shatter:
+    \begin{itemize}
+        \item "Shattering" refers to the hypothesis class's ability to correctly classify all possible label configurations for a given set of points, indicating a high level of flexibility or complexity.
+        \item A higher VC-dimension indicates a more complex hypothesis class. However, with increased complexity comes a higher risk of overfitting.
+    \end{itemize}
+    \item \textbf{Rademacher Complexity} - quantifies hypothesis class complexity by measuring the class's ability to fit random noise:
+    \begin{itemize}
+        \item It is defined as the expectation of the supremum (over the hypothesis class) of the average error on a dataset, where the labels are randomly assigned.
+        \item This complexity measure helps in understanding how well the hypothesis class can generalize, with higher values indicating a greater ability to fit random patterns (and thus, potentially, a higher risk of overfitting).
+    \end{itemize}
+\end{itemize}
+
+\subsection{Vapnik-Chervonenkis (VC) Dimension}
+
+Allows for more rigorous generalization error bound. \\
+
+TL;DR - VC's bound simplifies or is approximated to a form that indicates the generalization error:
+\begin{itemize}
+    \item decreases as the number of samples increases
+    \item increases with the complexity of the hypothesis class (where V - the VC dimension - represents that complexity); when V is big -> big error
+\end{itemize}
+
+\begin{tcolorbox}
+    The VC dimension itself:
+    $$\text{VC}(\mathcal{H}) \leq \frac{1}{\epsilon} \left( \log_2 \left( \frac{2}{\epsilon} \right) \log_2(|\mathcal{H}|) + 1 - \log_2(\delta) \right) \approx 1 - \epsilon$$
+
+    = VC dimension is a measure of the capacity of a hypothesis class, denoting the largest number of points that can be shattered (correctly classified in all possible ways) by the hypotheses in $\mathcal{H}$. \\
+    
+    It's a measure of complexity
+\end{tcolorbox}
+
+The VC dimension is used to determine a model's bound (Vapnik's bound interpretation), which is  a formal way to quantify how the complexity of a hypothesis class impacts its ability to generalize from training data to unseen data.
+
+\begin{tcolorbox}
+    $$\textcolor{blue}{p\left(} \textcolor{orange}{\max_{f^* \in \mathcal{H}}} \textcolor{red}{\left[ \mathcal{R}(f^*_n) - \mathcal{R}(f^*)} \textcolor{black}{\leq \sqrt{\frac{1}{n} \left[ \textcolor{orange}{V} \left( \log \frac{2n}{\textcolor{orange}{V}} + 1 \right) - \log \frac{\epsilon}{4}\right]} \right] \approx} \textcolor{green}{1-\epsilon}$$
+
+    Where:
+    \begin{itemize}
+        \item V represents complexity of $\mathcal{H}$ (i.e. the VC dimension0
+    \end{itemize}
+\end{tcolorbox}
+
+\begin{itemize}
+    \item bound quantifies the likelihood that the generalization error exceeds a certain threshold..
+    \item ... which depends on number of samples
+    \item ...and complexity of the hypothesis class
+    \item = provides a probabilistic guarantee about the worst-case generalization error across all hypotheses in H.
+\end{itemize}
+
+\begin{tcolorbox}
+    Nb we are still in the same kind of framework as before:
+    $$\textcolor{blue}{p\left( } \textcolor{orange}{\max_{f^* \in \mathcal{H}}} \textcolor{red}{\left[ \mathcal{R}(f^*_n) - \mathcal{R}(f^*) \right]} \text{is big} \textcolor{blue}{\right) \text{ is small}}$$
+\end{tcolorbox}
+
+
+\subsubsection{VC Dimension \& "shattering"}
+
+How many points can functions in a hypothesis class perfectly predict? \\
+
+For how many points can ERM drive training error to zero?\\
+
+For linear classifers: this is often 1 + # of parameters:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_04_generalization/shattering.png}
+    \caption{3 points can be perfectly classified using 2 features ($X_1, X_2$}
+    \label{fig:enter-label}
+\end{figure}
+
+BUT this is not true for all functions: VC does not \textit{always correspond to parameter counting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_04_generalization/shattering 2.png}
+    \caption{This configuration: 3 observations cannot be classified with decision boundary across / as function of 2 features}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_04_generalization/shattering 3.png}
+    \caption{frequency of cosine: even w/ 1 param it can perfectly interpolate!}
+    \label{fig:enter-label}
+\end{figure}
+
+\section{Structural Risk Minimisation}
+
+\begin{itemize}
+    \item avoid cross-validation
+    \item just minimise an upper bound on test error
+    \item i.e. $R(f^*_n) + bound$
+\end{itemize}
+Sure, it's an option...\\
+BUT... just do cross validation
+
+\section{Generalisation in OLS}
+I didn't get these slides\\
+
+Basically saying that OLS specifically perfectly generalises.
+
+\subsection{OLS Estimation \& Generalization Error}
+
+OLS estimator: minimizes sum of sq errors - $\hat{\beta = argmin_{\beta}(Y-X\beta)'(Y-X\beta)}$\\
+
+Generalization error: how well the model, with parameters estimated from the training data, performs on new, unseen data. \\
+
+It's captured by the difference between the predicted and true values, considering the true model parameters.\\
+
+Decomposition ... end up with: 
+
+\begin{align*}
+    \hat{\beta} &= \beta^* + (X'X)^{-1}X'e
+\end{align*}
+
+Which shows that the OLS estimator is the sum of the true parameters and a term that depends on the error $e$. \\
+
+Specifically, this decomposition highlights how the estimation error ($\hat{\beta} - \beta^*$) is influenced by the error term $e$, through the term $(X'X)^{-1}X'e$\\
+
+Essentially, the estimation error depends on the variability of the design matrix $X$ and the error term $e$: deviations from the true model arise due to the error in the data. \\
+
+In an OLS setting, understanding the estimation error and its components is crucial for assessing how well the model can generalize. If the error term is small and the design matrix  is well-conditioned (not too collinear), the OLS estimator will be close to the true parameters, indicating good generalization capability.\\
+
+OLS is BLUE: Best Linear Unbiased Uestimator, under the Guass-Markov theorem. \\
+
+***\\
+
+...the finally derived line in this slide:
+
+\begin{redbox}
+    $$\text{Expected error} = \mathbb{E}[X(X^TX)^{-1}X^Te)^2]$$
+\end{redbox}
+Where
+\begin{itemize}
+    \item $X^TX$ represents the covariance matrix of the predictor variables.
+    \item $(X^TX)^{-1}$ is its inverse; is used to estimate the coefficients such that the squared residuals are minimized
+    \item NB the hat matrix: $H=(X^TX)^{-1}X^T$ - this projects the observed $Y$ values onto the space spanned by the columns of $X$, resulting in the fitted values.
+    \item however, here we are multiplying all that by error term $e$ and a squared opertion outside the expected value --> captures expected squared length (or squared norm) of some vector related to residuals = an analysis of predictive performance
+\end{itemize}
+
+\textcolor{red}{ASK ABOUT THIS- ITS IMPORTANT AND USED RIGHT AT THE END OF THE LECTURE, BUT I DON'T UNDERSTAND WHAT IS IS. \\
+if it is expected error, then does that mean it is both generalisation and approximation error?\\
+NB: $\text{Generalization Error} = E[(Y_{new} - X_{new}\beta)^2]$\\
+I think it connects to that?}
+
+\section{Detour: Singular Value Decomposition}
+
+\textit{NB this is general context needed for the maths behind estimating the generalisation error in final Low vs High dimensional feature spaces (i.e. next section)}
+
+\begin{tcolorbox}
+    Recap:  $X = U\Sigma V^T$ is an $n \timesp$ matrix, of rank $r$
+    \begin{itemize}
+        \item $U$: columns are unit vector, and orthogonal = orthonormal*; $U^TU = I_n$  if $r = p$ 
+        \item $V$: is the correlation (feature vectors??) = orthonormal*; $V^TV = I_p$ if $r = p$
+        \item$\Sigma$ is the scale; a diagonal** matrix of singular values of $X$ in descending order; these are scale factors that stretch-compress unit vectors in $U$. \textit{NB rank of $X$ is also \# of non-zero singular values}
+    \end{itemize}\\
+    
+    \textit{*orthonormal: means that they preserve the length of vectors upon transformation, making them particularly useful for rotations and reflections in geometry and for orthogonal transformations in linear algebra.}\\
+    
+    \textit{** The diagonal nature of $\Sigma$ (also $D$: only the singular values (the entries of $\Sigma$) affect the scaling in the transformation $X=U\Sigma V^T$, separating the rotation/reflection effects (handled by $U$ and $V$ V) from scaling (handled by $\Sigma$).}
+\end{tcolorbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_04_generalization/SVD1.png}
+    \caption{SVD dimensions}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_04_generalization/SVD2.png}
+    \caption{SVD transformations decomposed}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Properties of SVD}
+
+\begin{itemize}
+    \item if $U,D,V = svd(X)$, then $svd(X^TX) = VD^2V^T$
+    \item if $U,D,V = svd(X)$, then $svd(XX^T) = UD^2U^T$\\
+    This intuitively makes sense: $X$ multiplied by its tranpose is sort of like squaring it.
+    \item these provide the eigenvalue decompositons of $X^TX$ and $XX^T$
+\end{itemize}
+
+\begin{tcolorbox}
+    The properties of SVD facilitate the eigenvalue decomposition of matrices like $X^TX$ and $XX^T$..
+    \begin{itemize}
+        \item revealing the underlying structure of the data and the relationships between variables
+        \item but also provide a robust method for computing solutions in linear regression problems
+    \end{itemize} 
+    By leveraging these properties, we can efficiently compute predictions for new data in a way that is stable \textbf{and resistant to issues like multicollinearity or singular matrices}.
+\end{tcolorbox}
+
+We use these properties to show that: $$X\hat{\beta_{ols} = UU^Ty}$$. 
+\begin{itemize}
+    \item i.e. that the predictions of a model...
+    \item ... = $UU^Ty$
+    \item WHAT'S INTUITION HERE?
+\end{itemize}
+
+Also, that the prediction for a new \textcolor{red}{$\Tilde{X}$} is:
+
+\begin{redbox}
+    $$\textcolor{red}{\Tilde{X}}\hat{\beta}_{ols} = \Tilde{X}V^TD^{-1}U^Ty}}$$
+\end{redbox}
+
+The SVD of $X$ can facilitate this by providing a stable way to compute the \textbf{pseudo-inverse of $X$}, especially when $X^TX$ is not invertible or poorly conditioned.
+
+\section{Expected error in low vs high dimensional feature spaces}
+
+\subsection{Standard Statistics: Bias-variance trade off}
+\begin{redbox}
+\textbf{All of this is in under parameterised regime, before the interpolation threshold, where traditional statistical rules apply:}\\
+
+    \textbf{Low Dimensional Space: $p \ll n$} = OLS is BLUE
+    \begin{itemize}
+        \item Risk (Expected Error): $R(\hat{\beta}) - R(\beta^*) = \textcolor{red}{\frac{p}{n}}\sigma^2$. 
+    \end{itemize}
+    As $p$ increases, expected error increases.\\
+    As $n$ increases, expected RAPIDLY error decreases.\\
+
+    So, we can reduce Generalisation Risk easily, by adding data. \\
+    
+    Risk can be decomposed into:
+    \begin{itemize}
+        \item Bias: exact composition depends on loss function??? $\cdots \rightarrow$ low
+        \item Variance exact composition depends on loss function ??? $\cdots \rightarrow$ low
+    \end{itemize}
+
+    \textbf{High Dimensional Space: $p \gg n$} = OLS struggles (overfitting \& poor generalisation)
+    \begin{itemize}
+        \item Risk (Expected Error): $R(\hat{\beta}) - R(\hat{\beta^*}) \approx (\textcolor{red}{1- \frac{n}{p}}) \|\beta^*\|^2$.
+    \end{itemize}
+    As $p$ increases, expected error increases.\\
+    AS $n$ increases, expected error SLIGHTLY decreases.\\
+
+    Risk can be decomposed into:
+    \begin{itemize}
+        \item Bias: $\approx (1- \frac{n}{p}) \|\beta^*\|^2 \cdots \rightarrow$ very large! (overfitting)  
+        \item Variance $\approx \frac{n}{p} ???? \cdots \rightarrow$ very small HOW/WHY I THOUGHT COMPELX MODELS HAD HIGH VAR??????
+    \end{itemize}
+
+    So, adding further $n$ doesn't do much. (Need regularization in high dimensional contexts: BUT THESE INTRO BIAS TO REDUCE VARIANCE.... SURELY THAT MAKES IT ALL WORSE???)\\
+
+    \textbf{So, the same general dynamics in both, since we are not yet past the interpolation threshold: danger of too many predictors... but the \textit{rates/ratios} between $p$ and $n$ are different}
+    \begin{itemize}
+        \item low dim ($n \gg p)$: increasing $n$ RAPIDLY decreases generalisation error ($\frac{n}{p}\sigma^2)$
+        \item high dim($p \gg n$): increasing $n$ on the margin has MINOR effect ($1-\frac{n}{p}$)
+    \end{itemize}
+
+    At the interpolation threshold: dynamics change: \textcolor{red}{$\frac{p}{n}\rightarrow \frac{n}{p}$}
+    
+\end{redbox}
+
+\begin{tcolorbox}
+Under Paramaterised
+\begin{itemize}
+    \item Low dimensional feature space: $\uparrow$ bias, $\downarrow$ variance
+    \item High dimensional feature space: $\downarrow$ bias, $\uparrow$ variance.
+\end{itemize}
+Double Descent Curve @ perfect interpolation:\\
+
+Over paramaterised
+\begin{I}
+    v High dimensional feature space:
+    \begin{itemize}
+        \item $\downarrow$ bias, $\downarrow$ variance ??????????
+    \end{itemize}
+\end{I}
+\end{tcolorbox}
+
+
+Expected error over a new test point $x_{new}$ can be analyzed in terms of bias and variance.\\
+\begin{redbox}
+    If $$MSE = variance(\theta) + bias(\theta)^2$$
+    Is all error decomposible into variance \& bias, but only the MSE loss function gives that specific decomposition????
+\end{redbox}
+
+\subsubsection{Expected Error Decomposition}
+Expected prediction error for a new test point can often be decomposed into:
+\begin{itemize}
+    \item \textbf{bias} - error introduced by approximating the real-world problem (which may be complex and nuanced) with a simpler model. A high-bias model makes strong assumptions about the form of the underlying function that generates the data, leading it to systematically misrepresent the data. For example, using a linear model for a relationship that is inherently non-linear would introduce bias.
+    \item \textbf{variance} - error introduced by sensitivity to small fluctuations in the training set. A model with high variance pays a lot of attention to the training data and may capture noise as if it were a real signal, leading to poor performance on new test points.
+    \item \textbf{irreducible} - error inherent in the problem itself, due to noise or other factors in the data generation process that cannot be eliminated by any model. It represents the lower bound on the error that any predictive model for the given task could achieve.
+\end{itemize}. 
+
+In ML: trade off between bias and variance:
+\begin{itemize}
+    \item model with too much bias may not capture the important patterns in the data, leading to underfitting
+    \item model with too much variance may capture noise rather than signal, leading to overfitting.
+\end{itemize}
+
+(From decomposition above): variance component in particular can be represented as a sum over the variance of the predicted values, which depends on the covariance of the feature vectors. ?????\\
+
+\subsubsection{Variance of New Test Point}
+\begin{redbox}
+    Expected Error: $R(\hat{\beta}) - R(\beta^*) = \textcolor{red}{\frac{p}{n}\sigma^}2$
+\end{redbox}
+If $x_{new}$ is drawn from the same distribution as the training data $X$, then the variance of the predicted values for $x_{new}$ can be linked to the covariance matrix of the feature vectors ($\Sigma$).\\
+
+\textbf{Formally:}
+
+\begin{itemize}
+    \item consider the expected error over a new test point, $\Tilde{x}$:
+    \item from above: expected error given as $E[(\Tilde{x(X^TX)^{-1}X^Te)^2}$ \textcolor{red}{?????????}
+    \item so the expected error over  new test point: $E[(\Tilde{x}(X^TX)^{-1}X^Te)^2}$
+    \item using SVD, this can be written as $E[(\Tilde{x}V^T D^{-1}U^T e)^2]$
+    \item ...there's a bunch more work where they all get vectorized(??)...
+    \item ... final derivation: $R(\hat{\beta}) - R(\beta^*) = \textcolor{red}{\frac{p}{n}\sigma^}2$
+    \begin{itemize}
+        \item this is relationship between expected risk of estimated coefficients in linear regression model vs the true coefficients, 
+        \item and that relationship expressed as ratio of predictors vs observations (ie model complexity vs data) 
+        \item and variance of the error terms
+    \end{itemize}
+    \item $\textcolor{red}{\frac{p}{n}\sigma^}2$ essentially states that the difference in expected risk between using the estimated coefficients and the true coefficients is proportional to the ratio of the number of predictors to the number of observations, multiplied by the variance of the error terms. 
+    \begin{itemize}
+        \item increase complexity (features): increase difference in risk of estivated vs true model = overfitting.
+        \item increasing sample size: reduces risk difference = improving generalization capability. i.e. importance of sufficient data, esp as model complexity increases.
+        \item impact of model complexity and sample size on the difference in risk is scaled by the variance of the error. Higher error variance means that the discrepancy in risk due to estimation inaccuracies will be more pronounced.
+    \end{itemize}
+\end{itemize}
+
+\begin{redbox}
+    \textbf{$\textcolor{red}{\frac{p}{n}\sigma^}2$ provides a concise quantification of how the expected performance of a linear regression model degrades with increasing complexity (more features) relative to the amount of data available, and how this degradation is influenced by the inherent noise in the data ($\sigma^2$)}
+\end{redbox}
+
+\subsection{Low Dimensional Features $n \gg p$:* }
+
+\textcolor{red}{IS 'LOW DIMENSIONALITY THE STANDARD FOR MOST STATS, SO THIS IS THE WORLD WE'VE BEEN IN SO FAR, WHERE INCREASING COMPLEXITY THROUG ADDING PARAMETER VS AMOUNT OF DATA IS PROBLEMATIC AND LEADS TO OVERFITTING; WHEREAS THE 'HIGH DIMENSIONALITY' WORLD IS THE WORLD OF DEEP LEARNING, AND WE GET THE DOUBLE DESCENT - IE THE USUAL RULES/RELATIONSHIP BETWEEN P \& N REGARDING GENERALIZATION STOP APPLYING????}
+
+\textit{*$\gg$ = 'much greater than'}\\
+
+low \# of features cf \# of observations: \\
+
+
+Due to $\textcolor{red}{\frac{p}{n}\sigma^}2$, in low dimensional settings, models tend to have \textbf{higher bias} but \textbf{lower variance} \\
+
+\begin{itemize}
+    \item prediction error primarily reflects the model's simplicity, 
+    \item which might not capture all complexities of the data (leading to higher bias) 
+    \item but shows stability across different test points (leading to lower variance).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_04_generalization/low dim.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{High Dimensional Features ($p \gg n$):}
+
+In high-dimensional settings, traditional intuitions about model performance and generalization can fail. High dimensionality poses unique challenges, such as increased risk of overfitting, as models have enough parameters to perfectly fit the training data, potentially capturing noise as if it were a true signal.\\
+
+\textbf{Bias} models extremely flexible $\rightarrow$ v low training error, but v large bias:  I THOUGHT BIAS WAS LOW????? BUT THAT VARIATION WAS HIGH
+\begin{itemize}
+    \item formally: $(1-\frac{n}{p})\|\beta^*\|^2$ = v large
+    \item overfitting noise $\rightarrow$ generalization error
+    \item \textit{Bias refers to the error introduced from erroneous assumptions in the learning algorithm. High bias can cause an algorithm to miss the relevant relations between features and target outputs (underfitting(????)).}
+\end{itemize}
+
+\textbf{Variance}: NB THIS IS CHAT GPT, DREW'S SLIDES ACTUALLY SAY VARIANCE: 'VERY SMALL' high - small changes in training data $\rightarrow$ big changes in model
+\begin{itemize}
+    \item Refers to the error introduced by sensitivity to small fluctuations in the training set. High variance can cause an algorithm to model the random noise in the training data (overfitting)
+    \item a reflection of model's overfitting to the training data
+\end{itemize}
+
+^^^ this was ChatGPT, Drew's slides:
+\begin{itemize}
+    \item Bias \textcolor{red}{$(1-\frac{n}{p})\|\beta^*\|^2$} = v large
+    \item Variance \textcolor{red}{$\frac{n}{p}$} = v small
+\end{itemize}
+
+I THINK THE IDEA IS THAT IN THE DOUBLE DESCENT THE BASIC RELATIONSHIPS BETWEEN N \& P CHANGE
+FROM \textcolor{red}{$\frac{n}{p}\rightarrow \frac{p}{n}$}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_04_generalization/high dim.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsubsection{Double Descent Phenomenon}
+Empirical observation: in deep netural nets: double descent curve.\\
+
+Occurs when increasing model's complexity beyond point of interpolation.
+

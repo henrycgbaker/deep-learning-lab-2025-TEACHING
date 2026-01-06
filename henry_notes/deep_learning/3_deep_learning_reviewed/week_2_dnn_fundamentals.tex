@@ -1,0 +1,1285 @@
+% Week 2: Deep Neural Networks I
+\chapter{Week 2: Deep Neural Networks I}
+\label{ch:week2}
+
+\begin{quickref}[Chapter Overview]
+\textbf{Core goal:} Understand how neural networks learn through forward propagation, loss computation, and backpropagation.
+
+\textbf{Key topics:}
+\begin{itemize}
+    \item Neural network architecture: neurons, layers, activations
+    \item Forward propagation: computing predictions
+    \item Loss functions: measuring prediction error
+    \item Gradient descent: iterative optimisation
+    \item Backpropagation: computing gradients efficiently
+\end{itemize}
+
+\textbf{Key equations:}
+\begin{itemize}
+    \item Forward pass: $h = \sigma(Wx + b)$
+    \item Parameter update: $\theta \leftarrow \theta - \eta \nabla_\theta \mathcal{L}$
+\end{itemize}
+\end{quickref}
+
+%==============================================================================
+\section{Neural Network Fundamentals}
+%==============================================================================
+
+\subsection{Notation and Conventions}
+
+Before diving into neural networks, we establish notation that will be used throughout these notes.
+
+\begin{rigour}[Notation Conventions]
+\textbf{Data:}
+\begin{itemize}
+    \item $X \in \mathbb{R}^{n \times d}$: input data matrix ($n$ samples, $d$ features)
+    \item $x \in \mathbb{R}^d$: single input vector (column vector)
+    \item $y \in \mathbb{R}^k$: target output ($k=1$ for regression, $k=K$ for $K$-class classification)
+\end{itemize}
+
+\textbf{Network parameters:}
+\begin{itemize}
+    \item $W^{[\ell]} \in \mathbb{R}^{d_{\ell-1} \times d_\ell}$: weight matrix for layer $\ell$
+    \item $b^{[\ell]} \in \mathbb{R}^{d_\ell}$: bias vector for layer $\ell$
+    \item $L$: total number of layers (excluding input)
+\end{itemize}
+
+\textbf{Activations:}
+\begin{itemize}
+    \item $z^{[\ell]} = W^{[\ell]\top} h^{[\ell-1]} + b^{[\ell]}$: pre-activation (linear combination)
+    \item $h^{[\ell]} = \sigma(z^{[\ell]})$: post-activation (after nonlinearity)
+    \item $h^{[0]} = x$: input layer (by convention)
+\end{itemize}
+
+\textbf{Indexing convention:}
+\begin{itemize}
+    \item $i$: index for neurons in current layer (hidden units)
+    \item $j$: index for neurons in previous layer (input features)
+    \item $w_{ij}^{[\ell]}$: weight connecting neuron $j$ in layer $\ell-1$ to neuron $i$ in layer $\ell$
+\end{itemize}
+\end{rigour}
+
+\begin{redbox}
+\textbf{Matrix convention warning:} There are two common conventions for the linear transformation in neural networks:
+\begin{enumerate}
+    \item \textbf{ML library convention} (PyTorch, TensorFlow): $W \in \mathbb{R}^{d_{\text{in}} \times d_{\text{out}}}$, compute $XW$. Inputs are stored as \emph{row vectors}, so the input matrix/vector comes first.
+    \item \textbf{Math/linear algebra convention}: $W \in \mathbb{R}^{d_{\text{out}} \times d_{\text{in}}}$, compute $Wx$ for column vectors.
+\end{enumerate}
+
+\textbf{Key takeaway:} Both are mathematically consistent.
+\begin{itemize}
+    \item If inputs are row vectors (as in ML libraries), always write $XW$.
+    \item If inputs are column vectors (as in math derivations), write $Wx$.
+\end{itemize}
+
+These notes primarily use convention (1). Always check dimensions when reading different sources!
+\end{redbox}
+
+\subsection{The Artificial Neuron}
+
+The fundamental unit of a neural network is the \textit{artificial neuron} (or \textit{hidden unit}), inspired loosely by biological neurons.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_2/artificial_neuron.png}
+    \caption{An artificial neuron computes a weighted sum of inputs, adds a bias, and applies a nonlinear activation function.}
+    \label{fig:artificial-neuron}
+\end{figure}
+
+\begin{rigour}[Artificial Neuron]
+A single neuron computes:
+\[
+h = \sigma\left(b + \sum_{j=1}^{d} w_j x_j\right) = \sigma(b + w^\top x)
+\]
+where:
+\begin{itemize}
+    \item $x \in \mathbb{R}^d$: input vector
+    \item $w \in \mathbb{R}^d$: weight vector
+    \item $b \in \mathbb{R}$: bias (scalar)
+    \item $\sigma: \mathbb{R} \to \mathbb{R}$: activation function
+    \item $h \in \mathbb{R}$: output activation
+\end{itemize}
+
+The computation has two stages:
+\begin{enumerate}
+    \item \textbf{Pre-activation (input activation):} $a = b + w^\top x$ (affine transformation)
+    \item \textbf{Post-activation (output activation):} $h = \sigma(a)$ (nonlinear transformation)
+\end{enumerate}
+\end{rigour}
+
+\begin{quickref}[Bias Term]
+The bias $b$ provides an additional degree of freedom, allowing the activation function to be shifted left or right. This is crucial for learning-without bias, the decision boundary must pass through the origin. It helps the model fit the data better by providing additional flexibility in determining when a neuron ``fires.''
+\end{quickref}
+
+\subsection{Layers of Neurons}
+
+A \textit{layer} consists of multiple neurons operating in parallel, each receiving the same input but with different weights.
+
+\begin{rigour}[Fully-Connected Layer]
+A layer with $H$ neurons receiving input $x \in \mathbb{R}^d$ computes:
+\[
+\mathbf{h} = \sigma(W^\top x + b)
+\]
+where $W \in \mathbb{R}^{d \times H}$, $b \in \mathbb{R}^H$, and $\mathbf{h} \in \mathbb{R}^H$.
+
+The weight matrix structure:
+\[
+W = \begin{bmatrix}
+w_{11} & w_{12} & \cdots & w_{1H} \\
+w_{21} & w_{22} & \cdots & w_{2H} \\
+\vdots & \vdots & \ddots & \vdots \\
+w_{d1} & w_{d2} & \cdots & w_{dH}
+\end{bmatrix}
+\]
+\begin{itemize}
+    \item Each \textbf{column} $j$ contains weights for neuron $j$ (all inputs to one output)
+    \item Each \textbf{row} $i$ contains weights from input $i$ (one input to all outputs)
+\end{itemize}
+
+The weight matrix $W^{[1]}$ transforms input data from dimension $d$ (number of input features) to dimension $H$ (number of hidden units). Matrix multiplication results in a transformation from the input space to the hidden layer space.
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/hidden layer.png}
+    \caption{Hidden unit's connection to input activation. Each hidden unit receives all inputs.}
+    \label{fig:hidden-layer}
+\end{figure}
+
+\subsection{Matrix Multiplication: How Forward Propagation Works}
+
+Understanding exactly how matrix multiplication computes the layer output is essential for grasping both forward and backward passes.
+
+\begin{rigour}[Batch Forward Pass: $H = XW$]
+For a batch of $n$ samples with $d$ features, transformed to $H$ hidden units:
+\[
+X_{(n \times d)} \times W_{(d \times H)} = H_{(n \times H)}
+\]
+
+Each element $h_{ij}$ of the output is computed as:
+\[
+h_{ij} = \sum_{k=1}^{d} x_{ik} \cdot w_{kj}
+\]
+
+This is the dot product of row $i$ of $X$ (one sample) with column $j$ of $W$ (weights for one hidden unit).
+\end{rigour}
+
+\begin{quickref}[Layer Dimensions]
+For a layer transforming from $d$ inputs to $H$ outputs:
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Tensor} & \textbf{Shape} & \textbf{Description} \\
+\midrule
+$X$ & $(n, d)$ & Input batch \\
+$W$ & $(d, H)$ & Weight matrix \\
+$b$ & $(H,)$ & Bias vector \\
+$Z = XW + b$ & $(n, H)$ & Pre-activations \\
+$H = \sigma(Z)$ & $(n, H)$ & Activations \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textbf{Key insight:} The batch dimension $n$ is preserved through all layers; only the feature dimension changes. Each input sample carries forward through the network-what changes is only the column dimension (the number of features/activations), which depends on how many hidden units the layer has.
+\end{quickref}
+
+The following visualisation shows how each element of the output matrix is computed:
+
+\begin{rigour}[Matrix Multiplication Visualisation]
+Computing $H = XW$ element by element:
+
+\textbf{Computing $h_{11}$} (first sample, first hidden unit):
+\[
+\begin{pmatrix}
+\textcolor{red}{\mathbf{x_{11}}} & \textcolor{red}{\mathbf{x_{12}}} & \textcolor{red}{\cdots} & \textcolor{red}{\mathbf{x_{1d}}} \\
+x_{21} & x_{22} & \cdots & x_{2d} \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{n1} & x_{n2} & \cdots & x_{nd}
+\end{pmatrix}
+\times
+\begin{pmatrix}
+\textcolor{red}{\mathbf{w_{11}}} & w_{12} & \cdots & w_{1H} \\
+\textcolor{red}{\mathbf{w_{21}}} & w_{22} & \cdots & w_{2H} \\
+\textcolor{red}{\vdots} & \vdots & \ddots & \vdots \\
+\textcolor{red}{\mathbf{w_{d1}}} & w_{d2} & \cdots & w_{dH}
+\end{pmatrix}
+=
+\begin{pmatrix}
+\textcolor{red}{\mathbf{h_{11}}} & h_{12} & \cdots & h_{1H} \\
+h_{21} & h_{22} & \cdots & h_{2H} \\
+\vdots & \vdots & \ddots & \vdots \\
+h_{n1} & h_{n2} & \cdots & h_{nH}
+\end{pmatrix}
+\]
+
+\textbf{Computing $h_{21}$} (second sample, first hidden unit):
+\[
+\begin{pmatrix}
+x_{11} & x_{12} & \cdots & x_{1d} \\
+\textcolor{red}{\mathbf{x_{21}}} & \textcolor{red}{\mathbf{x_{22}}} & \textcolor{red}{\cdots} & \textcolor{red}{\mathbf{x_{2d}}} \\
+\vdots & \vdots & \ddots & \vdots \\
+x_{n1} & x_{n2} & \cdots & x_{nd}
+\end{pmatrix}
+\times
+\begin{pmatrix}
+\textcolor{red}{\mathbf{w_{11}}} & w_{12} & \cdots & w_{1H} \\
+\textcolor{red}{\mathbf{w_{21}}} & w_{22} & \cdots & w_{2H} \\
+\textcolor{red}{\vdots} & \vdots & \ddots & \vdots \\
+\textcolor{red}{\mathbf{w_{d1}}} & w_{d2} & \cdots & w_{dH}
+\end{pmatrix}
+=
+\begin{pmatrix}
+h_{11} & h_{12} & \cdots & h_{1H} \\
+\textcolor{red}{\mathbf{h_{21}}} & h_{22} & \cdots & h_{2H} \\
+\vdots & \vdots & \ddots & \vdots \\
+h_{n1} & h_{n2} & \cdots & h_{nH}
+\end{pmatrix}
+\]
+
+\textbf{Interpretation of the Hidden Activation Matrix $H$:}
+\begin{itemize}
+    \item \textbf{Rows of $H$}: activations of all hidden units for one sample. Each row represents how the network transforms that specific input based on the weights and biases.
+    \item \textbf{Columns of $H$}: activation of one hidden unit across all samples. The values show how each input sample contributes to the activation of that particular hidden unit.
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[Numerical Worked Example: Matrix Multiplication]
+\textbf{Setup:} $n=2$ samples, $d=3$ features, $H=2$ hidden units.
+
+\textbf{Input batch $X$} (2 samples $\times$ 3 features):
+\[
+X = \begin{pmatrix}
+1 & 2 & 3 \\
+4 & 5 & 6
+\end{pmatrix}
+\]
+
+\textbf{Weight matrix $W$} (3 features $\times$ 2 hidden units):
+\[
+W = \begin{pmatrix}
+0.1 & 0.4 \\
+0.2 & 0.5 \\
+0.3 & 0.6
+\end{pmatrix}
+\]
+
+\textbf{Computing $H = XW$:}
+
+Element $h_{11}$ (sample 1, hidden unit 1):
+\[
+h_{11} = x_{11}w_{11} + x_{12}w_{21} + x_{13}w_{31} = 1(0.1) + 2(0.2) + 3(0.3) = 0.1 + 0.4 + 0.9 = 1.4
+\]
+
+Element $h_{12}$ (sample 1, hidden unit 2):
+\[
+h_{12} = x_{11}w_{12} + x_{12}w_{22} + x_{13}w_{32} = 1(0.4) + 2(0.5) + 3(0.6) = 0.4 + 1.0 + 1.8 = 3.2
+\]
+
+Element $h_{21}$ (sample 2, hidden unit 1):
+\[
+h_{21} = x_{21}w_{11} + x_{22}w_{21} + x_{23}w_{31} = 4(0.1) + 5(0.2) + 6(0.3) = 0.4 + 1.0 + 1.8 = 3.2
+\]
+
+Element $h_{22}$ (sample 2, hidden unit 2):
+\[
+h_{22} = x_{21}w_{12} + x_{22}w_{22} + x_{23}w_{32} = 4(0.4) + 5(0.5) + 6(0.6) = 1.6 + 2.5 + 3.6 = 7.7
+\]
+
+\textbf{Result} (pre-activation, before adding bias and applying nonlinearity):
+\[
+H = XW = \begin{pmatrix}
+1.4 & 3.2 \\
+3.2 & 7.7
+\end{pmatrix}
+\]
+
+\textbf{Interpretation:}
+\begin{itemize}
+    \item Row 1: hidden activations for sample 1
+    \item Row 2: hidden activations for sample 2
+    \item Column 1: responses of hidden unit 1 to both samples
+    \item Column 2: responses of hidden unit 2 to both samples
+\end{itemize}
+
+This highlights how a single observation $x_i$ is transformed by the matrix from a $d$-dimensional (row) vector into an $H$-dimensional vector in the hidden layer's $H$ matrix. These row vectors are effectively stacked into the output matrix.
+\end{quickref}
+
+%==============================================================================
+\section{Single-Layer Neural Networks}
+%==============================================================================
+
+We begin with the simplest neural network: a single hidden layer between input and output.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_2/single-layered NN.png}
+    \caption{A single-layer neural network with $d$ inputs, $H$ hidden units, and one output. Note: $W^{[1]}$ is a matrix; $w^{[2]}$ is a vector!}
+    \label{fig:single-layer-nn}
+\end{figure}
+
+\subsection{Architecture}
+
+\begin{rigour}[Single-Layer Network: Complete Formulation]
+For input $x \in \mathbb{R}^d$ and hidden layer with $H$ units:
+
+\textbf{Hidden layer computation:}
+\[
+h_i^{[1]}(x) = g\left(b_i^{[1]} + \sum_{j=1}^{d} w_{ij}^{[1]} x_j\right), \quad i = 1, \ldots, H
+\]
+
+Each hidden unit $h_i$ computes a weighted sum of all input features $j$ plus a bias, then applies an activation function $g$. The neural network ties many neurons (hidden units) together that \textit{each are a different transformation of the original features}.
+
+\textbf{Output layer computation:}
+\[
+f(x) = o\left(b^{[2]} + \sum_{i=1}^{H} w_i^{[2]} h_i^{[1]}\right)
+\]
+
+The hidden activations are crucial for transforming the input data into a representation that can be effectively used by the output layer. The hidden activations replace the role of $x$ from the input layer.
+
+\textbf{Complete network equation:}
+\[
+f(x) = o\left(b^{[2]} + \sum_{i=1}^{H} w_i^{[2]} \cdot g\left(b_i^{[1]} + \sum_{j=1}^{d} w_{ij}^{[1]} x_j\right)\right)
+\]
+
+where:
+\begin{itemize}
+    \item $g(\cdot)$: hidden layer activation function (e.g., ReLU, sigmoid)
+    \item $o(\cdot)$: output layer activation function (depends on task)
+\end{itemize}
+\end{rigour}
+
+\subsection{Matrix Formulation}
+
+\begin{rigour}[Matrix Form of Single-Layer Network]
+\textbf{Single sample $x \in \mathbb{R}^d$:}
+\begin{align}
+z^{[1]} &= W^{[1]\top} x + b^{[1]} \in \mathbb{R}^H \\
+h^{[1]} &= g(z^{[1]}) \in \mathbb{R}^H \\
+z^{[2]} &= W^{[2]\top} h^{[1]} + b^{[2]} \in \mathbb{R}^K \\
+\hat{y} &= o(z^{[2]}) \in \mathbb{R}^K
+\end{align}
+
+\textbf{Batch $X \in \mathbb{R}^{n \times d}$:}
+\begin{align}
+Z^{[1]} &= XW^{[1]} + \mathbf{1}_n b^{[1]\top} \in \mathbb{R}^{n \times H} \\
+H^{[1]} &= g(Z^{[1]}) \in \mathbb{R}^{n \times H} \\
+Z^{[2]} &= H^{[1]}W^{[2]} + \mathbf{1}_n b^{[2]\top} \in \mathbb{R}^{n \times K} \\
+\hat{Y} &= o(Z^{[2]}) \in \mathbb{R}^{n \times K}
+\end{align}
+
+\textbf{Parameter counts:}
+\begin{itemize}
+    \item $W^{[1]} \in \mathbb{R}^{d \times H}$: $d \cdot H$ weights
+    \item $b^{[1]} \in \mathbb{R}^H$: $H$ biases
+    \item $W^{[2]} \in \mathbb{R}^{H \times K}$: $H \cdot K$ weights
+    \item $b^{[2]} \in \mathbb{R}^K$: $K$ biases
+    \item \textbf{Total:} $(d+1)H + (H+1)K$ parameters
+\end{itemize}
+\end{rigour}
+
+\subsection{Output Layer for Different Tasks}
+
+\begin{rigour}[Output Layer for Multi-class Classification]
+For $K$ classes, the final layer produces $K$ outputs:
+\[
+f_k(x) = o(a^{[L]})_k, \quad k = 1, \ldots, K
+\]
+
+\textbf{Pre-activation:}
+\[
+a_k^{[L]} = b_k^{[L]} + \sum_{i=1}^{H} w_{ki}^{[L]} h_i^{[L-1]}
+\]
+
+In matrix form for batch:
+\[
+H_{(n,H)} \times W^{[2]}_{(H,K)} = Z_{(n,K)}
+\]
+
+Each row of $Z$ is a $K$-dimensional vector of pre-activations for one sample. This shows how the hidden activations collapse down to a vector output of $K$ dimensions for each observation, which are stacked into a matrix $Z$ of $n \times K$.
+\end{rigour}
+
+\begin{rigour}[Output Layer for Regression]
+For single-output regression, $W^{[2]}$ is a vector:
+\[
+H_{(n,H)} \times w^{[2]}_{(H,1)} = \hat{y}_{(n,1)}
+\]
+
+Each sample produces a single scalar prediction. The $H$ hidden activations are combined via a dot product with the weight vector, producing one scalar per observation. Collectively these form a column vector.
+\end{rigour}
+
+%==============================================================================
+\section{Activation Functions}
+%==============================================================================
+
+Activation functions introduce nonlinearity, enabling neural networks to learn complex patterns.
+
+\begin{redbox}
+\textbf{Why nonlinearity is essential:} Without nonlinear activation functions, a multi-layer network collapses to a single linear transformation:
+\[
+W^{[2]}(W^{[1]}x + b^{[1]}) + b^{[2]} = \underbrace{W^{[2]}W^{[1]}}_{\tilde{W}}x + \underbrace{W^{[2]}b^{[1]} + b^{[2]}}_{\tilde{b}}
+\]
+No matter how many layers, the network can only represent linear functions!
+\end{redbox}
+
+\subsection{Purpose of Activation Functions}
+
+\begin{itemize}
+    \item \textbf{Prevent collapse into linear model}
+    \item \textbf{Capture complex non-linearities and interaction effects}-whereas in linear regression we must add interactions manually, NNs learn them automatically
+    \item \textbf{Biological analogy:} activations close to 1 represent ``firing'' neurons; close to 0 represent ``silent'' neurons
+    \item We need functions that are \textit{low below a threshold} and \textit{high above it}
+\end{itemize}
+
+\subsection{Common Activation Functions}
+
+\begin{rigour}[Activation Functions: Definitions and Derivatives]
+\textbf{Sigmoid (Logistic):}
+\[
+\sigma(z) = \frac{1}{1 + e^{-z}} = \frac{e^z}{1 + e^z}
+\]
+Range: $(0, 1)$. Derivative: $\sigma'(z) = \sigma(z)(1 - \sigma(z))$
+
+\textbf{Hyperbolic Tangent (tanh):}
+\[
+\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}} = 2\sigma(2z) - 1
+\]
+Range: $(-1, 1)$. Derivative: $\tanh'(z) = 1 - \tanh^2(z)$
+
+\textbf{Rectified Linear Unit (ReLU):}
+\[
+\text{ReLU}(z) = \max(0, z) = \begin{cases} z & z > 0 \\ 0 & z \leq 0 \end{cases}
+\]
+Range: $[0, \infty)$. Derivative: $\text{ReLU}'(z) = \mathbf{1}_{z > 0}$
+
+Can be computed and stored \textit{more efficiently} than a sigmoid function (only comparison and selection, no exponentials).
+
+\textbf{Leaky ReLU:}
+\[
+\text{LeakyReLU}(z) = \begin{cases} z & z > 0 \\ \alpha z & z \leq 0 \end{cases}
+\]
+where $\alpha \approx 0.01$. Derivative: $\begin{cases} 1 & z > 0 \\ \alpha & z \leq 0 \end{cases}$
+
+\textbf{Heaviside Step Function:}
+\[
+H(z) = \mathbf{1}_{z > 0} = \begin{cases} 1 & z > 0 \\ 0 & z \leq 0 \end{cases}
+\]
+Not differentiable at $z=0$; historically important but rarely used today.
+
+\textbf{Linear/Identity (output layers only):}
+\[
+g(z) = z
+\]
+Used for regression output layers.
+\end{rigour}
+
+\begin{quickref}[Sigmoid Derivative: Derivation and Numerical Example]
+\textbf{Deriving the sigmoid derivative:}
+
+Starting from $\sigma(z) = \frac{1}{1 + e^{-z}}$, apply the quotient rule:
+\begin{align*}
+\sigma'(z) &= \frac{0 \cdot (1 + e^{-z}) - 1 \cdot (-e^{-z})}{(1 + e^{-z})^2} = \frac{e^{-z}}{(1 + e^{-z})^2}
+\end{align*}
+
+Rewriting in terms of $\sigma(z)$:
+\begin{align*}
+\sigma'(z) &= \frac{1}{1 + e^{-z}} \cdot \frac{e^{-z}}{1 + e^{-z}} = \sigma(z) \cdot \frac{e^{-z}}{1 + e^{-z}} \\
+&= \sigma(z) \cdot \frac{1 + e^{-z} - 1}{1 + e^{-z}} = \sigma(z) \cdot \left(1 - \frac{1}{1 + e^{-z}}\right) \\
+&= \sigma(z)(1 - \sigma(z))
+\end{align*}
+
+\textbf{Numerical evaluation at different inputs:}
+\begin{center}
+\begin{tabular}{cccc}
+\toprule
+$z$ & $\sigma(z)$ & $1 - \sigma(z)$ & $\sigma'(z) = \sigma(z)(1-\sigma(z))$ \\
+\midrule
+$-3$ & 0.047 & 0.953 & 0.045 \\
+$-1$ & 0.269 & 0.731 & 0.197 \\
+$0$ & 0.500 & 0.500 & \textbf{0.250} (maximum) \\
+$1$ & 0.731 & 0.269 & 0.197 \\
+$3$ & 0.953 & 0.047 & 0.045 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Key insight:} The derivative is maximised at $z=0$ (where $\sigma(z) = 0.5$) and approaches 0 as $|z| \to \infty$. This causes the vanishing gradient problem in deep networks with sigmoid activations.
+\end{quickref}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/sigmoid_relu.png}
+    \caption{Comparison of sigmoid and ReLU. ReLU is unbounded for positive inputs and exactly zero for negative inputs.}
+    \label{fig:sigmoid-relu}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/tanh.png}
+    \caption{The hyperbolic tangent function-a scaled and shifted sigmoid, zero-centred.}
+    \label{fig:tanh}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/heavyside.png}
+    \caption{The Heaviside step function-the original ``activation'' but not differentiable.}
+    \label{fig:heaviside}
+\end{figure}
+
+\begin{quickref}[Activation Function Comparison]
+\begin{center}
+\begin{tabular}{lllll}
+\toprule
+\textbf{Function} & \textbf{Range} & \textbf{Pros} & \textbf{Cons} & \textbf{Use} \\
+\midrule
+Sigmoid & $(0,1)$ & Smooth, bounded & Vanishing gradients & Output (binary) \\
+Tanh & $(-1,1)$ & Zero-centred & Vanishing gradients & Hidden (legacy) \\
+ReLU & $[0,\infty)$ & Fast, non-saturating & Dead neurons & Hidden (default) \\
+Leaky ReLU & $\mathbb{R}$ & No dead neurons & Extra hyperparameter & Hidden \\
+Linear & $\mathbb{R}$ & Simple & No nonlinearity & Output (regression) \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{quickref}
+
+\subsection{Why ReLU Dominates}
+
+ReLU has become the default for hidden layers because:
+\begin{enumerate}
+    \item \textbf{Computational efficiency:} Only comparison and selection, no exponentials
+    \item \textbf{Sparse activation:} Negative inputs produce exactly zero
+    \item \textbf{Non-saturating (for $z > 0$):} Constant gradient of 1 avoids vanishing gradients
+    \item \textbf{Biological plausibility:} Neurons either fire or remain silent
+\end{enumerate}
+
+\begin{redbox}
+\textbf{Dead ReLU problem:} If a neuron's pre-activation is always negative (due to unlucky initialisation or large learning rate), its gradient is always zero and it never updates-the neuron is ``dead.''
+
+\textbf{Solutions:} Leaky ReLU, PReLU (learnable $\alpha$), ELU, or He initialisation.
+\end{redbox}
+
+%==============================================================================
+\section{Output Layers and Loss Functions}
+%==============================================================================
+
+The output layer and loss function depend on the task.
+
+\subsection{Output Activations by Task}
+
+\begin{rigour}[Output Layer Configuration]
+\textbf{Regression} ($y \in \mathbb{R}$):
+\begin{itemize}
+    \item Output activation: Identity $o(z) = z$
+    \item Output dimension: 1
+    \item Loss: Mean Squared Error
+\end{itemize}
+
+\textbf{Binary Classification} ($y \in \{0, 1\}$):
+\begin{itemize}
+    \item Output activation: Sigmoid $o(z) = \sigma(z)$
+    \item Output dimension: 1 (probability of class 1)
+    \item Loss: Binary Cross-Entropy
+\end{itemize}
+
+\textbf{Multi-class Classification} ($y \in \{1, \ldots, K\}$):
+\begin{itemize}
+    \item Output activation: Softmax
+    \item Output dimension: $K$ (probability for each class)
+    \item Loss: Categorical Cross-Entropy
+\end{itemize}
+\end{rigour}
+
+\subsection{Softmax Function}
+
+For multi-class classification, outputs must form a valid probability distribution. Unlike if we were to use sigmoid activation function again for our output activation, the softmax scales the output so that the vector values sum to 1, fulfilling the axioms of probability.
+
+\begin{rigour}[Softmax]
+The softmax function $\text{softmax}: \mathbb{R}^K \to (0,1)^K$:
+\[
+\text{softmax}(z)_k = \frac{e^{z_k}}{\sum_{j=1}^{K} e^{z_j}}, \quad k = 1, \ldots, K
+\]
+
+\textbf{Properties:}
+\begin{enumerate}
+    \item $\text{softmax}(z)_k > 0$ for all $k$ (strictly positive)
+    \item $\sum_{k=1}^{K} \text{softmax}(z)_k = 1$ (normalised)
+    \item Preserves ordering: if $z_i > z_j$ then $\text{softmax}(z)_i > \text{softmax}(z)_j$
+    \item Shift-invariant: $\text{softmax}(z + c) = \text{softmax}(z)$ for any constant $c$
+\end{enumerate}
+
+\textbf{Jacobian (for backpropagation):}
+\[
+\frac{\partial \text{softmax}(z)_i}{\partial z_j} = \text{softmax}(z)_i(\delta_{ij} - \text{softmax}(z)_j)
+\]
+where $\delta_{ij}$ is the Kronecker delta (1 if $i=j$, else 0).
+
+This has two cases:
+\begin{itemize}
+    \item $i = j$: $\frac{\partial o_i}{\partial z_i} = o_i(1 - o_i)$ (influence on itself)
+    \item $i \neq j$: $\frac{\partial o_i}{\partial z_j} = -o_i o_j$ (influence on other classes)
+\end{itemize}
+
+The two cases indicate how a change in one input affects the probabilities of all classes: the first indicates the influence of class $i$ on itself, while the second indicates the influence of class $j$ on class $i$.
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/multiclass classification.png}
+    \caption{Multi-class classification with $K$ output nodes. For $K$ output nodes, $W^{[2]}$ now has $K \times H$ dimensions; biases form a vector of $K$. Softmax ensures outputs sum to 1.}
+    \label{fig:multiclass}
+\end{figure}
+
+\begin{quickref}[Softmax Worked Example]
+\textbf{Dog vs Cat classification:}
+
+If raw output (pre-softmax) values are:
+\[
+z = \begin{bmatrix} 1.2 \\ 0.3 \end{bmatrix} \quad \text{(dog, cat)}
+\]
+
+Softmax computes:
+\[
+o_{\text{dog}} = \frac{e^{1.2}}{e^{1.2} + e^{0.3}} = \frac{3.32}{3.32 + 1.35} \approx 0.71
+\]
+\[
+o_{\text{cat}} = \frac{e^{0.3}}{e^{1.2} + e^{0.3}} = \frac{1.35}{3.32 + 1.35} \approx 0.29
+\]
+
+The model predicts 71\% probability of dog, 29\% probability of cat.
+\end{quickref}
+
+\begin{redbox}
+\textbf{Numerical stability:} Computing $e^{z_k}$ directly can overflow for large $z$. Use the log-sum-exp trick:
+\[
+\text{softmax}(z)_k = \frac{e^{z_k - \max_j z_j}}{\sum_{j=1}^{K} e^{z_j - \max_j z_j}}
+\]
+Subtracting $\max_j z_j$ prevents overflow (shift-invariance guarantees correctness).
+\end{redbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/process.png}
+    \caption{The forward propagation process: input $\to$ hidden activations $\to$ output probabilities.}
+    \label{fig:process}
+\end{figure}
+
+\subsection{Loss Functions}
+
+The loss function ultimately depends on the task we are looking at and what we want to optimise for.
+
+\begin{rigour}[Loss Functions for Regression]
+\textbf{Mean Squared Error (MSE):}
+\[
+\mathcal{L}_{\text{MSE}} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+\]
+
+\textbf{Mean Absolute Error (MAE):}
+\[
+\mathcal{L}_{\text{MAE}} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|
+\]
+More robust to outliers than MSE (large errors not squared).
+
+\textbf{Mean Absolute Percentage Error (MAPE):}
+\[
+\mathcal{L}_{\text{MAPE}} = \frac{100\%}{n} \sum_{i=1}^{n} \left|\frac{y_i - \hat{y}_i}{y_i}\right|
+\]
+Useful when relative error matters; undefined when $y_i = 0$.
+
+\textbf{Mean Squared Logarithmic Error (MSLE):}
+\[
+\mathcal{L}_{\text{MSLE}} = \frac{1}{n} \sum_{i=1}^{n} (\log(1+y_i) - \log(1+\hat{y}_i))^2
+\]
+Penalises underestimation more than overestimation; useful for targets spanning orders of magnitude.
+\end{rigour}
+
+\begin{rigour}[Loss Functions for Classification]
+\textbf{Binary Cross-Entropy (BCE):}
+\[
+\mathcal{L}_{\text{BCE}} = -\frac{1}{n} \sum_{i=1}^{n} \left[y_i \log \hat{y}_i + (1-y_i) \log(1-\hat{y}_i)\right]
+\]
+where $\hat{y}_i = \sigma(z_i) \in (0,1)$.
+
+\textbf{Categorical Cross-Entropy (CE):}
+\[
+\mathcal{L}_{\text{CE}} = -\frac{1}{n} \sum_{i=1}^{n} \sum_{k=1}^{K} y_{ik} \log \hat{y}_{ik}
+\]
+where $y_{ik} \in \{0,1\}$ is one-hot encoded.
+
+For one-hot labels (only one class is 1), this simplifies to:
+\[
+\mathcal{L}_{\text{CE}} = -\frac{1}{n} \sum_{i=1}^{n} \log \hat{y}_{i,c_i}
+\]
+where $c_i$ is the true class for sample $i$.
+
+\textbf{Interpretation of the cross-entropy sum:}
+\begin{itemize}
+    \item The outer sum iterates over each data sample in the dataset, where $n$ is the total number of samples.
+    \item The inner sum iterates over each class for a given sample, where $K$ is the total number of classes.
+    \item $y_{ik}$ is the binary ground truth indicator (1 if sample $i$ belongs to class $k$, 0 otherwise).
+    \item $\hat{y}_{ik} = f_k(x_i)$ is the predicted probability for class $k$ for sample $i$.
+    \item The resulting dot product $y_{ik} \cdot \log f_k(x_i)$ means that for each sample, only the log probability of the \textbf{true class} is considered in the loss-all other terms are zeroed out.
+\end{itemize}
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/log_function.png}
+    \caption{The $-\log(x)$ function: as predicted probability approaches 0, loss increases sharply; as it approaches 1, loss approaches 0.}
+    \label{fig:log-loss}
+\end{figure}
+
+\begin{quickref}[Cross-Entropy Intuition]
+For a sample with true class $k$:
+\begin{itemize}
+    \item Only $\log \hat{y}_k$ contributes (other terms are zeroed by one-hot encoding)
+    \item If $\hat{y}_k \approx 1$ (confident and correct): $-\log(1) \approx 0$ (low loss)
+    \item If $\hat{y}_k \approx 0$ (confident and wrong): $-\log(0) \to \infty$ (high loss)
+\end{itemize}
+Cross-entropy heavily penalises confident wrong predictions. It penalises incorrect class probabilities in a smooth and probabilistic way.
+\end{quickref}
+
+\begin{rigour}[Cross-Entropy and Information Theory]
+Cross-entropy is connected to KL divergence:
+\[
+H(p, q) = -\sum_k p_k \log q_k = H(p) + D_{\text{KL}}(p \| q)
+\]
+where $H(p)$ is entropy and $D_{\text{KL}}(p \| q)$ is KL divergence.
+
+Since $H(p)$ is constant w.r.t.\ model parameters, minimising cross-entropy is equivalent to minimising KL divergence from the true distribution.
+\end{rigour}
+
+\begin{quickref}[Task $\to$ Output $\to$ Loss Summary]
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Task} & \textbf{Output Activation} & \textbf{Loss} & \textbf{Output Dim} \\
+\midrule
+Regression & Identity & MSE/MAE & 1 \\
+Binary classification & Sigmoid & BCE & 1 \\
+Multi-class ($K$ classes) & Softmax & Cross-Entropy & $K$ \\
+Multi-label & Sigmoid (per class) & BCE (per class) & $K$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{quickref}
+
+%==============================================================================
+\section{Capacity and Expressiveness}
+%==============================================================================
+
+What functions can neural networks represent? In theory, a single hidden layer with a large number of units has the ability to approximate most functions.
+
+\subsection{Linear Separability}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{images/week_2/linear_separation.png}
+    \caption{Top: linearly separable data (a single linear decision boundary can separate the classes). Bottom: not linearly separable (XOR problem).}
+    \label{fig:linear-sep}
+\end{figure}
+
+A single neuron with sigmoid activation computes:
+\[
+h(x) = \sigma\left(b + \sum_{j=1}^d w_j x_j\right)
+\]
+
+This can be interpreted as $P(y=1|x)$-a logistic classifier.
+
+\begin{redbox}
+\textbf{Single neurons can only create linear decision boundaries.} They can solve linearly separable problems (top of figure) but cannot solve XOR-like problems (bottom of figure) where no single line separates the classes. Their expressive capacity is constrained to problems that are linearly separable.
+\end{redbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{images/week_2/linear_separation_2.png}
+    \caption{Examples of linearly separable problems. A single neuron can learn decision boundaries that separate these classes.}
+    \label{fig:linear-sep-examples}
+\end{figure}
+
+\subsection{How Hidden Layers Create Nonlinear Boundaries}
+
+For non-linearly separable problems, we need to \textbf{transform input features} to make them linearly separable. This is precisely what hidden layers accomplish.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/week_2/linear_separation_3.png}
+    \caption{Transformation of input features: hidden layers project data into a space where it becomes linearly separable.}
+    \label{fig:feature-transform}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_2/linear separation_4.png}
+    \caption{A single-layer network with 4 hidden neurons can represent a non-linear function. Each neuron learns a linearly separable component; their combination creates complex boundaries.}
+    \label{fig:nonlinear-boundary}
+\end{figure}
+
+Consider a network trying to learn a function that has class 1 in the middle but class 0 everywhere else:
+\begin{itemize}
+    \item Each of the four neurons learns a separate linearly separable part of this function (simple patterns like planes or ridges)
+    \item When these outputs are combined, the network can form a surface that captures the desired complex pattern
+    \item The sum (linear combination) of the activation functions with bias terms allows the network to create complex decision boundaries
+    \item By adding up these simple patterns, the network can approximate a complex function that is non-linear and multidimensional
+\end{itemize}
+
+\textbf{Key Takeaway:} Single-layer networks can represent non-linear functions by combining multiple linear neurons. This highlights the importance of activation functions and the combination of neurons for the expressive power of neural networks, even with a single layer.
+
+\subsection{Universal Approximation Theorem}
+
+\begin{rigour}[Universal Approximation Theorem (Hornik, 1991)]
+\textit{``A single hidden layer neural network with a linear output unit can approximate any continuous function arbitrarily well, given enough hidden units.''}
+
+More precisely: for any continuous function $f$ on a compact domain and any $\epsilon > 0$, there exists a single-layer network $\hat{f}$ such that $|f(x) - \hat{f}(x)| < \epsilon$ for all $x$ in the domain.
+
+\textbf{Implications:}
+\begin{itemize}
+    \item Neural networks have sufficient \textit{expressive power}
+    \item With enough hidden units, any continuous function can be represented
+\end{itemize}
+
+\textbf{Limitations:}
+\begin{itemize}
+    \item Does NOT guarantee that gradient descent will find the optimal weights
+    \item Does NOT specify how many hidden units are needed (may be exponential)
+    \item Says nothing about generalisation to unseen data
+\end{itemize}
+
+\textbf{However:} This does not mean that there is a learning algorithm that can find the necessary parameter values-it is an existence result, not a constructive one.
+\end{rigour}
+
+%==============================================================================
+\section{Gradient Descent}
+%==============================================================================
+
+Neural networks are trained by minimising a loss function using gradient descent.
+
+\subsection{Why Gradient Descent?}
+
+\begin{rigour}[The Optimisation Problem]
+In statistical learning, we seek parameters $\theta$ that minimise:
+\[
+\theta^* = \arg\min_\theta \mathcal{L}(\theta) = \arg\min_\theta \frac{1}{n} \sum_{i=1}^{n} \ell(f(x_i; \theta), y_i)
+\]
+
+Statistical models are a function of the data and many parameters $f(X, \theta)$. In deep learning, neural networks easily have billions of parameters (weights and biases).
+
+\textbf{The traditional calculus approach} would set partial derivatives to zero:
+\[
+\frac{\partial \mathcal{L}}{\partial \theta_i} = 0 \quad \text{for all } i
+\]
+This gives as many equations as parameters-\textbf{computationally intractable} for networks with millions or billions of parameters.
+
+\textbf{Gradient descent solution:} Instead of solving the system of equations, iteratively step toward the minimum:
+\[
+\theta \leftarrow \theta - \eta \frac{\partial \mathcal{L}}{\partial \theta}
+\]
+We only need to \textit{compute} the gradient, not \textit{solve} a system. Gradient descent is computationally tractable-approaching the minimum step by step along the direction of steepest descent.
+\end{rigour}
+
+\subsection{Gradient Descent Algorithm}
+
+\begin{rigour}[Gradient Descent]
+Starting from initial parameters $\theta^{(0)}$, iterate until a stopping criterion is fulfilled:
+\begin{enumerate}
+    \item Find the gradient (search direction) $\Delta \theta^{(k)} = -\nabla_\theta \mathcal{L}(\theta^{(k)})$
+    \item Choose a step size $\eta^{(k)}$ (learning rate)
+    \item Update: $\theta^{(k+1)} = \theta^{(k)} + \eta \Delta \theta^{(k)} = \theta^{(k)} - \eta \nabla_\theta \mathcal{L}(\theta^{(k)})$
+\end{enumerate}
+
+where:
+\begin{itemize}
+    \item $\eta > 0$ is the \textbf{learning rate} (step size, a scalar)
+    \item $\nabla_\theta \mathcal{L}$ is the gradient vector (all partial derivatives)
+    \item The negative sign ensures we move \textit{downhill}
+\end{itemize}
+
+\textbf{Intuition:} The gradient points in the direction of steepest \textit{ascent}. Moving in the opposite direction decreases the loss.
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\linewidth]{images/week_2/grad_descent.png}
+    \caption{Gradient descent on a 2D loss surface. The gradient is a vector of partial derivatives pointing uphill; we step in the opposite direction.}
+    \label{fig:grad-descent}
+\end{figure}
+
+\begin{redbox}
+\textbf{Convexity matters:} Only for convex functions is gradient descent guaranteed to (1) move directly toward the minimum, and (2) reach the global minimum. For non-convex loss functions (i.e., neural networks), gradient descent can:
+\begin{itemize}
+    \item Get stuck in local minima
+    \item Oscillate in saddle points
+    \item Be inefficient in flat regions
+\end{itemize}
+\end{redbox}
+
+\begin{quickref}[Gradient Descent Variants]
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Variant} & \textbf{Batch Size} & \textbf{Gradient Estimate} \\
+\midrule
+Batch GD & All $n$ samples & Exact gradient \\
+Stochastic GD (SGD) & 1 sample & Very noisy estimate \\
+Mini-batch GD & $m$ samples ($1 < m < n$) & Balanced \\
+\bottomrule
+\end{tabular}
+\end{center}
+\textbf{Practice:} Mini-batch (typically $m = 32, 64, 128, 256$) balances computation with gradient quality.
+\end{quickref}
+
+\begin{rigour}[Gradient Descent: Step-by-Step Numerical Example]
+\textbf{Setup:} Simple linear regression with one parameter $w$.
+\begin{itemize}
+    \item Loss function: $\mathcal{L}(w) = (y - wx)^2$ (single data point)
+    \item Data point: $x = 2$, $y = 6$
+    \item Initial weight: $w^{(0)} = 1$
+    \item Learning rate: $\eta = 0.1$
+\end{itemize}
+
+\textbf{Iteration 1:}
+\begin{enumerate}
+    \item \textbf{Forward pass:} $\hat{y} = w^{(0)} \cdot x = 1 \cdot 2 = 2$
+    \item \textbf{Compute loss:} $\mathcal{L} = (6 - 2)^2 = 16$
+    \item \textbf{Compute gradient:}
+    \[
+    \frac{\partial \mathcal{L}}{\partial w} = \frac{\partial}{\partial w}(y - wx)^2 = 2(y - wx)(-x) = -2x(y - wx)
+    \]
+    \[
+    = -2(2)(6 - 2) = -2(2)(4) = -16
+    \]
+    \item \textbf{Update weight:}
+    \[
+    w^{(1)} = w^{(0)} - \eta \cdot \frac{\partial \mathcal{L}}{\partial w} = 1 - 0.1(-16) = 1 + 1.6 = 2.6
+    \]
+\end{enumerate}
+
+\textbf{Iteration 2:}
+\begin{enumerate}
+    \item \textbf{Forward pass:} $\hat{y} = 2.6 \cdot 2 = 5.2$
+    \item \textbf{Compute loss:} $\mathcal{L} = (6 - 5.2)^2 = 0.64$
+    \item \textbf{Compute gradient:} $\frac{\partial \mathcal{L}}{\partial w} = -2(2)(6 - 5.2) = -2(2)(0.8) = -3.2$
+    \item \textbf{Update weight:} $w^{(2)} = 2.6 - 0.1(-3.2) = 2.6 + 0.32 = 2.92$
+\end{enumerate}
+
+\textbf{Iteration 3:}
+\begin{enumerate}
+    \item \textbf{Forward pass:} $\hat{y} = 2.92 \cdot 2 = 5.84$
+    \item \textbf{Compute loss:} $\mathcal{L} = (6 - 5.84)^2 = 0.0256$
+    \item \textbf{Compute gradient:} $\frac{\partial \mathcal{L}}{\partial w} = -2(2)(0.16) = -0.64$
+    \item \textbf{Update weight:} $w^{(3)} = 2.92 + 0.064 = 2.984$
+\end{enumerate}
+
+\textbf{Convergence:} Loss decreases: $16 \to 0.64 \to 0.0256$. Weight approaches optimal $w^* = 3$ (since $y = 3x$).
+
+\textbf{Key observation:} Gradient magnitude decreases as we approach the minimum, causing smaller steps.
+\end{rigour}
+
+\subsection{Learning Rate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/grad_descent_2.png}
+    \caption{Even with fixed $\eta$, steps become smaller as we approach the minimum-the gradient magnitude decreases. As we get closer to the minimum, the functional values we plug in become smaller; the gradient evaluated at each successive point becomes smaller.}
+    \label{fig:learning-rate}
+\end{figure}
+
+\begin{redbox}
+\textbf{Learning rate selection:}
+\begin{itemize}
+    \item Too small: Slow convergence, may get stuck in local minima
+    \item Too large: Oscillation, divergence, may overshoot minima
+    \item Just right: Fast convergence to good minimum
+\end{itemize}
+\textbf{Heuristics:} Start with $\eta = 10^{-3}$ (Adam) or $\eta = 10^{-1}$ (SGD with momentum). Use learning rate schedulers.
+\end{redbox}
+
+\subsection{Stopping Criteria}
+
+\begin{rigour}[Stopping Criteria]
+\textbf{Gradient norm:} Stop when $\|\nabla_\theta \mathcal{L}\|_2 < \epsilon$
+
+In gradient descent, we have that $\mathcal{L}(\theta^{(k+1)}) < \mathcal{L}(\theta^{(k)})$ for some $\eta$, except when $\theta^{(k)}$ is optimal. A possible stopping criterion is therefore $\|\nabla_\theta \mathcal{L}(\theta^{(k)})\|_2 \leq \epsilon$.
+
+\textbf{Loss plateau:} Stop when $|\mathcal{L}^{(t)} - \mathcal{L}^{(t-1)}| < \epsilon$
+
+\textbf{Maximum iterations:} Stop after $T$ epochs
+
+\textbf{Early stopping (standard in DL):}
+\begin{enumerate}
+    \item Monitor validation loss $\mathcal{L}_{\text{val}}$ after each epoch
+    \item Track best validation loss and corresponding parameters
+    \item Stop if no improvement for ``patience'' epochs
+    \item Return parameters with best validation loss
+\end{enumerate}
+\end{rigour}
+
+\begin{redbox}
+In deep learning, we use \textbf{early stopping} rather than convergence to minimum training loss. Training to convergence typically leads to overfitting. We stop \textit{before} reaching minimal training error, when validation performance is best. We use validation data to determine when to stop, avoiding overfitting.
+\end{redbox}
+
+%==============================================================================
+\section{Backpropagation}
+%==============================================================================
+
+Backpropagation is the algorithm for efficiently computing gradients in neural networks. To learn the weights, we minimise a loss function using gradient descent. When we apply this to neural networks and compute the gradient of the loss function, we call this backpropagation-it is how we turn information from our loss function into updates of biases and weights.
+
+\subsection{The Training Loop}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_2/training.png}
+    \caption{The neural network training loop: forward pass $\to$ loss computation $\to$ backward pass $\to$ parameter update.}
+    \label{fig:training-loop}
+\end{figure}
+
+\begin{quickref}[Training Process with SGD]
+\begin{enumerate}
+    \item \textbf{Forward Pass:} Apply model to training data $X$ to get prediction $\hat{y} = f(x; \theta)$. See how well the network is currently predicting by calculating the current loss.
+    \item \textbf{Compute Loss:} Calculate $\mathcal{L}(\hat{y}, y)$ using cross-entropy or MSE. Tells us how far off the predictions are.
+    \item \textbf{Backward Pass (Backpropagation):} Compute $\nabla_\theta \mathcal{L}$. Determines \textit{how much each weight contributed} to the overall error.
+    \begin{enumerate}
+        \item Calculate partial derivatives of the loss function $\mathcal{L}$ with respect to each model parameter $\theta$ using chain rule differentiation
+        \item Propagate the error backwards through the network layers (from output layer to input layer)
+        \item This gives us the gradient vector $\nabla_\theta \mathcal{L}$
+        \item Plug in \textit{current} parameter values to compute the gradient for current weights and data points
+    \end{enumerate}
+    \item \textbf{Update Parameters:} $\theta \leftarrow \theta - \eta \nabla_\theta \mathcal{L}$
+\end{enumerate}
+Repeat for many \textbf{epochs} (full passes through dataset) until convergence. The hard part is computing the gradient (the backpropagation in step 3).
+\end{quickref}
+
+\subsection{The Chain Rule}
+
+The loss depends on early-layer parameters through a chain of intermediate computations. Each layer's output depends on the previous layer's activations, so gradients must be propagated backwards using the chain rule.
+
+\begin{rigour}[Chain Rule]
+\textbf{Scalar case:} If $y = f(u)$ and $u = g(x)$:
+\[
+\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}
+\]
+
+\textbf{Multivariate case:} If $y = f(u_1, \ldots, u_m)$ and each $u_i = g_i(x_1, \ldots, x_n)$:
+\[
+\frac{\partial y}{\partial x_j} = \sum_{i=1}^{m} \frac{\partial y}{\partial u_i} \cdot \frac{\partial u_i}{\partial x_j}
+\]
+
+\textbf{Visual intuition:} Sum over all paths from $x_j$ to $y$, multiplying derivatives along each path.
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/chain rule.png}
+    \caption{Multivariate chain rule: to compute $\frac{\partial f}{\partial w}$, sum over all paths from $w$ to $f$.}
+    \label{fig:chain-rule}
+\end{figure}
+
+For a network $\mathcal{L} = \mathcal{L}(o(h(g(x))))$, each layer's output depends on previous layers, so gradients must propagate backwards. Each weight and bias in a neural network indirectly affects the final output through a series of nested transformations (non-linear activations). Thus, to compute the true gradient with respect to a given weight or bias, we need to account for all intermediate activations and their gradients.
+
+\begin{rigour}[Multivariate Chain Rule Example]
+To compute $\frac{\partial f}{\partial w}$ through variables $a, b, u, v$:
+\[
+\frac{\partial f}{\partial w} = \frac{\partial f}{\partial u}\frac{\partial u}{\partial a}\frac{\partial a}{\partial w} + \frac{\partial f}{\partial v}\frac{\partial v}{\partial a}\frac{\partial a}{\partial w} + \frac{\partial f}{\partial u}\frac{\partial u}{\partial b}\frac{\partial b}{\partial w} + \frac{\partial f}{\partial v}\frac{\partial v}{\partial b}\frac{\partial b}{\partial w}
+\]
+Each term corresponds to one path through the computation graph.
+\end{rigour}
+
+\subsection{Computing the Gradient}
+
+\begin{rigour}[Gradient of Single-Layer Network]
+For network:
+\[
+f(x) = o\left(b^{[2]} + \sum_i w_i^{[2]} g\left(b_i^{[1]} + \sum_j w_{ij}^{[1]} x_j\right)\right)
+\]
+
+The gradient vector has components:
+\[
+\nabla \mathcal{L} = \begin{bmatrix}
+\frac{\partial \mathcal{L}}{\partial b_i^{[1]}} \\
+\frac{\partial \mathcal{L}}{\partial w_{ij}^{[1]}} \\
+\frac{\partial \mathcal{L}}{\partial b^{[2]}} \\
+\frac{\partial \mathcal{L}}{\partial w_i^{[2]}}
+\end{bmatrix}
+\]
+
+This is just the gradient of the loss with respect to \textit{each parameter in the original loss function} (i.e., the bias and weights across each different layer). However, these partial derivatives are \textbf{not computed directly}. Instead, we apply the chain rule through multiple layers of activations.
+\end{rigour}
+
+\begin{rigour}[Chain Rule for Weight $w_{ij}^{[1]}$]
+\[
+\frac{\partial \mathcal{L}}{\partial w_{ij}^{[1]}} = \frac{\partial \mathcal{L}}{\partial f} \cdot \frac{\partial f}{\partial a^{[2]}} \cdot \frac{\partial a^{[2]}}{\partial h_i^{[1]}} \cdot \frac{\partial h_i^{[1]}}{\partial a_i^{[1]}} \cdot \frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}}
+\]
+
+Each term:
+\begin{itemize}
+    \item $\frac{\partial \mathcal{L}}{\partial f}$: derivative of loss w.r.t.\ network output (also can be written as $o(a^{[2]})$)
+    \item $\frac{\partial f}{\partial a^{[2]}}$: derivative of output activation w.r.t.\ output layer pre-activation
+    \item $\frac{\partial a^{[2]}}{\partial h_i^{[1]}}$: derivative of pre-activation w.r.t.\ hidden activation (the output of hidden layer before activation)
+    \item $\frac{\partial h_i^{[1]}}{\partial a_i^{[1]}}$: derivative of hidden activation function w.r.t.\ previous layer pre-activation (weighted inputs from previous layer)
+    \item $\frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}}$: derivative of pre-activation w.r.t.\ weight
+\end{itemize}
+
+For this, we will need the derivative of (i) the loss function, (ii) the activation functions, and (iii) the output activation.
+\end{rigour}
+
+\subsection{Worked Example: Backpropagation}
+
+\begin{rigour}[Worked Example: Single-Layer Network with MSE Loss]
+\textbf{Setup:}
+\begin{itemize}
+    \item Single hidden layer with sigmoid activation $\sigma$
+    \item Linear output (identity activation)
+    \item Squared error loss: $\mathcal{L} = (y - f(x))^2$
+\end{itemize}
+
+\textbf{Network:}
+\[
+f(x) = b^{[2]} + \sum_i w_i^{[2]} \sigma\left(b_i^{[1]} + \sum_j w_{ij}^{[1]} x_j\right)
+\]
+
+\textbf{Computing $\frac{\partial \mathcal{L}}{\partial w_{ij}^{[1]}}$:}
+
+\textbf{Term 1} (derivative of loss):
+\[
+\frac{\partial \mathcal{L}}{\partial f} = \frac{\partial}{\partial f}(y - f)^2 = -2(y - f)
+\]
+
+\textbf{Term 2} (linear output):
+\[
+\frac{\partial f}{\partial a^{[2]}} = 1
+\]
+
+\textbf{Term 3} (output w.r.t.\ hidden):
+\[
+\frac{\partial a^{[2]}}{\partial h_i^{[1]}} = \frac{\partial}{\partial h_i^{[1]}}\left(b^{[2]} + \sum_l w_l^{[2]} h_l^{[1]}\right) = w_i^{[2]}
+\]
+
+\textbf{Term 4} (sigmoid derivative):
+\[
+\frac{\partial h_i^{[1]}}{\partial a_i^{[1]}} = \sigma(a_i^{[1]})(1 - \sigma(a_i^{[1]}))
+\]
+
+\textbf{Term 5} (pre-activation w.r.t.\ weight):
+\[
+\frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}} = \frac{\partial}{\partial w_{ij}^{[1]}}\left(b_i^{[1]} + \sum_m w_{im}^{[1]} x_m\right) = x_j
+\]
+
+\textbf{Complete gradient:}
+\[
+\frac{\partial \mathcal{L}}{\partial w_{ij}^{[1]}} = -2(y - f(x)) \cdot w_i^{[2]} \cdot \sigma(a_i^{[1]})(1 - \sigma(a_i^{[1]})) \cdot x_j
+\]
+
+\textbf{Weight update:}
+\[
+w_{ij}^{(t+1)} = w_{ij}^{(t)} - \eta \cdot \left(-2(y - f(x)) \cdot w_i^{[2]} \cdot \sigma(a_i^{[1]})(1 - \sigma(a_i^{[1]})) \cdot x_j\right)
+\]
+
+To get the weight updates for the $(t+1)$th iteration: we plug in all the values for the $t$th iteration of the other weights, all input features of the data, and ground truths and predictions.
+\end{rigour}
+
+\subsection{Gradient Formulas for Common Cases}
+
+\begin{rigour}[Convenient Gradient Formulas]
+\textbf{Softmax + Cross-Entropy:}
+
+For softmax output $\hat{y} = \text{softmax}(z)$ with cross-entropy loss $\mathcal{L} = -\sum_k y_k \log \hat{y}_k$:
+\[
+\frac{\partial \mathcal{L}}{\partial z_k} = \hat{y}_k - y_k
+\]
+Remarkably simple: just (prediction $-$ target)!
+
+\textbf{Sigmoid + Binary Cross-Entropy:}
+
+For sigmoid output $\hat{y} = \sigma(z)$ with BCE loss:
+\[
+\frac{\partial \mathcal{L}}{\partial z} = \hat{y} - y = \sigma(z) - y
+\]
+
+\textbf{ReLU:}
+\[
+\frac{\partial}{\partial z}\text{ReLU}(z) = \begin{cases} 1 & z > 0 \\ 0 & z \leq 0 \end{cases}
+\]
+Gradient passes through unchanged if $z > 0$; blocked if $z \leq 0$.
+\end{rigour}
+
+\begin{quickref}[Backpropagation Summary]
+\textbf{Forward pass:}
+\begin{enumerate}
+    \item Compute and \textit{store} all intermediate activations
+    \item Compute the loss
+\end{enumerate}
+
+\textbf{Backward pass:}
+\begin{enumerate}
+    \item Compute gradient of loss w.r.t.\ output: $\delta^{[L]} = \frac{\partial \mathcal{L}}{\partial z^{[L]}}$
+    \item For each layer $\ell$ from $L$ to $1$:
+    \begin{itemize}
+        \item Compute weight gradient: $\frac{\partial \mathcal{L}}{\partial W^{[\ell]}} = h^{[\ell-1]} \delta^{[\ell]\top}$
+        \item Compute bias gradient: $\frac{\partial \mathcal{L}}{\partial b^{[\ell]}} = \delta^{[\ell]}$
+        \item Propagate: $\delta^{[\ell-1]} = (W^{[\ell]} \delta^{[\ell]}) \odot \sigma'(z^{[\ell-1]})$
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Complexity:} Same as forward pass-$O(n \cdot P)$ where $P$ is total parameters.
+\end{quickref}
+
+%==============================================================================
+\section{Parameters vs Hyperparameters}
+%==============================================================================
+
+\begin{rigour}[Parameters and Hyperparameters]
+\textbf{Parameters} (learned from data):
+\begin{itemize}
+    \item Weights $W^{[\ell]}$
+    \item Biases $b^{[\ell]}$
+\end{itemize}
+
+We learn the weights ($b$, $W$) from the data; all the rest are set as hyperparameters.
+
+\textbf{Hyperparameters} (set before training):
+\begin{itemize}
+    \item Architecture: number of layers, neurons per layer
+    \item Learning rate $\eta$
+    \item Batch size
+    \item Activation functions
+    \item Regularisation strength
+    \item Number of epochs
+\end{itemize}
+
+Hyperparameters are tuned using validation set performance (grid search, random search, Bayesian optimisation).
+\end{rigour}
+
+%==============================================================================
+\section{The Bigger Picture}
+%==============================================================================
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_2/big picture.png}
+    \caption{Everything covered has been for a single-layer network with linear output. Real networks are deeper and use different output activations.}
+    \label{fig:big-picture}
+\end{figure}
+
+All of this has been for a toy example: a single-layered neural network with a linear output activation. In real life we do not have linear output activation, and we use deep networks with many layers. The principles remain the same, but the chain rule chains become longer.
+
+\begin{quickref}[Week 2 Summary]
+\textbf{Neural Network Components:}
+\begin{itemize}
+    \item Neurons: $h = \sigma(w^\top x + b)$
+    \item Layers: parallel neurons, matrix multiplication $H = \sigma(XW + b)$
+    \item Activations: ReLU (hidden), Softmax/Sigmoid (output)
+\end{itemize}
+
+\textbf{Training:}
+\begin{itemize}
+    \item Forward pass: compute predictions
+    \item Loss function: MSE (regression), Cross-Entropy (classification)
+    \item Backward pass: chain rule to compute gradients
+    \item Update: $\theta \leftarrow \theta - \eta \nabla_\theta \mathcal{L}$
+\end{itemize}
+
+\textbf{Key Equations:}
+\begin{align*}
+\text{Forward:} \quad & h^{[\ell]} = \sigma(W^{[\ell]\top} h^{[\ell-1]} + b^{[\ell]}) \\
+\text{Update:} \quad & \theta^{(t+1)} = \theta^{(t)} - \eta \nabla_\theta \mathcal{L} \\
+\text{Softmax + CE:} \quad & \frac{\partial \mathcal{L}}{\partial z} = \hat{y} - y
+\end{align*}
+\end{quickref}

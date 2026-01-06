@@ -1,0 +1,633 @@
+ \documentclass[xcolor=dvipsnames]{beamer}
+%\documentclass[xcolor=dvipsnames,handout]{beamer}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\usepackage{etex}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epsfig}
+\usepackage[english]{babel}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{fancyvrb}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{caption}
+%\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{epsdice}
+
+\hypersetup{
+    colorlinks = true
+}
+
+\definecolor{newred}{RGB}{127,0,0}
+\let\iitemize=\itemize \let\endiitemize=\enditemize \renewenvironment{itemize}{\iitemize \vspace{1mm} \itemsep2mm}{\endiitemize}
+\let\eenumerate=\enumerate \let\endeenumerate=\endenumerate \renewenvironment{enumerate}{\eenumerate \vspace{1mm} \itemsep2mm}{\endeenumerate}
+% == theme & colors
+\mode<presentation>
+{
+
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usecolortheme{beaver}
+  \setbeamercovered{invisible} %or transparent
+  \metroset{block=fill}
+  \setbeamercolor{block title example}{fg=gray!40!black}
+  \setbeamercolor{itemize item}{fg=gray!40!black} 
+  \setbeamercolor{title}{fg=newred} 
+}
+
+      
+\setbeamercolor{background canvas}{bg=white}
+
+
+% === tikz for pictures ===
+\usepackage{tikz}
+\usepackage[latin1]{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning}
+\usetikzlibrary{decorations.pathreplacing}
+\tikzstyle{doublearr}=[latex-latex, black, line width=0.5pt]
+
+% === if you want more than one slides on one page ===
+\usepackage{pgfpages}
+
+
+
+\title{Mathematics for Data Science}
+\subtitle[]{Lecture 6: The Second Derivative Test, Integration, and Continuous Random Variables} 
+\author[Asya Magazinnik]{Asya Magazinnik}
+\institute{Hertie School}
+\date{\today}
+
+\renewcommand\r{\right}
+\renewcommand\l{\left}
+% \newcommand\sign{{\rm sign}}
+
+%% == change spacing for itemize
+%\let\oldframe\frame
+%\renewcommand{\frame}[1][1]{
+%\oldframe[#1]
+%\let\olditemize\itemize
+%\renewcommand\itemize{\olditemize\addtolength{\itemsep}{.25\baselineskip}}
+%}
+
+
+
+\def\insertnavigation#1{\relax}
+% \usefonttheme{serif}
+\usepackage[all]{xy}
+\usepackage{geometry,colortbl,wrapfig}
+\usepackage{tikz}  
+\usepackage{graphicx,setspace,subfigure}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\newcommand{\Ex}{\textsc{Example  }}
+\newcommand{\series}{\sum_{n=1}^{\infty}} 
+\newcommand{\ball}[1]{B( #1)} 
+\newcommand{\inner}[1]{\ensuremath{\langle #1 \rangle}}
+\newcommand{\e}{\epsilon}
+\newcommand{\grad}{\nabla}
+\newcommand{\pa}{\pause \item}
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+\newcommand{\R}{\mathbb{R}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+
+
+
+
+\newcommand{\indep}{{\bot\negthickspace\negthickspace\bot}}
+
+\begin{document}
+
+\subject{Talks}
+\AtBeginSection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection,currentsubsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+
+\frame[plain]{
+  \titlepage
+  \addtocounter{framenumber}{-1}
+}
+
+\section{Derivatives and the Shape of a Graph}
+\begin{frame}{Reading: Herman and Strang, Vol. 1}
+    Section 4.5: Derivatives and the Shape of a Graph (p. 390-402)
+\end{frame}
+
+\subsection{The First Derivative Test}
+\begin{frame}{}
+\vspace{3mm}
+\begin{figure}
+    \centering
+    \includegraphics[height=.85\textheight]{images/first_deriv.png}
+    \caption{The first derivative tells you if the function is increasing, decreasing, or neither at that point.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{The first derivative also helps us identify critical points}
+        \includegraphics[width=\textwidth]{images/critical_points.png}    
+\end{frame}
+
+\begin{frame}{The First Derivative Test}
+        \includegraphics[width=\textwidth]{images/first_deriv2.png}
+\end{frame}
+
+\begin{frame}{Example 4.1.7 (p. 392)}
+\vspace{3mm}
+        \includegraphics[height=.9\textheight]{images/example_first_deriv.png}
+\end{frame}
+
+\subsection{The Second Derivative Test}
+\begin{frame}{}
+\vspace{3mm}
+\begin{figure}
+    \centering
+    \includegraphics[height=.85\textheight]{images/concavity1.png}
+    \caption{The second derivative -- the rate of change of the rate of change -- tells us whether the function is \alert{concave up} or \alert{concave down}.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{The second derivative tells us about concavity} 
+\centering
+        \includegraphics[width=\textwidth]{images/concavity2.png}
+        \includegraphics[width=.9\textwidth]{images/concavity3.png}
+\end{frame}
+
+\begin{frame}{The Second Derivative Test}
+            \includegraphics[width=\textwidth]{images/second_deriv_test.png}
+\end{frame}
+
+\begin{frame}{Back to Example 4.1.7 (p. 392)}
+\vspace{3mm}
+        \includegraphics[height=.9\textheight]{images/example_first_deriv.png}
+\end{frame}
+
+\section{Integration}
+\begin{frame}{Reading: Herman and Strang, Vol. 2}
+\begin{itemize}
+    \item Chapter 1.1 (Approximating Areas)
+    \begin{itemize}
+        \item p. 6-16
+    \end{itemize}
+    \item Chapter 1.2 (The Definite Integral)
+    \begin{itemize}
+        \item p. 24-26 (stop at ``Evaluating Definite Integrals'')
+        \item p. 32-33 (section titled ``Properties of the Definite Integral,'' stop at ``Comparison Properties of Integrals'')
+    \end{itemize}
+    \item Chapter 1.3 (The Fundamental Theorem of Calculus)
+    \begin{itemize}
+        \item p. 43-46 (section titled ``Fundamental Theorem of Calculus Part 1: Integrals and Antiderivatives'')
+        \item p. 46-48 (section titled ``Fundamental Theorem of Calculus Part 2: The Evaluation Theorem,'' stop at Example 1.21)
+    \end{itemize}
+\end{itemize}
+\end{frame}
+
+\subsection{Intuition}
+\begin{frame}{The Definite Integral}
+\vspace{2mm}
+We are interested in the area under this curve over the blue shaded region:
+\begin{center}
+    \includegraphics[width=.5\textwidth]{images/integ1.png}
+\end{center}
+which can be written: $A = \int_a^b f(x) dx$. 
+\end{frame}
+
+\begin{frame}{Endpoint Approximation}
+    \vspace{3mm}
+    This area can be approximated using \alert{left-endpoint approximation}:  
+  \begin{center}
+    \includegraphics[width=.7\textwidth]{images/integ2.png}
+\end{center}  
+\end{frame}
+
+\begin{frame}{Endpoint Approximation}
+    \vspace{3mm}
+    For better and better approximation, use more rectangles: 
+  \begin{center}
+    \includegraphics[width=.8\textwidth]{images/integ3.png}
+\end{center}  
+\end{frame}
+
+\begin{frame}{Endpoint Approximation}
+    This is called a \alert{Riemann sum}:
+    \[ \sum_{i=1}^n f(x_i^*) \Delta x \]
+    where $\Delta x$ is the width of each subinterval $[x_i-1, x_i]$ and $x_i^*$ is any point in that subinterval. \\
+    \vspace{3mm}
+    Then, the area under the curve is:
+    \[ A = \lim_{n \rightarrow \infty} \sum_{i=1}^n f(x_i^*) \Delta x \]
+    This is the definite integral. 
+\end{frame}
+
+\begin{frame}{The Fundamental Theorem of Calculus, Part 1}
+Part 1 of the Fundamental Theorem of Calculus establishes the relationship between the derivative and the integral.\\
+\vspace{4mm}
+    \includegraphics[width=\textwidth]{images/ftc1.png}
+\end{frame}
+
+\begin{frame}{The Fundamental Theorem of Calculus, Part 2}
+Part 2 of the Fundamental Theorem of Calculus tells us how we can evaluate a definite integral. \\ 
+\vspace{4mm}
+        \includegraphics[width=\textwidth]{images/ftc2.png}
+\end{frame}
+
+\subsection{Techniques}
+\begin{frame}{Example: Computing the Antiderivative for a Polynomial}
+    \[
+    F(x) = \int_0^3 (x^2 - 1) dx
+    \]
+\begin{enumerate}
+    \item Apply the Fundamental Theorem of Calculus, Part 1 (as well as the properties on p. 32)
+    \vspace{15mm}
+    \item Apply the Fundamental Theorem of Calculus, Part 2 
+    \vfill 
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Beyond Polynomials}
+    For all other functions, there are many integration techniques; the right choice depends on your application. Options include: 
+    \begin{enumerate}
+        \item Finding the antiderivative in terms of other, simpler functions
+        \begin{itemize} \small 
+            \item See: \url{https://en.wikipedia.org/wiki/Antiderivative\#Techniques\_of\_integration} 
+        \end{itemize}
+        \item Numerical integration: approximating a definite integral when no elementary antiderivative exists
+        \begin{itemize} \small 
+            \item Midpoint rule, trapezoidal rule, Simpson's rule 
+            \item Gaussian quadrature, Bayesian quadrature 
+            \item Monte Carlo integration 
+            \item Sparse grid integration
+        \end{itemize}
+        \end{enumerate}
+\end{frame}
+
+\section{Continuous Random Variables}
+\begin{frame}{Continuous Random Variables}
+    \vspace{2mm}
+    A random variable has a \alert{continuous distribution} if its CDF is differentiable. 
+    \begin{center}
+        \includegraphics[width=\textwidth]{images/cont_rv.png}
+    \end{center}
+    Left: CDF of a discrete r.v.; right: CDF of a continuous r.v. 
+\end{frame}
+
+\begin{frame}{The CDF of $X$ is the integral of the PDF of $X$!}
+      \begin{center}
+    \includegraphics[width=.8\textwidth]{images/PDF_CDF.png}
+\end{center}  
+The PDF of $X$ must integrate to 1 over the support of $X$. Why? 
+\end{frame}
+
+\begin{frame}{The CDF of $X$ is the integral of the PDF of $X$!}
+    For a continuous r.v. $X$ with CDF $F$, the \alert{probability density function} (PDF) of $X$ is the derivative $f$ of the CDF, given by:
+    \[ f(x) = F'(x) \]
+The \alert{support} of $X$ is the set of all $x$ where $f(x)>0$. \\
+\vspace{2mm} \pause 
+An important way in which continuous r.v.s differ from discrete r.v.s is that for continuous r.v.s, $P(X=x) = 0$ for all $x$.
+\begin{itemize} \small 
+    \item Why? Continuous r.v.s can take on infinite values.
+    \item But that does not mean $f(x)=0$! We simply do not interpret the PDF of $X$ as $P(X=x)$.
+    \item However, the CDF remains interpretable as $P(X \leq x)$.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Probability of a Continuous Random Variable}
+    Instead, we are interested in the probability of $X$ falling \alert{in some interval} $(a,b)$ --- or $[a,b]$, or $(a,b]$, or $[a,b)$:
+
+    \[ P(a < X \leq b) = F(b) - F(a) = \int_a^b f(x) dx \]
+    \begin{center}
+        \includegraphics[width=.8\textwidth]{images/pdf_cdf.png}
+    \end{center}
+\end{frame}
+
+
+\begin{frame}{Valid PDFs}
+    A valid PDF must satisfy two conditions: 
+    \begin{enumerate}
+        \item Nonnegative: $f(x) \geq 0 $
+        \item Integrates to 1: $\int_{-\infty}^{\infty} f(x) dx = 1$
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Expectation of a Continuous Random Variable}
+\vspace{2mm}
+    The \alert{mean} or \alert{expected value} of a continuous random variable is defined as:
+    \[ E(X) = \int_{-\infty}^{\infty} x f(x) dx \]
+    \begin{center}
+        \includegraphics[width=.8\textwidth]{images/mean_pdf.png}
+    \end{center}
+\end{frame}
+
+
+%\begin{frame}{Expectation of a Function of a Continuous Random Variable}
+  %  For a function of a continuous random variable, we take the mean similarly: 
+   % \[ E(g(X)) = \int_{-\infty}^{\infty} g(x) f(x) dx \]
+%\end{frame}
+
+\begin{frame}{Meet the Continuous Uniform Distribution}
+    A continuous r.v. $X$ is said to have the \alert{Uniform} distribution on the interval $(a,b)$ if its PDF is: 
+    \[ f(x) = \begin{cases}
+    \frac{1}{b-a} & \text{ if } a<x<b    \\
+    0 & \text{ otherwise}
+    \end{cases}
+    \]
+    
+    \pause \vspace{2mm}
+    What processes follow the Uniform?
+    \begin{itemize}
+        \item Completely random number generation
+        \item When every outcome is equally likely (note that $f(x)$ is the same for any value of $x$). 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{The PDF of the Uniform Distribution}
+    \begin{center}
+        \includegraphics[width=.8\textwidth]{images/Uniform_Distribution_PDF_SVG.svg.png}
+    \end{center}
+\textbf{Quick exercise:} Show that this is a valid PDF. 
+\end{frame}
+
+\begin{frame}{The CDF of the Uniform Distribution}
+The CDF of the Uniform is:
+\[
+F(x) = \begin{cases}
+    0 & \text{ if } x \leq a \\
+    \frac{x-a}{b-a} & \text{ if } a < x < b \\
+    1 & \text{ if } x \geq b
+\end{cases}
+\]
+
+    \begin{center}
+        \includegraphics[width=\textwidth]{images/uniform_pdf_cdf.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Let's Find the Mean of the Uniform Distribution}
+\vspace{2mm}
+    Recalling that the mean is defined as:
+    \[ \int_{-\infty}^{\infty} x f(x) dx \]
+We can plug in $f(x)$ for the Uniform (and focus on the support of $X$): 
+\begin{align*}
+    \int_{a}^{b} x \left( \frac{1}{b-a} \right) dx &= \frac{x^2}{2(b-a)} + c ~\Big|_a^b \\
+    &= \frac{b^2-a^2}{2(b-a)}  \\
+    &= \frac{(b+a)(b-a)}{2(b-a)} = \frac{a+b}{2}
+\end{align*}
+\end{frame}
+
+\begin{frame}{Meet the Normal Distribution}
+The PDF of a Normal-distributed random variable is: 
+    \[ \phi(x) = \frac{1}{ \sigma \sqrt{2 \pi}} e^{-\frac{1}{2} (\frac{x-\mu}{\sigma})^2} \]
+    Notice that we have two parameters: $\mu$ (mean) and $\sigma^2$ (variance). \\
+    \vspace{5mm}  
+    The Standard Normal is just the Normal with $\mu= 0$ and $\sigma^2 =1$: 
+        \[ \phi(x) = \frac{1}{ \sqrt{2 \pi}} e^{-\frac{1}{2} x^2} \]
+    And by convention, the CDF of $X$ is often written $\Phi(x)$. (The functional form of the CDF is ugly and you don't need to know it.)
+\end{frame}
+
+\begin{frame}{Meet the Normal Distribution}
+            \begin{center}
+            \includegraphics[width=\textwidth]{images/normal_pdf_cdf.png}
+        \end{center}
+\end{frame}
+
+\begin{frame}{Parameters of the Normal Distribution}
+  \vspace{2mm}
+    The mean $\mu$ is also called the \alert{location} parameter: where the distribution is centered. 
+\begin{figure}
+    \includegraphics[width = .8\textwidth]
+    {images/normal_1.pdf}
+    \caption*{Normal PDF with mean 1, variance 1}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Parameters of the Normal Distribution}
+  \vspace{2mm}
+    The mean $\mu$ is also called the \alert{location} parameter: where the distribution is centered. 
+\begin{figure}
+    \includegraphics[width = .8\textwidth]
+    {images/normal_0.pdf}
+    \caption*{Normal PDF with mean 0, variance 1}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Parameters of the Normal Distribution}
+  \vspace{2mm}
+    The mean $\mu$ is also called the \alert{location} parameter: where the distribution is centered. 
+\begin{figure}
+    \includegraphics[width = .8\textwidth]
+    {images/normal_m1.pdf}
+    \caption*{Normal PDF with mean -1, variance 1}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Parameters of the Normal Distribution}
+  \vspace{2mm}
+    And the variance $\sigma^2$ is also called the \alert{scale} parameter, which determines its shape.
+\begin{figure}
+    \includegraphics[width = .8\textwidth]
+    {images/normal_sd1.pdf}
+    \caption*{Normal PDF with mean 0, variance $1^2$}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Parameters of the Normal Distribution}
+  \vspace{2mm}
+    And the variance $\sigma^2$ is also called the \alert{scale} parameter, which determines its shape.
+\begin{figure}
+    \includegraphics[width = .8\textwidth]
+    {images/normal_sd2.pdf}
+    \caption*{Normal PDF with mean 0, variance $2^2$}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Parameters of the Normal Distribution}
+  \vspace{2mm}
+    And the variance $\sigma^2$ is also called the \alert{scale} parameter, which determines its shape.
+\begin{figure}
+    \includegraphics[width = .8\textwidth]
+    {images/normal_sd3.pdf}
+    \caption*{Normal PDF with mean 0, variance $3^2$}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Standardization}
+    Any Normal-distributed random variable $X$ with mean $\mu$ and variance $\sigma^2$ may be transformed into a Standard Normal: 
+    \[ \text{If } Z \sim \mathcal{N}(0,1), \text{ then } X = \mu + \sigma Z  \sim \mathcal{N}(\mu, \sigma^2) \]
+
+    That means we can transform any Normal r.v. into a Standard Normal: 
+    \[ Z = \frac{X-\mu}{\sigma} \] 
+    
+    \vspace{2mm}
+    We often do this in our data to put our variables on the same scale. 
+\end{frame}
+
+\begin{frame}{Cool Stuff About the Normal}
+    \begin{enumerate}
+        \item The Central Limit Theorem!!!! \\
+        \begin{itemize}
+            \item \textit{For independent and identically distributed random variables, the sampling distribution of the standardized sample mean tends towards the standard normal distribution even if the original variables themselves are not normally distributed.}
+        \end{itemize}
+        \item Symmetry of the PDF: $\phi(z) = \phi(-z)$ 
+        \item Symmetry of the tail areas: $\Phi(-z) = 1- \Phi(z)$
+    \end{enumerate}
+\end{frame} 
+
+    \begin{frame}{Symmetry of the Normal PDF}
+        \begin{center}
+            \includegraphics[width=\textwidth]{images/normal_symmetry.jpg}
+        \end{center}
+    \end{frame}
+
+\begin{frame}{Benchmarks of the Normal}
+    If $X \sim \mathcal{N}(\mu, \sigma^2)$, then: 
+    \begin{align*}
+        P(|X-\mu| < \sigma) &\approx 0.68 \\
+    P(|X-\mu| < 2\sigma) &\approx 0.95 \\
+    P(|X-\mu| < 3\sigma) &\approx 0.997 
+    \end{align*}
+\end{frame}
+
+\begin{frame}{Finally (for today), Meet the Exponential}
+    The PDF of an Exponential-distributed random variable X is given by: 
+    \[ f(x) = \lambda e^{-\lambda x}, ~ x>0 \]
+    The only parameter here is $\lambda$, so we write $X \sim \text{Expo}(\lambda)$. \\
+    \vspace{5mm} 
+    The CDF of $X$ is given by: 
+    \[ F(x) = 1- e^{-\lambda x}, ~x>0\]
+    (We can quickly differentiate this and check.) 
+\end{frame}
+
+\begin{frame}{Meet the Exponential}
+  \vspace{5mm}
+           \begin{center}
+        \includegraphics[width=\textwidth]{images/exponential.png}
+        \end{center}
+\end{frame}
+
+\begin{frame}{Meet the Exponential}
+The Exponential is the continuous analog of the Geometric. 
+\begin{itemize} \small 
+    \item Recall that a Geometric r.v. counts the number of failures until the first success in a sequence of Bernoulli trials 
+    \item An Exponential r.v. represents the continuous time you have to wait before the arrival of the first success 
+    \item Then the parameter $\lambda$ can be interpreted as the \alert{rate of successes} per some unit of time. 
+    \item Note also the connection to the Poisson (also part of the Exponential family), which was the discrete number of events per some unit of time 
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Cool Stuff About the Exponential}
+    The Exponential displays the \alert{memoryless property}: 
+    \[ P(X \geq s + t | X \geq s) = P(X \geq t) \]
+    The time you've already spent waiting has no effect on the time you will spend waiting for the event.
+    \\ \vspace{5mm}
+    In other words, after  you've already waited $s$ minutes, the probability you'll have to wait another $t$ minutes is the same as the probability of having to wait $t$ minutes with no previous waiting time under your belt. 
+\end{frame}
+
+\begin{frame}{Implications of Memorylessness}
+What are the implications of memorylessness?
+    \vspace{2mm}
+    \begin{itemize} \small 
+        \item If human lifetimes were Exponential, your life expectancy at age 80 would be the same as if you were a newborn baby.
+        \item If the lifetime of a machine was Exponential, its time to failure would be the same no matter how long it's been operational (no wear and tear) 
+    \end{itemize} 
+    What behaves this way?
+    \begin{itemize} \small 
+        \item Radioactive decay
+        \item ...? 
+    \end{itemize} 
+    But more importantly, the Exponential is just a bulding block for more flexible distributions that do account for the passage of time (e.g. the Weibull). 
+\end{frame}
+
+\begin{frame}{Moving On...}
+Let's cover the continuous versions of:
+\begin{enumerate}
+    \item Joint, Marginal, and Conditional distributions
+    \item Bayes' Rule and the Law of Total Probability
+    \item Independence of continuous r.v.s
+    \item The expectation of a random variable that is a function of two continuous random variables (LOTUS) 
+    \item Covariance and correlation
+\end{enumerate}
+\end{frame}
+
+\begin{frame}{Joint Distribution of Continuous Random Variables}
+    If $X$ and $Y$ have a continuous joint distribution, we require that the joint CDF:
+    \[ F_{X,Y}(x,y) = P(X \leq x, Y \leq y) \]
+    be differentiable with respect to both $x$ and $y$. The partial derivative with respect to $x$ and $y$ is the \alert{joint PDF}: 
+    \[ f_{X,Y}(x,y) = \frac{\partial^2}{\partial x \partial y} F_{X,Y} (x,y) \]
+    (Let's try taking the partial derivatives of $F(x,y) = \frac{1}{2} x^2 y^3$.)  
+\end{frame}
+
+\begin{frame}{Joint Distribution of Continuous Random Variables}
+\vspace{5mm}
+            \begin{center}
+            \includegraphics[width=\textwidth]{images/joint_pdf_cont.png}
+        \end{center}
+\end{frame}
+
+\begin{frame}{Marginal Distribution of Continuous Random Variables}
+To get the \alert{marginal distribution} of $X$, integrate over all values of $Y$ rather than summing as we did for discrete r.v.s: 
+\[ f_X(x) = \int_{-\infty}^{\infty} f_{X,Y} (x,y) dy \]
+\end{frame}
+
+\begin{frame}{Conditional PDF}
+    For continuous r.v.s with joint PDF $f_{X,Y}$, the \alert{conditional PDF} of $Y$ given $X=x$ is: 
+    \[ f_{Y|X} (y|x) = \frac{f_{X,Y} (x,y)}{f_X (x)} \]
+    As with discrete random variables, the conditional is the joint over the marginal. 
+\end{frame}
+
+\begin{frame}{Conditional PDF}
+\vspace{3mm}
+              \begin{center}
+            \includegraphics[width=\textwidth]{images/marginal_pdf_cont.png}
+        \end{center}
+\end{frame}
+
+\begin{frame}{Note}
+    How can we condition on $X=x$ for a continuous r.v. when we learned that this event has probability 0? 
+    \begin{itemize}
+        \item Technically, we're conditioning on the event that $X$ falls in some small interval containing $x$, say $(x-\varepsilon, x+\varepsilon)$, and then taking the limit as $\varepsilon$ goes to 0. 
+        \item (Glad you asked!) 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Bayes' Rule and the LOTP Carry Over Neatly}
+For continuous r.v.s $X$ and $Y$, we have \alert{Bayes' Rule} as: 
+\[ f_{Y|X}(y|x) = \frac{f_{X|Y} (x|y) f_Y(y)}{f_X(x)} \]
+    And the \alert{Law of Total Probability} as:
+    \[ 
+    f_X (x) = \int_{-\infty}^{\infty} f_{X|Y}(x|y) f_Y(y) dy
+    \]
+    (We have simply replaced the sum from discrete world with an integral.) 
+\end{frame}
+
+\begin{frame}{You Can Combine Discrete and Continuous Random Variables}
+    No problem! 
+    \begin{center}
+        \includegraphics[width=\textwidth]{images/bayes_disc_cont.png}
+    \end{center}
+\end{frame}
+\end{document}

@@ -1,0 +1,209 @@
+% =============================================================================
+% Week 2: Conditional Probability and Random Variables
+% =============================================================================
+
+\chapter{Conditional Probability and Random Variables}
+\label{ch:week2}
+
+\thispagestyle{empty}
+{\large \textbf{Mid Terms Fall 2023 -- Henry Baker}}
+\par\noindent\rule{\textwidth}{0.4pt} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: Session 2\\ Conditional Probability + Random Variables}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Conditional Probability}
+\[P(A|B) = \frac{P(A \cap B)}{P(B)}\]
+\[P(B|A) = \frac{P(B \cap A)}{P(A)}\]
+Where 
+\begin{itemize}
+    \item P(A) is prior
+    \item P(B) is posterior
+\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_2/Screenshot 2023-10-21 115331.png}
+    \caption{For P(A|B): we know B occurred, so get rid of outcomes in $B^c$; re-normalise by dividing by B}
+    \label{fig:enter-label}
+\end{figure}
+
+\underline{Playing card example:}
+\begin{itemize}
+    \item \(A = \) 1st card is a heart.
+    \item \(B = \) 2nd card is red.
+    \item There are 52 cards.
+    \item What is \( P(B|A) \)?
+\end{itemize}
+Using the formula:
+\[P(B|A) = \frac{P(B \cap A)}{P(A)}\]
+we can calculate:
+\begin{align*}
+    &1. \quad P(A) = \frac{13}{52} \\
+    &2. \quad P(B) = \frac{25}{51} \quad \text{(without replacement)} \\
+    &3. \quad P(B \cap A) = \frac{13 \times 25}{52 \times 51} = \frac{25}{204} \\
+    &4. \quad P(B|A) = \frac{\frac{25}{204}}{\frac{13}{52}} = \frac{25}{51}
+\end{align*}
+
+\textbf{Conditional Probability Notes:}
+\begin{itemize}
+    \item $P(A|B) \neq P(B|A)$
+    \item chronology unimportant: even if A occurs before B --- conditional probability is about what info one event gives about the other, not whether one caused the other
+    \item P6 THERE'S AN EXAMPLE OF THIS
+    \item P7 PRACTICE QS
+    \end{itemize}
+\vspace{0.4cm}
+
+\par\noindent\rule{\textwidth}{0.4pt}
+\vskip 0.4cm
+
+\section{Bayes Rule (w/LOTP combo)}
+\textbf{Bayes Rule}\\
+\[P(A|B) = \frac{P(B|A) \times P(A)}{P(B)}\]
+
+\textbf{LOTP}
+\[P(B) = \sum_{i=1}^{n} P(B|A_i)P(A_i) \]
+Expanded:
+\[P(B) = P(B|A_1)P(A_1) + P(B|A_2)P(A_2) + \ldots + P(B|A_n)P(A_n) \]
+
+p10 for lake pic\\
+p11 FOR QS\\
+
+\textbf{Combining Bayes with LOTP:} 
+\[P(A|B) = \frac{P(B|A) \times P(A)}{\sum_{i=1}^{n} P(B|A_i)P(A_i)}\]
+
+\textbf{Bayes' Rule w/ Extra Conditioning:}
+\[P(A|B, E) = \frac{P(B|A, E) \times P(A|E)}{P(B|E)}\]
+\textbf{LOTP w/ Extra Conditioning: } 
+\[P(B|E) = \sum_{i=1}^{n} P(B|A_i, E)P(A_i|E)\]
+\textbf{Both combined:}
+\[P(A|B, E) = \frac{P(B|A, E) \times P(A|E)}{\sum_{i=1}^{n} P(B|A_i, E)P(A_i|E)}\]
+Examples on p 17\\
+
+\par\noindent\rule{\textwidth}{0.4pt}
+\vskip 0.4cm
+
+\section{Independence of Events}
+\[P(A \cap B) = P(A) \cdot P(B)\]
+Equivalent to
+\[P(A|B) = P(A)\]
+\begin{itemize}
+    \item Independence is symmetric
+    \item different from disjoint (A gives you no info re: B), whereas disjoint means $P(A \cap B) = 0$. So, knowing A occured actually tells you that B did not occur. \textit{(Disjoint events can only be independent if P(A) = 0 or P(B) = 0)}.
+    \item If A and B are independent, then A and $B^c$ are independent, $A^c$ and B are independent, and $A^c$ and $B^c$ are independent
+\end{itemize}
+
+\textbf{Independence of 3 events:}\\
+Needs to be more than pairwise independence (conditions 1 --- 3)
+\begin{align}
+    P(A \cap B) &= P(A)P(B) \\
+    P(A \cap C) &= P(A)P(C) \\
+    P(B \cap C) &= P(B)P(C) \\
+    P(A \cap B \cap C) &= P(A)P(B)P(C) 
+\end{align}
+Example p21 \\
+
+\textbf{Conditional Independence}
+\[P(A \cap B|E) = P(A|E)P(B|E)\]
+\begin{itemize}
+    \item \textbf{Conditional independence given $E$ does not imply conditional independence given $E^c$} (Example 2.5.9)
+    \item \textbf{Conditional independence does not imply independence} (Example 2.5.10) 
+    \item \textbf{Independence does not imply conditional independence} (Example 2.5.11)
+Further intuition: see Example 2.5.12.23
+\end{itemize}
+For all: consider phone call example: 
+\begin{itemize}
+    \item Friend A calling; friend B calling are independent
+    \item But, given event E: that one friend called, now they are conditionally dependent.
+    \item But $E_c$: that a friend did not call, now means they are independent again.
+\end{itemize}
+
+SKIPPED MONTY HALL + OTHER P27 --- 29 \\
+
+\par\noindent\rule{\textwidth}{0.4pt}
+\vskip 0.4cm
+
+\section{Random Variables} \\
+\begin{itemize}
+    \item \textbf{r.v.} is a function from the sample space $S$ to the real number line $\mathbb{R}$; assigns a numerical value $X(s)$ to each possible outcome $s$ of the experiment.
+    \item \textbf{Support of X} is defined as all the values x such that $P(X = x) > 0$.
+    \item \textbf{PMF} of X is the function $pX (x) = P(X = x)$. This is positive if x is in the support of X, and 0 otherwise.
+\end{itemize}
+
+\textbf{Steps to construct PMF}:
+\begin{itemize}
+    \item Enumerate all possible outcomes of the r.v. \textit{Example: For the coin, the possible outcomes are: {HH, HT, TH, TT}. So, X can take values: {0, 1, 2}.}
+    \item Calculate probabilities for each outcome. \textit{Example: P(X=0) = P(TT) = 1/4, P(X=1) = P(HT or TH) = 2/4 = 1/2, P(X=2) = P(HH) = 1/4.}
+\end{itemize}
+
+\underline{Coin Toss Example:}
+\begin{itemize}
+    \item Let $X$ be the number of heads. This assigns the values: $X(HH) = 2;X(HT) = 1;X(TH) = 1;X(TT) = 0$
+    \item Let $Y$ be the number of tails. This assigns the values: $Y (HH) = 0;Y (HT) = 1;Y (TH) = 1; Y (TT) = 2$. Note that $Y (s) = 2 --- X(s)$ for all $s$.
+    \item Let $I$ be an indicator for whether the first toss is heads. Then $I$ assigns 1 to HH and HT \item \textit{and 0 to TH and TT.}
+\end{itemize}
+PMF:
+\begin{itemize}
+    \item $pX (0) = P(X = 0) = \frac{1}{4}$
+    \item $pX (1) = P(X = 1) = 1/2$
+    \item $pX (2) = P(X = 2) = 1/4$ \\
+    and pX (x) = 0 for all other values of x.
+\end{itemize}
+PMFs must (1) be non negative, and (2) sum to 1.\\
+
+\par\noindent\rule{\textwidth}{0.4pt}
+\vskip 0.4cm
+
+\section{Common Distributions \& their PMFs} 
+
+\textbf{Bernoulli Distribution (i.e. $1\times$ trial)}
+\begin{itemize}
+    \item parameter $p$ = prob of success
+    \item written as $ X \sim Bern(P)$ 
+    \item $P(X = 1) = p$ and $P(X = 0) = 1 --- p$ 
+\end{itemize}
+PMF:
+\[P(X = k) = 
+\begin{cases} 
+1 --- p & \text{if } k = 0 \\
+p & \text{if } k = 1 
+\end{cases}\]
+
+\textbf{Binomial Distribution} 
+\begin{itemize}
+    \item parameters $n$ and $p$
+    \item $n$ independent Bernoulli trials
+    \end{itemize}
+    
+PMF: 
+\[P(X = k) = \binom{n}{k} p^k (1-p)^{n-k}\]
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_2/Screenshot 2023-10-21 130325.png}
+    \caption{Binomial PDFs}
+    \label{fig:enter-label}
+\end{figure}
+
+\textbf{Discrete Uniform Distributions} \\
+\begin{itemize}
+    \item parameter $C$ 
+    \item $X \sim \DUnif(C)$
+    \end{itemize}
+PMF:
+\[P(X = x) = \frac{1}{|C|}\]
+\[P(X \in A) = \frac{|A|}{|C|}\]
+Where $A \subseteq C$. \\
+
+\section{Common Distributions \& their CDFs} 
+CDF of $X$, is the function $F_X (x) = P(X \leq x)$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_2/Screenshot 2023-10-21 130639.png}
+    \caption{PMF, CDF of $X \sim Bin(4; 1=2)$}
+    \label{fig:enter-label}
+\end{figure}

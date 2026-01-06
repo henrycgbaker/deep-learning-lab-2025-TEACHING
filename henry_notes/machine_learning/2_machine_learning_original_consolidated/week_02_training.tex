@@ -1,0 +1,714 @@
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf ML Lecture Notes 2024 \\ Henry Baker}
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf ML Lecture Notes: Wk 2\\ Training, Divergence, Loss \& Optimisation}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Fundamental: Loss Function}
+
+$$\hat{\theta} = \arg\min_{\theta} \mathcal{L}(\theta)$$
+Where:
+\begin{itemize}
+    \item $\hat{\theta}$ = a point estimate
+    \item $\mathcal{L}(\%)$ = Loss (distance)
+    \item min = optimization
+\end{itemize}
+
+\section{Maximum Likelihood Estimation (MLE)}
+
+MLE is just a method just chooses a particular loss function (the Negative Log Likelihood: NLL)
+$$\hat{\theta}_{MLE} = \arg\max_{\theta} p(\mathcal{D}|\theta)$$
+
+= seeks to find the particular model as close as possible to the data.\\
+
+\begin{itemize}
+    \item Modeling is just empirical risk minimization. 
+    \item We define that risk using the loss function. 
+    \item We can optimise to minimise a bunch of different aspects. 
+    \item MLE is one modeling option which takes the distance between the data and the model as the loss function 
+    \item think of 1) the KL divergence, or 2) the negative logged PDF into which you would plug your parameters and it would penalise you from diverging from (?). 
+    \item MLE's loss function is the distance from the data.
+\end{itemize}
+
+\begin{tcolorbox}
+\textbf{In MLE, the loss function is the Negative Log-Likelihood (NLL)}. While MLE focuses on maximizing the likelihood function, in optimization terms, we minimise, so we take the negative. \\
+
+The objective in MLE is to maximize the likelihood function:
+$$L(\theta; x_1, x_2, \ldots, x_n) = \prod_{i=1}^{n} p(x_i | \theta)$$
+
+This can be equivalently framed as minimizing the negative of the log-likelihood function, which serves as the loss function:
+$$\mathcal{L}(\theta) = -\ell(\theta; x_1, x_2, \ldots, x_n) = -\sum_{i=1}^{n} \log p(x_i | \theta)$$
+
+The NLL provides a measure of how well the probabilistic model, parameterized by $\theta$, fits the observed data. A lower NLL indicates a better fit because it corresponds to a higher likelihood of observing the given data under the model.
+\end{tcolorbox}
+
+We must then think about an appropriate \textbf{probabilistic model, $p$}.\\
+
+$p(D | \theta)$ is the \textbf{likelihood}
+
+\begin{tcolorbox}
+    NB: the \textbf{MLE} $p(D | \theta)$ is \textbf{frequentist}, because it takes $\theta$ as fixed/given, with the data being the r.v.\\
+
+    cf.\textbf{Maximum a Posterior (MAP)} $p(\theta | D)$ by adding a prior, we are being \textbf{}, because we are taking the data as fixed, with the parameters as r.v.s
+\end{tcolorbox}
+
+\subsection{NLL: Optimizers: minimize loss functions}
+
+Optimizers typically (by convention) minimize things, so:
+
+$$\hat{\theta}_{mle} = \arg\min_{\theta} \text{NLL}(\theta)$$
+
+Where:
+
+$$ NLL(\theta) = -\sum_{i=1}^{n} \text{log} p(y_i | x_i, \theta)$$
+
+\subsection{MLE Assumption 1) i.i.d.}
+\begin{itemize}
+    \item units don't interact with each other
+    \item units have same assumed model 
+    \item \textit{this is a strong and \textbf{substantively meaningful} assumption}
+\end{itemize}
+
+$$p(\mathcal{D}|\theta) = \prod_{i=1}^{n} p(y_i | x_i, \theta)$$
+
+Products are messy, so we work with log-sums:
+
+$$\log p(\mathcal{D}|\theta) = \sum_{i=1}^{n} \text{log } p(y_i | x_i, \theta)$$
+
+\subsection{MLE Assumption 2) a model for $p$ = normally distributed}
+
+\subsubsection{Modeling $y_i$ with Normal Distribution}
+Suppose
+\begin{itemize}
+    \item $y_i \sim \mathcal{N}(\mu, \sigma)$, then $\theta = (\mu, \sigma)$
+    \item $y_i \sim \mathcal{N}(\mu^*, \sigma)$ and $\mu^* = x_i \beta$, then $\theta = (\beta, \sigma)$
+\end{itemize}
+
+\textbf{Simple Normal Model:} If $y_i$ is assumed to be normally distributed with mean $\mu$ and standard deviation $\sigma$, denoted as $y_i \sim \mathcal{N}(\mu, \sigma)$, the parameters of interest are $\theta = (\mu, \sigma)$. This model assumes that all observations come from a normal distribution with the same mean and variance.\\
+
+\textbf{Normal Model with Linear Predictor:} If $y_i$ is normally distributed with mean $\mu_i$ and standard deviation $\sigma$, where $\mu_i = x_i \beta$, denoted as $y_i \sim \mathcal{N}(\mu_i, \sigma)$, then the model parameters are $\theta = (\beta, \sigma)$. This introduces a linear relationship between predictors $x_i$ and the mean of the response variable, \textbf{making it a linear regression model}.
+
+\begin{tcolorbox}
+\textbf{Linear Regression = Normal Model with Linear Predictor}
+The response variable \(y_i\) is assumed to be normally distributed with a mean (\(\mu_i\)) that is a linear function of predictors (\(x_i\)) and a constant standard deviation (\(\sigma\)). \textbf{This forms the basis of linear regression models, where we assume normally distributed errors}. \\
+
+1. \textbf{Normal Distribution Assumption}: Each observation \(y_i\) is assumed to come from a normal distribution, which is a common assumption in regression analysis. \\
+
+2. \textbf{Linear Relationship}: The mean of the normal distribution for each \(y_i\), denoted as \(\mu_i\), is not a fixed value but is instead determined by a linear combination of predictors \(x_i\) and their corresponding coefficients \(\beta\).\\
+
+3. \textbf{Model Parameters \(\theta\)}: In this context, the model parameters are \(\theta = (\beta, \sigma)\). The vector \(\beta\) contains the coefficients that describe how the mean response \(y_i\) changes with the predictors \(x_i\), and \(\sigma\) is the common standard deviation of the response variable across all observations, assuming homoscedasticity (constant variance).\\
+
+4. \textbf{Implications}:\\
+   - \textbf{Linear Regression}: This model is a form of linear regression because it models the mean of the response variable as a linear function of the predictors. \\
+   - \textbf{Parameter Estimation}: Estimating the model parameters involves finding the values of \(\beta\) and \(\sigma\) that best fit the observed data. This is typically done using Maximum Likelihood Estimation (MLE) or, equivalently for linear models, Ordinary Least Squares (OLS) when focusing solely on the \(\beta\) coefficients.\\
+   - \textbf{Statistical Inference}: With the estimated parameters, one can conduct hypothesis tests to assess the significance of predictors, construct confidence intervals, and make predictions.\\
+\end{tcolorbox}
+
+\subsubsection{Probability of Observing $y_i$}
+
+The probability of observing $y_i$ from one of these models is expressed through the probability density function (PDF) of the normal distribution. For a given observation $y_i$, the PDF is:
+
+$$p(y_i \ x_i, \theta) = \frac{1}{\sigma \sqrt{2\pi}} \exp\left(-\frac{1}{2}\left(\frac{y_i - \mu_i}{\sigma}\right)^2\right)$$
+
+Here, $\mu_i$ can either be a constant $\mu$ or $x_i \beta$ depending on the model. \\
+
+But, we prefer this as the NLL (i.e. the negative, logged PDF):
+
+\begin{align*}
+    NLL(\theta) &= -\log p(y_i | x_i, \theta)\\
+    &= \frac{1}{2} \log(2\pi\sigma) + \frac{1}{2} \frac{(y_i - \mu_i)^2}{\sigma^2}
+\end{align*}
+
+\begin{tcolorbox}
+    The goal in MLE is to find the parameter values (in this case of linear regression, the coefficients in $\mu_i = x_i \beta$ and the standard deviation $\sigma$) that minimize the sum of these negative log-likelihoods across all observations. 
+
+    \begin{itemize}
+        \item This process effectively fits the linear regression model to the data by balancing the model's fit (how close the predicted means are to the actual data points) and the model's complexity (reflected in part by $\sigma$).
+        \item Interpretation of the Terms: The first term is constant for a given $\sigma$ and affects all observations equally, acting as a scaling factor. 
+        \item The second term is crucial for model fitting, as it penalizes deviations of the observed values from their expected means, adjusted for the scale of the data (as represented by $\sigma$). 
+        \item The balance between these terms ensures that the estimated model accurately captures the central tendency and variability of the data.
+    \end{itemize}
+\end{tcolorbox}
+
+\subsection{KL Divergence}
+
+Maybe we just want to choose a model that is maximally
+“close” to the data.
+
+Let’s define “close” as Kullback-Leibler (KL) divergence:
+
+\begin{align*}
+    D_{KL}(p \parallel q) &= \sum_{y} p(y) \log\frac{p(y)}{q(y)} \\
+    &= \textcolor{green}{\sum_{y} p(y) \log p(y) -} \textcolor{orange}{\sum_{y} p(y) \log q(y)}
+\end{align*}
+
+\begin{itemize}
+    \item Negative Entropy = green
+    \item Cross Entropy = orange
+\end{itemize}
+
+There's some stuff in the slides I skipped here. \\
+
+Overall intuition: the cross-entropy (which measures divergence of the model from the data) is mathemtically the same as the NLLif you set $p(y)$ (i.e. the data) to the uniform distribution - which is to say you assume the data is ...? So minimising the NLL is the same as minimising KL divergence, which is trying ot get our model maximally close to the data.\\
+
+I skipped next slide
+
+\section{MLE for Linear Regression}
+
+\textcolor{red}{I DONT FULLY UNDERSTAND HOW MLE AND RSS CONNECT... WHY DID WE JUST DO ALL THAT MLE WORK, IF WE CAN JUST TAKE THE RSS GRADIENT???}
+
+\begin{tcolorbox}
+    Maximum Likelihood Estimation (MLE) for linear regression and the Residual Sum of Squares (RSS) are both methods used to estimate the parameters of a linear regression model, but they approach the problem from different statistical perspectives.\\
+
+    \textbf{MLE for Linear Regression}
+    
+    In MLE, we assume that the residuals (differences between observed values and values predicted by the model) follow a normal distribution with a mean of zero and some variance $\sigma^2$. The likelihood function for linear regression under the normal distribution assumption is a function of the parameters of the regression line (usually denoted as $\beta$) and the variance of the error term $\sigma^2$.\\
+    
+    The goal of MLE is to find the parameter values that maximize the likelihood of observing the data given the model. In the case of linear regression with normally distributed errors, this is equivalent to minimizing the negative log-likelihood, which, due to the properties of the logarithm, turns out to be equivalent to minimizing the sum of squared residuals.\\
+    
+    \textbf{Residual Sum of Squares (RSS)}
+    RSS is a measure of the discrepancy between the data and an estimation model. It's the sum of the squares of the residuals:
+    
+    \[
+    RSS = \sum_{i} (y_i - x_i \beta)^2
+    \]
+    
+    \textbf{Mean Squared Error (MSE)}
+    MSE is simply the average of the RSS:
+    
+    \[
+    MSE = \frac{1}{n} \sum_{i} (y_i - x_i \beta)^2
+    \]
+    
+    Where $n$ is the number of observations, $y_i$ is the observed value, $x_i$ is the feature vector for the $i$-th observation, and $\beta$ represents the regression coefficients.
+\end{tcolorbox}
+
+\begin{tcolorbox}
+
+Maximum Likelihood Estimation (MLE) and Residual Sum of Squares (RSS) are related concepts in regression analysis, but they are not entirely separate methods. They are connected through the assumption about the distribution of errors in the regression model.\\
+
+In ordinary linear regression, we assume that the response variable \( Y \) is linearly related to the predictors \( X \) with an added error term \( \epsilon \) that follows a normal distribution with mean zero and some variance \( \sigma^2 \), often expressed as \( \epsilon \sim N(0, \sigma^2) \).\\
+
+\subsection*{RSS (Residual Sum of Squares):}
+
+\begin{itemize}
+    \item RSS is a measure of the model's fit to the data. It is calculated by summing the squares of the differences between the observed responses \( y_i \) and the responses \( \hat{y}_i \) predicted by the linear model.
+    \item The method of least squares finds the coefficients \( \beta \) that minimize the RSS.
+\end{itemize}
+
+\subsection*{MLE (Maximum Likelihood Estimation):}
+
+\begin{itemize}
+    \item MLE is a method used to estimate the parameters of a statistical model. In the context of linear regression, MLE seeks to find the coefficients \( \beta \) that maximize the likelihood of observing the sample data, given a specific set of parameters.
+    \item Under the assumption of normally distributed errors, maximizing the likelihood is equivalent to minimizing the RSS. This is because the likelihood function for a normal distribution is a function of the squared differences between observed and predicted values (which is RSS), scaled by the variance of the errors.
+\end{itemize}
+
+\subsection*{Relationship:}
+
+\begin{itemize}
+    \item In the specific case of linear regression with normal errors, minimizing RSS is equivalent to performing MLE because the likelihood function for a normal distribution is proportional to the exponential of the negative RSS.
+    \item The difference is conceptual: RSS is a direct measure of the fit of the model to the observed data, while MLE is a probabilistic approach that assumes a specific distribution of the error terms.
+    \item In practice, for linear regression under the assumption of normal errors, both methods will yield the same estimates of the coefficients \( \beta \).
+\end{itemize}
+
+Therefore, while MLE and RSS come from different theoretical foundations—MLE from probability theory and RSS from geometric considerations—they converge to the same solution in the context of ordinary linear regression with normally distributed errors.
+    
+\end{tcolorbox}
+
+
+From before:
+
+\begin{align*}
+    NLL(\theta) &= -\log p(y_i | x_i; \theta) \\
+    &= \frac{n}{2} \log(2\pi\sigma) + \frac{n}{2\sigma^2} (y_i - x_i\beta)^2
+\end{align*}
+
+Now we compare to the Residual Sum of Squares (RSS)
+
+\begin{align*}
+    \text{RSS}(\beta) &= \frac{1}{2} \left( \sum_{i=1}^{n} (y_i - x_i\beta)^2 \right) \\
+    &= \frac{1}{2} \| X\beta - y\|^2_2 \\
+    &= \frac{1}{2} \left( (X\beta - y)^T(X\beta - y) \right) \\
+\end{align*}
+
+This also gives us the Mean square error (MSE):
+$$MSE = \frac{1}{n} \sum_{i=1}^{n} (y_i - x_i\beta)^2$$
+
+Where is $\sigma^2$ go?\\
+
+\begin{tcolorbox}
+    Where Did $\sigma^2$ Go?
+    
+    In the context of MLE for linear regression, the $\sigma^2$ term is a part of the likelihood function when modeling the residuals as a normal distribution. However, when we minimize the negative log-likelihood to perform MLE, the $\sigma^2$ term becomes a scaling factor that does not affect the estimation of $\beta$ since it is constant with respect to $\beta$. As a result, when we derive the MLE solution, we are left with an optimization problem that looks identical to minimizing RSS or MSE, where the $\sigma^2$ term is not present.\\
+    
+    \textbf{Analytic Solution}
+    
+    For linear regression, we can find an analytic solution to minimize the RSS or MSE, which will also give us the MLE of $\beta$ under the assumption of normally distributed residuals. This is done by taking the derivative of the RSS with respect to $\beta$, setting it equal to zero, and solving for $\beta$. This process yields the normal equations, which can be solved to find the best-fitting linear regression coefficients:
+    
+    \[
+    \frac{\partial}{\partial \beta} \text{RSS} = \frac{\partial}{\partial \beta} \sum (y_i - x_i \beta)^2 = 0
+    \]
+    
+    Solving the normal equations:
+    
+    \[
+    X^T X \beta = X^T y
+    \]
+    
+    Where $X$ is the matrix of input features (with each row corresponding to an observation and each column to a feature), and $y$ is the vector of observed values. The solution to these equations gives us the least squares estimates for the coefficients $\beta$:
+    
+    \[
+    \beta = (X^T X)^{-1} X^T y
+    \]
+    
+    This is known as the Ordinary Least Squares (OLS) estimator. It is called "ordinary" to distinguish it from other variations that might put constraints or have different assumptions on the coefficients.\\
+    
+    \textbf{Conclusion}
+    
+    In summary, while MLE for linear regression involves maximizing the likelihood of the observed data given the model parameters, assuming normally distributed errors, minimizing the RSS or MSE is a specific application of this method when the errors are normally distributed with a constant variance $\sigma^2$. The analytic solution for the OLS estimator, which is derived from setting the derivative of the RSS with respect to $\beta$ to zero, does not involve $\sigma^2$ because it is a scale factor that does not influence the estimation of $\beta$. The solution obtained is the set of coefficients that minimize the average squared difference between the observed and predicted values.
+\end{tcolorbox}
+
+How do we find an analytic solution?\\
+Take the derivative, set it equal to 0.
+
+\subsubsection{Analytic Solution}
+
+1) Find the derivative of the RSS:
+\[\nabla_{\beta} \text{RSS} = \frac{1}{2} \nabla_{\beta} (\mathbf{X}\beta - \mathbf{y})^T (\mathbf{X}\beta - \mathbf{y})\]
+
+2) Expand it out:
+$$= \frac{1}{2} \nabla_{\beta} (\mathbf{X}\beta)^T \mathbf{X}\beta - (\mathbf{X}\beta)^T \mathbf{y} - \mathbf{y}^T \mathbf{X}\beta + \mathbf{y}^T \mathbf{y}$$
+
+3) Rewrite:
+$$
+= \frac{1}{2} \nabla_{\beta} \beta^T \mathbf{X}^T \mathbf{X} \beta - \beta^T \mathbf{X}^T \mathbf{y} - \mathbf{y}^T \mathbf{X} \beta + \mathbf{y}^T \mathbf{y}$$
+
+4) Derive:
+\begin{align*}
+&= \frac{1}{2} \mathbf{X}^T \mathbf{X} + \mathbf{X}^T \mathbf{X} \beta - \mathbf{X}^T \mathbf{y} - \mathbf{X}^T \mathbf{y} \\
+&= \frac{1}{2} 2\mathbf{X}^T \mathbf{X}\beta - 2\mathbf{X}^T \mathbf{y} \\
+&= \mathbf{X}^T \mathbf{X}\beta - \mathbf{X}^T \mathbf{y}
+\end{align*}
+
+\begin{tcolorbox}
+    So we just showed that: $\nabla_{\beta} = \mathbf{X}^T \mathbf{X}\beta - \mathbf{X}^T \mathbf{y}$
+\end{tcolorbox}
+
+Now, we can find an optimum by setting to:
+$$\hat{\beta} = \beta: \nabla_{\beta} \text{RSS} = 0$$
+
+Which would mean:
+ \[
+    X^T X \beta = X^T y
+    \]
+Or
+    \[
+    \beta = (X^T X)^{-1} X^T y
+    \]
+
+\begin{tcolorbox}
+    So the RSS-derived optimisation problem for linear regression is:  $\beta = (X^T X)^{-1} X^T y$
+\end{tcolorbox}
+
+\subsection{What does this give us?}
+\subsubsection{Prediction}
+$$\hat{y} = X \hat{\beta}$$
+
+\subsubsection{Slope wrt each feature}
+$$\frac{X \hat{\beta} - X'\hat{\beta}} {X - X'} =\hat{\beta} \approx \frac{dy}{dX}
+$$
+
+\subsection{$Var(\hat{\beta})$?}
+
+The calculation of this variance is fundamental in statistical inference, as it allows us to \textbf{assess the precision} of the estimated coefficients and to \textbf{construct confidence intervals and hypothesis tests}.\\
+
+First, rewrite $\hat{\beta}$ on the assumed linear model:
+\begin{align*}
+    \hat{\beta} &= (X^TX)^{-1}X^T y \\
+    &= (X^TX)^{-1}X^T (X\beta + \epsilon) \\
+    &= \beta + (X^TX)^{-1}X^T \epsilon
+\end{align*}
+
+
+Next, write the variance and use this identity:
+\begin{align*}
+    \text{Var}(\hat{\beta}) &= \mathbb{E}[(\hat{\beta} - \beta)(\hat{\beta} - \beta)^T ]\\
+    \text{Substituting the expression for $\hat{\beta}$ , and then we get:}\\
+    \text{Var}(\hat{\beta}) &= \mathbb{E}[((X^TX)^{-1}X^T (X\beta+\epsilon) - \beta)((X^TX)^{-1}X^T (X\beta+\epsilon) - \beta)^T] \\
+    &= \mathbb{E}[((X^TX)^{-1}X^T \epsilon - \beta)((X^TX)^{-1}X^T \epsilon - \beta)^T] \\
+    &= \mathbb{E}[((X^TX)^{-1}X^T \epsilon \epsilon^T X(X^TX)^{-1}] \\
+    &= (X^TX)^{-1}X^T E[\epsilon \epsilon^T] X(X^TX)^{-1}
+    \end{align*}
+
+
+This provides the \textbf{'sandwich' form of the variance of $\hat{\beta}$}:
+$$\text{Var}(\hat{\beta}) = \textcolor{blue}{(X^TX)^{-1}X^T)} \textcolor{red}{E[\epsilon\epsilon^T]} \textcolor{blue}{X(X^TX)^{-1}}$$
+NB: this sandwich estimator is also known as the \textbf{robust standard error estimator}
+
+\begin{tcolorbox}
+    \textbf{Under Homoskedasticity assumption:}\\
+    
+    $\sigma^2 = \frac{1}{n}RSS(\beta) = MSE(\beta)$:\\
+
+    Error terms are normally distributed: \\
+    
+    $\rightarrow \epsilon$ has a mean of 0 and variance $\sigma^2\mathbf{I}$\\
+    
+    $\rightarrow$ $\text{E}[\epsilon\epsilon'] = \sigma^2 \mathbf{I}$\\
+    
+    $\rightarrow$ expected value (of $Var \hat{\beta}$) simplifies to:
+    
+    $$\text{Var}(\hat{\beta}) = (X^TX)^{-1} X^T \textcolor{red}{\sigma^2 \mathbf{I}} X (X^TX)^{-1}$$
+    
+    Giving us the \textbf{Homoskedastic "sandwich" estimator of the variance of $\hat{\beta}$:}
+    
+    $$\textcolor{red}{Var(\hat{\beta}) = \sigma^2 (X^TX)^{-1}}$$
+    
+    
+    This is often referred to as the BREAD of the "sandwich" in econometric parlance, with the MEAT being the middle term $\sigma^2 \mathbf{I}$ in more complex models that account for heteroskedasticity or other forms of non-constant variance. In the standard OLS setting, the MEAT simplifies to $\sigma^2 \mathbf{I}$, so the variance of the coefficient estimates depends on the inverse of the matrix $(X^TX)^{-1}$ (the BREAD) and the variance of the errors $\sigma^2$.
+\end{tcolorbox}
+
+\begin{tcolorbox}
+    \textbf{Under Heteroskedastic Assumptions:}
+    We can get unbasied estimated as $\hat{\epsilon}^2 = (y-\hat{y)^2}$.\\
+    
+    We assume: $E[\epsilon$ = E[\text{diag}(\hat{\epsilon^2)}$]
+
+    Giving us:
+
+    $$\text{Var}(\hat{\beta}) = (X^TX)^{-1}X^T \textcolor{red}{diag(\hat{e}^2)}X(X^TX)^{-1}$$
+
+    This gives us the variance-covariance matrix, which we then take the diagonals of to get the variance.
+\end{tcolorbox}
+
+\begin{tcolorbox}
+
+The significance of the variance of the estimated coefficients \( \hat{\beta} \):\\
+
+1. \textbf{Statistical Significance}: The variance of \( \hat{\beta} \) allows us to test hypotheses about the regression coefficients. Specifically, it enables us to determine if the estimated coefficients are significantly different from zero (or any other value), which helps to conclude whether there is a statistically significant relationship between the predictor variables and the response variable.
+
+2. \textbf{Confidence Intervals}: Using the variance of \( \hat{\beta} \), we can construct confidence intervals for the regression coefficients. These intervals provide a range of values within which we expect the true coefficient value to lie with a certain level of confidence (e.g., 95%).
+
+3. \textbf{Precision of Estimates}: The variance provides a measure of the precision of the estimated coefficients. A smaller variance indicates that the estimator is more precise, meaning there is less uncertainty around the estimate of the coefficient.
+
+4. \textbf{Model Diagnostics}: The variance can be used to assess the goodness of fit of the model. If the variance of the error term \( \epsilon \) is high, it may indicate that the model does not fit the data well, or there are omitted variables that are influential in explaining the variation in the response variable.
+
+5. \textbf{Influence of Data}: The matrix \( (X'X)^{-1} \) in the variance expression reflects how the design matrix \( X \) influences the precision of the estimated coefficients. The spread and collinearity of the data points in the predictor variables affect \( X'X \), and thus the variance of the estimates.
+    
+\end{tcolorbox}
+\subsubsection{Now, how do we use that?}
+
+TL;DR; \\
+Homoskedasticity --> can estimate coefficient variance using $\sigma^2 (X'X)^{-1}$ \textbf{(take diagonals of resultant matrix)}\\
+Heteroskedasticity --> can estimate coefficient variance using $(X^TX)^{-1}X^T \text{diag}(\hat{e}^2) X(X^TX)^{-1}$ \textbf{(take diagonals of the resultant variance-covariance matrix}\\
+
+
+\begin{itemize}
+    \item we need more assumptions on the 'meat'
+    \item if assume $\sigma^2$ is constant (= homoskedastic)
+    \begin{itemize}
+        \item then $\sigma^2 = \frac{1}{n} RSS(\beta)= MSE (\beta)$
+        \item we can then assume $E[\epsilon \epsilon'] = \sigma^2 I$ - this is due to the normality assumption: Under normality, errors are expected to have a mean of zero and a constant variance $\sigma^2$, and the covariance between any two error terms is zero, which is represented by the identity matrix $I$ scaled by $\sigma^2$
+        \item we can then substitute this term into the 'sandwich' formula for the variance of $\hat{\beta}$, to get $\text{Var}(\hat{\beta}) = \sigma^2 (X'X)^{-1}$
+        \item Thus  $E[\epsilon \epsilon'] = \sigma^2 I$  allows for simplifying the estimation of the variance-covariance matrix of the estimated coefficients (\( \hat{\beta} \)). This assumption allows for straightforward calculation of standard errors, confidence intervals, and hypothesis tests using the formula: $\text{Var}(\hat{\beta}) = \sigma^2 (X'X)^{-1} $
+        \item TL;DR: Homoskedasticity --> can estimate coefficient variance using $\sigma^2 (X'X)^{-1}$
+    \end{itemize}
+    \item if we assume $\sigma^2$ varies (=heteroskedastic)
+    \begin{itemize}
+        \item We can get unbiased estimates.
+        \item We retain our assumption of independence.
+        \item We assume: $\mathbb{E}[\varepsilon \varepsilon'] = \mathbb{E}[\text{diag}(e)]$. This means we can estimate it!
+        \item Substitute into the sandwich: $(X^TX)^{-1}X^T \text{diag}(\hat{e}^2) X(X^TX)^{-1}$
+        \item Called "robust standard errors". In particular "HC0". (there are others)
+        \item 1) Calculate the residuals for each observation: as $e = y - \hat{y}$
+        \item 2) Calculate the Estimator for the Variance-Covariance Matrix using sandwich estimator" $\hat{V}(\hat{B}) = (X^TX)^{-1}X^T \text{diag}(\hat{e}^2) X(X^TX)^{-1}$
+        \item 3) \textbf{Compute Robust SEs: square roots of the diagonal elements of variance-covariance matrix} $\hat{V}(\hat{B})$
+        \item TL;DR: Heteroskedasticity --> can estimate coefficient variance using $X'X X \text{diag}(e^2) X'X X$
+\end{itemize}
+\end{itemize}
+
+\textcolor{red}{NB Q 4 \& 5 OF THE PREOBLEM SHEET 1 UNPACK THIS WELL}
+
+
+\begin{tcolorbox}
+
+1. \textbf{Robustness to Heteroskedasticity}: It allows for valid standard errors, confidence intervals, and hypothesis tests for the coefficients even in the presence of heteroskedasticity. This means that the error variances \(\epsilon^2\) can vary with the level of the independent variables, and the estimator will still provide consistent estimates of the variance of \(\hat{\beta}\).
+
+2. \textbf{Individual Variance Estimates}: The diagonal of this variance-covariance matrix gives the variance of each estimated coefficient \(\hat{\beta}\). 
+
+3. \textbf{Covariance Estimates} While the diagonal elements give the variances of individual coefficients, the off-diagonal elements provide the covariances between pairs of coefficients. This information is useful for understanding how the uncertainty of one coefficient estimate might be related to the uncertainty of another.
+
+Crucial for making reliable inferences about the importance and impact of each feature in your regression model, especially in real-world scenarios where the assumption of homoskedastic errors (constant variance across observations) often does not hold.
+\end{tcolorbox}
+
+\begin{tcolorbox}
+\textbf{Homoskedasticity Assumption}
+
+where errors are assumed to have a constant variance across observations:
+
+\[ \text{Var}(\hat{\beta}) = \sigma^2 (X^T X)^{-1} \]
+
+From this formula, \((X^T X)^{-1}\) is computed, and \(\sigma^2\) is often estimated from the data. \textbf{The diagonal elements of the resulting matrix} provide the variances of each estimated coefficient, giving one value per feature. \\
+
+\textbf{Heteroskedasticity Consideration}
+
+adjusts for the possibility that the error variances might not be constant:
+
+\[ \text{Var}(\hat{\beta}) = (X^T X)^{-1} X^T \text{diag}(\epsilon^2) X (X^T X)^{-1} \]
+
+- \(\text{diag}(\epsilon^2)\) represents a \textbf{diagonal matrix with elements corresponding to the squared residuals from the model}, allowing for varying error variances.
+
+With both estimators, the diagonals of the resulting matrices provides the variance for each coefficient estimates.
+\end{tcolorbox}
+
+\section{Bayes Rule}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_02_training/image.png}
+    \caption{Bayes Rule}
+    \label{fig:enter-label}
+\end{figure}
+
+ By incorporating a prior, we can transitioning from MLE to Maximum A Posteriori (MAP) estimation:
+ \begin{itemize}
+     \item Likelihood = MLE (from Frequentist) - prob of data given parameters.
+     \item Prior = our beliefs about the parameters before observing any data
+     \item (normalising constant = the marginal prob of the data; ensures the posterior probabilities sum to 1)
+     \item combination of MLE with a prior leads to MAP estimation. 
+     \item MAP estimation aims to find the parameter values that maximize the posterior distribution, $p(\theta|D)$, which represents the probability of the parameters given the observed data
+ \end{itemize}
+
+\begin{tcolorbox}
+    Since \( p(D) \) is constant with respect to the parameters \( θ \), it does not affect the argmax operation when we seek to maximize the posterior. \\
+    
+    Therefore, the MAP estimation can be simplified to finding the parameters that maximize the numerator of the posterior distribution:
+    \[ \text{MAP} = \arg \max_{\theta} \, p(\theta|D) = \arg \max_{\theta} \, (p(D|\theta) \cdot p(\theta)) \]
+For computational ease: logarithm of the posterior:
+
+    \[ \arg \max_{\theta} \, \log p(\theta|D) = \arg \max_{\theta} \, (\log p(D|\theta) + \log p(\theta)) \]
+
+= maximizing the sum of the log-likelihood (\( \log p(D|θ) \)) and the log-prior (\( \log p(θ) \)). \\
+
+This approach effectively balances fitting the model to the data (through the likelihood) with maintaining consistency with prior beliefs (through the prior).\\
+
+\textit{NB, if prior is a constant, the MLE = MAP}
+\end{tcolorbox}
+
+\subsection{A Moment on Probability}
+
+Objective Probability:
+\begin{itemize}
+    \item flipping a coin
+    \item based on facts about the properties of the world
+    \item frequentist
+\end{itemize}
+
+Subjective Probability:
+\begin{itemize}
+    \item making fair bets
+    \item based only on our beliefs about the world
+    \item bayesian
+\end{itemize}
+
+\subsection{What can we do with $Var(\hat{\beta})$?}
+
+\subsubsection{Bayesian}
+\begin{itemize}
+    \item Assume that $\beta$ are random, but data isn't.
+    \item Make statements like:
+    \begin{itemize}
+        \item There is a 90\% chance $\beta \in [-1,1]$.
+        \item There is only a 5\% chance $|\beta| < 1$.
+    \end{itemize}
+    \item Is based on an assumed model of the world.
+\end{itemize}
+So:
+\begin{itemize}
+    \item Construct a credible interval $p(\beta) = N(\beta, \text{Var}(\beta))$ so $p(\beta \in [-1,1]) = 1 - \alpha$ is a meaningful statement.
+\end{itemize}
+
+\subsection{Frequentist}
+\begin{itemize}
+    \item Assume that $\beta$ are fixed, but data is random.
+    \item Make statements like:
+    \begin{itemize}
+        \item If we were to "rerun this experiment", 90\% of the time, $\beta \in [-1,1]$.
+        \begin{itemize}
+            \item or, 90\% of our data is between these point 
+        \end{itemize}
+        \item If we were to "rerun this experiment", $|\hat{\beta}| < 1$ less than 5\% of the time.
+    \end{itemize}
+    \item Can be based (almost) entirely on specifics of study design (sometimes).
+\end{itemize}
+So:
+\begin{itemize}
+    \item Construct a confidence interval.
+    \item We do not assume a distribution of $\beta$.
+    \item Instead, we think about a process for constructing an interval, $[l,u]$.
+    \item Usually, $[l,u] = \beta \pm k \sqrt{\text{Var}(\hat{\beta})}$ where $k \approx z\frac{\alpha}{2}$ when $\alpha = 0.05$, $k \approx 1.96$.
+    \item We can then say that, if we constructed that right, $p(\beta \in [l_{\text{cb}},u_{\text{cb}}]) \approx 0.95$.
+\end{itemize}
+
+I skipped slide 22 - where he uses the non-informative prior to make the MAP the same as the MLE
+
+\section{Prediction}
+
+\subsection{Empirical Risk Minimization}
+MLE is just minimisation of a loss function, but we can change that loss
+\begin{itemize}
+    \item Generic Loss function: $\textcolor{red}{\mathcal{L}(}\theta\textcolor{red}{)} = \textcolor{red}{\ell(}y, \theta; x\textcolor{red}{)}$
+    \item MLE: $ \textcolor{red}{NLL(}\theta\textcolor{red}{)} = \textcolor{red}{-\sum_{i=1}^{n} \text{log }  p(}y_i | x_i, \theta\textcolor{red}{)}$
+    \item Mean Squared Error: $\textcolor{red}{\mathcal{L}}(\theta;\lambda) = \textcolor{red}{\frac{1}{n} \sum^n_i(}y_i - x_i\beta\textcolor{red}{)^2}$
+    \item 1-0 Misclassification rate: $\textcolor{red}{\ell(}y, \theta; x\textcolor{red}{)} = \textcolor{red}{ \begin{cases} 0 & \text{if } y = f(x; \theta) \\ 1 & \text{if } y \neq f(x; \theta) \end{cases}}$ so that: $\textcolor{red}{\mathcal{L}(}\theta\textcolor{red}{)} = \frac{1}{n} \sum_{i=1}^{n} \textcolor{red}{\ell(}y, \theta; x\textcolor{red}{)}$
+\end{itemize}
+
+But issue with 1-0 loss function, is it is undifferentiable -> Surrogate loss functions (requirements: 1) upper bound of 0-1 loss; 2)v.close to the 0-1 loss)
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_02_training/image_1.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Confusion Matrix}
+
+How much do we care about different kinds of errors?
+\begin{itemize}
+    \item Type 1: False positive
+    \item Type 2: False negative
+\end{itemize}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\linewidth]{figures/week_02_training/image_2.png}
+        \caption{Enter Caption}
+        \label{fig:confusion matrix}
+    \end{figure}
+
+\section{Logistic Regression}
+= the classification version of linear regression
+
+\[p(y_i|x_i, \theta) = Bern(y_i | \sigma(x_i \beta))\]
+
+\begin{align*}
+    p(y=1 | x_1, \theta) &= \mu_i \\
+    &= \sigma_x\beta \\
+    &= \frac{1}{1 + e^{-x_i \beta}}
+\end{align*}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_02_training/image_3.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Training Logistic Regression}
+Determine the NLL -> the avg binary cross-entropy / 'log loss':
+$$NLL_{\beta} = -\frac{1}{n} \log \prod_{i=1}^{n} \mathrm{Ber}(y_i | \mu_i)$$
+
+Simplify:
+\begin{align*}
+NLL_{\beta} &= - \frac{1}{n} \sum_{i=1}^{n} \log ( \mu_i^y_i \times (1 - \mu_i)^{1-y_i} \\
+NLL_{\beta} &= - \frac{1}{n} \sum_{i=1}^{n} y_i \log (\mu_i) + (1 - y) \log (1 - \mu_i) \\
+NLL_{\beta} &= - \frac{1}{n} \sum_{i=1}^{n} y_i \log \mu + (1 - y_i) \log (1 - \mu_i)
+\end{align*}
+
+Find the gradient:
+$$\nabla_\beta NLL(\beta) = -\nabla_\beta  \frac{1}{n} \sum_{i=1}^{n} y_i \log \mu + (1 - y_i) \log (1 - \mu_i)$$
+Simplifies to:
+$$\nabla_\beta NLL(\beta) = \frac{1}{n} \sum_{i=1}^{n} (\mu_i - y_i) x_i$$
+
+The problem is that $\mu_i$ is funky, so there#s no easy closed form...
+
+\section{Linear Classification}
+
+Decision boundary = where your classification changes
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_02_training/image_4.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\section{Bias/Variance tradeoff}
+
+Bias:
+\[bias(\hat{\theta}) = E[\hat{\theta}] - \theta\]
+
+Central decomposition: MSE = Bias + Variance:
+\begin{align*}
+    MSE(\hat{\theta}) &= E[(\hat{\theta} - \theta)^2]\\
+    \cdots\\
+    &= Var(\hat{\theta}) + bias (\theta)^2
+\end{align*}
+
+\begin{tcolorbox}
+    \textbf{Significance: if our use of an unbiased estimator leads to too much variance, we might prefer to use a biased one.}
+\end{tcolorbox}
+
+\subsection{Example}
+
+E,g, using a Bayesian prior to introducing some bias, reduce variance.\\
+
+\begin{tcolorbox}
+    
+This technique is useful in scenarios where the \textbf{sample size is small}, or there is substantial \textbf{uncertainty about the sample mean}, and we wish to incorporate external information of beliefs into our estimation process.\\
+
+In the below Bayesian approach, the adjusted estimator $\bar{y}(k)$ represents a compromise between the data's evidence (the sample mean) and the prior belief (the mean is near zero). \\
+
+The parameter $k$ controls this compromise: large $k$ means more weight on prior belief, means greater bias towards zero, lower variance of the estimate.
+
+\end{tcolorbox}
+
+\begin{itemize}
+    \item Suppose we have $n$ i.i.d. copies from $y_i \sim N(1,\sigma^2)$ \\
+    \textit{we're dealing with a set of $\bar{y}$ independent and identically distributed (i.i.d.) samples from a normal distribution}
+    \item \textbf{Sample mean:} \\
+    let $\bar{y} = \frac{1}{n} \sum_{i} y_i$ \\
+    \textit{this just denotes the sample mean definition}
+    \item \textbf{Variance of sample mean:} \\ we know that $V(\bar{y}) = \frac{\sigma^2}{n}$ \\
+    \textit{this is just the definition of the variance of a sample mean}
+    \item \textbf{Now, we place Bayesian prior to adjust the estimator:} think mean will be near zero:
+    \begin{itemize}
+        \item Adjusted estimator: $\widetilde{y} = \frac{n}{n+k}\bar{y}$ \\
+        \textit{scales the estimate of y}
+    \end{itemize}
+    \item \textbf{Impact on bias \& variance of the Bayesian estimator:}
+    \begin{itemize}
+        \item \textbf{Bias} of $\widetilde{y} = 1- \frac{n}{n+k}$ \textcolor{red}{\textit{Increases (tends towads 0) as $k$ increases}}\\
+        \textit{since 1 is the Expected Mean, subtract (what?)}
+        \item \textbf{Variance} of $\widetilde{y}= (\frac{n}{n+k}) \frac{\sigma^2}{n}$ \textcolor{red}{\textit{Decreases as $k$ increases}}\\
+        \textit{scales the variance}
+    \end{itemize}
+\end{itemize}
+
+
+The notation describes an approach to estimating the mean of this distribution, incorporating a prior belief about the mean being close to zero, and adjusting the estimate based on this prior.\\
+
+\textbf{Sample Mean} ($\bar{y}$): The notation $\bar{y} = \frac{1}{n} \sum_{i} y_i$ denotes the sample mean.\\
+
+\textbf{Variance of $\bar{y}$} - i.e. ($Var (\bar{y})$): For samples drawn from a normal distribution, the variance of the sample mean $\bar{y}$ is $\frac{\sigma^2}{n}$ . This follows from the properties of the normal distribution, where the variance of the sum (or average) of iid normal variables is the sum (or average) of their variances.\\
+
+\textbf{Prior Belief and Adjusted Estimator} - i.e. ($\bar{y}(k)$): When you mention placing a prior that assumes the mean will be near zero, this introduces a Bayesian element into the estimation. \textcolor{red}{The adjusted estimator $\bar{y}(k)$ seems to represent a shrinkage estimator that pulls the sample mean $\bar{y}$ towards zero (the prior belief) by a factor that depends on $k$}, a parameter that quantifies the strength of this belief or the weight of the prior relative to the data.\\
+
+\textbf{Bias of $\bar{y}(k)$:} The formula $\text{bias}(\bar{y}) = 1 - \frac{n+k}{n}$ quantifies the bias introduced by adjusting the estimator towards zero. This shows that \textcolor{red}{as $k$ increases (placing more emphasis on the prior belief), the bias towards zero increases}.\\
+
+\textbf{Variance of $\bar{y}(k)$:} The formula $Var (\bar{y}) = \frac{n}{n+k}\frac{\sigma^2}{n}$ represents the variance of the adjusted estimator. It shows that the \textcolor{red}{variance is reduced from $\frac{\sigma^2}{n}$ (the variance of the unadjusted sample mean) by a factor of $\frac{n}{n+k}$}. \\
+
+\textbf{This reflects a trade-off: while introducing bias by incorporating the prior belief, the variance of the estimate is reduced.}
+

@@ -1,0 +1,424 @@
+% =============================================================================
+% Cheat Sheet I
+% =============================================================================
+
+\chapter{Cheat Sheet I}
+
+\thispagestyle{empty}
+{\large \textbf{Mid Terms Fall 2023  --  Henry Baker}}
+\par\noindent\rule{\textwidth}{0.4pt} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: \\ Cheat Sheet I}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Session 1: Probability Theory}
+
+\textbf{De Morgan's Law for Unions \& Complements:} 
+\[(A \cup B)^c = A^c \cap B^c \]
+\[A \cap B)^c = A^c \cup B^c\]
+
+\textbf{Multiplication rule:} think in terms of trees --> $n^k$\\ 
+\emph{NB chronological order doesn't actually matter here - counter intuitive}
+
+\vskip 0.4cm
+
+\textbf{Combinations} = when order does not matter \\
+\textbf{permutations} = when order/position matters \(n!\) \\
+\vskip 0.4cm
+
+$\begin{array}{c|c|c}
+ & \textbf{Order Matters} & \textbf{Order Doesn't Matter} \\
+\par\noindent\rule{\textwidth}{0.4pt}
+\textbf{With Replacement} & n^k & \binom{n+k-1}{k} \\
+\par\noindent\rule{\textwidth}{0.4pt}
+\textbf{Without Replacement} & \frac{n!}{(n-k)!} & \binom{n}{k} = \frac{n!}{k!(n-k)!} \\
+\end{array}$
+*\emph{}NB: order matters, sampling w/o replacement also written as $n\cdot (n-1) \cdot (n-2) \cdot \dots (n-k+1)$
+
+\vskip 0.4cm
+
+\textbf{Birthday Problem} - counting complement\\
+What’s the probability of no matching birthdays? \\
+This amounts to sampling the days of the year without replacement:
+\begin{align*}
+    P(\text{no birthday match}) &= \frac{\text{number of ways to not repeat birthdays}}{\text{number of total possibilities}} \\
+    &= \frac{365 \times 364 \times \dots \times (365 - k + 1)}{365^k} \\
+    P(\text{birthday match}) &= 1 - \frac{365 \times 364 \times \dots \times (365 - k + 1)}{365^k}
+\end{align*}
+
+\textbf{Factorial Overcounting}:\\
+when arranging $n$ distinct items: $n!$ ways to do so...\\
+..BUT if $k$ items are identical --> divide by $k!$
+\begin{itemize}
+    \item when assigning to multiple groups: we are overcounting by the number of groups factorial --> divide by groups factorial
+    \item STATISTICS : overcounts Ss, Ts, Is, there are 3 Ss --> divide 3!3!2!
+    \item same with the multinational: you divide by the repeats factorial: eg number of ways to sort 10 ppl into a group: $\frac{0!}{3!3!4!}$
+    \item problem of non-repeat sampling (ie bday problem)
+        \begin{itemize}
+            \item numerator = successes = order matters, w/o replacement $(n \times n-1 \times n-2 \times \dots (n-k+1)$
+            \item Denominator = tota = order matters, w/ replacement $(n^k)$
+        \end{itemize}
+\vskip 0.4cm
+\textbf{When working with multiple events (eg 10 heads);} often easier ro say what is the probability of that NEVER happening: ie 1 single event...\\
+... if something seems tedious: check its complement\\
+\end{itemize}
+\vskip 0.4cm
+
+\textbf{Any probability function} $P$ must satisfy the following two axioms:
+    \begin{itemize}
+        \item \( P(\emptyset) = 0, P(S) = 1 \).
+        \item If \( A_1, A_2, \dots \) are disjoint events, then 
+            \[ P\left(\bigcup_{j=1}^{\infty} A_j\right) 
+            \sum_{j=1}^{\infty} P(A_j) \].
+    \end{itemize}
+
+\textbf{Properties of Probabilities} 
+    \begin{itemize}
+            \item $P(A^c) = 1 - P(A)$ \\
+            \item If $A \subseteq B$, then $P(A) \leq P(B)$. \\
+            \item $P(A \cup B) = P(A) + P(B) - P(A \cap B)$.
+    \end{itemize}
+
+$\hline$
+
+\section{Session 2: Conditional Probability & Random Variables}
+
+\subsection{Conditional Probability}
+\[P(A|B) = \frac{P(A \cap B)}{P(B)}\]
+\[P(B|A) = \frac{P(B \cap A)}{P(A)}\]
+Intuitively: Venn diagram overlap, renormalised for $((B)$
+
+\textbf{Bayes Rule}\\
+\[P(A|B) = \frac{P(B|A) \times P(A)}{P(B)}\]
+
+\textbf{LOTP}
+\[P(B) = \sum_{i=1}^{n} P(B|A_i)P(A_i) \]
+
+Putting them together: \\
+With Bayes: when applying LOTP to bottom: ensure you multiply by prob of the conditional.\\
+- Eg: $P(T_c|D) \times P(D) + P(T_c|D_c) \times P(D_c)$ \\ 
+- Eg: $P(ObservedData|Coin_1)\times P(Coin_1) + P(OD|Coin_2)\times P(Coin_2) + P(OD|Coin_3)\times P(Coin_3)$\\
+
+
+\textbf{Bayes' Rule w/ Extra Conditioning:}
+\[P(A|B, E) = \frac{P(B|A, E) \times P(A|E)}{P(B|E)}\]
+\textbf{LOTP w/ Extra Conditioning: } 
+\[P(B|E) = \sum_{i=1}^{n} P(B|A_i, E)P(A_i|E)\]
+
+\textbf{Independence of Events}
+\[P(A \cap B) = P(A) \cdot P(B)\]
+\begin{tcolorbox}
+    NB: 
+\begin{itemize}
+    \item in a Venn diag, if the overlap is equal to the product of P(A) and P(B).
+    \item in a Contingency table, this means cells equal to marginals. 
+\end{itemize} 
+\end{tcolorbox}
+
+Equivalent to
+\[P(A|B) = P(A)\]
+
+\begin{itemize}
+    \item Independence is symmetric
+    \item If A and B are independent: \begin{itemize}
+        \item A and $B^c$ are independent,
+        \item $A^c$ and B are independent,
+        \item $A^c$ and $B^c$ are independent   
+    \end{itemize}  
+\end{itemize}
+This doesn't carry through for conditional independence. 
+
+\vskip 0.4cm
+
+\textbf{Independence of 3 events:}\\
+Needs to be more than pairwise independence (conditions 1 - 3)
+\begin{align}
+    P(A \cap B) &= P(A)P(B) \\
+    P(A \cap C) &= P(A)P(C) \\
+    P(B \cap C) &= P(B)P(C) \\
+    P(A \cap B \cap C) &= P(A)P(B)P(C) 
+\end{align}
+\vskip 0.4cm
+
+\textbf{Conditional Indepdence}
+\begin{itemize}
+    \item Conditional independence given $E$ does not imply conditional independence given $E^c$
+    \item Conditional independence does not imply independence
+    \item Independence does not imply conditional independence
+\end{itemize}
+
+\subsection{Random Variables}
+\begin{itemize}
+    \item \textbf{r.v.} is a function from the sample space $S$ to the real number line $\mathbb{R}$; assigns a numerical value $X(s)$ to each possible outcome $s$ of the experiment.
+    \item \textbf{Support of X} is defined as all the values x such that $P(X = x) > 0$.
+    \item \textbf{PMF} of X is the function $pX (x) = P(X = x)$. This is positive if x is in the support of X, and 0 otherwise.
+\end{itemize}
+
+\textbf{Building PMF:}
+\begin{enumerate}
+    \item Immediately write $P(X = k) = \dots$
+    \item Enumerate all possible outcomes ($X = 1, X = 2, X = 3 \dots$). \\
+    consider what support of $X$ could be
+    \item calculate probabilities for each outcome. (\textit{Example: P(X=0) = P(TT) = 1/4)} \\ 
+    is there a funcitonal form you can generalise to?\\
+    NB: it it is NOT a binary outcome, might have to permute
+\end{enumerate}
+
+PMF:
+\begin{itemize}
+    \item $P(X = 0) = \frac{1}{4}$
+    \item $P(X = 1) = 1/2$
+    \item $P(X = 2) = 1/4$ 
+    \item and pX (x) = 0 for all other values of x.
+\end{itemize}
+\textbf{PMFs must (1) be non negative, and (2) sum to 1.}\\
+
+Bernoulli: 
+\[P(X = k) = 
+\begin{cases} 
+1 - p & \text{if } k = 0 \\
+p & \text{if } k = 1 
+\end{cases}\]
+
+Binomial:
+\[P(X = k) = \binom{n}{k} p^k (1-p)^{n-k}\]
+
+Discrete Uniform:
+\[P(X \in A) = \frac{|A|}{|C|}\]
+
+\begin{figure} [H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/cheat_sheets/Screenshot 2023-10-21 130325.png}
+    \caption{Binomial PDFs}
+    \label{fig:enter-label}
+\end{figure}
+
+\textbf{CDFs} 
+CDF of $X$, is the function $F_X (x) = P(X \leq x)$.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/cheat_sheets/Screenshot 2023-10-21 130639.png}
+    \caption{PMF, CDF of $X \sim Bin(4; 1=2)$}
+    \label{fig:enter-label}
+\end{figure}
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\section{Session 3: Joint r.v.s}
+\begin{itemize}
+    \item \textbf{Joint probability:} $P(A \cap B)$ or $P(A,B)$
+    \item \textbf{Marginal (unconditional) probability:} $P(A)$
+    \item \textbf{Conditional probability:} $P(A|B) = P(A,B)/P(B)$
+\end{itemize}
+
+\begin{itemize}
+    \item \textbf{Intersections via conditioning:} $P(A,B) = P(A)P(A|B)$
+    \item \textbf{Unions via inclusion-exclusion:} $P(A \cup B) = (P(A) + P(B) - P(A \cap B)$
+\end{itemize}
+
+\subsection{Independence of joint r.v.s} \\ 
+Continuous r.v.s
+\[P(X \leq x,Y \leq y) = P(X \leq x)P(Y \leq y)\]
+Discrete r.v.s
+\[P(X = x,Y = y) = P(X = x)P(Y = y)\]
+
+\textbf{Conditional Independence}
+\[P(X \leq x,Y \leq y | Z = z) = P(X \leq x | Z = z)P(Y \leq y | Z = z)\]
+
+\subsection{Expectation}
+= weighted avg of possible values $X$ can take:
+\[E(X) = \sum_{x} x \cdot \underbrace{P(X = x)}_{\text{PMF at } x}\]
+Eg 2x coin flip (heads)
+\[E(X) = 0 \times \frac{1}{4} + 1 \times \frac{1}{2} + 2 \times \frac{1}{4} = 1\]\\
+
+Eg Bernoulli: $X \sim Bern(p)$: 
+\[E(X) = 1p + 0(1-p) = p\]
+
+\textbf{Linearity of Expectation:}
+\begin{enumerate}
+    \item $E(cX) = cE(x)$
+    \item $E(X+Y) = E(X) + E(Y)$ \\
+\end{enumerate}
+
+\subsection{Variance}
+\[Var(X) = E(X^2) - (EX)^2\]
+
+\textbf{Variance facts:}
+\begin{itemize}
+    \item $Var(c) = 0$ for any constant c
+    \item $Var(X + c) = Var(X)$ for any constant c
+    \item $Var(cX) = c^2Var(X)$ for any constant c \textbf{ <--- NB}
+    \item $Var(X + Y ) = Var(X) + Var(Y )$ only if X and Y are independent.\\
+    \textbf{Caution: unlike expectation, variance is not linear}
+    \begin{itemize}
+        \item $Var(cX) \neq cVar(X)$
+        \item $Var(X + Y) \neq Var(X) + Var(Y)$ (in general)
+    \end{itemize}
+    \textbf{Except when the to r.v.s are independent!} then $Var(cX) = c^2Var(X)$
+\end{itemize}
+
+\vskip 0.4cm
+
+\subsection{Marginal \& Conditional Joint PMFs}
+\textbf{Marginal PMF of X}
+Sum over all \(y\); marginalise out $Y$
+\[P(X = x) = \sum_{y} P(X = x, Y = y)\]
+if interested in $(Y = 1) \rightarrow$ sum over all $X$s, that $(Y = 1, X= x)$ 
+\vskip 0.4cm
+\textbf{Conditional PMF of Y}
+Joint divided by marginal.
+\[P(Y = y|X = x) = \frac{P(X = x, Y = y)}{P(X = x)}\]
+
+Another way to think of it (same as above): Conditional for joint r.v.s is when \\
+\begin{align*}
+    P(Y &= 1|X = 1)\\
+    &= P(Y = 1 \cap X = 1) / P(X = 1)\\
+    &= (1/30) / 5/30
+\end{align*}
+
+\begin{align*}
+P(X &= 1 | Y = 2)\\
+&= P(X = 1) \cap Y = 2) / P(X = 2)\\
+&= (4/30) / (24/30)\\
+&= 1/6
+\end{align*}
+
+NB: where the Marginal X vs Marginal Y is... need to know which to make denominator for conditionals
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+     & \(Y = 1\) & \(Y = 0\) & Marginal \(X\) \\
+    \hline
+    \(X = 1\) & \( \frac{5}{100} \) & \( \frac{20}{100} \) & \( \frac{25}{100} \) \\
+    \hline
+    \(X = 0\) & \( \frac{3}{100} \) & \( \frac{72}{100} \) & \( \frac{75}{100} \) \\
+    \hline
+    Marginal \(Y\) & \( \frac{8}{100} \) & \( \frac{92}{100} \) & 1 \\
+    \hline
+    \caption{Contingency table for \(X\) and \(Y\) with Marginal Distributions}
+\end{table}
+Contingency table is just another way to express PMF for joint variables; it expresses how they move together\\
+marginal is summing over the other thing\\
+conditional is fixing the other thing at some value\\
+joint is how they move together\\
+Test for Independence: 
+\[\text{If independent: } P(X = x,Y = y) = P(X = x)P(Y = y)\] 
+so if the \textbf{cell value, is the product of the marginals} \\
+for independence: every cell needs to be the product of the marginals.\\
+
+\par\noindent\rule{\textwidth}{0.4pt}
+\section{Session 4: Calculus}
+\begin{enumerate}
+    \item \textbf{Rule 1: Powers}: $\frac{d}{dx}x^n = nx^{n-1}$
+    \item \textbf{Rule 2: Sum/Differences}: 
+    \[\frac{d}{dx}(\text{f}(x) \pm g(x)) = \frac{d}{dx}\text{f}(x) \pm \frac{d}{dx}g(x)\]
+    \item \textbf{Rule 3: Constant Multiples}
+    \[\frac{d}{dx} [k f(x)] = k \frac{d}{dx} f(x)\]
+    \item \textbf{Rule 4: Products} 
+    \[\frac{d}{dx} [g(x) f(x)] = g'(x) \cdot f(x) + g(x) \cdot f'(x)\]
+    \item \textbf{Rule 5: Quotients} \\
+    \[\frac{d}{dx} \left( \frac{f(x)}{g(x)} \right) = \frac{g(x) \cdot f'(x) - f(x) \cdot g'(x)}{g(x)^2}\]
+    \item \textbf{Rule 6: Chain} \\
+    If $y$ is a function of $u$, and $u$ is a function of $x$, \text{ then:} \\
+    \[\frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}\]
+    ALWAYS REMEMBER TO PLUG THE $U$ VALUE BACK N
+
+    \item \textbf{Rule 7: Natural Exponential} \\
+    \[y(x) = e^x \rightarrow \frac{dy}{dx} = e^x\]
+    
+    \item \textbf{Rule 8: Natural Logarithms} \\
+    \[y = \ln(x)\rightarrow \frac{dy}{dx} = \frac{1}{x}\]
+    \\
+    \item \textbf{General: Exponential Functions} \\
+    Power rule is for when $x$ is a \textbf{constant}. \\
+    Exponential functions take $x$ as the exponent itself.
+    \[\frac{d}{dx} a^x = \ln(a) \times a^x\]
+    \[\frac{d}{dx} a^{bx} = b \times \ln(a) \times a^{bx}\]
+
+    \underline{Example: $a^x$} \\ $10^x$ becomes $ln(10)$ $\times 10^x$:
+    \begin{align*} 
+        f(x) &= \frac{10^x}{\ln(10)} \\
+        f'(x) &= \ln(10) \times 10^x \times \frac{1}{\ln(10)} = 10^x
+    \end{align*}
+    
+    \underline{Example: $a^{bx}$} \\
+    \begin{align*}
+    f(x) &= 2^{4x} + 4x^2 \\
+    f'(x) &= 4 \ln(2) \times 2^{4x} + 8x 
+    \end{align*}
+    \\
+\end{enumerate}
+
+\section{MLE}
+MLE steps:
+\begin{enumerate}
+    \item (Identify the distribution: write out the PMF)
+    \item \textbf{Write the likelihood as a function of the data:} \\
+    \[L(\theta) = P(x_1, x_2....x_i)\]
+    becomes:\\
+    \[L(x_1, x_2....x_i; \theta) = \prod_{j=1}^{n}\text{the PMF with $\theta$ substituted in for parameter of interest / $p$???}\]
+    \item \textbf{Expand as products}: we assume each event is i.i.d, so the likelihood is the product of each
+    \begin{itemize}
+        \item First, write as a series of products for each r.v.: 
+        \[\lambda) = P(X=1) \times P(X=3) \times P(X=1) \times\ \dots\]
+        \item Then expand each using the relevant distribution with the data for the r.v plugged in: \[\frac{e^{-\lambda} \lambda^1}{1!} \times \frac{e^{-\lambda} \lambda^3}{3!} \times \frac{e^{-\lambda} \lambda^1}{1!} \times \dots\]
+        \item collect terms and simplify as much as possible.
+    \end{itemize}
+    \item \textbf{Take the log-likelihood:}
+    \[ \ell(\lambda) = \log(L(\lambda)) \]
+    Use the properties of logs to break it up into its components parts to reshape it into nice +/- equation (ie without products or quotients... use these rules of logs!!)
+    \item \textbf{Derive the log with respect to parameter of interest:}
+    \begin{itemize}
+        \item constants (ie not dependent on parameter of interest) drop out.
+        \item parameter terms differentiate as usual.
+        \item derivative of log = 
+        \[\frac{d}{dx} \ln(x) = \frac{1}{x}\]
+        \[\frac{d}{dx} \ln(2x) = \frac{1}{2x} \times 2 = \frac{1}{x}\] NB chain rule here
+        \[\frac{d}{d\lambda} 7 \log(\lambda)\ = 7 \times \frac{1}{\lambda} = \frac{7}{\lambda} \]
+    \end{itemize}
+    \item \textbf{Set to 0}
+    \item Solve for $\theta$
+\end{enumerate}
+
+\begin{tcolorbox}
+Log rules:
+    \begin{align*}
+        \log(ab) &= \log(a) + \log(b) \\
+        \log\left(\frac{a}{b}\right) &= \log(a) - \log(b) \\
+        \log\left(\prod_{j=1}^{n} x_j\right) &= \sum_{j=1}^{n} \log(x_j) \\
+        \log(a^b) &= b \log \\
+        \log(0) &= 1\\
+        \log(1) &= 0\\
+        \log(e^x) &= x \\
+        \log(a^b) &= b\log(a)\\
+        \frac{d}{dx} \ln(x) &= \frac{1}{x}
+    \end{align*}
+\end{tcolorbox}
+
+\begin{tcolorbox}
+Exponent rules:
+    \[ a^m \times a^n = a^{m+n} \]
+    \[ \frac{a^m}{a^n} = a^{m-n} \]
+    \[ (a^m)^n = a^{m \times n} \]
+    \[ (ab)^n = a^n \times b^n \]
+    \[ \left(\frac{a}{b}\right)^n = \frac{a^n}{b^n} \]
+    \[ a^0 = 1 \quad \text{(where } a \neq 0 \text{)} \]
+    \[ a^{-n} = \frac{1}{a^n} \quad \text{(where } a \neq 0 \text{)} \]
+    \[ a^1 = a \]
+\end{tcolorbox}
+
+\section{Taylor Series Approximation}
+\begin{enumerate}
+    \item Find derivatives ($n$ many, depending on polynonmial degree specified)
+    \item Evaluate them (a = \{x\})
+    \item Insert each of these into the Taylor formula...
+    \item ...Simultaneously: plug in $a$ values with the given centring coordinate. This will leave various $x$ values: this your line formula.
+\end{enumerate}

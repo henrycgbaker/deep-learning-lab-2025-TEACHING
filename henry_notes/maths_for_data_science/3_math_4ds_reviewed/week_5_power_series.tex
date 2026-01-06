@@ -1,0 +1,853 @@
+% =============================================================================
+% Week 5: Power Series and Integration
+% =============================================================================
+
+\chapter{Week 5: Power Series and Integration}
+\label{ch:week5}
+
+\begin{bluebox}[Learning Objectives]
+By the end of this chapter, you should be able to:
+\begin{itemize}
+    \item Derive Taylor and Maclaurin series for common functions using the coefficient-matching approach
+    \item Write out the first several terms of Taylor expansions for $e^x$, $\sin(x)$, $\cos(x)$, $\ln(1 + x)$, and $(1 - x)^{-1}$
+    \item Determine the radius of convergence for a power series using the ratio test
+    \item Compute indefinite and definite integrals using fundamental techniques
+    \item Apply integration by substitution and integration by parts
+    \item State and apply the Fundamental Theorem of Calculus
+    \item Understand how power series connect to moment generating functions in probability theory
+\end{itemize}
+\end{bluebox}
+
+\textbf{Prerequisites:} This chapter assumes familiarity with differentiation rules: power, chain, product, and quotient rules (from \cref{ch:week4}), exponential and logarithmic functions and their derivatives, the concept of a limit and convergence (intuitive understanding suffices), and summation notation and factorial notation ($n!$).
+
+% =============================================================================
+\section{Taylor Series: Motivation and Derivation}
+\label{sec:taylor-motivation}
+% =============================================================================
+
+Many functions that arise in statistics and data science---exponentials, logarithms, trigonometric functions---are difficult to compute directly. Taylor series provide a powerful technique: represent these ``ugly'' functions as infinite polynomials, which are far easier to differentiate, integrate, and approximate.
+
+\begin{intuition}[Why Approximate with Polynomials?]
+Polynomials are the nicest functions we have:
+\begin{itemize}
+    \item They can be evaluated using only addition and multiplication
+    \item Their derivatives and integrals are other polynomials
+    \item They are continuous and smooth everywhere
+\end{itemize}
+If we can approximate a complicated function by a polynomial, we inherit all these nice properties.
+\end{intuition}
+
+\subsection{The Central Question}
+\label{sec:central-question}
+
+Suppose we have a function $f(x)$ that is difficult to work with directly. We want to find a polynomial $p(x)$ that closely approximates $f(x)$ near some point $x = a$. The question is: what should the coefficients of this polynomial be?
+
+Assume $f(x)$ can be represented by a power series centred at $a$:
+\begin{equation}
+\label{eq:power-series-general}
+f(x) = \sum_{k=0}^{\infty} c_k (x - a)^k = c_0 + c_1(x - a) + c_2(x - a)^2 + c_3(x - a)^3 + \cdots
+\end{equation}
+Our task is to determine the coefficients $c_0, c_1, c_2, \ldots$ in terms of the function $f$ and its derivatives.
+
+\subsection{Deriving the Coefficients}
+\label{sec:deriving-coefficients}
+
+The key insight is that we want the polynomial to match the function and all its derivatives at the expansion point $x = a$:
+\begin{align}
+p(a) &= f(a) \nonumber \\
+p'(a) &= f'(a) \nonumber \\
+p''(a) &= f''(a) \label{eq:matching-conditions} \\
+p'''(a) &= f'''(a) \nonumber \\
+&\vdots \nonumber
+\end{align}
+Let us work through these conditions systematically to find each coefficient.
+
+\subsubsection*{Finding $c_0$: The Zeroth Coefficient}
+
+Starting with the series:
+\[
+p(x) = c_0 + c_1(x - a) + c_2(x - a)^2 + c_3(x - a)^3 + \cdots
+\]
+Evaluating at $x = a$: all terms with $(x - a)$ vanish, leaving only $c_0$:
+\[
+p(a) = c_0 + 0 + 0 + \cdots = c_0
+\]
+Applying the matching condition $p(a) = f(a)$:
+\begin{equation}
+\label{eq:c0}
+c_0 = f(a)
+\end{equation}
+
+\subsubsection*{Finding $c_1$: The First Coefficient}
+
+Differentiating the series:
+\[
+p'(x) = c_1 + 2c_2(x - a) + 3c_3(x - a)^2 + 4c_4(x - a)^3 + \cdots
+\]
+Evaluating at $x = a$:
+\[
+p'(a) = c_1 + 0 + 0 + \cdots = c_1
+\]
+Applying $p'(a) = f'(a)$:
+\begin{equation}
+\label{eq:c1}
+c_1 = f'(a)
+\end{equation}
+
+\subsubsection*{Finding $c_2$: The Second Coefficient}
+
+Differentiating again:
+\[
+p''(x) = 2c_2 + 6c_3(x - a) + 12c_4(x - a)^2 + \cdots
+\]
+At $x = a$:
+\[
+p''(a) = 2c_2
+\]
+Applying $p''(a) = f''(a)$:
+\[
+2c_2 = f''(a) \implies c_2 = \frac{f''(a)}{2!}
+\]
+
+\subsubsection*{Finding $c_3$: The Third Coefficient}
+
+Differentiating once more:
+\[
+p'''(x) = 6c_3 + 24c_4(x - a) + \cdots
+\]
+At $x = a$:
+\[
+p'''(a) = 6c_3
+\]
+Applying $p'''(a) = f'''(a)$:
+\[
+6c_3 = f'''(a) \implies c_3 = \frac{f'''(a)}{3!}
+\]
+
+\subsubsection*{The General Pattern}
+
+A clear pattern emerges. The numerical coefficients $1, 2, 6, 24, \ldots$ are factorials: $0! = 1$, $1! = 1$, $2! = 2$, $3! = 6$, $4! = 24$. In general:
+\begin{equation}
+\label{eq:ck-general}
+c_k = \frac{f^{(k)}(a)}{k!}
+\end{equation}
+where $f^{(k)}(a)$ denotes the $k$-th derivative of $f$ evaluated at $a$.
+
+\subsection{The Taylor Series Formula}
+\label{sec:taylor-formula}
+
+\begin{definition}[Taylor Series]
+\label{def:taylor-series}
+The \textbf{Taylor series} of a function $f(x)$ centred at $x = a$ is:
+\begin{equation}
+\label{eq:taylor-series}
+f(x) = \sum_{k=0}^{\infty} \frac{f^{(k)}(a)}{k!}(x - a)^k
+\end{equation}
+provided $f$ has derivatives of all orders at $a$ and the series converges to $f(x)$.
+\end{definition}
+
+\begin{bluebox}[Taylor Series Expanded]
+\[
+f(x) = f(a) + f'(a)(x - a) + \frac{f''(a)}{2!}(x - a)^2 + \frac{f'''(a)}{3!}(x - a)^3 + \cdots
+\]
+\end{bluebox}
+
+\begin{definition}[Maclaurin Series]
+\label{def:maclaurin-series}
+A \textbf{Maclaurin series} is a Taylor series centred at $a = 0$:
+\begin{equation}
+\label{eq:maclaurin-series}
+f(x) = \sum_{k=0}^{\infty} \frac{f^{(k)}(0)}{k!} x^k = f(0) + f'(0)x + \frac{f''(0)}{2!}x^2 + \frac{f'''(0)}{3!}x^3 + \cdots
+\end{equation}
+\end{definition}
+
+\begin{definition}[Taylor Polynomial]
+\label{def:taylor-polynomial}
+The \textbf{$n$-th Taylor polynomial} (or $n$-th partial sum) is the finite truncation:
+\begin{equation}
+\label{eq:taylor-polynomial}
+p_n(x) = \sum_{k=0}^{n} \frac{f^{(k)}(a)}{k!}(x - a)^k
+\end{equation}
+This provides an approximation to $f(x)$ near $x = a$, with accuracy improving as $n$ increases.
+\end{definition}
+
+% =============================================================================
+\section{Common Maclaurin Series}
+\label{sec:common-maclaurin}
+% =============================================================================
+
+Several Maclaurin series appear repeatedly in mathematics, statistics, and data science. You should commit these to memory.
+
+\subsection{The Exponential Function}
+\label{sec:exp-series}
+
+\begin{example}[Maclaurin Series for $e^x$]
+\label{ex:exp-maclaurin}
+Find the Maclaurin series for $f(x) = e^x$.
+
+\textbf{Solution:} The exponential function has a remarkable property: all its derivatives equal itself.
+\begin{align*}
+f(x) &= e^x & f(0) &= 1 \\
+f'(x) &= e^x & f'(0) &= 1 \\
+f''(x) &= e^x & f''(0) &= 1 \\
+f^{(k)}(x) &= e^x & f^{(k)}(0) &= 1 \quad \text{for all } k
+\end{align*}
+Substituting into the Maclaurin formula:
+\[
+e^x = \sum_{k=0}^{\infty} \frac{1}{k!} x^k = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \frac{x^4}{4!} + \cdots
+\]
+\end{example}
+
+\begin{bluebox}[Exponential Series]
+\begin{equation}
+\label{eq:exp-series}
+e^x = \sum_{k=0}^{\infty} \frac{x^k}{k!} = 1 + x + \frac{x^2}{2} + \frac{x^3}{6} + \frac{x^4}{24} + \cdots
+\end{equation}
+This series converges for all real $x$ (radius of convergence $R = \infty$).
+\end{bluebox}
+
+\begin{intuition}[The Exponential Series in Statistics]
+The exponential series appears throughout probability theory:
+\begin{itemize}
+    \item The Poisson PMF: $\frac{\lambda^k e^{-\lambda}}{k!}$ uses the exponential series
+    \item Moment generating functions often involve $e^{tx}$
+    \item The normal distribution's PDF contains $e^{-x^2/2}$
+\end{itemize}
+\end{intuition}
+
+\subsection{Trigonometric Functions}
+\label{sec:trig-series}
+
+\begin{example}[Maclaurin Series for $\sin(x)$]
+\label{ex:sin-maclaurin}
+Find the Maclaurin series for $f(x) = \sin(x)$.
+
+\textbf{Solution:} The derivatives of sine cycle with period 4:
+\begin{align*}
+f(x) &= \sin(x) & f(0) &= 0 \\
+f'(x) &= \cos(x) & f'(0) &= 1 \\
+f''(x) &= -\sin(x) & f''(0) &= 0 \\
+f'''(x) &= -\cos(x) & f'''(0) &= -1 \\
+f^{(4)}(x) &= \sin(x) & f^{(4)}(0) &= 0
+\end{align*}
+The pattern $0, 1, 0, -1, 0, 1, 0, -1, \ldots$ repeats. Only odd-powered terms survive:
+\[
+\sin(x) = x - \frac{x^3}{3!} + \frac{x^5}{5!} - \frac{x^7}{7!} + \cdots = \sum_{k=0}^{\infty} \frac{(-1)^k}{(2k+1)!} x^{2k+1}
+\]
+\end{example}
+
+\begin{example}[Maclaurin Series for $\cos(x)$]
+\label{ex:cos-maclaurin}
+By similar reasoning (or by differentiating the sine series):
+\[
+\cos(x) = 1 - \frac{x^2}{2!} + \frac{x^4}{4!} - \frac{x^6}{6!} + \cdots = \sum_{k=0}^{\infty} \frac{(-1)^k}{(2k)!} x^{2k}
+\]
+\end{example}
+
+\begin{bluebox}[Trigonometric Series]
+\begin{align}
+\sin(x) &= x - \frac{x^3}{6} + \frac{x^5}{120} - \cdots = \sum_{k=0}^{\infty} \frac{(-1)^k x^{2k+1}}{(2k+1)!} \label{eq:sin-series} \\
+\cos(x) &= 1 - \frac{x^2}{2} + \frac{x^4}{24} - \cdots = \sum_{k=0}^{\infty} \frac{(-1)^k x^{2k}}{(2k)!} \label{eq:cos-series}
+\end{align}
+Both series converge for all real $x$ (radius of convergence $R = \infty$).
+\end{bluebox}
+
+\begin{remark}
+Notice that $\sin(x)$ has only odd powers (it's an odd function: $\sin(-x) = -\sin(x)$), while $\cos(x)$ has only even powers (it's an even function: $\cos(-x) = \cos(x)$).
+\end{remark}
+
+\subsection{The Natural Logarithm}
+\label{sec:ln-series}
+
+\begin{example}[Maclaurin Series for $\ln(1 + x)$]
+\label{ex:ln-maclaurin}
+Find the Maclaurin series for $f(x) = \ln(1 + x)$.
+
+\textbf{Solution:} We compute successive derivatives:
+\begin{align*}
+f(x) &= \ln(1 + x) & f(0) &= 0 \\
+f'(x) &= \frac{1}{1+x} = (1 + x)^{-1} & f'(0) &= 1 \\
+f''(x) &= -(1 + x)^{-2} & f''(0) &= -1 \\
+f'''(x) &= 2(1 + x)^{-3} & f'''(0) &= 2 \\
+f^{(4)}(x) &= -6(1 + x)^{-4} & f^{(4)}(0) &= -6
+\end{align*}
+The pattern: $f^{(k)}(0) = (-1)^{k+1}(k-1)!$ for $k \geq 1$. Therefore:
+\[
+\ln(1 + x) = x - \frac{x^2}{2} + \frac{x^3}{3} - \frac{x^4}{4} + \cdots = \sum_{k=1}^{\infty} \frac{(-1)^{k+1}}{k} x^k
+\]
+\end{example}
+
+\begin{bluebox}[Logarithmic Series]
+\begin{equation}
+\label{eq:ln-series}
+\ln(1 + x) = x - \frac{x^2}{2} + \frac{x^3}{3} - \frac{x^4}{4} + \cdots = \sum_{k=1}^{\infty} \frac{(-1)^{k+1} x^k}{k}
+\end{equation}
+This series converges for $-1 < x \leq 1$ (radius of convergence $R = 1$).
+\end{bluebox}
+
+\begin{warning}[Limited Convergence]
+Unlike the exponential and trigonometric series, the logarithmic series only converges for $|x| \leq 1$ (and conditionally at $x = 1$). For $|x| > 1$, the series diverges. This is because $\ln(1 + x)$ has a singularity at $x = -1$ (where it becomes $\ln(0) = -\infty$).
+\end{warning}
+
+\subsection{The Geometric Series}
+\label{sec:geometric-series}
+
+\begin{theorem}[Geometric Series]
+\label{thm:geometric-series}
+For $|x| < 1$:
+\begin{equation}
+\label{eq:geometric-series}
+\frac{1}{1-x} = \sum_{k=0}^{\infty} x^k = 1 + x + x^2 + x^3 + \cdots
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Let $S_n = 1 + x + x^2 + \cdots + x^n$. Multiplying by $x$:
+\[
+xS_n = x + x^2 + \cdots + x^{n+1}
+\]
+Subtracting: $S_n - xS_n = 1 - x^{n+1}$, so $S_n = \frac{1 - x^{n+1}}{1 - x}$.
+
+For $|x| < 1$, we have $x^{n+1} \to 0$ as $n \to \infty$, giving $S = \lim_{n \to \infty} S_n = \frac{1}{1-x}$.
+\end{proof}
+
+\begin{bluebox}[Geometric Series Variants]
+By substitution and manipulation:
+\begin{align}
+\frac{1}{1+x} &= 1 - x + x^2 - x^3 + \cdots = \sum_{k=0}^{\infty} (-1)^k x^k \quad (|x| < 1) \label{eq:geometric-alt} \\
+\frac{1}{(1-x)^2} &= 1 + 2x + 3x^2 + 4x^3 + \cdots = \sum_{k=0}^{\infty} (k+1)x^k \quad (|x| < 1) \label{eq:geometric-derivative}
+\end{align}
+The second follows from differentiating the first with respect to $x$.
+\end{bluebox}
+
+\subsection{Taylor Series for $\ln(x)$ at $x = 1$}
+\label{sec:ln-taylor}
+
+\begin{example}[Taylor Series for $\ln(x)$ at $x = 1$]
+\label{ex:ln-taylor}
+Find the Taylor polynomials $p_0$, $p_1$, $p_2$, and $p_3$ for $f(x) = \ln(x)$ centred at $a = 1$.
+
+\textbf{Solution:} We need the derivatives of $f(x)$ evaluated at $x = 1$:
+\begin{align*}
+f(x) &= \ln(x) & f(1) &= \ln(1) = 0 \\
+f'(x) &= \frac{1}{x} & f'(1) &= 1 \\
+f''(x) &= -\frac{1}{x^2} & f''(1) &= -1 \\
+f'''(x) &= \frac{2}{x^3} & f'''(1) &= 2
+\end{align*}
+Using the Taylor polynomial formula $p_n(x) = \sum_{k=0}^{n} \frac{f^{(k)}(1)}{k!}(x-1)^k$:
+\begin{align*}
+p_0(x) &= f(1) = 0 \\
+p_1(x) &= f(1) + f'(1)(x-1) = 0 + 1 \cdot (x-1) = x - 1 \\
+p_2(x) &= p_1(x) + \frac{f''(1)}{2!}(x-1)^2 = (x-1) + \frac{-1}{2}(x-1)^2 = (x-1) - \frac{1}{2}(x-1)^2 \\
+p_3(x) &= p_2(x) + \frac{f'''(1)}{3!}(x-1)^3 = (x-1) - \frac{1}{2}(x-1)^2 + \frac{2}{6}(x-1)^3 \\
+       &= (x-1) - \frac{1}{2}(x-1)^2 + \frac{1}{3}(x-1)^3
+\end{align*}
+Each polynomial provides a successively better approximation to $\ln(x)$ near $x = 1$.
+\end{example}
+
+\subsection{Summary of Common Series}
+\label{sec:series-summary}
+
+\begin{bluebox}[Common Maclaurin Series]
+\begin{align*}
+e^x &= 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \cdots & R &= \infty \\
+\sin(x) &= x - \frac{x^3}{3!} + \frac{x^5}{5!} - \cdots & R &= \infty \\
+\cos(x) &= 1 - \frac{x^2}{2!} + \frac{x^4}{4!} - \cdots & R &= \infty \\
+\ln(1+x) &= x - \frac{x^2}{2} + \frac{x^3}{3} - \cdots & R &= 1 \\
+\frac{1}{1-x} &= 1 + x + x^2 + x^3 + \cdots & R &= 1 \\
+(1+x)^\alpha &= 1 + \alpha x + \frac{\alpha(\alpha-1)}{2!}x^2 + \cdots & R &= 1 \text{ (binomial series)}
+\end{align*}
+Here $R$ denotes the radius of convergence.
+\end{bluebox}
+
+% =============================================================================
+\section{Convergence of Power Series}
+\label{sec:convergence}
+% =============================================================================
+
+Not every power series converges for all values of $x$. Understanding where a series converges is essential for correct application.
+
+\begin{definition}[Radius of Convergence]
+\label{def:radius-convergence}
+For a power series $\sum_{k=0}^{\infty} c_k (x - a)^k$, the \textbf{radius of convergence} $R$ is the number such that:
+\begin{itemize}
+    \item The series converges absolutely for $|x - a| < R$
+    \item The series diverges for $|x - a| > R$
+    \item At $|x - a| = R$, convergence must be checked case by case
+\end{itemize}
+The interval $(a - R, a + R)$ is called the \textbf{interval of convergence}.
+\end{definition}
+
+\begin{theorem}[Ratio Test for Radius of Convergence]
+\label{thm:ratio-test}
+For the power series $\sum_{k=0}^{\infty} c_k (x - a)^k$, the radius of convergence is:
+\begin{equation}
+\label{eq:ratio-test}
+R = \lim_{k \to \infty} \left| \frac{c_k}{c_{k+1}} \right|
+\end{equation}
+provided this limit exists (it may be $0$ or $\infty$).
+\end{theorem}
+
+\begin{example}[Finding the Radius of Convergence]
+\label{ex:radius-convergence}
+Find the radius of convergence for $\sum_{k=1}^{\infty} \frac{x^k}{k}$ (the series for $-\ln(1-x)$).
+
+\textbf{Solution:} Here $c_k = \frac{1}{k}$. Applying the ratio test:
+\[
+R = \lim_{k \to \infty} \left| \frac{1/k}{1/(k+1)} \right| = \lim_{k \to \infty} \frac{k+1}{k} = \lim_{k \to \infty} \left(1 + \frac{1}{k}\right) = 1
+\]
+The series converges for $|x| < 1$ and diverges for $|x| > 1$. At $x = 1$, it becomes $\sum \frac{1}{k}$ (harmonic series), which diverges. At $x = -1$, it becomes $\sum \frac{(-1)^k}{k}$, which converges conditionally.
+\end{example}
+
+\begin{warning}[Convergence vs.\ Equality]
+A series may converge but not equal the function it was derived from! A function $f$ equals its Taylor series on an interval only if the remainder term goes to zero. For most functions encountered in applications (analytic functions), this holds within the radius of convergence, but pathological examples exist.
+\end{warning}
+
+% =============================================================================
+\section{Integration: Foundations}
+\label{sec:integration-foundations}
+% =============================================================================
+
+Integration is the mathematical operation that undoes differentiation. Where differentiation measures rates of change, integration measures accumulation---areas under curves, total quantities, cumulative probabilities.
+
+\begin{intuition}[Why Integration Matters for Data Science]
+Integration is essential for:
+\begin{itemize}
+    \item \textbf{Probability:} Computing probabilities from PDFs via $P(a \leq X \leq b) = \int_a^b f(x)\, dx$
+    \item \textbf{Expected values:} $\E[X] = \int x f(x)\, dx$
+    \item \textbf{Normalisation:} Ensuring PDFs integrate to 1
+    \item \textbf{Cumulative distributions:} $F(x) = \int_{-\infty}^{x} f(t)\, dt$
+\end{itemize}
+\end{intuition}
+
+\subsection{Antiderivatives and Indefinite Integrals}
+\label{sec:antiderivatives}
+
+\begin{definition}[Antiderivative]
+\label{def:antiderivative}
+A function $F(x)$ is an \textbf{antiderivative} of $f(x)$ if:
+\[
+F'(x) = f(x)
+\]
+That is, the derivative of $F$ equals $f$.
+\end{definition}
+
+\begin{example}[Finding Antiderivatives]
+\label{ex:antiderivatives}
+\begin{itemize}
+    \item $F(x) = x^3$ is an antiderivative of $f(x) = 3x^2$ because $(x^3)' = 3x^2$
+    \item $F(x) = \sin(x)$ is an antiderivative of $f(x) = \cos(x)$ because $(\sin x)' = \cos x$
+    \item $F(x) = e^x$ is an antiderivative of $f(x) = e^x$ because $(e^x)' = e^x$
+\end{itemize}
+\end{example}
+
+\begin{theorem}[Antiderivatives Differ by a Constant]
+\label{thm:antiderivative-constant}
+If $F(x)$ is an antiderivative of $f(x)$, then so is $F(x) + C$ for any constant $C$. Moreover, every antiderivative of $f$ has the form $F(x) + C$.
+\end{theorem}
+
+\begin{proof}
+If $F'(x) = f(x)$, then $(F(x) + C)' = F'(x) + 0 = f(x)$.
+
+Conversely, if $G$ is any antiderivative of $f$, then $(G - F)' = G' - F' = f - f = 0$. A function with zero derivative everywhere is constant, so $G(x) - F(x) = C$ for some constant $C$.
+\end{proof}
+
+\begin{definition}[Indefinite Integral]
+\label{def:indefinite-integral}
+The \textbf{indefinite integral} of $f(x)$ is the general antiderivative:
+\begin{equation}
+\label{eq:indefinite-integral}
+\int f(x)\, dx = F(x) + C
+\end{equation}
+where $F'(x) = f(x)$ and $C$ is an arbitrary \textbf{constant of integration}.
+\end{definition}
+
+\begin{warning}[Don't Forget the Constant]
+When computing indefinite integrals, always include the constant $C$. Forgetting it is a common error that can lead to incorrect results, especially when solving differential equations or computing definite integrals via antiderivatives.
+\end{warning}
+
+\subsection{Basic Integration Rules}
+\label{sec:basic-integration}
+
+Integration rules are derived by reversing differentiation rules.
+
+\begin{bluebox}[Power Rule for Integration]
+For $n \neq -1$:
+\begin{equation}
+\label{eq:power-rule-integration}
+\int x^n\, dx = \frac{x^{n+1}}{n+1} + C
+\end{equation}
+\end{bluebox}
+
+\begin{proof}
+Check by differentiating: $\frac{d}{dx}\left[\frac{x^{n+1}}{n+1}\right] = \frac{(n+1)x^n}{n+1} = x^n$.
+\end{proof}
+
+\begin{bluebox}[Constant Multiple and Sum Rules]
+\begin{align}
+\int k \cdot f(x)\, dx &= k \int f(x)\, dx \label{eq:constant-multiple} \\
+\int [f(x) \pm g(x)]\, dx &= \int f(x)\, dx \pm \int g(x)\, dx \label{eq:sum-rule}
+\end{align}
+Integration, like differentiation, is a linear operator.
+\end{bluebox}
+
+\begin{bluebox}[Table of Common Integrals]
+\begin{align*}
+\int x^n\, dx &= \frac{x^{n+1}}{n+1} + C & (n \neq -1) \\
+\int \frac{1}{x}\, dx &= \ln|x| + C \\
+\int e^x\, dx &= e^x + C \\
+\int a^x\, dx &= \frac{a^x}{\ln a} + C & (a > 0, a \neq 1) \\
+\int \cos(x)\, dx &= \sin(x) + C \\
+\int \sin(x)\, dx &= -\cos(x) + C \\
+\int \sec^2(x)\, dx &= \tan(x) + C \\
+\int \frac{1}{1+x^2}\, dx &= \arctan(x) + C \\
+\int \frac{1}{\sqrt{1-x^2}}\, dx &= \arcsin(x) + C
+\end{align*}
+\end{bluebox}
+
+% =============================================================================
+\section{The Fundamental Theorem of Calculus}
+\label{sec:ftc}
+% =============================================================================
+
+The Fundamental Theorem of Calculus (FTC) is one of the most important results in mathematics. It establishes the deep connection between differentiation and integration---they are inverse operations.
+
+\begin{theorem}[Fundamental Theorem of Calculus, Part I]
+\label{thm:ftc-part1}
+If $f$ is continuous on $[a, b]$ and we define:
+\begin{equation}
+\label{eq:ftc-accumulator}
+F(x) = \int_a^x f(t)\, dt
+\end{equation}
+then $F$ is differentiable on $(a, b)$ and:
+\begin{equation}
+\label{eq:ftc-derivative}
+F'(x) = f(x)
+\end{equation}
+In other words, the derivative of an integral with respect to its upper limit equals the integrand evaluated at that limit.
+\end{theorem}
+
+\begin{intuition}[FTC Part I: Differentiation Undoes Integration]
+The integral $\int_a^x f(t)\, dt$ represents the accumulated area under $f$ from $a$ to $x$. How fast is this area growing as $x$ increases? At rate $f(x)$---precisely the height of the function at that point.
+\end{intuition}
+
+\begin{theorem}[Fundamental Theorem of Calculus, Part II]
+\label{thm:ftc-part2}
+If $f$ is continuous on $[a, b]$ and $F$ is any antiderivative of $f$ (i.e., $F' = f$), then:
+\begin{equation}
+\label{eq:ftc-evaluation}
+\int_a^b f(x)\, dx = F(b) - F(a)
+\end{equation}
+\end{theorem}
+
+\begin{bluebox}[Evaluating Definite Integrals]
+To compute $\int_a^b f(x)\, dx$:
+\begin{enumerate}
+    \item Find any antiderivative $F(x)$ of $f(x)$
+    \item Evaluate $F(b) - F(a)$
+\end{enumerate}
+Notation:
+\[
+\int_a^b f(x)\, dx = \Big[F(x)\Big]_a^b = F(b) - F(a)
+\]
+\end{bluebox}
+
+\begin{example}[Using the FTC]
+\label{ex:ftc-basic}
+Compute $\int_1^3 x^2\, dx$.
+
+\textbf{Solution:} An antiderivative of $x^2$ is $F(x) = \frac{x^3}{3}$. By FTC Part II:
+\[
+\int_1^3 x^2\, dx = \left[\frac{x^3}{3}\right]_1^3 = \frac{3^3}{3} - \frac{1^3}{3} = \frac{27}{3} - \frac{1}{3} = \frac{26}{3}
+\]
+\end{example}
+
+\begin{example}[Computing a Probability]
+\label{ex:probability-integral}
+If a continuous random variable $X$ has PDF $f(x) = 2x$ for $x \in [0, 1]$, find $P(0.5 \leq X \leq 0.8)$.
+
+\textbf{Solution:}
+\[
+P(0.5 \leq X \leq 0.8) = \int_{0.5}^{0.8} 2x\, dx = \Big[x^2\Big]_{0.5}^{0.8} = 0.64 - 0.25 = 0.39
+\]
+\end{example}
+
+% =============================================================================
+\section{Integration Techniques}
+\label{sec:integration-techniques}
+% =============================================================================
+
+Not all integrals can be computed directly from the basic rules. Two fundamental techniques extend our capabilities significantly.
+
+\subsection{Integration by Substitution}
+\label{sec:substitution}
+
+Substitution is the integration counterpart to the chain rule for differentiation.
+
+\begin{theorem}[Substitution Rule]
+\label{thm:substitution}
+If $u = g(x)$ is a differentiable function and $f$ is continuous, then:
+\begin{equation}
+\label{eq:substitution}
+\int f(g(x)) \cdot g'(x)\, dx = \int f(u)\, du
+\end{equation}
+where after integration we substitute back $u = g(x)$.
+\end{theorem}
+
+\begin{intuition}[Why Substitution Works]
+If $F'(u) = f(u)$, then by the chain rule:
+\[
+\frac{d}{dx}[F(g(x))] = F'(g(x)) \cdot g'(x) = f(g(x)) \cdot g'(x)
+\]
+So $F(g(x))$ is an antiderivative of $f(g(x)) \cdot g'(x)$.
+\end{intuition}
+
+\begin{bluebox}[Substitution Method]
+\begin{enumerate}
+    \item Choose a substitution $u = g(x)$
+    \item Compute $du = g'(x)\, dx$, so $dx = \frac{du}{g'(x)}$
+    \item Rewrite the integral entirely in terms of $u$
+    \item Integrate with respect to $u$
+    \item Substitute back to express the answer in terms of $x$
+\end{enumerate}
+\end{bluebox}
+
+\begin{example}[Substitution: Polynomial Inside]
+\label{ex:sub-polynomial}
+Compute $\int (2x + 3)^5\, dx$.
+
+\textbf{Solution:} Let $u = 2x + 3$. Then $\frac{du}{dx} = 2$, so $dx = \frac{du}{2}$.
+\begin{align*}
+\int (2x + 3)^5\, dx &= \int u^5 \cdot \frac{du}{2} = \frac{1}{2} \int u^5\, du \\
+&= \frac{1}{2} \cdot \frac{u^6}{6} + C = \frac{u^6}{12} + C \\
+&= \frac{(2x + 3)^6}{12} + C
+\end{align*}
+\end{example}
+
+\begin{example}[Substitution: Exponential]
+\label{ex:sub-exponential}
+Compute $\int x e^{x^2}\, dx$.
+
+\textbf{Solution:} Let $u = x^2$. Then $du = 2x\, dx$, so $x\, dx = \frac{du}{2}$.
+\begin{align*}
+\int x e^{x^2}\, dx &= \int e^u \cdot \frac{du}{2} = \frac{1}{2} \int e^u\, du \\
+&= \frac{1}{2} e^u + C = \frac{1}{2} e^{x^2} + C
+\end{align*}
+\end{example}
+
+\begin{example}[Substitution: Logarithmic]
+\label{ex:sub-logarithmic}
+Compute $\int \frac{\ln(x)}{x}\, dx$.
+
+\textbf{Solution:} Let $u = \ln(x)$. Then $du = \frac{1}{x}\, dx$.
+\[
+\int \frac{\ln(x)}{x}\, dx = \int u\, du = \frac{u^2}{2} + C = \frac{(\ln x)^2}{2} + C
+\]
+\end{example}
+
+\begin{theorem}[Substitution for Definite Integrals]
+\label{thm:definite-substitution}
+When using substitution for definite integrals, change the limits of integration along with the variable:
+\begin{equation}
+\label{eq:definite-substitution}
+\int_a^b f(g(x)) \cdot g'(x)\, dx = \int_{g(a)}^{g(b)} f(u)\, du
+\end{equation}
+\end{theorem}
+
+\begin{example}[Definite Integral by Substitution]
+\label{ex:definite-sub}
+Compute $\int_0^2 x(x^2 + 1)^3\, dx$.
+
+\textbf{Solution:} Let $u = x^2 + 1$. Then $du = 2x\, dx$, so $x\, dx = \frac{du}{2}$.
+
+When $x = 0$: $u = 0^2 + 1 = 1$. When $x = 2$: $u = 2^2 + 1 = 5$.
+\begin{align*}
+\int_0^2 x(x^2 + 1)^3\, dx &= \int_1^5 u^3 \cdot \frac{du}{2} = \frac{1}{2} \left[\frac{u^4}{4}\right]_1^5 \\
+&= \frac{1}{8}\left(5^4 - 1^4\right) = \frac{1}{8}(625 - 1) = \frac{624}{8} = 78
+\end{align*}
+\end{example}
+
+\subsection{Integration by Parts}
+\label{sec:parts}
+
+Integration by parts is the integration counterpart to the product rule.
+
+\begin{theorem}[Integration by Parts]
+\label{thm:parts}
+If $u$ and $v$ are differentiable functions, then:
+\begin{equation}
+\label{eq:parts}
+\int u\, dv = uv - \int v\, du
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+From the product rule: $(uv)' = u'v + uv'$. Integrating both sides:
+\[
+uv = \int u'v\, dx + \int uv'\, dx
+\]
+Rearranging: $\int uv'\, dx = uv - \int u'v\, dx$.
+
+Writing $dv = v'\, dx$ and $du = u'\, dx$ gives the formula.
+\end{proof}
+
+\begin{bluebox}[Choosing $u$ and $dv$: LIATE Rule]
+When applying integration by parts, choose $u$ and $dv$ using the LIATE priority (choose $u$ from earlier in the list):
+\begin{enumerate}
+    \item \textbf{L}ogarithmic functions: $\ln(x)$, $\log(x)$
+    \item \textbf{I}nverse trigonometric functions: $\arctan(x)$, $\arcsin(x)$
+    \item \textbf{A}lgebraic functions: $x^n$, polynomials
+    \item \textbf{T}rigonometric functions: $\sin(x)$, $\cos(x)$
+    \item \textbf{E}xponential functions: $e^x$, $a^x$
+\end{enumerate}
+\end{bluebox}
+
+\begin{example}[Integration by Parts: $\int xe^x\, dx$]
+\label{ex:parts-xex}
+Compute $\int xe^x\, dx$.
+
+\textbf{Solution:} Using LIATE, let $u = x$ (algebraic) and $dv = e^x\, dx$ (exponential).
+
+Then $du = dx$ and $v = e^x$.
+
+Applying the formula:
+\[
+\int xe^x\, dx = uv - \int v\, du = xe^x - \int e^x\, dx = xe^x - e^x + C = e^x(x - 1) + C
+\]
+\end{example}
+
+\begin{example}[Integration by Parts: $\int \ln(x)\, dx$]
+\label{ex:parts-ln}
+Compute $\int \ln(x)\, dx$.
+
+\textbf{Solution:} Let $u = \ln(x)$ and $dv = dx$.
+
+Then $du = \frac{1}{x}\, dx$ and $v = x$.
+\[
+\int \ln(x)\, dx = x\ln(x) - \int x \cdot \frac{1}{x}\, dx = x\ln(x) - \int 1\, dx = x\ln(x) - x + C = x(\ln(x) - 1) + C
+\]
+\end{example}
+
+\begin{example}[Integration by Parts: $\int x^2 e^x\, dx$]
+\label{ex:parts-x2ex}
+Compute $\int x^2 e^x\, dx$.
+
+\textbf{Solution:} This requires applying integration by parts twice.
+
+\textbf{First application:} Let $u = x^2$, $dv = e^x\, dx$. Then $du = 2x\, dx$, $v = e^x$.
+\[
+\int x^2 e^x\, dx = x^2 e^x - \int 2xe^x\, dx = x^2 e^x - 2\int xe^x\, dx
+\]
+
+\textbf{Second application:} We computed $\int xe^x\, dx = e^x(x - 1) + C$ in the previous example.
+\[
+\int x^2 e^x\, dx = x^2 e^x - 2e^x(x - 1) + C = e^x(x^2 - 2x + 2) + C
+\]
+\end{example}
+
+% =============================================================================
+\section{Applications to Probability: Moment Generating Functions}
+\label{sec:mgf}
+% =============================================================================
+
+Power series and integration combine beautifully in the theory of \textbf{moment generating functions} (MGFs), a powerful tool in probability theory.
+
+\begin{definition}[Moment Generating Function]
+\label{def:mgf}
+The \textbf{moment generating function} of a random variable $X$ is:
+\begin{equation}
+\label{eq:mgf}
+M_X(t) = \E[e^{tX}]
+\end{equation}
+provided this expectation exists for $t$ in some neighbourhood of zero.
+\end{definition}
+
+\begin{intuition}[Why ``Moment Generating''?]
+The name comes from how MGFs encode all moments of a distribution. Using the Maclaurin series for $e^{tX}$:
+\[
+e^{tX} = 1 + tX + \frac{(tX)^2}{2!} + \frac{(tX)^3}{3!} + \cdots
+\]
+Taking expectations:
+\[
+M_X(t) = \E[e^{tX}] = 1 + t\E[X] + \frac{t^2}{2!}\E[X^2] + \frac{t^3}{3!}\E[X^3] + \cdots
+\]
+The coefficients are the moments $\E[X^k]$ divided by $k!$. Differentiating and setting $t = 0$ extracts individual moments.
+\end{intuition}
+
+\begin{theorem}[Moments from the MGF]
+\label{thm:moments-from-mgf}
+If the MGF $M_X(t)$ exists in a neighbourhood of zero, then:
+\begin{equation}
+\label{eq:moments-from-mgf}
+\E[X^n] = M_X^{(n)}(0) = \frac{d^n M_X}{dt^n}\bigg|_{t=0}
+\end{equation}
+The $n$-th moment equals the $n$-th derivative of the MGF evaluated at $t = 0$.
+\end{theorem}
+
+\begin{example}[MGF of the Exponential Distribution]
+\label{ex:mgf-exponential}
+Find the MGF of $X \sim \text{Exponential}(\lambda)$ and use it to find $\E[X]$.
+
+\textbf{Solution:} The PDF is $f(x) = \lambda e^{-\lambda x}$ for $x \geq 0$.
+\begin{align*}
+M_X(t) = \E[e^{tX}] &= \int_0^\infty e^{tx} \cdot \lambda e^{-\lambda x}\, dx \\
+&= \lambda \int_0^\infty e^{(t-\lambda)x}\, dx
+\end{align*}
+For $t < \lambda$, this integral converges:
+\[
+M_X(t) = \lambda \left[\frac{e^{(t-\lambda)x}}{t-\lambda}\right]_0^\infty = \lambda \cdot \frac{0 - 1}{t - \lambda} = \frac{\lambda}{\lambda - t}
+\]
+
+To find $\E[X]$, differentiate:
+\[
+M_X'(t) = \frac{d}{dt}\left(\frac{\lambda}{\lambda - t}\right) = \frac{\lambda}{(\lambda - t)^2}
+\]
+
+Evaluating at $t = 0$:
+\[
+\E[X] = M_X'(0) = \frac{\lambda}{\lambda^2} = \frac{1}{\lambda}
+\]
+
+This confirms the well-known result that an $\text{Exponential}(\lambda)$ random variable has mean $1/\lambda$.
+\end{example}
+
+\begin{remark}
+MGFs are studied in detail in \cref{ch:week7}. The key connection to this chapter is that the Taylor series expansion of $e^{tX}$ underlies the entire theory. This is a beautiful example of how power series provide both computational techniques and theoretical insight.
+\end{remark}
+
+% =============================================================================
+\section{Practice Exercises}
+\label{sec:exercises}
+% =============================================================================
+
+\subsection*{Taylor and Maclaurin Series}
+
+\begin{enumerate}
+    \item Find the Maclaurin series for $f(x) = e^{-x}$ by substituting $-x$ into the series for $e^x$.
+
+    \item Find the first four nonzero terms of the Maclaurin series for $f(x) = e^x \sin(x)$ by multiplying the series for $e^x$ and $\sin(x)$.
+
+    \item Find the Taylor series for $f(x) = \sqrt{x}$ centred at $a = 4$, up to the $(x - 4)^2$ term.
+
+    \item Use the geometric series to find a power series representation for $\frac{1}{1+x^2}$. What is its radius of convergence?
+
+    \item Verify that $\frac{d}{dx}[\sin(x)] = \cos(x)$ by differentiating the Maclaurin series for $\sin(x)$ term by term.
+\end{enumerate}
+
+\subsection*{Integration}
+
+\begin{enumerate}
+    \item Compute $\int (3x^4 - 2x^2 + 5)\, dx$.
+
+    \item Compute $\int_0^1 e^{2x}\, dx$.
+
+    \item Use substitution to compute $\int \frac{x}{x^2 + 1}\, dx$.
+
+    \item Use substitution to compute $\int_0^{\pi/2} \sin^3(x) \cos(x)\, dx$.
+
+    \item Use integration by parts to compute $\int x \cos(x)\, dx$.
+
+    \item Use integration by parts to compute $\int x^2 \ln(x)\, dx$.
+
+    \item Compute $\int_0^1 xe^{-x}\, dx$ (this appears in computing $\E[X]$ for certain distributions).
+\end{enumerate}

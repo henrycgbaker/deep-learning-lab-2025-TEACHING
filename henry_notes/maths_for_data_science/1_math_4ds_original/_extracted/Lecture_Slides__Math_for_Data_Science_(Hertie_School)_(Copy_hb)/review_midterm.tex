@@ -1,0 +1,169 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{hyperref}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize Math for Data Science: Midterm Review}
+\rhead{\footnotesize } 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf GRAD C23: Mathematics for Data Science} \\
+Hertie School \\ Fall 2024  \\ Prof. Magazinnik \\
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf In-Class Exercise Guidance and Mid-Semester Review}
+	\vspace{2mm}
+\end{center}
+
+\subsection*{Ground Rules}
+After the break, you will have a low-stakes skills assessment in your labs. Here is some more information about this assessment. 
+\begin{itemize}
+    \item \textbf{Open book policy}
+    \begin{itemize}
+        \item The assessment will be open notes, open book, open everything. You can consult whatever course materials or online sources you wish. You may consult the labs and any code you've written in the past. 
+    \end{itemize}
+    \item \textbf{ChatGPT policy}
+    \begin{itemize}
+    \item The use of ChatGPT is also permitted. However, I don't recommend leaning on it too much. The assignment will be designed in a way where you can't simply copy-paste the prompt into ChatGPT and get a good answer; you have to think through the problem yourself. That said, if it helps you produce code, typeset math, and crank out mechanical parts once you know what you're trying to do, by all means use it. The idea of this assessment is for you to have all the tools you usually have at your disposal as a data analyst. 
+        \item My usual rule applies: you may use ChatGPT as a search engine, coding assistant, and helper in thinking through problems, but do not copy ChatGPT-generated text into your open-ended responses. I am not interested in teaching a computer how to think and write. \end{itemize}
+    \item \textbf{Collaboration policy}
+    \begin{itemize}
+        \item \textbf{The only prohibition is on collaboration.} Our class has many other opportunities for collaboration, but for this assignment you have to go it alone. Consider it an opportunity to demonstrate your own  abilities. 
+        \item That means you cannot text or message anyone (your classmates or anybody else) during the assessment on any platform, in any way. Do yourself a favor and silence all notifications on your computer while you're working. Any students who are found to be messaging during the assessment will receive a failing grade. 
+    \end{itemize}
+    \item \textbf{Submission format}
+    \begin{itemize}
+        \item I will share an RMarkdown template which you can use to input your answers. I'll share this in advance of the assessment so you can take your time loading it on your machine, making sure you can compile it successfully, and practicing using it. 
+        \item The expected submission is a successfully compiled pdf file, submitted over Moodle. Submitting a successfully compiled pdf is a part of the assignment. 
+    \end{itemize}
+    \item The assessment will start at :10 after the hour of your usually scheduled lab, and you will have 1 hour and 50 minutes to complete it. I will design the assessment to take about an hour to solve (that is, to do the math and write the code), giving you ample time for typesetting, dealing with compiling issues, and submitting the assignment.
+\end{itemize}
+\clearpage 
+
+\section*{Review}
+The remainder of this document summarizes the main topics we have covered thus far and the skills you should have facility with by now. Impressive! 
+
+\section{Probability Theory}
+\subsection{Sampling}
+\begin{itemize}
+    \item Applying the naive version of probability: \# of ``successes'' divided by \# of possible outcomes
+    \item Sampling with and without replacement
+    \item Order matters (permutations) or does not matter (combinations) 
+    \item ``Overcounting'' adjustment (e.g. multinomial distribution PMF, or practice problems 2.1, 2 and 4 below) 
+    \item Computing the complement of a probability as a shortcut (e.g. birthday problem) 
+    \item Defining the sample space $S$ of an experiment 
+\end{itemize}
+
+\subsection{Total and Conditional Probability}
+\begin{itemize}
+    \item The law of total probability
+    \item Definition of conditional probability \& how to apply it 
+    \item Bayes' Rule 
+    \item Independence and conditional independence 
+\end{itemize}
+
+\subsection{Random Variables}
+\begin{itemize}
+    \item Writing down a PDF for a discrete random variable
+    \item Discrete distributions that are good to know:
+    \begin{itemize}
+        \item Bernoulli
+        \item Binomial
+        \item Negative binomial
+        \item Geometric
+        \item Hypergeometric
+        \item Multinomial
+        \item Poisson
+        \item Discrete uniform
+    \end{itemize}
+    \item Joint, marginal, and conditional PDF of a discrete random variable
+    \item CDF of a discrete random variable
+    \item Mean and variance of a discrete random variable
+\end{itemize}
+
+\subsection{Calculus}
+\begin{itemize}
+    \item Practice taking derivatives of a wide range of functions, using all the rules from slides 21-27 of Lecture 4.
+    \item Understand conceptually what a first derivative is, and how one is computed in theory (slide 19 of Lecture 4). 
+    \item Understand conceptually what an integral is (slide 14 of Lecture 6). 
+    \item Understand how derivatives describe the behavior of a function. First and second derivative test.
+    \item Relationship between derivative and integral: Fundamental Theorem of Calculus.
+\end{itemize}
+
+\section{Assorted Practice}
+\subsection{Sampling}
+\begin{enumerate}
+    \item How many ways can you assign 33 students to 33 seats in a classroom? 
+    \item How many permutations are there of the word STATISTICS? 
+    \item How many ways can you select an 11-person committee from 33 students? 
+    \item How many ways are there to assign 33 students to 3 groups of 11? 
+\end{enumerate}
+
+\subsection{Total and Conditional Probability}
+\begin{enumerate}
+    \item Suppose that 30 percent of computer owners use a Macintosh, 50 percent use Windows, and 20 percent use Linux. Suppose that 65 percent of the Mac users have succumbed to a computer virus, 82 percent of the Windows users get the virus, and 50 percent of the Linux users get the virus. We select a person at random and learn that her system was infected with the virus. What is the probability that she is a Windows user?
+    \item There are three cards. The first is green on both sides, the second is red on both sides and the third is green on one side and red on the other. We choose a card at random and we see one side (also chosen at random). If the side we see is green, what is the probability that the other side is also green? 
+    \item Suppose we toss a fair coin until it lands Heads. What is the probability that exactly $k$ tosses are required?
+    \item Toss a coin with probability $p$ of Heads 10 times. What is the probability that it lands on Heads at least once? 
+    \end{enumerate}
+
+\subsection{Random Variables}
+\begin{enumerate}
+    \item Make sure you know how to derive the PMF of one of the discrete probability distributions listed above. For instance: you are trying to shoot a basketball. The game ends when you successfully get the ball in the hoop. Let $X$ be the number of tries it takes you to successfully get the ball in the hoop for the first time. Let $p$ be the probability that you get it in the hoop on any given throw. Write down the PMF of $X$. 
+    \item Make sure you can compute the mean and variance of some random variable given a PMF. For instance: let $X$ have the following PMF:
+  \[
+P(X=k) = 
+\begin{cases}
+\frac{1}{5} & k = 1 \\
+\frac{1}{5} & k=2 \\
+\frac{2}{5} & k=3 \\
+\frac{1}{10} & k=4 \\
+\frac{1}{10} & k=5 
+\end{cases}
+\]
+What are the mean and variance of $X$? 
+\item Know how to compute the mean and variance of a function of two random variables using the mean and variance rules from slides 11 and 15 of Lecture 3. For instance: let $X$ and $Y$ be independent and identically distributed Bernoulli random variables with probability $p$. What are the mean and variance of $X+Y$? 
+\item Know how to compute the joint, marginal, and conditional PMFs of $X$ and $Y$ from a contingency table as on slide 23 of Lecture 3. 
+\item Also review how to get the joint, marginal, and conditional PMFs from the Multinomial distribution, as in Lab 3. 
+\end{enumerate}
+
+\subsection{Calculus}
+For practice, you can do the following problems in the Herman and Strang, Volume 1 text:
+    \begin{itemize}
+        \item 3.3 Exercises: 106-117
+        \item 3.6 Exercises: 220, 221, 223, 228, 229, 231
+        \item 3.9 Exercises: 331-337 
+    \end{itemize}
+    No need to do them all; just do enough to get the hang of every type. For solutions to any of these, just type them into \href{https://www.wolframalpha.com/input?i2d=true&i=D%5BDivide%5B%5C%2840%295Power%5Bx%2C2%5D%2B1%5C%2841%29%2CPower%5Bx%2C3%5D%5D%2Cx%5D}{Wolfram Alpha}.
+
+\subsection{Other Topics}
+\begin{enumerate}
+    \item Practice doing MLE with some of the distributions listed above 
+    \item Practice constructing Taylor polynomials: Herman and Strang, Vol. 2, Exercises 6.3, 116, 117, 120-123. 
+\end{enumerate}
+ \end{document}

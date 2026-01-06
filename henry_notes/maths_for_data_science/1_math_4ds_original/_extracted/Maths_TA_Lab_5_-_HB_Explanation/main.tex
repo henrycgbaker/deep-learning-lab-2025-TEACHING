@@ -1,0 +1,187 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=blue,      
+    urlcolor=blue,
+    citecolor=blue,
+}
+\begin{document}
+
+\title{Math for Data Science: Lab 4}
+\author{}
+\maketitle
+
+\tableofcontents
+\clearpage
+
+\vspace{10mm}
+\section{Derivation of the Maximum Likelihood Estimator for the Poisson Distribution}
+
+\subsection*{High-Level Intuition}
+Maximum Likelihood Estimation (MLE) is a method for estimating the parameters of a statistical model. The core idea of MLE is to find the parameter value that makes the observed data most probable. For a Poisson distribution, the parameter we are interested in is \(\lambda\), which represents the average rate at which events happen over a fixed period. The idea is to adjust \(\lambda\) in such a way that the likelihood of the observed data is maximized.
+
+In simple terms, MLE is like asking the question: "What value of \(\lambda\) would make the observed data most likely to occur?" We derive this by creating the likelihood function, which represents the probability of observing the data given a particular \(\lambda\). We then take the derivative to find the value that maximizes this probability. The MLE for the Poisson distribution turns out to be the sample mean, which makes sense intuitively because the parameter \(\lambda\) represents the average rate of occurrence.
+
+\subsection*{Step 1: Define the Poisson Distribution}
+
+The probability mass function (PMF) of a Poisson distribution with parameter \(\lambda\) is:
+
+\[
+P(X = x) = \frac{\lambda^x e^{-\lambda}}{x!}, \quad x = 0, 1, 2, \dots
+\]
+
+This function gives the probability of observing \(x\) events in a fixed interval, where \(\lambda\) is the average number of events expected to occur in that interval.
+
+\subsection*{Step 2: Set Up the Likelihood Function}
+
+Given a random sample \(X_1, X_2, \dots, X_n\) drawn from a Poisson distribution with parameter \(\lambda\), the likelihood function \(L(\lambda)\) is:
+
+\[
+L(\lambda) = \prod_{i=1}^{n} P(X_i = x_i) = \prod_{i=1}^{n} \frac{\lambda^{x_i} e^{-\lambda}}{x_i!}.
+\]
+
+The likelihood function represents the probability of observing the entire dataset \(X_1, X_2, \dots, X_n\) given the parameter \(\lambda\). Here, we are treating \(\lambda\) as an unknown value and are interested in finding the \(\lambda\) that makes the observed data most likely.
+
+\subsection*{Step 3: Construct the Log-Likelihood Function}
+
+To simplify the calculations, we often work with the logarithm of the likelihood function, known as the log-likelihood function. The log-likelihood \(\ell(\lambda)\) is:
+
+\[
+\ell(\lambda) = \log L(\lambda) = \log \left( \prod_{i=1}^{n} \frac{\lambda^{x_i} e^{-\lambda}}{x_i!} \right).
+\]
+
+Using the properties of logarithms, \(\log(AB) = \log A + \log B\) and \(\log \left( \frac{A}{B} \right) = \log A - \log B\), we get:
+
+\[
+\ell(\lambda) = \sum_{i=1}^{n} \log \left( \frac{\lambda^{x_i} e^{-\lambda}}{x_i!} \right) = \sum_{i=1}^{n} \left( x_i \log \lambda - \lambda - \log(x_i!) \right).
+\]
+
+The log-likelihood function is easier to work with because it turns the product into a sum, which is much more manageable for differentiation.
+
+\subsection*{Step 4: Differentiate the Log-Likelihood with Respect to \(\lambda\)}
+
+To find the MLE, take the derivative of \(\ell(\lambda)\) with respect to \(\lambda\):
+
+\[
+\frac{d\ell(\lambda)}{d\lambda} = \sum_{i=1}^{n} \left( \frac{x_i}{\lambda} - 1 \right).
+\]
+
+This derivative tells us how the log-likelihood changes as we change \(\lambda\). We want to find the point where this derivative is zero, as this will give us the value of \(\lambda\) that maximizes the likelihood.
+
+\subsection*{Step 5: Solve for \(\lambda\)}
+
+Set the derivative equal to zero to find the critical points:
+
+\[
+\sum_{i=1}^{n} \left( \frac{x_i}{\lambda} - 1 \right) = 0.
+\]
+
+Multiply through by \(\lambda\):
+
+\[
+\sum_{i=1}^{n} x_i - n\lambda = 0.
+\]
+
+Now, solve for \(\lambda\):
+
+\[
+\lambda = \frac{1}{n} \sum_{i=1}^{n} x_i.
+\]
+
+\subsection*{Step 6: Interpret the Result}
+
+The Maximum Likelihood Estimator (MLE) for the parameter \(\lambda\) of the Poisson distribution is the sample mean:
+
+\[
+\hat{\lambda} = \frac{1}{n} \sum_{i=1}^{n} x_i.
+\]
+
+This result makes intuitive sense because \(\lambda\) represents the average rate of occurrence, and the sample mean is the natural estimate of an average based on observed data.
+
+\subsection*{Step 7: Verify the Second Derivative (Optional)}
+
+To ensure that this critical point is a maximum, we can check the second derivative:
+
+\[
+\frac{d^2\ell(\lambda)}{d\lambda^2} = -\sum_{i=1}^{n} \frac{x_i}{\lambda^2}.
+\]
+
+Since this second derivative is always negative (because \(\lambda > 0\)), the log-likelihood function is concave, confirming that the solution we found is indeed a maximum.
+
+\subsection*{Final Answer}
+
+The MLE for \(\lambda\) in the Poisson distribution is:
+
+\[
+\hat{\lambda} = \frac{1}{n} \sum_{i=1}^{n} x_i.
+\]
+
+\clearpage
+
+\section{Taylor Series Approximation}
+
+\subsection*{High-Level Intuition}
+The Taylor series is a powerful tool in mathematics that allows us to approximate a function using a polynomial. The idea is to represent a function as an infinite sum of terms, each of which is calculated from the derivatives of the function at a specific point. This is especially useful when we want to approximate a complicated function with something simpler, like a polynomial, which is easier to evaluate and manipulate.
+
+The Taylor series works by building a polynomial that matches the function's value, slope, curvature, and higher-order behavior at a particular point. The more terms we include in the series, the closer the approximation will be to the original function. The Taylor series is particularly useful in data science and machine learning because it can simplify complex models and make calculations more tractable.
+
+In this section, we will derive the Taylor polynomials of different orders for the function \(f(x) = \log(x)\) at the point \(x = 1\). These polynomials will help us approximate \(\log(x)\) near \(x = 1\).
+
+\subsection*{Step 1: Find the Derivatives of \(f(x) = \log(x)\)}
+
+To construct the Taylor series, we need the value of the function and its derivatives at the point \(x = 1\). We start by finding the first few derivatives of \(f(x) = \log(x)\):
+
+\begin{align*}
+    f(x) &= \log(x)  \rightarrow f(1) = \log(1) = 0 \\
+    f'(x) &= \frac{1}{x}  \rightarrow f'(1) = 1 \\
+    f''(x) &= -\frac{1}{x^2} \rightarrow f''(1) = -1 \\
+    f^{(3)}(x) &= \frac{2}{x^3} \rightarrow f^{(3)}(1) = 2 
+\end{align*}
+
+These derivatives will be used to construct the Taylor polynomial.
+
+\subsection*{Step 2: Construct the Taylor Polynomial}
+
+The Taylor series for a function \(f(x)\) around a point \(a\) is given by:
+
+\[
+p(x) = f(a) + f'(a)(x-a) + \frac{1}{2!} f''(a) (x-a)^2 + \frac{1}{3!} f'''(a) (x-a)^3 + \cdots
+\]
+
+In our case, we are expanding around \(a = 1\), so the Taylor polynomials of different orders are:
+
+\subsection*{Step 3: Find the Taylor Polynomials}
+
+\begin{align*}
+    p_0(x) &= f(1) = 0 \\
+    p_1(x) &= f(1) + f'(1)(x-1) = 0 + 1(x-1) = x-1 \\
+    p_2(x) &= x-1 + \frac{1}{2!} f''(1) (x-1)^2 = x-1 - \frac{1}{2} (x-1)^2 \\
+    p_3(x) &= x - 1 - \frac{1}{2} (x-1)^2 + \frac{1}{3!} f'''(1) (x-1)^3 = x - 1 - \frac{1}{2} (x-1)^2 + \frac{1}{3} (x-1)^3
+\end{align*}
+
+\subsection*{Step 4: Interpretation of the Taylor Polynomials}
+
+- \(p_0(x) = 0\): This is the zeroth-order Taylor polynomial, which is simply a constant and provides a very rough approximation of the function near \(x = 1\).
+- \(p_1(x) = x - 1\): This is the first-order Taylor polynomial, which is a linear approximation. It captures the slope of the function at \(x = 1\) and provides a better approximation than \(p_0\).
+- \(p_2(x) = x - 1 - \frac{1}{2}(x-1)^2\): This is the second-order Taylor polynomial, which includes the curvature of the function. It provides an even closer approximation by considering the concavity of the function.
+- \(p_3(x) = x - 1 - \frac{1}{2}(x-1)^2 + \frac{1}{3}(x-1)^3\): This is the third-order Taylor polynomial, which further improves the approximation by accounting for the change in curvature.
+
+The higher the order of the Taylor polynomial, the closer the approximation is to the original function, especially near the point \(x = 1\). This makes Taylor polynomials useful for approximating functions that are otherwise difficult to work with.
+
+\vspace{5mm}
+\noindent Further information: 
+\begin{itemize}
+    \item You can use the online graphing calculator at \url{https://www.desmos.com/calculator} to graph these approximations and see how close they get. 
+    \item Read Herman and Strang, Vol. 2, p. 497-500.
+    \item Some nice video explainers: 
+    \begin{itemize}
+    \item \href{https://www.khanacademy.org/math/ap-calculus-bc/bc-series-new/bc-10-11/v/maclaurin-and-taylor-series-intuition}{Khan Academy}
+    \item \href{https://www.youtube.com/watch?v=3d6DsjIBzJ4}{3Blue1Brown}    
+    \item An application to \href{https://youtu.be/TkwXa7Cvfr8?si=YU0KzP9ZO8IBDlFW&t=728}{neural networks}. 
+    \end{itemize} 
+\end{itemize}
+
+\end{document}

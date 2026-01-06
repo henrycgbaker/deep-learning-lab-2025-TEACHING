@@ -1,0 +1,453 @@
+% =============================================================================
+% Week 1: Probability Theory
+% =============================================================================
+
+\chapter{Week 1: Probability Theory}
+\label{ch:week1}
+
+\begin{bluebox}[Learning Objectives]
+By the end of this chapter, you should be able to:
+\begin{itemize}
+    \item Define sample spaces and events using set notation, and manipulate them using set operations
+    \item State and apply the Kolmogorov axioms of probability
+    \item Derive key properties of probability functions from the axioms
+    \item Apply counting principles (permutations, combinations) to compute probabilities
+    \item Use the inclusion-exclusion principle for unions of events
+    \item Solve problems involving sampling with and without replacement
+\end{itemize}
+\end{bluebox}
+
+\textbf{Prerequisites:} This chapter assumes familiarity with:
+\begin{itemize}
+    \item Basic set theory: unions ($\cup$), intersections ($\cap$), complements ($A^c$), and set containment ($\subseteq$)
+    \item Summation notation and basic algebraic manipulation
+    \item The factorial function: $n! = n \cdot (n-1) \cdot \ldots \cdot 2 \cdot 1$
+\end{itemize}
+
+% =============================================================================
+\section{Sample Spaces and Events}
+\label{sec:sample-spaces}
+% =============================================================================
+
+Probability theory provides a mathematical framework for reasoning about uncertainty. Before we can assign probabilities, we must precisely describe what outcomes are possible and what collections of outcomes we care about.
+
+\begin{definition}[Sample Space]
+\label{def:sample-space}
+A \textbf{sample space}, denoted $S$ or $\Omega$, is the set of all possible outcomes of a random experiment. Each element $\omega \in S$ is called an \textbf{outcome} or \textbf{sample point}.
+\end{definition}
+
+\begin{definition}[Event]
+\label{def:event}
+An \textbf{event} is any subset $A \subseteq S$ of the sample space. We say that event $A$ \emph{occurs} if the outcome of the experiment is an element of $A$.
+\end{definition}
+
+\begin{example}[Coin Flips]
+\label{ex:coin-flips}
+Consider flipping a fair coin 10 times. The sample space is:
+\[
+S = \{0, 1\}^{10} = \{(s_1, s_2, \ldots, s_{10}) : s_j \in \{0, 1\} \text{ for all } j\}
+\]
+where we encode Tails as 0 and Heads as 1. This sample space has $|S| = 2^{10} = 1024$ outcomes.
+
+Let $A_n$ denote the event that the $n$th flip is Heads. Then:
+\begin{itemize}
+    \item $A_1 = \{(1, s_2, \ldots, s_{10}) : s_j \in \{0, 1\} \text{ for } 2 \leq j \leq 10\}$ is the event ``first flip is Heads''
+    \item $B = \bigcup_{n=1}^{10} A_n$ is the event ``at least one flip is Heads''
+    \item $C = \bigcap_{n=1}^{10} A_n$ is the event ``all flips are Heads''
+    \item $D = \bigcup_{n=1}^{9} (A_n \cap A_{n+1})$ is the event ``at least two consecutive Heads''
+\end{itemize}
+\end{example}
+
+\begin{intuition}[Events as Questions]
+An event corresponds to a yes/no question about the outcome. The event $A$ is the set of all outcomes for which the answer is ``yes''. For instance, ``Did at least one coin land Heads?'' corresponds to the event $B$ above.
+\end{intuition}
+
+% =============================================================================
+\subsection{Set Operations on Events}
+\label{subsec:set-operations}
+% =============================================================================
+
+Since events are sets, we use set operations to combine them:
+
+\begin{bluebox}[Set Operations for Events]
+Let $A$ and $B$ be events in sample space $S$.
+\begin{align*}
+A \cup B &\quad \text{($A$ or $B$ occurs)} \\
+A \cap B &\quad \text{($A$ and $B$ both occur)} \\
+A^c = S \setminus A &\quad \text{($A$ does not occur)} \\
+A \setminus B = A \cap B^c &\quad \text{($A$ occurs but $B$ does not)}
+\end{align*}
+Two events are \textbf{mutually exclusive} (or \textbf{disjoint}) if $A \cap B = \emptyset$.
+\end{bluebox}
+
+\begin{theorem}[De Morgan's Laws]
+\label{thm:de-morgan}
+For any events $A$ and $B$:
+\begin{align}
+(A \cup B)^c &= A^c \cap B^c \label{eq:de-morgan-1} \\
+(A \cap B)^c &= A^c \cup B^c \label{eq:de-morgan-2}
+\end{align}
+More generally, for any collection of events $\{A_i\}_{i \in I}$:
+\begin{align}
+\left( \bigcup_{i \in I} A_i \right)^c &= \bigcap_{i \in I} A_i^c \label{eq:de-morgan-3} \\
+\left( \bigcap_{i \in I} A_i \right)^c &= \bigcup_{i \in I} A_i^c \label{eq:de-morgan-4}
+\end{align}
+\end{theorem}
+
+\begin{proof}
+We prove Equation~\eqref{eq:de-morgan-1}. An outcome $\omega \in (A \cup B)^c$ if and only if $\omega \notin A \cup B$, which holds if and only if $\omega \notin A$ and $\omega \notin B$. This is equivalent to $\omega \in A^c$ and $\omega \in B^c$, i.e., $\omega \in A^c \cap B^c$. The proof of Equation~\eqref{eq:de-morgan-2} is similar.
+\end{proof}
+
+\begin{intuition}[De Morgan's Laws]
+De Morgan's laws formalise a natural duality: ``not ($A$ or $B$)'' is the same as ``(not $A$) and (not $B$)'', while ``not ($A$ and $B$)'' is the same as ``(not $A$) or (not $B$)''. These laws are essential for computing probabilities of complements.
+\end{intuition}
+
+% =============================================================================
+\section{The Axioms of Probability}
+\label{sec:axioms}
+% =============================================================================
+
+We now define what it means to assign probabilities to events. The modern axiomatic foundation, due to Kolmogorov (1933), requires only three axioms from which all of probability theory follows.
+
+\begin{definition}[Probability Space]
+\label{def:probability-space}
+A \textbf{probability space} is a triple $(S, \mathcal{F}, P)$ where:
+\begin{enumerate}
+    \item $S$ is a sample space
+    \item $\mathcal{F}$ is a collection of subsets of $S$ (the events we can assign probabilities to)
+    \item $P : \mathcal{F} \to [0, 1]$ is a probability function satisfying the Kolmogorov axioms
+\end{enumerate}
+\end{definition}
+
+\begin{bluebox}[Kolmogorov Axioms]
+A probability function $P$ must satisfy:
+\begin{enumerate}
+    \item \textbf{Non-negativity:} $P(A) \geq 0$ for all events $A$
+    \item \textbf{Normalisation:} $P(S) = 1$
+    \item \textbf{Countable additivity:} If $A_1, A_2, \ldots$ are pairwise disjoint events (i.e., $A_i \cap A_j = \emptyset$ for $i \neq j$), then
+    \[
+    P\left( \bigcup_{j=1}^{\infty} A_j \right) = \sum_{j=1}^{\infty} P(A_j)
+    \]
+\end{enumerate}
+\end{bluebox}
+
+\begin{remark}
+The third axiom (countable additivity) is stronger than finite additivity. It ensures that probability behaves well with limits, which is essential for working with continuous distributions and infinite sequences of events.
+\end{remark}
+
+% =============================================================================
+\subsection{Properties Derived from the Axioms}
+\label{subsec:derived-properties}
+% =============================================================================
+
+All properties of probability follow logically from the three Kolmogorov axioms. We now derive the most important ones.
+
+\begin{theorem}[Probability of the Empty Set]
+\label{thm:empty-set}
+$P(\emptyset) = 0$.
+\end{theorem}
+
+\begin{proof}
+Consider the sequence $A_1 = S$, $A_2 = A_3 = \cdots = \emptyset$. These sets are pairwise disjoint, and $\bigcup_{j=1}^{\infty} A_j = S$. By countable additivity:
+\[
+P(S) = P(S) + \sum_{j=2}^{\infty} P(\emptyset)
+\]
+Since $P(S) = 1$ is finite, we must have $\sum_{j=2}^{\infty} P(\emptyset) = 0$. Since $P(\emptyset) \geq 0$ by non-negativity, this forces $P(\emptyset) = 0$.
+\end{proof}
+
+\begin{theorem}[Complement Rule]
+\label{thm:complement}
+For any event $A$:
+\[
+P(A^c) = 1 - P(A)
+\]
+\end{theorem}
+
+\begin{proof}
+Since $A$ and $A^c$ are disjoint and $A \cup A^c = S$, by countable additivity (applied to just two sets):
+\[
+1 = P(S) = P(A \cup A^c) = P(A) + P(A^c)
+\]
+Rearranging gives $P(A^c) = 1 - P(A)$.
+\end{proof}
+
+\begin{theorem}[Monotonicity]
+\label{thm:monotonicity}
+If $A \subseteq B$, then $P(A) \leq P(B)$.
+\end{theorem}
+
+\begin{proof}
+Write $B = A \cup (B \cap A^c)$. Since $A$ and $B \cap A^c$ are disjoint:
+\[
+P(B) = P(A) + P(B \cap A^c) \geq P(A)
+\]
+where the inequality follows from non-negativity: $P(B \cap A^c) \geq 0$.
+\end{proof}
+
+\begin{theorem}[Inclusion-Exclusion for Two Events]
+\label{thm:inclusion-exclusion-two}
+For any events $A$ and $B$:
+\[
+P(A \cup B) = P(A) + P(B) - P(A \cap B)
+\]
+\end{theorem}
+
+\begin{proof}
+We can write $A \cup B$ as a disjoint union:
+\[
+A \cup B = A \cup (B \cap A^c)
+\]
+By additivity: $P(A \cup B) = P(A) + P(B \cap A^c)$.
+
+Similarly, $B = (A \cap B) \cup (B \cap A^c)$ is a disjoint union, so:
+\[
+P(B) = P(A \cap B) + P(B \cap A^c)
+\]
+Thus $P(B \cap A^c) = P(B) - P(A \cap B)$.
+
+Substituting: $P(A \cup B) = P(A) + P(B) - P(A \cap B)$.
+\end{proof}
+
+\begin{bluebox}[Summary of Basic Properties]
+For any events $A$, $B$ in a probability space:
+\begin{align*}
+P(\emptyset) &= 0 \\
+P(A^c) &= 1 - P(A) \\
+A \subseteq B &\implies P(A) \leq P(B) \\
+P(A \cup B) &= P(A) + P(B) - P(A \cap B)
+\end{align*}
+\end{bluebox}
+
+% =============================================================================
+\section{The Naive Definition of Probability}
+\label{sec:naive-probability}
+% =============================================================================
+
+When all outcomes in a finite sample space are equally likely, probability calculations reduce to counting.
+
+\begin{definition}[Naive Probability]
+\label{def:naive-probability}
+If $S$ is a finite sample space with equally likely outcomes, the \textbf{naive probability} of an event $A$ is:
+\[
+P_{\text{naive}}(A) = \frac{|A|}{|S|} = \frac{\text{number of outcomes favourable to } A}{\text{total number of outcomes in } S}
+\]
+\end{definition}
+
+\begin{warning}[When Naive Probability Fails]
+The naive definition only applies when:
+\begin{enumerate}
+    \item The sample space is finite
+    \item All outcomes are equally likely
+\end{enumerate}
+Many real-world situations violate these assumptions. For instance, if a coin is biased, the outcomes $\{H, T\}$ are not equally likely, and we cannot use $P(\text{Heads}) = 1/2$.
+\end{warning}
+
+\begin{example}[Leibniz's Mistake]
+\label{ex:leibniz}
+Gottfried Wilhelm Leibniz, the co-inventor of calculus, incorrectly reasoned that when rolling two dice, the probability of getting a sum of 11 equals the probability of getting a sum of 12, because each can be achieved in ``one way''.
+
+The error lies in conflating outcomes with events. With distinguishable dice (say, red and blue), the sample space has 36 equally likely outcomes: $\{(r, b) : r, b \in \{1, 2, 3, 4, 5, 6\}\}$.
+
+\begin{itemize}
+    \item Sum of 11: $(5, 6)$ or $(6, 5)$ --- two outcomes
+    \item Sum of 12: $(6, 6)$ --- one outcome
+\end{itemize}
+
+Thus $P(\text{sum} = 11) = 2/36$ while $P(\text{sum} = 12) = 1/36$.
+
+\textbf{Lesson:} When order matters or items are distinguishable, label them explicitly to avoid undercounting.
+\end{example}
+
+% =============================================================================
+\section{Counting Principles}
+\label{sec:counting}
+% =============================================================================
+
+To apply the naive definition of probability, we need systematic methods for counting outcomes. This section develops the fundamental counting principles.
+
+% =============================================================================
+\subsection{The Multiplication Rule}
+\label{subsec:multiplication-rule}
+% =============================================================================
+
+\begin{theorem}[Multiplication Rule]
+\label{thm:multiplication-rule}
+If an experiment consists of $k$ stages, where stage $i$ has $n_i$ possible outcomes (regardless of what happened in previous stages), then the total number of outcomes is:
+\[
+n_1 \times n_2 \times \cdots \times n_k
+\]
+\end{theorem}
+
+\begin{intuition}[Tree Diagram Interpretation]
+The multiplication rule corresponds to counting paths through a tree diagram. At the root, we branch into $n_1$ choices for stage 1. From each of these, we branch into $n_2$ choices for stage 2, and so on. The total number of paths from root to leaves is the product $n_1 \cdot n_2 \cdots n_k$.
+\end{intuition}
+
+\begin{remark}
+The multiplication rule holds even when stages are performed in different orders, because multiplication is commutative. This can be counterintuitive: the order in which we \emph{think} about the stages need not match the temporal order in which they occur.
+\end{remark}
+
+% =============================================================================
+\subsection{Permutations and Combinations}
+\label{subsec:permutations-combinations}
+% =============================================================================
+
+The distinction between permutations and combinations depends on whether the order of selection matters.
+
+\begin{definition}[Permutation]
+\label{def:permutation}
+A \textbf{permutation} is an ordered arrangement of objects. The number of ways to arrange $k$ objects chosen from $n$ distinct objects is:
+\[
+P(n, k) = n \cdot (n-1) \cdot (n-2) \cdots (n-k+1) = \frac{n!}{(n-k)!}
+\]
+For $k = n$, this gives $n!$, the number of ways to arrange all $n$ objects.
+\end{definition}
+
+\begin{definition}[Combination]
+\label{def:combination}
+A \textbf{combination} is an unordered selection of objects. The number of ways to choose $k$ objects from $n$ distinct objects (without regard to order) is the \textbf{binomial coefficient}:
+\[
+\binom{n}{k} = \frac{n!}{k!(n-k)!} = \frac{n \cdot (n-1) \cdots (n-k+1)}{k!}
+\]
+This is read ``$n$ choose $k$''. By convention, $\binom{n}{k} = 0$ if $k > n$ or $k < 0$.
+\end{definition}
+
+\begin{intuition}[Relationship Between Permutations and Combinations]
+To see why $\binom{n}{k} = \frac{n!}{k!(n-k)!}$, consider a two-stage process:
+\begin{enumerate}
+    \item Choose which $k$ objects to select: $\binom{n}{k}$ ways
+    \item Arrange those $k$ objects: $k!$ ways
+\end{enumerate}
+By the multiplication rule, the total number of ordered arrangements is $\binom{n}{k} \cdot k!$. But this also equals $P(n, k) = \frac{n!}{(n-k)!}$. Solving:
+\[
+\binom{n}{k} = \frac{n!}{k!(n-k)!}
+\]
+\end{intuition}
+
+\begin{example}[Committee Selection]
+\label{ex:committee}
+From a group of 10 people, how many ways can we:
+\begin{enumerate}
+    \item Form a committee of 3? Answer: $\displaystyle\binom{10}{3} = \frac{10!}{3! \cdot 7!} = \frac{10 \cdot 9 \cdot 8}{3 \cdot 2 \cdot 1} = 120$
+    \item Elect a president, vice-president, and treasurer? Answer: $P(10, 3) = 10 \cdot 9 \cdot 8 = 720$
+\end{enumerate}
+The first counts unordered selections (order doesn't matter for a committee), while the second counts ordered selections (distinct roles).
+\end{example}
+
+% =============================================================================
+\subsection{Sampling With and Without Replacement}
+\label{subsec:sampling}
+% =============================================================================
+
+When sampling from a population, we must specify whether selected items are returned to the population before the next selection.
+
+\begin{bluebox}[Counting Formulas for Sampling]
+When selecting $k$ items from $n$ distinct items:
+
+\begin{center}
+\begin{tabular}{l|c|c}
+ & \textbf{Order Matters} & \textbf{Order Doesn't Matter} \\
+\hline
+\textbf{With Replacement} & $n^k$ & $\displaystyle\binom{n+k-1}{k}$ \\[1em]
+\textbf{Without Replacement} & $\displaystyle\frac{n!}{(n-k)!}$ & $\displaystyle\binom{n}{k}$ \\
+\end{tabular}
+\end{center}
+\end{bluebox}
+
+\begin{example}[Four Scenarios]
+\label{ex:four-scenarios}
+Suppose we have 5 distinct balls (labelled 1--5) and select 3.
+
+\textbf{With replacement, order matters:} Each selection has 5 choices, so $5^3 = 125$ outcomes. Example outcomes: $(1, 1, 1)$, $(1, 2, 3)$, $(3, 2, 1)$.
+
+\textbf{With replacement, order doesn't matter:} This counts multisets. Using stars and bars: $\binom{5+3-1}{3} = \binom{7}{3} = 35$. Example outcomes: $\{1, 1, 1\}$, $\{1, 2, 3\}$.
+
+\textbf{Without replacement, order matters:} This is $P(5, 3) = 5 \cdot 4 \cdot 3 = 60$. Example outcomes: $(1, 2, 3)$, $(3, 2, 1)$ --- these are distinct.
+
+\textbf{Without replacement, order doesn't matter:} This is $\binom{5}{3} = 10$. Example outcomes: $\{1, 2, 3\}$, $\{1, 4, 5\}$ --- here $(1, 2, 3)$ and $(3, 2, 1)$ represent the same outcome.
+\end{example}
+
+% =============================================================================
+\section{The Inclusion-Exclusion Principle}
+\label{sec:inclusion-exclusion}
+% =============================================================================
+
+When computing the probability of a union of events, we must account for overlaps. The inclusion-exclusion principle generalises Theorem~\ref{thm:inclusion-exclusion-two} to any finite number of events.
+
+\begin{theorem}[Inclusion-Exclusion Principle]
+\label{thm:inclusion-exclusion}
+For any events $A_1, A_2, \ldots, A_n$:
+\begin{align*}
+P\left( \bigcup_{i=1}^{n} A_i \right) &= \sum_{i=1}^{n} P(A_i) - \sum_{i<j} P(A_i \cap A_j) + \sum_{i<j<k} P(A_i \cap A_j \cap A_k) \\
+&\quad - \cdots + (-1)^{n+1} P(A_1 \cap A_2 \cap \cdots \cap A_n)
+\end{align*}
+Equivalently:
+\[
+P\left( \bigcup_{i=1}^{n} A_i \right) = \sum_{k=1}^{n} (-1)^{k+1} \sum_{1 \leq i_1 < i_2 < \cdots < i_k \leq n} P(A_{i_1} \cap A_{i_2} \cap \cdots \cap A_{i_k})
+\]
+\end{theorem}
+
+\begin{proof}
+We prove this by induction on $n$.
+
+\textbf{Base case} ($n = 2$): This is Theorem~\ref{thm:inclusion-exclusion-two}.
+
+\textbf{Inductive step:} Assume the formula holds for $n-1$ events. Let $B = \bigcup_{i=1}^{n-1} A_i$. Then:
+\[
+P\left( \bigcup_{i=1}^{n} A_i \right) = P(B \cup A_n) = P(B) + P(A_n) - P(B \cap A_n)
+\]
+
+By the inductive hypothesis, $P(B)$ expands correctly. Also:
+\[
+B \cap A_n = \left( \bigcup_{i=1}^{n-1} A_i \right) \cap A_n = \bigcup_{i=1}^{n-1} (A_i \cap A_n)
+\]
+
+Applying the inductive hypothesis to this union of $n-1$ events and combining terms yields the result.
+\end{proof}
+
+\begin{example}[Three Events]
+\label{ex:three-events}
+For three events $A$, $B$, $C$:
+\[
+P(A \cup B \cup C) = P(A) + P(B) + P(C) - P(A \cap B) - P(A \cap C) - P(B \cap C) + P(A \cap B \cap C)
+\]
+\end{example}
+
+\begin{intuition}[Why Inclusion-Exclusion Works]
+When we sum $P(A_i)$, we overcount outcomes in multiple events. Subtracting pairwise intersections corrects for double-counting, but then we've subtracted too much for outcomes in three or more events. We add back triple intersections, subtract quadruple intersections, and so on. The alternating signs ensure each outcome is counted exactly once.
+\end{intuition}
+
+% =============================================================================
+\section{The Birthday Problem}
+\label{sec:birthday}
+% =============================================================================
+
+The birthday problem is a classic application of counting principles that illustrates how quickly collision probabilities grow.
+
+\begin{example}[Birthday Problem]
+\label{ex:birthday}
+In a room of $k$ people, what is the probability that at least two share a birthday?
+
+\textbf{Assumptions:} We assume 365 equally likely birthdays (ignoring leap years) and that birthdays are independent.
+
+\textbf{Strategy:} It's easier to compute the complement --- the probability that all $k$ birthdays are distinct --- and subtract from 1.
+
+\textbf{Solution:} The sample space is all possible birthday assignments: $|S| = 365^k$.
+
+For all birthdays to be distinct, we sample without replacement:
+\[
+|\text{no matches}| = 365 \times 364 \times 363 \times \cdots \times (365 - k + 1) = \frac{365!}{(365-k)!}
+\]
+
+Therefore:
+\[
+P(\text{no match}) = \frac{365 \times 364 \times \cdots \times (365 - k + 1)}{365^k} = \frac{365}{365} \cdot \frac{364}{365} \cdot \frac{363}{365} \cdots \frac{365 - k + 1}{365}
+\]
+\[
+= \prod_{i=0}^{k-1} \frac{365 - i}{365} = \prod_{i=0}^{k-1} \left(1 - \frac{i}{365}\right)
+\]
+
+And finally:
+\[
+P(\text{at least one match}) = 1 - \prod_{i=0}^{k-1} \left(1 - \frac{i}{365}\right)
+\]
+\end{example}

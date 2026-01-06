@@ -1,0 +1,543 @@
+% Week 6a: Kernels
+
+\section{Motivation: A New Way to Think About Similarity}
+
+Kernels offer a fundamentally different perspective on machine learning: instead of thinking about models as weighted combinations of \textit{features}, we think about them as weighted combinations of \textit{observations}. This shift in viewpoint leads to remarkably flexible models that can capture complex non-linear relationships.
+
+\begin{bluebox}[Core Insight]
+Traditional regression asks: ``Which features matter?''
+
+Kernel methods ask: ``Which training examples are similar to my test point?''
+
+This reframing enables us to work with infinite-dimensional feature spaces tractably.
+\end{bluebox}
+
+\section{An Alternative View of Regression}
+
+\subsection{Two Equivalent Formulations of Ridge Regression}
+
+Traditional regression assigns coefficients to \textit{features}-we compute a linear combination of features, weighted by parameter coefficients. An alternative perspective assigns weights to \textit{observations} based on their similarity to the point of interest.
+
+Consider ridge regression. Using the matrix identity $(A + \lambda I)^{-1}A = A(A + \lambda I)^{-1}$, we can write the fitted values in two equivalent ways:
+
+\begin{greybox}[Two Views of Ridge Regression]
+\textbf{Feature-space view} (traditional):
+$$\hat{y} = X\hat{\beta}_{\text{ridge}} = X\underbrace{(X^\top X + \lambda I_p)^{-1}}_{p \times p}X^\top y$$
+
+\textbf{Observation-space view} (kernel):
+$$\hat{y} = \underbrace{XX^\top}_{n \times n}(XX^\top + \lambda I_n)^{-1}y$$
+\end{greybox}
+
+Both formulations give identical predictions, but they differ in computational cost:
+\begin{itemize}
+    \item The feature-space view inverts a $p \times p$ matrix
+    \item The observation-space view inverts an $n \times n$ matrix
+\end{itemize}
+
+\begin{bluebox}[When to Use Each View]
+\begin{itemize}
+    \item \textbf{Feature-space} ($p \times p$ matrix): Use when $p \ll n$ (few features, many observations)
+    \item \textbf{Observation-space} ($n \times n$ matrix): Use when $p \gg n$ (many features, few observations)
+\end{itemize}
+
+After feature expansion, $p$ can become very large (even infinite), making the observation-space view essential.
+\end{bluebox}
+
+\subsection{What Do These Matrices Represent?}
+
+The matrices $X^\top X$ and $XX^\top$ have natural interpretations in terms of similarity:
+
+\begin{itemize}
+    \item $X^\top X$ is a $p \times p$ matrix: each element $(X^\top X)_{jk}$ is the dot product between feature columns $j$ and $k$. This captures \textbf{similarity between features}.
+    \item $XX^\top$ is an $n \times n$ matrix: each element $(XX^\top)_{ij}$ is the dot product between observation rows $i$ and $j$. This captures \textbf{similarity between observations}.
+\end{itemize}
+
+Understanding why dot products measure similarity is crucial for kernel methods.
+
+\subsection{Similarity as Dot Product}
+
+\begin{greybox}[Dot Product and Distance]
+The squared Euclidean distance between two vectors can be expressed in terms of dot products:
+\begin{align*}
+    d^2(x, x') &= \|x - x'\|^2 = \sum_{i=1}^{d} (x_i - x'_i)^2 \\
+    &= \sum_{i=1}^{d} x_i^2 - 2\sum_{i=1}^{d} x_ix'_i + \sum_{i=1}^{d} x'^2_i \\
+    &= x^\top x - 2x^\top x' + x'^\top x'
+\end{align*}
+
+For normalised vectors ($\|x\| = \|x'\| = 1$):
+$$d^2(x, x') = 2(1 - x^\top x')$$
+
+Thus: \textbf{dot product} $\propto$ \textbf{similarity} $\propto$ $1 -$ \textbf{distance}.
+\end{greybox}
+
+The dot product has a beautiful geometric interpretation:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_06_kernels/dot product.png}
+    \caption{The dot product $x \cdot y = \|x\|\|y\|\cos\theta$ captures both magnitude and direction. When $\theta$ is small (similar directions), $\cos\theta$ is large and the dot product is large.}
+    \label{fig:dot-product}
+\end{figure}
+
+\begin{greybox}[Dot Product as Similarity Measure]
+$$x \cdot y = \langle x, y \rangle = x^\top y = \|x\|\|y\|\cos\theta$$
+
+This formula shows the dot product depends on:
+\begin{enumerate}
+    \item \textbf{Magnitudes} ($\|x\|$ and $\|y\|$): Longer vectors produce larger dot products
+    \item \textbf{Direction} ($\cos\theta$): Vectors pointing similarly produce larger dot products
+\end{enumerate}
+
+The directional component $\cos\theta$ is called \textbf{cosine similarity}:
+$$\text{cosine similarity} = \frac{x \cdot y}{\|x\|\|y\|} = \cos\theta$$
+
+This ranges from $-1$ (opposite directions) through $0$ (orthogonal) to $+1$ (same direction).
+\end{greybox}
+
+\begin{bluebox}[Dot Product Interpretation]
+\begin{itemize}
+    \item $\theta = 0^\circ$ (parallel): $\cos\theta = 1$ $\Rightarrow$ maximum similarity
+    \item $\theta = 90^\circ$ (orthogonal): $\cos\theta = 0$ $\Rightarrow$ no similarity (no overlap in any dimension)
+    \item $\theta = 180^\circ$ (anti-parallel): $\cos\theta = -1$ $\Rightarrow$ maximum dissimilarity
+\end{itemize}
+
+\textbf{Key intuition}: If similar, angle is small $\rightarrow$ cosine is large $\rightarrow$ dot product is large.
+\end{bluebox}
+
+\subsection{Regression as Similarity-Weighted Averaging}
+
+In the observation-space view, prediction becomes a weighted average of training labels, where the weights reflect similarity:
+
+\begin{greybox}[Prediction as Similarity-Weighted Average]
+For a test point $\tilde{x}$, we can write the ridge regression prediction as:
+$$\hat{y}(\tilde{x}) = \tilde{x}X^\top(XX^\top + \lambda I_n)^{-1}y = \sum_{i=1}^n w_i y_i$$
+
+where the weights are:
+$$w = \tilde{x}X^\top(XX^\top + \lambda I_n)^{-1}$$
+
+The term $\tilde{x}X^\top$ computes the similarity between the test point $\tilde{x}$ and each training point. Observations more similar to $\tilde{x}$ receive higher weights in the prediction.
+\end{greybox}
+
+This is a powerful reframing: we are ``taking a walk'' through the training data, finding observations similar to our test point, and using their labels to make predictions. The regularisation parameter $\lambda$ prevents overfitting by smoothing the weights.
+
+\begin{redbox}
+In linear regression (and ridge regression), the weights evolve \textbf{linearly} with distance. This is often too inflexible-we may want nearby points to have much higher weight than distant ones. Consider predicting at $\tilde{x} = 2$: with linear weighting, a training point at $x = 3$ might receive more weight than one at $x = 2.01$, simply due to the global structure of the linear model. This motivates \textbf{non-linear similarity measures}-kernels.
+\end{redbox}
+
+\subsection{The Importance of Defining Similarity Correctly}
+
+Different notions of similarity lead to fundamentally different models. The figure below shows datasets with identical linear correlations but vastly different structures:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_06_kernels/covariance issues.png}
+    \caption{All four datasets have the same correlation coefficient, but their structures differ dramatically. Linear correlation (based on Euclidean distance) cannot distinguish them.}
+    \label{fig:covariance-issues}
+\end{figure}
+
+\begin{redbox}
+\textbf{Critical insight}: Our measure of similarity determines the kinds of functions we can learn.
+
+If we only measure linear correlation based on Euclidean distance, we will estimate the same covariance structure for all four datasets above. Different problems demand different notions of distance and similarity.
+
+If you define distance differently, you get different measures of similarity. Two points that are ``close'' in Euclidean distance may not be ``close'' in a transformed feature space-and this flexibility is precisely what makes kernel methods powerful.
+\end{redbox}
+
+\section{Feature Expansion and the Kernel Trick}
+
+\subsection{Feature Expansion}
+
+To capture non-linear relationships with linear models, we transform the input space:
+
+\begin{greybox}[Feature Expansion]
+A \textbf{feature map} $\phi: \mathbb{R}^d \to \mathbb{R}^D$ transforms inputs into a (typically higher-dimensional) space.
+
+\textbf{Examples:}
+\begin{itemize}
+    \item \textbf{Polynomial}: $\phi(x) = [1, x, x^2, \ldots, x^M]$ for degree $M$
+    \item \textbf{Trigonometric}: $\phi(x) = [1, \cos(x), \cos(2x), \ldots, \cos(Mx)]$
+\end{itemize}
+
+In the expanded space, a linear model can capture non-linear relationships in the original space.
+\end{greybox}
+
+We have used feature expansion throughout this course-polynomial regression and Fourier basis expansions are examples. The key insight is that linear regression in a transformed feature space is equivalent to non-linear regression in the original space.
+
+\textbf{Example}: For a 2D input $x = [x_1, x_2]$, a polynomial expansion might be:
+$$\phi(x) = [x_1, x_2, x_1^2, x_2^2, x_1 x_2]$$
+
+This maps 2 features to 5 features, enabling the model to capture quadratic relationships.
+
+\subsection{The Computational Problem}
+
+As the degree of expansion $M$ increases, the dimensionality of $\phi(x)$ grows rapidly. For a polynomial of degree $M$ in $d$ dimensions, the number of features is $\binom{d+M}{M}$, which grows combinatorially.
+
+For trigonometric expansions, as the frequency increases, so does dimensionality. And for some applications, we want $M \to \infty$-an infinite-dimensional feature space!
+
+The problem: computing $\phi(x)^\top\phi(x')$ explicitly becomes intractable when $\phi$ is very high- or infinite-dimensional.
+
+\subsection{The Kernel Trick}
+
+\begin{greybox}[Kernel Definition]
+A \textbf{kernel} is a function $k: \mathbb{R}^d \times \mathbb{R}^d \to \mathbb{R}$ that computes the dot product in feature space without explicitly constructing the feature vectors:
+$$k(x, x') = \phi(x)^\top \phi(x')$$
+
+The \textbf{kernel trick}: replace all occurrences of $x^\top x'$ with $k(x, x')$.
+\end{greybox}
+
+\begin{bluebox}[Why Kernels Work]
+Many machine learning algorithms (ridge regression, SVMs, PCA) depend on the data only through dot products $x_i^\top x_j$.
+
+If we can compute $k(x_i, x_j) = \phi(x_i)^\top\phi(x_j)$ \textit{without} computing $\phi$ explicitly, we get the benefits of high-dimensional (even infinite-dimensional) feature spaces at low computational cost.
+
+The beauty of kernel methods is their ability to \textit{implicitly} compute dot products in high-dimensional feature spaces without ever explicitly constructing the feature vectors $\phi(x)$ and $\phi(x')$.
+\end{bluebox}
+
+To summarise the key objects:
+
+\begin{itemize}
+    \item $\phi(x)$ is a \textbf{feature expansion}: a function that transforms input $x$ into a higher-dimensional space
+    \item $k(x, x') = \phi(x)^\top\phi(x')$ is a \textbf{kernel function}: computes similarity in the expanded space
+    \item The kernel is a \textbf{similarity metric}-it measures how similar two inputs are in the transformed feature space
+\end{itemize}
+
+\subsection{The Gram Matrix}
+
+\begin{greybox}[Gram Matrix]
+The \textbf{Gram matrix} (or kernel matrix) $K$ is an $n \times n$ matrix containing all pairwise kernel evaluations:
+$$K_{ij} = k(x_i, x_j) = \phi(x_i)^\top\phi(x_j)$$
+
+A valid kernel produces a \textbf{positive semi-definite} Gram matrix, meaning all eigenvalues are $\geq 0$. This is equivalent to requiring that the kernel ``looks like'' a dot product-it must arise from some (possibly implicit) feature map.
+\end{greybox}
+
+\section{Common Kernels}
+
+\subsection{Polynomial Kernel}
+
+\begin{greybox}[Polynomial Kernel]
+$$k(x, x') = (x^\top x' + c)^M$$
+
+Parameters:
+\begin{itemize}
+    \item $M$: degree of the polynomial
+    \item $c$: constant term (controls influence of lower-degree terms)
+\end{itemize}
+\end{greybox}
+
+\textbf{Worked example}: Let $M = 2$, $c = 0$, and $x, z \in \mathbb{R}^2$:
+\begin{align*}
+k(x, z) &= (x^\top z)^2 = (x_1z_1 + x_2z_2)^2 \\
+&= x_1^2z_1^2 + 2x_1x_2z_1z_2 + x_2^2z_2^2 \\
+&= \underbrace{(x_1^2, \sqrt{2}x_1 x_2, x_2^2)}_{\phi(x)} \cdot \underbrace{(z_1^2, \sqrt{2}z_1 z_2, z_2^2)}_{\phi(z)} \\
+&= \phi(x)^\top\phi(z)
+\end{align*}
+
+The kernel computes this 3-dimensional dot product directly from the 2-dimensional inputs, without explicitly constructing $\phi(x)$ and $\phi(z)$. For higher degrees, the savings become dramatic: a degree-10 polynomial in 100 dimensions would require computing features in a space of dimension $\binom{110}{10} \approx 10^{13}$.
+
+\begin{bluebox}[Polynomial Kernel: Key Takeaway]
+The polynomial kernel implicitly computes dot products in a space containing all polynomial terms up to degree $M$. This allows linear algorithms to capture polynomial relationships without the computational burden of explicit feature expansion.
+\end{bluebox}
+
+\subsection{Gaussian (RBF) Kernel}
+
+The Gaussian kernel, also called the Radial Basis Function (RBF) kernel, is perhaps the most widely used kernel:
+
+\begin{greybox}[Gaussian/RBF Kernel]
+$$k(x, x') = \exp\left(-\frac{\|x - x'\|^2}{2\sigma^2}\right)$$
+
+Parameters:
+\begin{itemize}
+    \item $\sigma$ (bandwidth): controls the ``width'' of the kernel
+    \item Small $\sigma$: only very close points are considered similar
+    \item Large $\sigma$: distant points retain some similarity
+\end{itemize}
+\end{greybox}
+
+The formula has an intuitive interpretation:
+\begin{enumerate}
+    \item Take the difference between $x$ and $x'$
+    \item Square the differences and sum them (squared Euclidean distance)
+    \item Normalise by $2\sigma^2$
+    \item Apply the exponential (which decays as distance increases)
+\end{enumerate}
+
+The result is a similarity measure that equals 1 when $x = x'$ and decays smoothly towards 0 as points become distant.
+
+\subsubsection{The RBF Kernel is Infinite-Dimensional}
+
+\begin{greybox}[Expanding the Gaussian Kernel]
+To understand the feature space, expand the squared distance:
+\begin{align*}
+    k(x,x') &= \exp\left(-\frac{\|x - x'\|^2}{2\sigma^2}\right) \\
+    &= \exp\left(-\frac{x^\top x}{2\sigma^2}\right) \exp\left(\frac{x^\top x'}{\sigma^2}\right) \exp\left(-\frac{x'^\top x'}{2\sigma^2}\right)
+\end{align*}
+
+The middle term contains the interaction between $x$ and $x'$. The outer terms are normalisation factors depending only on individual vectors.
+\end{greybox}
+
+The key insight comes from the Taylor expansion of the exponential:
+$$e^z = \sum_{k=0}^{\infty} \frac{z^k}{k!} = 1 + z + \frac{z^2}{2!} + \frac{z^3}{3!} + \cdots$$
+
+\begin{bluebox}[The RBF Kernel is Infinite-Dimensional]
+Applying the Taylor expansion to $\exp(x^\top x' / \sigma^2)$ shows that the RBF kernel corresponds to an \textbf{infinite-dimensional} feature space containing:
+\begin{itemize}
+    \item All polynomial terms of all degrees
+    \item Each term weighted by $1/k!$, which decreases rapidly with degree
+\end{itemize}
+
+The $k$-th component of the implicit feature map has the form:
+$$\phi(x)_k \propto \exp\left(-\frac{\|x\|^2}{2\sigma^2}\right) \frac{x^k}{\sigma^k\sqrt{k!}}$$
+
+Because $k!$ grows extremely rapidly, \textbf{higher-degree terms are weighted down} exponentially. This means the RBF kernel ``prefers'' smoother, lower-degree functions while retaining flexibility for local variation.
+\end{bluebox}
+
+This is analogous to regularisation in Fourier series, where we down-weight high-frequency components (e.g., $\cos(mx)/m$ for large $m$). The Gaussian kernel achieves similar smoothness implicitly through its infinite-dimensional feature space.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_06_kernels/kernels.png}
+    \caption{Left: Linear regression (rigid, global). Right: RBF kernel regression allows locally-weighted similarity, adapting flexibly to the data structure.}
+    \label{fig:kernels-comparison}
+\end{figure}
+
+\subsection{Other Common Kernels}
+
+Beyond polynomial and RBF kernels, many other kernels exist for specific applications:
+
+\begin{itemize}
+    \item \textbf{Periodic kernel}: For cyclical/seasonal patterns
+    \item \textbf{String kernels}: For text and sequence data
+    \item \textbf{Graph kernels}: For structured/relational data
+\end{itemize}
+
+The choice of kernel encodes your beliefs about the structure of similarity in your problem.
+
+\section{Combining Kernels}
+
+One of the most powerful aspects of kernel methods is that kernels can be combined to express complex notions of similarity.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_06_kernels/manifpulating_kernels.png}
+    \caption{Rules for constructing valid kernels from simpler ones. Any combination that preserves positive semi-definiteness yields a valid kernel.}
+    \label{fig:kernel-manipulation}
+\end{figure}
+
+\begin{greybox}[Kernel Combination Rules]
+If $k_1$ and $k_2$ are valid kernels, then so are:
+\begin{itemize}
+    \item $\alpha k_1 + \beta k_2$ for $\alpha, \beta \geq 0$ (weighted sum)
+    \item $k_1 \cdot k_2$ (product)
+    \item $f(x)k_1(x,x')f(x')$ for any function $f$
+    \item $\exp(k_1)$ (exponential of a kernel)
+\end{itemize}
+\end{greybox}
+
+\begin{bluebox}[Building Custom Similarity Measures]
+These rules allow constructing sophisticated kernels that encode domain knowledge:
+$$k = \alpha \cdot k_{\text{local}} + (1-\alpha) \cdot k_{\text{global}}$$
+
+For example, combining:
+\begin{itemize}
+    \item A narrow Gaussian kernel (capturing local patterns)
+    \item A wide Gaussian kernel (capturing global trends)
+    \item A periodic kernel (capturing cyclical behaviour)
+\end{itemize}
+
+The hyperparameter $\alpha$ balances the contributions of different similarity notions.
+\end{bluebox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_06_kernels/combining kernels.png}
+    \caption{Combining kernels: Gaussian (local), periodic (cyclical), and mixed. Adjusting $\sigma^2$ combines wide global structure with high-frequency local variation.}
+    \label{fig:combining-kernels}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Gaussian kernel}: Captures locality-nearby points are similar
+    \item \textbf{Periodic kernel}: Captures cyclical patterns-e.g., days of the week have similarity to each other
+    \item \textbf{Combined}: A low-frequency wide global model combined with a high-frequency local model
+\end{itemize}
+
+This flexibility allows you to express prior beliefs about your data: perhaps there is a cyclical time trend, or one part of the feature space benefits from local models while another requires global structure.
+
+\section{Kernel Methods in Practice}
+
+\subsection{Kernel Ridge Regression}
+
+Replacing dot products with kernel evaluations transforms ridge regression into a powerful non-linear method:
+
+\begin{greybox}[Kernel Ridge Regression]
+Starting from the observation-space view of ridge regression:
+$$\hat{y} = \tilde{X}X^\top(XX^\top + \lambda I_n)^{-1}y$$
+
+Replace $XX^\top$ with kernel matrix $K$ and $\tilde{X}X^\top$ with kernel evaluations:
+$$\hat{y} = K_{\tilde{x}X}(K_{XX} + \lambda I_n)^{-1}y$$
+
+where:
+\begin{itemize}
+    \item $K_{XX}$ is the $n \times n$ Gram matrix of training points
+    \item $K_{\tilde{x}X}$ contains kernel evaluations between test point(s) and training points
+\end{itemize}
+\end{greybox}
+
+\textbf{Properties of Kernel Ridge Regression:}
+\begin{itemize}
+    \item \textbf{Global}: All training points contribute to each prediction (though distant points may contribute little with localised kernels)
+    \item \textbf{Flexible}: Choice of kernel determines the notion of similarity
+    \item \textbf{Computational cost}: $O(n^3)$ for matrix inversion-cubic in the number of training points
+\end{itemize}
+
+\textbf{Hyperparameters to tune:}
+\begin{itemize}
+    \item Choice of kernel (and its parameters, e.g., $\sigma$ for RBF)
+    \item Regularisation parameter $\lambda$
+\end{itemize}
+
+As flexibility increases, careful tuning becomes increasingly important.
+
+\subsection{K-Nearest Neighbours (KNN)}
+
+An alternative to global kernel methods is to use only local information:
+
+\begin{greybox}[KNN Regression]
+Predict using only the $K$ most similar training points:
+$$\hat{y}(\tilde{x}) = \frac{1}{K}\sum_{i \in N_K(\tilde{x})} y_i$$
+
+where $N_K(\tilde{x})$ is the set of $K$ nearest neighbours to $\tilde{x}$.
+\end{greybox}
+
+\textbf{Properties of KNN:}
+\begin{itemize}
+    \item \textbf{Exclusively local}: Only nearby points influence predictions (unlike kernel ridge regression)
+    \item \textbf{Simple}: No training phase-just store the data
+    \item \textbf{Non-parametric}: Makes no assumptions about functional form
+    \item \textbf{Bias-variance tradeoff}:
+    \begin{itemize}
+        \item Small $K$: High variance (sensitive to noise)
+        \item Large $K$: High bias (oversmoothing, missing local patterns)
+    \end{itemize}
+\end{itemize}
+
+\begin{redbox}
+KNN uses simple averaging: all $K$ neighbours contribute equally. This ignores the possibility that some neighbours are much closer than others, or that relationships vary across the input space. Kernel methods offer more nuanced weighting.
+\end{redbox}
+
+\subsection{Comparing Global and Local Methods}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_06_kernels/kernel_1.png}
+    \caption{Kernels can induce low-rank global structure (capturing overall trends) while allowing for local variation (adapting to fine-grained patterns). This balances smoothness with flexibility.}
+    \label{fig:kernel-structure-1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_06_kernels/kernel_2.png}
+    \caption{Different features may demand different notions of similarity. By combining or learning kernel parameters, models can discover which features (or combinations) are most indicative of similarity.}
+    \label{fig:kernel-structure-2}
+\end{figure}
+
+\begin{bluebox}[Balancing Structure and Flexibility]
+Effective kernel methods combine:
+\begin{enumerate}
+    \item \textbf{Low-rank global structure}: Broad trends that apply across the dataset (like PCA)
+    \item \textbf{Local variation}: Fine-grained patterns that differ across regions
+    \item \textbf{Feature-specific similarity}: Different features may contribute differently to similarity
+\end{enumerate}
+
+There are many ways to construct custom kernels for your application. More structure (when correct) makes learning easier by reducing the hypothesis space.
+\end{bluebox}
+
+\section{The Curse of Dimensionality}
+
+Kernel methods rely fundamentally on meaningful notions of distance. In high-dimensional spaces, this foundation crumbles.
+
+\begin{redbox}
+\textbf{The curse of dimensionality}: In high dimensions, \textbf{distance becomes meaningless}-all points become approximately equidistant from each other.
+\end{redbox}
+
+\subsection{Why Distance Fails in High Dimensions}
+
+Consider data uniformly distributed in a $d$-dimensional hypercube:
+
+\begin{greybox}[Volume in High Dimensions]
+For $X \sim \text{Uniform}(-1, 1)^d$:
+\begin{itemize}
+    \item Volume of the hypercube: $2^d$
+    \item Volume of a ball of radius $\epsilon$: $V_d(\epsilon) = \frac{\pi^{d/2}}{\Gamma(d/2 + 1)}\epsilon^d$
+\end{itemize}
+
+As $d$ increases, the fraction of the hypercube's volume contained in the $\epsilon$-ball shrinks exponentially.
+\end{greybox}
+
+What does this mean practically? To capture a fixed fraction of data points as ``neighbours,'' we need $\epsilon$ to grow dramatically with dimension:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_06_kernels/vol_dim_table.png}
+    \caption{To capture 10\% of data as $d$ increases, the neighbourhood radius $\epsilon$ must grow toward the boundary of the space.}
+    \label{fig:vol-dim-table}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_06_kernels/vol_dim_graph.png}
+    \caption{Volume concentration in high dimensions: most volume lies near the boundary, and the concept of ``local neighbourhood'' becomes meaningless.}
+    \label{fig:vol-dim-graph}
+\end{figure}
+
+\subsection{Implications for Machine Learning}
+
+\begin{bluebox}[Consequences of the Curse]
+\begin{enumerate}
+    \item \textbf{Local methods become global}: In high dimensions, nothing is ``close''-the amount of data in any local neighbourhood shrinks toward zero
+    \item \textbf{Extrapolation replaces interpolation}: Predictions at new points are no longer informed by ``nearby'' training examples
+    \item \textbf{Distance metrics lose discriminative power}: All points become approximately equidistant
+\end{enumerate}
+\end{bluebox}
+
+\textbf{Remedies:}
+\begin{itemize}
+    \item \textbf{Dimensionality reduction}: PCA, t-SNE, autoencoders can project data to lower dimensions where distance is meaningful
+    \item \textbf{Careful feature selection}: Only include features relevant to the prediction task
+    \item \textbf{Structured models}: Use domain knowledge to constrain the model (e.g., convolutional structure for images)
+\end{itemize}
+
+\begin{redbox}
+\textbf{When NOT to use kernel methods:}
+\begin{itemize}
+    \item \textbf{High-dimensional features}: Distance becomes meaningless; everything is far apart
+    \item \textbf{Small sample size}: Need $O(n^2)$ kernel evaluations and $O(n^3)$ for inversion
+    \item \textbf{Large datasets}: The $n \times n$ kernel matrix becomes prohibitively large
+\end{itemize}
+
+Kernel methods shine with moderate-sized datasets in low-to-moderate dimensions, where domain knowledge can inform kernel choice.
+\end{redbox}
+
+\section{Summary}
+
+\begin{bluebox}[Key Concepts from Week 6a]
+\begin{enumerate}
+    \item \textbf{Dual view of regression}: We can weight observations by similarity, not just features by coefficients
+
+    \item \textbf{Kernels as similarity}: A kernel $k(x, x') = \phi(x)^\top\phi(x')$ computes dot products in (potentially infinite-dimensional) feature spaces
+
+    \item \textbf{The kernel trick}: Replace $x^\top x'$ with $k(x, x')$ to work in high-dimensional spaces without explicit computation
+
+    \item \textbf{RBF kernel}: Infinite-dimensional, contains all polynomial terms, prefers smooth functions via $1/k!$ weighting
+
+    \item \textbf{Combining kernels}: Build custom similarity measures encoding domain knowledge about local vs.\ global structure, periodicity, feature importance
+
+    \item \textbf{Curse of dimensionality}: Distance loses meaning in high dimensions; kernel methods require careful application
+\end{enumerate}
+\end{bluebox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\linewidth]{figures/week_06_kernels/meme.png}
+    \label{fig:kernel-meme}
+\end{figure}
+

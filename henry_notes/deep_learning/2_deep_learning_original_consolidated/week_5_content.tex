@@ -1,0 +1,1362 @@
+% Week 5: Convolutional Neural Networks II
+\chapter{Convolutional Neural Networks II}
+\label{ch:week5}
+
+\section*{Contents}
+
+\begin{itemize}
+    \item Labeled data and augmentation
+    \item Modern CNN models
+    \item Object detection
+    \item Semantic Segmentation
+\end{itemize}
+
+\section{Labeled Data \& Augmentation}
+
+% Leaps in Training Data
+\subsection*{Leaps in Training Data: State of the art in computer vision driven by large training data}
+
+\textbf{Motivation}: Deep NNs only outperform ML models like XGBoost when we have big data regimes.\\
+
+Historically in CompVision labelled data sets were a constraint (effectively meaning we weren't able to enter big data regimes). So \textit{image labelling has always been a major focus}.\\
+
+\textbf{ImageNet and its Significance}:
+
+Li FeiFei's ImageNet was the first attempt to address this bottleneck.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_5/imagenet.png}
+    \caption{}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{ImageNet}: A large-scale dataset that revolutionized computer vision research. Initiated by Li Fei-Fei in 2009, it contains $\sim$1 million images categorized into 1000 classes. It played a pivotal role in enabling deep learning models, especially Convolutional Neural Networks (CNNs), to reach state-of-the-art performance in image classification tasks.
+    \item \textbf{Amazon Mechanical Turk}: Workers on Amazon Mechanical Turk labeled the dataset, allowing large-scale, cost-effective annotation.
+    \item \textbf{High Resolution}: Images are relatively high resolution (224x224 pixels), providing sufficient detail for training deep models.
+    \item \textbf{Hierarchically Organised}...
+    \item \textbf{Comparison to past datasets such as CIFAR-100}: CIFAR-100 is significantly smaller, with only 60,000 images across 100 classes, making ImageNet far more diverse and extensive.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\linewidth]{images/week_5/cifar-10.png}
+        \caption{CIFAR-10}
+        \label{fig:enter-label}
+    \end{figure}
+    
+    \item \textbf{State of the Art: LAION-5B}: Modern datasets like LAION-5B contain billions of images, often paired with additional metadata. This expansion supports more advanced model training approaches, including multimodal learning.
+\end{itemize}
+
+% Other Common Datasets
+\subsection*{Other Common Datasets}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_5/other common datasets.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\textbf{MNIST (National Institute of Standards and Technology)}:
+\begin{itemize}
+    \item This is one of the most well-known datasets in computer vision, consisting of handwritten digits.
+    \item It contains $n = 70,000$ grayscale images of size 28x28 pixels, categorized into $K = 10$ classes (digits 0-9).
+    \item Widely used for benchmarking classification algorithms.
+\end{itemize}
+
+\textbf{Fashion-MNIST (Zalando)}:
+\begin{itemize}
+    \item Fashion-MNIST is a dataset designed as a drop-in replacement for MNIST, consisting of grayscale images of clothing items.
+    \item It also contains $n = 70,000$ examples, with $K = 10$ classes, including categories like shirts, shoes, and bags.
+    \item The images have the same 28x28 pixel format as MNIST but represent more complex real-world objects.
+\end{itemize}
+
+\textbf{Labeled Faces in the Wild (U Mass Amherst)}:
+\begin{itemize}
+    \item This dataset focuses on face recognition tasks, containing $n = 13,233$ images of $K = 5,749$ unique people.
+    \item The dataset is widely used for tasks like face verification, face clustering, and related facial recognition tasks.
+\end{itemize}
+
+\textbf{patch\_camelyon (Veeling et al.)}:
+\begin{itemize}
+    \item A medical imaging dataset consisting of histopathologic scans of lymph node sections.
+    \item It includes $n = 327,680$ image patches, categorized into $K = 2$ classes (metastatic tissue and normal tissue).
+    \item Widely used in medical image analysis and for training models in detecting metastasis in tissue samples.
+\end{itemize}
+
+\textbf{DOTA (Ding and Xia)}:
+\begin{itemize}
+    \item A large-scale dataset designed for object detection in aerial images.
+    \item It contains $n = 11,268$ images and 1,793,658 object instances, categorized into $K = 18$ object categories, including vehicles, buildings, and planes.
+\end{itemize}
+
+\textbf{COCO [Common Objects in Context] (Microsoft)}:
+\begin{itemize}
+    \item One of the most comprehensive datasets for object detection, segmentation, and image captioning tasks.
+    \item It consists of $n = 330,000$ images (with over 200,000 labeled), 1.5 million object instances, $K = 80$ object categories, and 91 stuff categories.
+    \item Additionally, each image includes 5 captions and keypoint annotations for 250,000 people, making it versatile for various computer vision tasks.
+\end{itemize}
+
+% Data Labeling
+\subsection*{Data Labeling}
+
+\textbf{Self-Annotating Domain-Specific Data}:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_5/data annotation.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{itemize}
+    \item Numerous open-source and paid tools are available for image annotation, such as \textit{LabelImg} and the \textit{VGG Image Annotator}. These tools help create labeled datasets by generating bounding boxes or polygons around objects in images.
+    \item \textbf{Assistance tools}, such as model predictions or automated bounding box suggestions, can be integrated to speed up the labeling process.
+\end{itemize}
+
+% Considerations for Labeling
+\subsection*{Considerations for Data Labeling}
+
+\begin{itemize}
+    \item \textbf{How much data is enough}: Depends heavily on the specific task. For example, detecting trucks in satellite images may require thousands of manually labeled examples.
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.5\linewidth]{images/week_5/truck.png}
+        \caption{What is a truck, what is a van?}
+        \label{fig:enter-label}
+    \end{figure}
+    
+    \item \textbf{Resource Limitations}: Projects are often constrained by available resources, such as budget, time, and human labor.
+    \item \textbf{Who Labels the Data}: 
+    \begin{itemize}
+        \item \textit{Project Team}: Researchers can label the data themselves.
+        \item \textit{Trained Research Assistants}: They can label the data more efficiently, especially in domain-specific contexts.
+        \item \textit{Crowdsourcing Platforms}: Tools like \textit{Amazon Mechanical Turk} enable large-scale labeling, but the quality of labeling can vary depending on the complexity of the task.
+    \end{itemize}
+    Huge differences in quality depending on the task - some tasks can be translated to work with crowd sourcing (some can/should not)!
+        
+    \item \textbf{Quality Control} 
+    \begin{itemize}
+        \item \textbf{Annotation Scheme}: A well-defined, consistent annotation scheme is essential. Once defined, it should not be changed mid-process.
+        \item \textbf{Pilot Tests}: Conduct small-scale pilots to train annotators and test the annotation scheme.
+        \item \textbf{Edge Cases}: Resolve ambiguous examples (edge cases) with annotators to ensure consistent labeling.
+        \item \textbf{Inter-Annotator Agreement}: Monitor quality using inter-annotator agreement measures, such as Cohen’s Kappa, to ensure label consistency.
+        \item \textbf{Publishing Data}: If allowed, publish the dataset to enable other researchers to use and extend the research.
+    \end{itemize}
+\end{itemize}
+
+% Labeling with Active Learning
+\subsection*{Labeling with Active Learning}
+
+\textbf{Active Learning}:
+\begin{itemize}
+    \item Active learning involves continuous annotation \textit{while the model is being trained}.
+    \item Learning algorithms query the user (often referred to as the “teacher”) for labels when necessary, particularly in cases where the model is uncertain.
+    \item The system focuses on edge cases, where the model struggles, to improve performance in areas of difficulty.
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.75\linewidth]{images/week_5/Screenshot 2024-10-23 at 20.27.35.png}
+        \caption{Process Flow}
+        \label{fig:enter-label}
+    \end{figure}
+
+    \item \textbf{Pro:} this approach can reduce the overall amount of labeled data required for training.
+    \item \textbf{Con:} there is a risk of oversampling uninformative examples.
+    \begin{itemize}
+        \item If the initial training set lacks a sufficient number of typical examples and active learning is applied, the process may repeatedly focus on edge-case adjacent instances, pulling more of them from the unlabelled set. 
+        \item This can distort the training set by overrepresenting less relevant or uninteresting examples. 
+    \end{itemize}
+    \begin{tcolorbox}
+        \textbf{On-line learning}:\\
+        
+        Similar to active learning: it has new data points coming in, but it's more passive as there's no 'human as teacher' component. It's just additional labeled data coming in.
+    \end{tcolorbox}
+\end{itemize}
+
+% Model-Assisted Labeling
+\subsection*{Model-Assisted Labeling}
+
+\textbf{Fast Segmentation}:
+\begin{itemize}
+    \item Models can be integrated into the annotation process to accelerate labeling tasks.
+    \item In segmentation tasks, instead of manually drawing a polygon around an object, the annotator can simply click inside the object, and the model will suggest the appropriate boundaries.
+    \item After the model's initial suggestion, manual correction may still be required to fine-tune the annotations.
+\end{itemize}
+
+\subsection{Data Augmentation: generating existing examples}
+
+% Data Augmentation Explanation
+\subsection*{Data Augmentation}
+
+\begin{itemize}
+    \item Data augmentation involves generating additional training examples by applying \textbf{random transformations} to existing data. This enhances the model's \textbf{generalization capabilities} by introducing new variations without requiring manual data collection.
+    \item It helps to \textbf{reduce overfitting} and improves performance on unseen data, \textbf{particularly in computer vision tasks}.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{images/week_5/data augmentation.png}
+    \caption{data augmentation}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsubsection*{Generating Additional Examples}
+\begin{itemize}
+    \item \textbf{Concept}: Data augmentation can include operations such as \textit{cropping}, \textit{translation}, \textit{rotation}, and \textit{scaling}. These transformations create new images from existing ones, helping the model generalize better.
+    \item These transformations are \textbf{only applied to the \textit{training set}}...
+    \item ...the \textbf{test set remains a valid evaluation} of performance.
+        \item It is important to avoid applying data augmentation during the prediction phase to prevent introducing unnecessary variations.
+\end{itemize}
+
+\subsubsection*{Color Augmentation (for real-world applications)}
+
+\begin{itemize}
+    \item \textbf{Adjusting Brightness, Contrast, Saturation, and Hue}: By altering color properties, we can simulate different lighting conditions or environments in which objects appear.
+    \item \textbf{Example}: In the case of a tiger image, augmenting brightness or contrast helps the model recognize tigers in various lighting conditions, making it more \textbf{robust to environmental variations}.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.75\linewidth]{images/week_5/colour augmentation 2.png}
+        \caption{Adjusting Brightness, Contrast, Saturation, and Hue: This form of augmentation is particularly valuable in real-world applications where lighting is inconsistent or objects might appear under diverse conditions.}
+        \label{fig:enter-label}
+    \end{figure}
+    
+    \item \textbf{Example with Cat}: The slide shows color manipulations on a cat image across different color channels, \textbf{teaching the model to focus on structural details rather than relying on color information}.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.75\linewidth]{images/week_5/colour augmentation 1.png}
+        \caption{colour augmentation: teaches the model to focus on structural details rather than relying on color information}
+        \label{fig:enter-label}
+    \end{figure}
+\end{itemize}
+
+\subsubsection*{Elastic Distortions (for character recognition)}
+
+\begin{itemize}
+    \item \textbf{Purpose}: Elastic distortions are useful for tasks like character recognition (e.g., MNIST dataset). By introducing small elastic deformations, models become more robust to varied writing styles or imperfect representations.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\linewidth]{images/week_5/random_distortion.png}
+        \caption{random distortion}
+        \label{fig:enter-label}
+    \end{figure}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\linewidth]{images/week_5/Smoothed random distortion.png}
+        \caption{Smoothed random distortion}
+        \label{fig:enter-label}
+    \end{figure}
+
+    \item \textbf{Mechanism}: A \textit{distortion field} specifies how each pixel in the image is displaced, allowing for the simulation of slight alterations that mimic real-world variations.
+    \item \textbf{Example}: The digit "6" is distorted to create a new training example, helping the model learn to recognize different variations of the digit.
+\end{itemize}
+
+\subsubsection*{Scaling}
+\begin{itemize} 
+    \item Models do not natively handle scaling, which is particularly important to account for variations in scaling times. 
+    \item Note that augmentation is applied only to the test cases, not the training data. 
+\end{itemize}
+
+\subsubsection*{Broader Context of Data Augmentation}
+\begin{itemize}
+    \item \textbf{Data Efficiency}: Augmentation is especially valuable when collecting new data is expensive (e.g., medical imaging, satellite data) or when only limited data is available.
+    \item \textbf{Improved Robustness}: By introducing varied versions of the same object, models become more robust to real-world scenarios such as changes in lighting, orientation, or occlusion.
+\end{itemize}
+
+\subsubsection*{Why Data Augmentation is Powerful}
+\begin{itemize}
+    \item \textbf{Improves Generalization}: Models, particularly deep learning models like CNNs, tend to overfit small datasets. Data augmentation introduces controlled variation, reducing overfitting.
+    \item \textbf{Cost-Effective}: Augmentation allows generating more data without additional data collection.
+    \item \textbf{Versatility}: Modern deep learning frameworks provide various augmentation techniques (e.g., flipping, zooming, shearing), which can be applied together to simulate diverse conditions.
+\end{itemize}
+
+\begin{tcolorbox}
+\textbf{Conclusion}:
+    \begin{itemize} 
+        \item Convolution and pooling layers are responsible for \textit{feature extraction}. 
+        \item The fully connected layers are the \textit{prediction} component, learning patterns from the extracted features. 
+        \item Modern CNNs are now deep and narrow, consisting of many small filters stacked sequentially, whereas older architectures were wider and shallower. 
+    \end{itemize}
+\end{tcolorbox}
+
+\section{Modern CNN models}
+
+% Detailed Contextual Explanation of VGG and GoogLeNet
+
+\subsection*{VGG: Introducing Blocks and Deep Networks (2014)}
+
+\textbf{Basic CNN Block}:
+\begin{itemize}
+    \item A basic CNN block consists of three components:
+    \begin{enumerate}
+        \item A \textbf{convolutional layer} with padding to maintain the spatial resolution of the input image.
+        \item A \textbf{non-linearity}, typically a \textit{ReLU} activation function, to introduce non-linearity and help the model learn more complex patterns.
+        \item A \textbf{pooling layer}, such as max-pooling, to downsample the feature maps and reduce the spatial dimensions.
+    \end{enumerate}
+    \item \textbf{Problem}: With many pooling layers, the resolution of the feature maps can reduce too quickly, causing loss of spatial information.
+\end{itemize}
+
+\textbf{VGG Block}:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{images/week_5/VGG_block.png}
+    \caption{VGG Block}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{itemize}
+    \item VGG introduces the concept of \textit{blocks} of layers rather than individual layers. Each block consists of:
+    \begin{enumerate}
+        \item \textbf{Multiple convolutions} with small 3x3 kernels, keeping the height and width of the feature maps constant using padding.
+        \item A \textbf{max-pooling layer} with a 2x2 kernel and stride 2 to halve the height and width after each block.
+    \end{enumerate}
+    \item \textbf{Shift in Thinking}: VGG popularized the idea of using \textbf{deep, narrow }networks with \textbf{small convolutions} (3x3) rather than shallow networks with large filters.
+    \item \textbf{VGG-11 Example}: VGG-11 contains 8 convolutional layers and 3 fully connected layers at the end, with each block being followed by a pooling layer to gradually reduce spatial dimensions.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.2\linewidth]{images/week_5/VGG.png}
+    \caption{VGG}
+    \label{fig:enter-label}
+\end{figure}
+
+\textbf{Impact of VGG}:
+\begin{itemize}
+    \item VGG's deep and narrow architecture allowed for much deeper networks that were computationally feasible, setting the foundation for future CNN architectures.
+    \item VGG networks are often used as base models for transfer learning and fine-tuning on new datasets.
+\end{itemize}
+
+\subsection*{GoogLeNet: Inception Blocks (2014)}
+
+Combining idea of modular blocks alongside skip connections. So called \textit{Inception block} from the movie, so-called as it allows you to keep going deeper.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{images/week_5/google_inception.png}
+    \caption{GoogLeNet: Inception Blocks}
+    \label{fig:enter-label}
+\end{figure}
+    
+\textbf{Inception Blocks}:
+\begin{itemize}
+    \item GoogLeNet introduced the \textit{Inception block}, a multi-branch structure that allows the network to simultaneously process information at different scales:
+    \begin{itemize}
+        \item The first three branches use 1x1, 3x3, and 5x5 convolutional filters to capture features at different spatial resolutions.
+        \item The fourth branch uses a 3x3 max-pooling operation to further capture context at a broader scale.
+        \item The output from all branches is concatenated along the channel dimension, producing a rich multi-scale representation.
+    \end{itemize}
+    \item \textbf{1x1 Convolutions}: These are used primarily to reduce the number of channels before applying more computationally expensive 3x3 and 5x5 convolutions, helping to lower the overall computational cost while preserving important information.
+\end{itemize}
+
+\begin{tcolorbox}
+    \textbf{1x1 Convolution Explanation}:
+    \begin{itemize}
+        \item The only purpose of the 1x1 convolution is to change the number of channels (also known as feature maps) in a computationally efficient manner.
+        \item This layer is followed by a non-linear activation function (e.g., ReLU), allowing the network to learn complex patterns without greatly increasing the model's size or computational demand.
+        \item The $1 \times 1$ convolution layer adjusts the number of channels to match the outputs of the other branches and fine-tune the model's complexity. It maps the features to a single output map for each channel.
+        \item Importantly, this isn't a traditional convolution because it doesn't exploit local spatial connectivity, but rather serves to adjust the number of channels and prepare the data for further parallel processing in subsequent layers. This operation introduces additional parameters to learn, often referred to as "weight parameters".
+    \end{itemize}
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.75\linewidth]{images/week_5/1x1 convolution.png}
+        \caption{}
+        \label{fig:enter-label}
+    \end{figure}
+
+     If the number of input channels differs from the number of output channels, a single 1x1 convolution is used to adjust the number of channels:
+     \begin{itemize}
+         \item The 1x1 convolution will have a number of filters equal to the number of output channels required. 
+         \item So, if you need to match the input channels (let’s say $C_{in}$) to the output channels (let’s say $C_{out}$), the 1x1 convolution will have $C_{out}$ filters (kernels), and this operation will transform the input to the desired output dimensions.
+     \end{itemize}
+
+
+\end{tcolorbox}
+
+\begin{itemize}
+    \item After passing through the different branches, the outputs are concatenated along the channel dimension, forming a single tensor with multiple feature maps. Here, the concatenation refers to merging these parallel matrices into a higher-dimensional tensor, not just stacking vectors into a long one.
+    \item The number of output channels in each branch is a hyperparameter. By increasing the number of output channels in a branch, we assign more weight to that branch in learning, which can influence the model's overall performance.
+\end{itemize}
+
+\begin{tcolorbox}
+    The most common operation is summing the results of the convolutions across all channels because this allows each filter to learn a weighted combination of the features from all input channels. The learned weights of the filter represent how much each channel contributes to detecting a particular feature.\\
+    
+    For example, in an RGB image, the filter might learn to detect edges by combining the information from the Red, Green, and Blue channels in a particular way. The result from summing gives the final activation at that spatial location in the feature map.\\
+
+    Concatenation is generally used in specific architectures where different types of features are extracted from the input and need to be preserved separately.\\
+
+     A common scenario is in Inception modules in GoogLeNet or architectures that use multiple filter sizes or different processing operations in parallel (e.g., 1x1 convolutions, 3x3 convolutions, and max-pooling in parallel).\\
+
+    In these cases, different feature maps are created by different filters or operations, and then the feature maps are concatenated along the depth (channel) dimension to form a larger output volume.\\
+
+For example, if a layer has 3 filters with 32, 64, and 128 channels, and each filter produces a feature map of size $H \times W$, the final output of the layer after concatenation will have a depth of 32 + 64 + 128 = 224 channels.
+\end{tcolorbox}
+
+\begin{tcolorbox}
+    % 1x1 Convolution Explanation with Worked Example
+
+    \textbf{1x1 Convolution: Technical Explanation}\\
+    
+    \textbf{Role of 1x1 Convolutions}:
+    \begin{itemize}
+        \item The 1x1 convolution is a key building block in modern CNN architectures like GoogLeNet. 
+        \item Its main purpose is to change the number of channels (feature maps) without affecting the spatial dimensions (height and width) of the input. This allows for reducing or expanding the depth of the network while keeping computational costs low.
+    \end{itemize}
+    
+    \textbf{How It Works}
+    \begin{itemize}
+        \item A 1x1 convolution kernel takes each pixel in the input and multiplies it by a weight matrix, producing a new value for each output channel.
+        \item Since the kernel size is 1x1, it does not affect the spatial dimensions (height and width) of the input feature map, but it does affect the depth (number of channels).
+        \item After applying the convolution, the result is passed through a non-linearity, typically a ReLU activation function, to introduce non-linearity into the model.
+    \end{itemize}
+    
+    \textbf{Worked Example}\\
+    
+    Let’s assume we have an input feature map of size $4 \times 4 \times 3$, where:
+    \begin{itemize}
+        \item The spatial dimensions are $4 \times 4$ (height and width).
+        \item The depth (number of channels) is 3.
+    \end{itemize}
+    
+    We want to use a 1x1 convolution to reduce the number of channels from 3 to 2.
+    
+    \begin{itemize}
+        \item A 1x1 convolution kernel has the size $1 \times 1$, but since we want \textbf{to reduce the depth from 3 to 2, each kernel must have 3 weights (one for each input channel). Therefore, we have 2 kernels, each with a weight matrix of size $1 \times 1 \times 3$.}
+        \item Mathematically, the output of the convolution is given by:
+        \[
+        O_{i,j,k} = \sum_{c=1}^{3} (I_{i,j,c} \times W_{c,k})
+        \]
+        where $I$ is the input feature map, $W$ is the weight matrix (kernel), and $O$ is the output feature map.
+    \end{itemize}
+    
+    \textbf{Step-by-Step Example}:
+    
+    \begin{enumerate}
+        \item \textbf{Input feature map} ($4 \times 4 \times 3$):
+        \[
+        I = 
+        \begin{bmatrix}
+        [1, 2, 3], & [4, 5, 6], & [7, 8, 9], & [10, 11, 12] \\
+        [13, 14, 15], & [16, 17, 18], & [19, 20, 21], & [22, 23, 24] \\
+        [25, 26, 27], & [28, 29, 30], & [31, 32, 33], & [34, 35, 36] \\
+        [37, 38, 39], & [40, 41, 42], & [43, 44, 45], & [46, 47, 48]
+        \end{bmatrix}
+        \]
+        Each entry contains 3 channels.
+    
+        \item \textbf{Convolution kernel} ($1 \times 1 \times 3$ for each output channel):
+        \[
+        W_1 = [0.5, 0.3, 0.2], \quad W_2 = [0.1, 0.2, 0.7]
+        \]
+        These kernels will reduce the number of channels from 3 to 2.
+    
+        \item \textbf{Apply the convolution for each output channel}:
+        \[
+        O_{i,j,1} = I_{i,j,1} \times 0.5 + I_{i,j,2} \times 0.3 + I_{i,j,3} \times 0.2
+        \]
+        \[
+        O_{i,j,2} = I_{i,j,1} \times 0.1 + I_{i,j,2} \times 0.2 + I_{i,j,3} \times 0.7
+        \]
+    
+        For example, for the top-left pixel in the input:
+        \[
+        O_{1,1,1} = (1 \times 0.5) + (2 \times 0.3) + (3 \times 0.2) = 1.9
+        \]
+        \[
+        O_{1,1,2} = (1 \times 0.1) + (2 \times 0.2) + (3 \times 0.7) = 2.8
+        \]
+    
+        This process is repeated for all pixels in the input feature map.
+    
+        \item \textbf{Resulting output feature map} ($4 \times 4 \times 2$):
+        \[
+        O = 
+        \begin{bmatrix}
+        [1.9, 2.8], & \dots & [6.9, 7.8] \\
+        \vdots & \ddots & \vdots \\
+        [25.9, 26.8], & \dots & [46.9, 47.8]
+        \end{bmatrix}
+        \]
+        \item After the convolution, the output is passed through a ReLU non-linearity:
+        \[
+        O' = \text{ReLU}(O) = \max(0, O)
+        \]
+        This adds non-linearity to the network, allowing it to learn more complex patterns.
+    \end{enumerate}
+    
+    \textbf{Conclusion}:
+    \begin{itemize}
+        \item The 1x1 convolution efficiently changes the number of channels while maintaining the spatial resolution.
+        \item This operation is computationally cheaper than larger convolutions (e.g., 3x3 or 5x5) and can be combined with other convolution types to create more complex architectures, as seen in GoogLeNet.
+    \end{itemize}
+\end{tcolorbox}
+
+\textbf{Multi-Branch Networks: Impact of Inception Block}:
+\begin{itemize}
+    \item The Inception block's structure allows for more complex feature extraction \textbf{across different spatial scales}, improving the model's ability to \textbf{recognize objects regardless of their size or position}.
+    \item All four branches use padding to ensure that the height and width of the input and output remain constant, making it easier to concatenate the outputs.
+    \item \textbf{Hyperparameter Tuning}: One of the key design choices in Inception blocks is deciding how many output channels to allocate to each branch. This determines the model's capacity to handle different-sized features.
+    \item \textbf{Efficiency and Accuracy}: Despite its complexity, GoogLeNet was computationally more efficient than earlier models while still achieving state-of-the-art performance, especially in image classification tasks (e.g., ImageNet).
+\end{itemize}
+
+\begin{tcolorbox}
+    \textbf{Conclusion: VGG vs. GoogLeNet}:
+    \begin{itemize}
+        \item \textbf{VGG} represents a shift towards \textbf{deeper and narrower} networks with small convolutions, 
+        \item while \textbf{GoogLeNet} focuses on \textbf{multi-scale} feature extraction with Inception blocks, balancing computational efficiency with model accuracy.
+    \end{itemize}
+\end{tcolorbox}
+
+% Residual Networks (ResNet) Explanation in LaTeX
+
+\subsection*{Residual Networks (ResNet) - Adding Skip Connections (2016)}
+
+\begin{tcolorbox}
+    Took the idea of the GoogLeNet, simplified it and added some theory.\\
+    
+    \textit{Idea: We want a larger network to be at least as good as the smaller one.}\\
+
+    Further exploiting the idea of \textbf{skip-connections}: adding the identity function to the new layer will make it at least as effective as the original model. \begin{itemize}
+        \item At any point we have the same information as in the previous layers, so that the new layers can only make it better - we are not throwing away info.
+        \item Can overcome vanishing gradients (by providing a direct path for gradients to flow backward during training) to build deeper models.
+    \end{itemize}
+
+    Introducing the \textbf{residual block!} (Can think of it as a 2-branch version of the inception block) - 1 branch keeps things as they are; 1 branch tries to learn and improve. \\
+    
+    The network learns the \textit{residual}, or the difference between the desired output and the input, which is generally easier to learn than mapping directly from input to output.\\
+\end{tcolorbox}
+
+\textbf{Motivation for Residual Connections}:
+\begin{itemize}
+    \item Deep networks tend to suffer from the \textbf{\textit{vanishing gradient problem}}, where the gradients become too small to effectively train deeper layers.
+    \item The core idea of \textit{residual connections} is to allow layers to learn modifications to the identity function, ensuring that the network performance does not degrade as it grows deeper.
+    \item By \textbf{adding the identity function through a skip connection}, the network ensures that the deeper layers can at least perform as well as the shallower network.
+    \item The key point here is that instead of concatenating feature maps, as done in networks like GoogLeNet, ResNet simply adds the input to the output. For this to work, the number of channels in the input and output must match.
+    \begin{itemize}
+        \item Why? because the residual connection involves an element-wise addition of the input and output:
+        \[
+        \mathbf{y} = \mathcal{F}(\mathbf{x}) + \mathbf{x}
+        \]
+        By learning residuals (differences) instead of full transformations, the network avoids the vanishing gradient problem, which helps with training deeper networks. The idea of residual learning is to allow the network to learn identity mappings more easily, which can be viewed as learning "what should change" in the input, making deeper networks more efficient and easier to train.
+
+    \item The $1 \times 1$ convolutional layer is used to match the number of channels between the input and output of the residual block. 
+    \item If the input has a different number of channels compared to the output, the $1 \times 1$ convolution adjusts the number of channels in the input (by applying a linear transformation) so that it matches the output size before adding them together. 
+    \item The 1x1 convolution will have a \textbf{number of filters equal to the number of output channels} required.
+    \item This operation ensures that the addition is dimensionally valid.
+    \end{itemize}
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/residual block.png}
+    \caption{the residual block (portion of the block in dotted lines) learns the \textbf{residual mapping} $g(x) = f(x)-x$.}
+    \label{fig:enter-label}
+\end{figure}
+
+\textbf{Residual Block Structure}:
+\begin{itemize}
+    \item A residual block consists of a weight layer followed by an activation function. The residual connection skips this operation and adds the input \(x\) directly to the output \textit{after applying the non-linear function \(f(x)\)}.
+    \item The residual mapping is expressed as:
+    \[
+    f(x) = g(x) + x
+    \]
+    where \(g(x)\) represents the output of the block after passing through the convolutional and activation layers, and \(x\) is the input.
+    \item This architecture allows the network to focus on \textbf{learning the \textit{residual}, or the difference between the desired output and the input}, which is generally easier to learn than mapping directly from input to output.
+    \begin{itemize}
+        \item if $f(x)$ is close to $x$, the residual is much easier to learn.
+    \end{itemize}
+    \item Can be thought of as a special 2-branch case of the inception block.
+\end{itemize}
+
+\textbf{Key Benefits of Residual Connections}:
+\begin{itemize}
+    \item \textbf{Easier to optimize}: Since the residuals are typically small and easier to learn, residual networks can be optimized more effectively, especially as the network depth increases.
+    \item \textbf{Prevents performance degradation}: Adding residual connections ensures that deeper networks do not perform worse than shallower ones, addressing the degradation problem in deep learning.
+    \item \textbf{Modular and scalable}: ResNet architectures can be scaled to hundreds or even thousands of layers, such as ResNet-152, without encountering optimization difficulties.
+\end{itemize}
+
+\subsubsection*{ResNet Block Variants}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{images/week_5/ResNet block.png}
+    \caption{Standard ResNet Block}
+    \label{fig:enter-label}
+\end{figure}
+
+\textbf{Standard ResNet Block}:
+\begin{itemize}
+    \item A standard ResNet block consists of two 3x3 convolutional layers, followed by batch normalization and ReLU activation.
+    \begin{itemize}
+        \item Inspired by VGG block (a sequence of convolutions with $3 \times 3$ kernels, followed by max-pooling; emphaises deep, narrow networks)
+    \end{itemize}
+    \item The input \(x\) is passed through these layers and added back to the block’s output, ensuring that both the learned transformations and the input contribute to the final output.
+\end{itemize}
+
+\textbf{Bottleneck ResNet Block (1x1 Convolutions)}:
+\begin{itemize}
+    \item In deeper networks (e.g., ResNet-50, ResNet-152), a bottleneck design is used to reduce the computational cost.
+    \item The bottleneck block includes a 1x1 convolution at the start and end of the block to reduce and then restore the number of channels, effectively lowering the computational load.
+    \item This block is particularly useful when the 3x3 convolutions in the residual block need to change the number of channels, as the 1x1 convolution in the residual connection ensures that the dimensions match.
+\end{itemize}
+
+\begin{tcolorbox}
+    % Bottleneck ResNet Block Explanation with Worked Example
+
+    \textbf{Bottleneck ResNet Block (1x1 Convolutions)}
+    
+    \textbf{Purpose of the Bottleneck Block}:
+    \begin{itemize}
+        \item In very deep networks, such as \textit{ResNet-50} or \textit{ResNet-152}, the computational cost of performing multiple 3x3 convolutions can become very high, especially when the number of channels is large.
+        \item The bottleneck block introduces two 1x1 convolutions to reduce this cost:
+        \begin{itemize}
+            \item A 1x1 convolution at the start reduces the number of channels, making the subsequent 3x3 convolution more efficient.
+            \item A second 1x1 convolution at the end restores the number of channels back to the original, ensuring that the output matches the input dimensions.
+        \end{itemize}
+    \end{itemize}
+    
+    \textbf{Worked Example}\\
+    
+    Let’s assume we have an input feature map of size \(56 \times 56 \times 256\) (height, width, and depth). We want to perform a residual operation using a bottleneck block with the following structure:
+    \begin{itemize}
+        \item 1x1 convolution to reduce the channels from 256 to 64.
+        \item 3x3 convolution to operate on these reduced channels.
+        \item 1x1 convolution to expand the channels back to 256.
+    \end{itemize}
+
+    \textbf{Why the Bottleneck Block is Efficient}
+    \begin{itemize}
+        \item Without the bottleneck structure, performing a 3x3 convolution on a 56x56x256 input would require significantly more computations.
+        \item By first reducing the number of channels with the 1x1 convolution, the cost of the 3x3 convolution is greatly reduced.
+        \item Restoring the channels after the 3x3 convolution ensures that the network can still learn from a high-dimensional feature space, without compromising on the ability to add residual connections.
+    \end{itemize}
+    
+    \textbf{Conclusion}:
+    \begin{itemize}
+        \item The bottleneck block enables ResNet models to scale to greater depths (e.g., ResNet-50, ResNet-101, ResNet-152) by significantly reducing computational costs.
+        \item The 1x1 convolutions act as efficient transformations that reduce and restore the number of channels, allowing the network to process feature maps at different scales while maintaining overall efficiency.
+    \end{itemize}
+
+\end{tcolorbox}
+
+\begin{tcolorbox}
+\textbf{Bottleneck ResNet Block (1x1 Convolutions)}\\
+    \textbf{Step-by-Step Process}:
+    
+    \begin{enumerate}
+        \item \textbf{Input feature map}: 
+        \[
+        \text{Input size: } 56 \times 56 \times 256
+        \]
+        Each pixel in the 56x56 spatial grid has 256 channels.
+    
+        \item \textbf{1x1 Convolution (Channel Reduction)}:
+        \begin{itemize}
+            \item The first 1x1 convolution reduces the depth of the input from 256 channels to 64 channels.
+            \item The spatial dimensions (56x56) remain unchanged, but the number of feature maps (channels) is reduced:
+            \[
+            \text{Output size: } 56 \times 56 \times 64
+            \]
+            \item This reduction lowers the computational cost for the next 3x3 convolution, as the number of channels to process has been reduced by a factor of 4.
+        \end{itemize}
+    
+        \item \textbf{3x3 Convolution}:
+        \begin{itemize}
+            \item Next, we apply a 3x3 convolution with 64 input channels, which is computationally less expensive compared to operating on 256 channels.
+            \item This convolution will preserve the spatial dimensions but may extract more complex features:
+            \[
+            \text{Output size: } 56 \times 56 \times 64
+            \]
+        \end{itemize}
+    
+        \item \textbf{1x1 Convolution (Channel Restoration)}:
+        \begin{itemize}
+            \item The final 1x1 convolution expands the number of channels back to the original 256 channels to ensure that the output matches the input dimensions:
+            \[
+            \text{Output size: } 56 \times 56 \times 256
+            \]
+            \item This step ensures that the residual connection can be added back to the original input, which had 256 channels.
+        \end{itemize}
+    
+        \item \textbf{Residual Connection}:
+        \begin{itemize}
+            \item The input feature map (56x56x256) is directly added to the output of the bottleneck block (56x56x256), resulting in the final output:
+            \[
+            \text{Final output size: } 56 \times 56 \times 256
+            \]
+            \item This residual connection ensures that any skipped information from the original input is retained, allowing the network to effectively "reuse" the input data if needed.
+        \end{itemize}
+    \end{enumerate}
+\end{tcolorbox}
+
+\subsubsection*{ResNet-18 Example}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_5/resnet18.png}
+    \caption{ResNet18}
+    \label{fig:enter-label}
+\end{figure}
+
+\textbf{Network Structure}:
+\begin{itemize}
+    \item \textbf{ResNet-18} consists of:
+    \begin{itemize}
+        \item An initial 7x7 convolutional layer followed by a 3x3 max-pooling layer.
+        \item 4 modules, each consisting of a series of residual blocks.
+        \begin{itemize}
+            \item 2 × Module 1 (1 block) 
+            \item 3 × Module 2 (2 blocks)
+            \item Each residual block has two convolutional layers.
+        \end{itemize}
+        \item A final fully-connected layer
+    \end{itemize}
+    \item In ResNet-18, Module 1 consists of 2 blocks, while Module 2 consists of 3 blocks. The total number of layers with learnable weights can be calculated as:
+    \[
+    2 \times 2 + 3 \times (2 + 2) + 1 + 1 = 18
+    \]
+\end{itemize}
+
+\textbf{Global Average Pooling}:
+\begin{itemize}
+    \item After the convolutional layers, ResNet uses \textit{global average pooling}, which reduces each feature map (channel) to a single number by averaging the spatial dimensions.
+    \item This method is \textit{more efficient than fully connected layers, reducing the likelihood of overfitting}.
+    \item The output of the global average pooling is fed directly into the softmax layer for classification.
+    \item Need $K$ feature maps for $K$ classes. (In essence each feature map correspeonds to a discriminator for that class)
+\end{itemize}
+
+\begin{tcolorbox}
+    \textbf{Global Average Pooling Explanation}\\
+
+    A type of pooling operation used at the \textbf{end of convolutional neural networks}, typically before the final classification layer (softmax).\\
+    
+    \textit{It works by averaging each feature map (or channel) over its \textbf{entire spatial dimensions} (height and width), reducing each feature map to a single value}.\\
+
+    \textbf{Why Use Global Average Pooling?}
+    
+    \begin{itemize}
+        \item \textbf{Prevents Overfitting}: Unlike fully connected layers, which have a large number of parameters and can lead to overfitting, global average pooling has no learnable parameters. This makes it more robust and less prone to overfitting, especially when the training data is limited.
+        \item \textbf{Efficiency}: GAP reduces the feature maps to a small fixed-size output (1 value per channel), making it computationally efficient and reducing the number of parameters. 
+        \item \textbf{Direct Connection to Classes}: In the case of classification, each of the \(C\) feature maps (channels) can be thought of as a representation for one of the \(K\) classes, with the pooled value representing the overall activation for that class. 
+        \item \textbf{Classification}: The output of the global average pooling layer, which is \(1 \times 1 \times C\), is directly fed into a \textit{softmax} layer for classification. Here, \(C = K\), where \(K\) is the number of classes. Each pooled value is used to predict the probability of the corresponding class.
+    \end{itemize}
+    
+    \textbf{Efficiency Compared to Fully Connected Layers}
+    
+    \begin{itemize}
+        \item In traditional CNNs, fully connected (FC) layers are often used after the convolutional layers. However, fully connected layers introduce a large number of parameters, especially when the input feature maps are large, which increases the risk of overfitting.
+        \item For example, if we used an FC layer on a \(7 \times 7 \times 512\) feature map, it would involve connecting all 25,088 values to the next layer, leading to a large number of learnable parameters.
+        \item In contrast, global average pooling significantly reduces this to just 512 values (one for each channel), which are passed directly to the softmax layer, making the network both more efficient and less prone to overfitting.
+    \end{itemize}
+    
+    \textbf{Conclusion}
+    
+    \begin{itemize}
+        \item Global average pooling simplifies the transition from feature extraction to classification by reducing each feature map to a single value, while preserving the global information from the entire spatial dimension.
+        \item It is particularly useful in reducing the model size and avoiding overfitting, making it a popular choice in deep CNN architectures like ResNet.
+    \end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}
+    \textbf{Global Average Pooling: How It Works}
+    
+    \begin{itemize}
+        \item Assume the feature map from the last convolutional layer has dimensions of \(H \times W \times C\), where \(H\) is the height, \(W\) is the width, and \(C\) is the number of channels (feature maps).
+        \item Global average pooling computes the mean of each \(H \times W\) feature map, reducing the spatial dimensions to 1x1. Thus, the output will have dimensions \(1 \times 1 \times C\).
+        \item Mathematically, for each channel \(c\), the global average pooling operation is given by:
+        \[
+        \text{GAP}(c) = \frac{1}{H \times W} \sum_{i=1}^{H} \sum_{j=1}^{W} x_{ijc}
+        \]
+        where \(x_{ijc}\) is the value at position \((i, j)\) in the \(c\)-th feature map.
+    \end{itemize}
+    
+    \textbf{Worked Example}
+    
+    \begin{itemize}
+        \item Suppose we have a final feature map of size \(7 \times 7 \times 512\) coming from the last convolutional layer of a CNN (e.g., ResNet). This means:
+        \begin{itemize}
+            \item There are 512 channels.
+            \item Each channel (feature map) is of size \(7 \times 7\).
+        \end{itemize}
+    
+        \item For each channel, global average pooling computes the average of all the \(7 \times 7\) values. The result for each channel is a single value (1x1), resulting in an output of size \(1 \times 1 \times 512\).
+        
+        \item This reduces the entire feature map to just 512 values, one for each channel, irrespective of the spatial dimensions.
+    
+        \item The key point is that no spatial information is retained, but instead, global information from the entire feature map is summarized by the average.
+    \end{itemize}
+\end{tcolorbox}
+
+\subsubsection*{Summary of ResNet}
+\begin{itemize}
+    \item ResNet allows for the training of very deep networks (e.g., ResNet-152) by introducing residual connections, making it possible to avoid the vanishing gradient problem.
+    \item These connections ensure that layers can be added without causing degradation, as the identity mapping is always preserved, ensuring performance doesn't degrade with increased depth.
+    \item Very common as pre-trained models for fine tuning: ResNet models are widely used in transfer learning due to their scalability and effectiveness in learning complex representations.
+\end{itemize}
+
+% Fine Tuning Pretrained Models - Detailed Explanation
+
+\section*{Fine Tuning Pretrained Models}
+
+\textbf{Motivation for Fine-Tuning}:
+\begin{itemize}
+    \item \textbf{Resource Efficiency}: Training large neural networks from scratch requires significant computational resources, including time, energy, and data. Fine-tuning offers a cost-effective alternative by reusing models that have already been trained on large datasets.
+    \item \textbf{Basic Image Features Can Be Quite Generic}: Large models, like those trained on ImageNet, learn general-purpose features in their early layers, such as edges, textures, and shapes, which can be transferred to other tasks or domains.
+    \item \textbf{Limited Target Data}: In many cases, the target domain (task) may have limited labeled data, making training from scratch impractical. Fine-tuning allows us to leverage knowledge learned from a large source dataset (like ImageNet) and adapt it to the target domain.
+    \item \textbf{Transfer Learning}: Fine-tuning is a type of transfer learning, where the knowledge learned from a source dataset is transferred to a different, but related, target dataset. For example, a model trained on ImageNet for object recognition can be fine-tuned to recognize lesions in medical images.
+\end{itemize}
+
+\begin{tcolorbox}
+    \textbf{Example: Digital Pathology}
+    \begin{itemize}
+        \item Even though the source dataset (ImageNet) contains generic objects such as animals and vehicles, the general visual features learned by the model can still be useful when applied to medical imaging tasks (target dataset).
+        \item ImageNet has v little info in it about rat tissue, but the edges and other feature extraction parts it learnt are v useful.
+        \item For instance, a pre-trained model may still perform well on identifying specific patterns, such as lesions in tissue samples, after fine-tuning on a smaller medical image dataset.
+    \end{itemize}
+\end{tcolorbox}
+
+\subsection*{General Procedure for Fine-Tuning}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{images/week_5/fine tuning.png}
+    \caption{Fine-tuning}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{enumerate}
+    \item \textbf{Pretrain on Source Dataset}: Train a neural network model on a large dataset (e.g., ImageNet) or download a pre-trained model that has been optimized on such a dataset.
+    
+    \item \textbf{Create Target Model}: 
+    \begin{itemize}
+        \item Copy all the layers and parameters from the source model to the target model, \textit{except for the final output layer}.
+        \item This ensures that the \textit{feature extraction layers of the model are retained}, which capture general image features.
+    \end{itemize}
+    
+    \item \textbf{Add New Output Layer}: 
+    \begin{itemize}
+        \item Replace the output layer of the pre-trained model with a new output layer that matches the number of categories in the target dataset.
+        \item The parameters of this new output layer are initialized randomly, as it has not been trained on the target dataset.
+    \end{itemize}
+
+    \item \textbf{Train on Target Dataset}: 
+    \begin{itemize}
+        \item Fine-tune the model by training on the target dataset. During this process:
+        \begin{itemize}
+            \item The new output layer is trained from scratch.
+            \item The parameters of the earlier layers are fine-tuned, using the knowledge from the source model as a starting point.
+        \end{itemize}
+        \item Often, the lower layers (closer to the input) are "frozen" (i.e., their parameters are not updated), as they contain very general features that do not need to be retrained.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Why Fine-Tuning is Effective}
+
+\begin{itemize}
+    \item \textbf{Reusing Pre-trained Knowledge}: Instead of training a model from scratch, we use a model that has already learned useful representations, such as edges or shapes, from a large dataset. This knowledge is then fine-tuned to better match the specific patterns in the target dataset.
+    \item \textbf{Avoids Overfitting}: Because only a small portion of the model (e.g., the output layer) is trained from scratch, fine-tuning helps prevent overfitting to small target datasets.
+    \item \textbf{Speeds Up Training}: Since only the output layer and upper layers are retrained, the model converges faster than it would if it were trained from scratch.
+\end{itemize}
+
+\subsection*{Fine-Tuning in Practice}
+
+\begin{itemize}
+    \item \textbf{Common in Transfer Learning}: Fine-tuning is widely used in transfer learning tasks, especially in domains where labeled data is scarce. This includes applications in medical imaging, natural language processing, and many specialized vision tasks.
+    \item \textbf{Model Freezing}: In many cases, the lower layers of the model are "frozen" to reduce the computational cost of fine-tuning. This prevents updating weights in layers that already capture general features, focusing training on the higher, task-specific layers.
+    \item \textbf{Pretrained Models for Fine-Tuning}: Many pre-trained models, such as ResNet or VGG, are available in deep learning libraries (e.g., TensorFlow, PyTorch) and can be easily downloaded and fine-tuned for various tasks.
+\end{itemize}
+
+\section{Object Detection}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_5/object detection.png}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_5/object detection 2.png}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection*{Overview}
+
+Object detection (or 'object recognition') refers to the process of identifying objects within an image or video and determining their \textbf{classes}, \textbf{positions}, and \textbf{boundaries}. It involves not just classifying an object but also \textit{locating it} in the image through \textbf{bounding boxes}.
+
+\subsubsection*{Tasks in Object Detection}
+\begin{itemize}
+    \item \textbf{Find objects in the image:} The model must identify the relevant objects present in the image. In some cases, this could involve multiple objects, each of a different class.
+    \item \textbf{Draw (tight) bounding boxes:} A bounding box is a rectangle drawn around the object of interest to mark its spatial location. The model needs to determine the coordinates of the box in relation to the entire image.
+    \item \textbf{Determine the class of the object:} The model classifies the object into one of the pre-defined categories based on the features it has learned during training.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{images/week_5/multiple objects.png}
+    \caption{multiple objects}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsubsection*{Applications of Object Detection}
+\begin{itemize}
+    \item \textbf{Remote sensing:} Identifying objects (e.g., planes, cars) from satellite images.
+    \item \textbf{Autonomous vehicles:} Detecting pedestrians, cars, and other obstacles.
+    \item \textbf{Face recognition:} Identifying people in crowds for surveillance or social media tagging.
+    \item \textbf{Traffic monitoring:} Counting vehicles for congestion analysis.
+\end{itemize}
+
+\subsection*{Bounding Boxes Representation}
+
+Bounding boxes are typically represented using two common methods:
+\begin{itemize}
+    \item \textbf{Corner-based:} This representation uses the coordinates of the upper-left $(x_1, y_1)$ and lower-right corners $(x_2, y_2)$ of the box.
+    \item \textbf{Center-based:} Alternatively, we can represent the bounding box using the center coordinates $(x, y)$ of the box along with its width and height $(w, h)$.
+\end{itemize}
+
+Boxes are learned with training data with ground truth bounding boxes.
+
+\subsubsection*{Basic Workflow}
+
+\begin{itemize}
+    \item First, the model proposes several possible boxes across the image at different locations and scales (proposing anchor boxes). 
+    \item Then, the model predicts the class of the object in each box and adjusts the box to fit the object more tightly.
+    \item Finally, overlapping boxes are resolved by a method called non-maximum suppression (NMS), which keeps only the most confident box.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_5/bounding box workflow.png}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{tcolorbox}
+    \textbf{Anchor Boxes:}\\
+    
+    An anchor box is a pre-defined bounding box with a fixed size and aspect ratio that is applied to different parts of the image to detect objects. These anchor boxes help the model handle objects of different sizes and aspect ratios effectively.\\
+
+    Anchor boxes act like a grid: they provide possible regions where an object might be located, regardless of whether an object is there or not. For each box, the model evaluates whether it contains an object, which class the object belongs to, and how the box should be adjusted to tightly fit the object (using predicted offsets).\\
+
+    The purpose of using anchor boxes is to provide the model with pre-defined regions to check for objects, instead of having it scan the entire image pixel-by-pixel. This makes the detection process computationally efficient, as the model can focus on adjusting these predefined boxes instead of trying to create new boxes from scratch for every possible object.
+\end{tcolorbox}
+
+\subsection*{1. Predicting Boxes}
+
+\subsubsection*{Anchor Boxes}
+
+The model starts by suggesting several potential bounding boxes (referred to as anchor boxes) at various locations and scales over the image. These boxes serve as starting points for detecting objects.
+
+\begin{itemize}
+    \item Object detectors start by proposing a number of \textbf{anchor boxes} at different scales $s_1, \cdots, s_n$ and aspect ratios $r_1, \cdots r_m$.
+        \item For computational efficiency, a small set of these anchor boxes is chosen, and each of them is evaluated at different points in the image.
+    \item For each anchor box, the model predicts both the class of the object and an offset to the anchor box, adjusting the box to more accurately fit the object.
+    \item A predicted bounding box is thus obtained according to an anchor box with its predicted offset
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/anchor boxes.png}
+    \caption{predicted bounding boxes}
+    \label{fig:enter-label}
+\end{figure}
+
+
+\subsection*{2. Class Prediction (based on a predicted box)}
+
+For each proposed anchor box, the model predicts: (1) The class of the object (if any) that might be present within the box.(2) Adjustments to the box (called offsets) to make it more tightly fit the detected object.
+
+\begin{itemize}
+    \item The model assigns a confidence score to each box, representing how likely the object in the box belongs to a particular class. 
+    \item The highest confidence score is typically used to select the final predicted class for each box.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/class prediction.png}
+    \caption{class prediction}
+    \label{fig:enter-label}
+\end{figure}
+
+Once the anchor boxes are adjusted, the model predicts the class of the object in each box. This prediction comes with a \textbf{confidence score} — a measure of how likely the object belongs to a certain class. Confidence scores are used to match predicted box to ground truth. For example, a score of 0.9 might indicate a 90\% confidence that the object is a car. The box with the highest confidence score is usually selected as the final bounding box for that object.
+
+\subsection*{3. Resolving Overlaps: Non-Maximum Suppression (NMS)}
+
+After predictions are made, many boxes may overlap. The model uses a process called non-maximum suppression (NMS) to keep only the box with the highest confidence score, discarding the rest.
+
+\begin{itemize}
+    \item NMS helps to remove duplicate bounding boxes that refer to the same object.
+    \item The algorithm selects the box with the highest confidence and removes all other boxes that overlap with it beyond a certain IoU threshold.
+    \item This process is repeated until all overlapping boxes are removed, ensuring that only one box per object remains.
+\end{itemize}
+
+\begin{tcolorbox}
+    \subsubsection*{Measuring Agreement: Intersection over Union (IoU)}
+
+    Object detectors learn by comparison of predicted bounding boxes with ground truth bounding boxes\\
+    
+    How do we measure agreement? \textbf{Jaccard Index}
+
+    \[
+    J(\mathcal{A}, \mathcal{B}) = \frac{|\mathcal{A} \cap \mathcal{B}|}{|\mathcal{A} \cup \mathcal{B}|}
+    \]
+
+    We can measure the similarity of the two bounding boxes by the Jaccard index of their pixel set (Intersection over Union (IoU))
+
+    \begin{itemize}
+        \item IoU measures the overlap between the predicted bounding box and the ground truth bounding box. 
+        \item It is calculated as the area of the intersection between the two boxes divided by the area of their union.
+        \item IoU helps to quantify how well the predicted box matches the ground truth box. A higher IoU means a better match.
+    \end{itemize}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.5\linewidth]{images/week_5/iou.png}
+        \label{fig:enter-label}
+    \end{figure}
+    
+\end{tcolorbox}
+
+\begin{enumerate}
+    \item Select the predicted bounding box with the \textbf{highest confidence}.
+     \begin{itemize}
+         \item \textbf{Remove all other predicted bounding boxes whose IoU with that first box exceeds} a predefined threshold (itself a hyperparameter).
+     \end{itemize}
+    \item Select the predicted bounding box with the second highest confidence.
+     \begin{itemize}
+         \item \textbf{Remove all other predicted bounding boxes whose IoU with that first box exceeds} a predefined threshold.
+     \end{itemize}
+     \item Repeat until all the predicted bounding boxes have been used.
+\end{enumerate}
+
+Now, the IoU of any pair of predicted bounding boxes is below the threshold; no pair is too similar with each other.
+
+
+\subsection*{SSD: Single Shot MultiBox Detector}
+
+\begin{tcolorbox}
+    \textbf{SSD by Liu et al (2015)}
+    \begin{itemize}
+        \item A computationally efficient (fast) and high-performing object detector for multiple categories.
+        \item As accurate as slower techniques that perform explicit region proposals and pooling (including Faster R-CNN).
+        \item Models relying on region proposals have an entire network to propose suitable bounding boxes for further classification, making them slow.
+        \item SSD uses \textit{anchor boxes} to propose a number of boxes at low computational cost.
+    \end{itemize}
+\end{tcolorbox}
+
+\subsubsection*{Non-Maximum Suppression (NMS)}
+Non-Maximum Suppression is a technique used to eliminate redundant bounding boxes that overlap significantly and represent the same object.\\
+
+In object detection, multiple bounding boxes may predict the same object with slight variations. Here’s how NMS helps resolve these overlaps:
+
+\begin{itemize}
+    \item \textbf{Problem}: Many predicted bounding boxes with similar positions and dimensions can overlap significantly, leading to multiple detections for the same object.
+    \item \textbf{Solution (Non-Maximum Suppression)}:
+    \begin{enumerate}
+        \item Select the bounding box with the highest confidence score.
+        \item Remove all other bounding boxes that have a high Intersection over Union (IoU) overlap with the selected box, based on a predefined threshold.
+        \item Repeat this process until all bounding boxes are processed.
+    \end{enumerate}
+    \item \textbf{Effect}: This leaves only the bounding boxes with the highest confidence for each detected object, ensuring no redundant boxes are retained.
+\end{itemize}
+
+\subsubsection*{SSD: Single Shot MultiBox Detector (2015)}
+SSD by Liu et al. is a fast and efficient object detector that allows real-time detection \textit{without region proposal stages}. 
+
+\begin{itemize}
+    \item \textbf{Efficiency}: SSD is computationally efficient and performs detection in a \textit{single pass}, unlike methods that require multiple passes over the image.
+    \item \textbf{Accuracy}: Comparable to slower methods like Faster R-CNN, SSD achieves similar accuracy by directly predicting bounding boxes and classes at different feature map scales.
+    \item \textbf{Anchor Boxes}: SSD uses a fixed set of anchor boxes at various scales, which helps in detecting objects of different sizes.
+\end{itemize}
+
+\subsubsection*{Anchor Boxes}
+Anchor boxes are predefined bounding boxes with various sizes and aspect ratios, centered at grid points across the feature map. Here’s how SSD uses them:
+
+\begin{itemize}
+    \item \textbf{Grid Representation}: Imagine the input image divided into a grid. Each grid cell can predict multiple bounding boxes based on the anchor boxes.
+    \item \textbf{Predictions}: For each anchor box, SSD predicts offsets (to adjust position and size) and class scores for different object categories.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/anchor boxes 2.png}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsubsection*{Multiscale Anchor Boxes}
+SSD employs different feature maps at different scales to capture objects of varying sizes effectively:\\
+
+It uses the \textit{same set of anchor boxes} but on a \textit{different (lower resolution) feature map} higher up in the model (where there has been some pooling happening. So now the same kind of anchor box set gives rise to larger input image areas.\\
+
+All of the different scaled anchor boxes get thrown into the same pool and then subjected to non-maximum suppression.
+
+\begin{itemize}
+    \item \textbf{Different Scales}: SSD uses feature maps of \textit{decreasing resolution} (e.g., \( 8 \times 8 \), \( 4 \times 4 \), etc.) to detect larger objects in lower-resolution maps and smaller objects in higher-resolution maps.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.75\linewidth]{images/week_5/anchor boxes 3.png}
+        \label{fig:enter-label}
+    \end{figure}
+
+    \item \textbf{Uniformly Distributed Anchor Boxes}: Each feature map level has anchor boxes distributed uniformly, ensuring coverage across scales.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.75\linewidth]{images/week_5/anchor boxes 4.png}
+        \caption{WWe have different feature maps at different scales; Anchor boxes are uniformly distributed over each feature map; This allows to create bounding boxes at different scales}
+        \label{fig:enter-label}
+    \end{figure}
+
+\end{itemize}
+
+\subsubsection*{Prediction in SSD}
+SSD makes predictions in \textbf{one pass} by outputting \textbf{two main pieces of information} for each anchor box:
+
+\begin{enumerate}
+    \item \textbf{Offset Prediction}: The network predicts offsets to adjust each anchor box's size and position to better fit the object.
+    \item \textbf{Class Confidence Scores}: For each anchor box, SSD provides confidence scores for every object class, enabling classification.
+\end{enumerate}
+
+\subsubsection*{SSD Architecture}
+The SSD architecture builds on a base network (such as truncated VGG-16) and includes additional convolutional layers to progressively decrease the spatial resolution while increasing the depth of feature maps. This allows for multiscale predictions:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_5/SSD architecture.png}
+    \caption{SSD Architecture}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Base Network}: Uses a standard image classification network (e.g., VGG-16) up to a certain layer as a feature extractor.
+    \item \textbf{Additional Convolutional Layers}: These layers reduce the feature map size and increase depth, enabling the network to detect objects at various scales.
+    \item \textbf{Fixed Set of Predictions}: Each layer in the architecture outputs predictions, including offsets for bounding boxes and confidence scores for each class.
+\end{itemize}
+
+\subsubsection*{SSD Training and Loss Function}
+The SSD loss function combines both localization and confidence losses to optimize detection accuracy:
+
+\begin{itemize}
+    \item \textbf{Matching Algorithm}: Each anchor box is matched with a ground truth box if the IoU \( > 0.5 \), ensuring that each object is covered by at least one anchor box.
+    \item \textbf{Localization Loss} (\( L_{\text{loc}} \)): Measures the error in bounding box position and size using Smooth \( L_1 \) loss, which is less sensitive to outliers.
+    \item \textbf{Confidence Loss} (\( L_{\text{conf}} \)): Uses softmax and cross-entropy to penalize incorrect class predictions.
+    \item \textbf{Total Loss}: The total loss is a weighted combination of \( L_{\text{loc}} \) and \( L_{\text{conf}} \).
+\end{itemize}
+
+\[
+L(x, c, l, g) = \frac{1}{N} \left( L_{\text{conf}}(x, c) + \alpha L_{\text{loc}}(x, l, g) \right)
+\]
+where
+\begin{itemize}
+    \item  \(N\) is the number of matched anchor boxes.
+    \item \(L_{\text{conf}}\) is the softmax and cross-entropy loss over multiple confidences \(c\).
+    \item \(L_{\text{loc}}\) is a Smooth L1 loss between the predicted box \(l\) and the ground truth box \(g\) parameters (a regression loss).
+\end{itemize}
+
+\begin{tcolorbox}
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/l1 loss.png}
+    \label{fig:enter-label}
+    \caption{Smooth L1 loss, also known as Huber loss in some contexts}
+\end{figure}
+
+\[
+\text{Smooth L1 Loss}(x) = 
+\begin{cases} 
+\frac{1}{2}x^2 & \text{if } |x| < \delta, \\
+\delta(|x| - \frac{\delta}{2}) & \text{otherwise,}
+\end{cases}
+\]
+
+\textbf{Where:}
+\begin{itemize}
+    \item \(x = y_{\text{pred}} - y_{\text{true}}\) is the residual (difference between prediction and ground truth).
+    \item \(\delta > 0\) is a hyperparameter determining the threshold between \(L_1\) and \(L_2\) behavior.
+\end{itemize}
+
+\textbf{Derivative:}
+\[
+\frac{d}{dx} \text{Smooth L1 Loss}(x) = 
+\begin{cases} 
+x & \text{if } |x| < \delta, \\
+\delta \cdot \text{sign}(x) & \text{otherwise.}
+\end{cases}
+\]
+
+\textbf{Key Points:}
+\begin{itemize}
+    \item For small residuals (\(|x| < \delta\)), the loss behaves like \(L_2\)-loss: \(\frac{1}{2}x^2\), providing smoothness and higher penalty for small errors.
+    \item For large residuals (\(|x| \geq \delta\)), the loss behaves like \(L_1\)-loss: \(\delta(|x| - \frac{\delta}{2})\), reducing sensitivity to outliers.
+    \item Smooth L1 loss combines the robustness of \(L_1\) with the stability of \(L_2\), making it differentiable everywhere.
+\end{itemize}
+
+\textbf{Applications:}
+\begin{itemize}
+    \item \textbf{Object Detection:} Used in bounding box regression (e.g., Faster R-CNN) to handle annotation noise and outliers.
+    \item \textbf{Regression Tasks:} Balances precision for small errors and robustness to outliers.
+\end{itemize}
+
+\end{tcolorbox}
+
+\subsubsection*{Hard Negative Mining}
+To handle class imbalance (where after the matching step, most of the default boxes are negatives - i.e. most anchor boxes are background):
+
+\begin{itemize}
+    \item SSD performs \textbf{Hard Negative Mining} by selecting the most challenging negative samples, keeping a balanced ratio of positives to negatives.
+    \begin{itemize}
+        \item Instead of using all the negative examples, we sort them using the highest confidence loss for each default box and pick the top ones so that the ratio between the negatives and positives is at most 3:1.
+    \end{itemize}
+    \item This reduces computational cost and helps focus training on difficult cases, leading to faster and more stable training.
+\end{itemize}
+
+\subsubsection*{Data Augmentation}
+To improve generalization, SSD applies data augmentation techniques:
+
+\begin{itemize}
+    \item \textbf{Augmentation with Jaccard Overlap}: Include patches with a minimum overlap threshold to ensure objects are sufficiently represented.
+    \begin{itemize}
+        \item generate diverse training data while ensuring the augmented data maintains a minimum degree of overlap with the original objects.
+        \item Generate a random crop from the original image, which may partially or completely cover the original objects.
+        \item Adjust the size and aspect ratio of the crop randomly within predefined limits.
+        \item To retain meaningful object information, only accept crops that satisfy a minimum IoU (Jaccard overlap) between the crop and at least one original bounding box.
+    \end{itemize}
+    \item \textbf{Random Patches}: Introduce random variations to improve robustness.
+\end{itemize}
+
+\section*{Semantic Segmentation}
+
+\subsection*{Overview}
+\begin{itemize}
+    \item Semantic segmentation involves dividing an image into regions corresponding to different semantic classes, such as "background," "dog," and "cat."
+    \item The objective is to classify each pixel in the image to a specific semantic category. This classification is carried out at the \textbf{pixel level}, meaning that \textit{each pixel is assigned a label}.
+    \item One of the widely used datasets for semantic segmentation tasks is Pascal VOC2012, which provides images with pixel-level annotations for various classes.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_5/semantic segmentation.png}
+    \caption{Semantic segmentation}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection*{Image Segmentation vs Instance Segmentation}
+\begin{description}
+    \item[Image Segmentation:] This process divides an image into regions that share similar characteristics or belong to the \textit{same semantic class}. It typically involves unsupervised or weakly supervised techniques and leverages pixel correlation to group regions.
+
+        \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.35\linewidth]{images/week_5/image segmentation.png}
+        \caption{Image segmentation}
+        \label{fig:enter-label}
+    \end{figure}
+    
+    
+    \begin{itemize}
+        \item Divides and image into constituent semantic regions.
+        \item Exploits correlation between pixels in the image/
+        \item Not necessarily supervised.
+    \end{itemize}
+    
+    \item[Instance Segmentation:] Unlike semantic segmentation, instance segmentation not only identifies the class of each pixel but \textit{also distinguishes different objects (instances) within the same class}. \\
+    
+    For example, if there are two dogs in an image, instance segmentation would differentiate between each dog rather than treating them as a single "dog" region.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\linewidth]{images/week_5/instance segmentation.png}
+        \caption{Instance segmentation}
+        \label{fig:enter-label}
+    \end{figure}
+    
+    \begin{itemize}
+        \item Simultaneous detection and segmentation
+        \item Segmentation for each object separately
+    \end{itemize}
+        
+\end{description}
+
+\subsection*{Semantic Segmentation: Pixel-wise Classification}
+\begin{itemize}
+    \item Semantic segmentation treats image segmentation as a \textit{pixel-wise classification problem}.
+    \item Each pixel in the image is classified individually into classes such as "cat," "dog," or "background."
+\end{itemize}
+
+\textbf{Traditional methods} for this task relied on \textbf{feature engineering}, where pixel differences or local filter-based features were fed into classifiers (e.g., Random Forest) to determine the class of each pixel.
+
+\subsection*{Semantic Segmentation with Deep Learning}
+
+\begin{tcolorbox}
+    Semantic segmentation exploits CNN feature maps.
+\end{tcolorbox}
+
+\begin{itemize}
+    \item DL has enhanced the process of semantic segmentation by leveraging CNNs to \textbf{extract meaningful image features}.
+    \item \textbf{Feature maps:} The output of each CNN layers, which represents a high-dimensional transformation of the input image. These feature maps capture hierarchical information about the image and serve as input for segmentation tasks.
+    \item The deep feature maps can capture spatial details useful for segmenting regions according to semantic labels.
+    \item The process involves passing the input image through multiple layers of convolution and pooling, resulting in multiple feature maps that capture different aspects of the image (at different levels of abstraction).
+    \item As illustrated in the example, after applying several filters, feature maps appear to highlight certain parts of the image (e.g., cat shapes), which facilitates segmentation by showing which pixels belong to different semantic classes.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_5/semantic segmentation 2.png}
+    \caption{RHS> many parallel feature maps - each is a different channel into the next layer - each one is learning slightly different things}
+    \label{fig:enter-label}
+\end{figure}
+
+This is how semantic segmentation networks works: it's a smart trick: it exploits CNN feature maps. \\
+
+Whereas CNNs take feature maps and then run prediction on them in FC layers, Semantic segmentation takes the feature maps directly??
+
+\section*{U-Net Architecture for Semantic Segmentation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{images/week_5/u net.png}
+    \caption{U-Net architecture}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Architecture:} U-Net is a widely used architecture for semantic segmentation, originally developed for biomedical image segmentation.
+    \item \textbf{Encoder-Decoder Structure:}
+    \begin{itemize}
+        \item \textbf{Encoder:} Extracts features by downsampling the image to create lower-dimensional representations.
+        \item \textbf{Decoder:} Uses up-convolutions to upsample and reconstruct the image while assigning class labels to pixels.
+    \end{itemize}
+    \item \textbf{Skip Connections:} Shortcut connections from the encoder to the decoder layers to preserve spatial information.
+\end{itemize}
+
+\textbf{The architecture:}
+\begin{itemize}
+    \item Different levels have different feature maps at different resolutions.
+    \item \textbf{Encoder:} transforms input data into smaller segmentation.
+    \item \textbf{Decoder:} does? to create more examples??
+    \item Up-convolutions: going from lower dimensional representations to higher dimensional representations
+\end{itemize}
+
+
+\begin{tcolorbox}
+    \section*{Up-Convolution / Transposed Convolution}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=1\linewidth]{images/week_5/up-convolution.png}
+        \caption{Enter Caption}
+        \label{fig:enter-label}
+    \end{figure}
+
+    \begin{itemize}
+        \item \textbf{Purpose:} Transposed convolution layers in U-Net are used to upsample feature maps in the decoder.
+        \item \textbf{Mechanism:}
+        \begin{itemize}
+            \item A transposed convolution operates in a way that is conceptually similar to a regular convolution but "reverses" the spatial dimensions.
+            \item The resulting feature map has a higher spatial resolution, making it ideal for reconstructing the segmented image.
+        \end{itemize}
+        \item \textbf{Interpretation:} The transposed convolution layer effectively increases the resolution of the image while maintaining the learned features.
+    \end{itemize}
+    
+\end{tcolorbox}

@@ -1,0 +1,1621 @@
+% Week 2: Deep Neural Networks I
+\chapter{Deep Neural Networks I}
+\label{ch:week2}
+
+\begin{tcolorbox}
+    Standard definition of a linear transformation in mathematics:
+    $$ y = Ax$$
+
+    So in DL: when we have $x_i$:
+    $$y = W x + b$$
+    
+    When we have $X$:
+    $$Y = XW + b$$
+\end{tcolorbox}
+
+\section{Overview}
+
+\begin{itemize}
+    \item Overview of how NNs 'learn'
+    \item Structure of a single-layer NN
+    \item Gradient descent
+    \item Training the network and back-propagation
+\end{itemize}
+
+\section{High-level overview: How a neural network learns}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_2/training.png}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{enumerate}
+    \item \textbf{Feed-forward} - takes an input example, feeds it into a NN, predicts a vector that gives \% of class label (this assumes some preset configuration of the model), then does an initial attempt at a classification.
+    \item \textbf{Computing Loss \& Back-propagation} - use info about the loss (the gradient) to change our model.
+
+   \begin{tcolorbox}
+        \begin{enumerate}
+            \item Make a prediction, 
+            \item See how wrong we are, 
+            \item Use that info to move in the right direction to be more right.
+    \end{enumerate}
+    
+   \end{tcolorbox}
+    \item \textbf{Hyper-parameter tuning on validation set}
+    \item \textbf{Reporting performance on test set}
+\end{enumerate}
+
+\subsection{Artificial Neurons (Hidden units)}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_2/artificial_neuron.png}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Input Activation Matrix} \( X \in \mathbb{R}^{n \times d} \)
+
+    
+    \textbf{As a batch (a matrix):}
+    \[
+    \mathbf{X} = 
+    \begin{bmatrix}
+    x_{11} & x_{12} & \cdots & x_{1d} \\
+    x_{21} & x_{22} & \cdots & x_{2d} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    x_{n1} & x_{n2} & \cdots & x_{nd} \\
+    \end{bmatrix}
+    \]
+    
+\begin{tcolorbox}
+    \textbf{Treated as a single unit $x$ (a column vector):}
+    \[
+    \mathbf{x} = 
+    \begin{bmatrix}
+    x_1 \\ x_2 \\ \dots \\ x_d 
+    \end{bmatrix}
+    \]
+\end{tcolorbox}
+    
+    \item \textbf{Multiplied by Weight Matrix} \( W^{[1]} \in \mathbb{R}^{d \times h} \)
+    
+    \begin{itemize}
+        \item $h$ is the number of neurons in the current layer.
+        \item $d$ is the number of neurons in the previous layer (number of input features).
+    \end{itemize}
+    
+    Contains \( d \times h \) weights:
+    \[
+    \mathbf{W}^{[1]} = 
+    \begin{bmatrix}
+    w_{11}^{[1]} & w_{12}^{[1]} & \cdots & w_{1h}^{[1]} \\
+    w_{21}^{[1]} & w_{22}^{[1]} & \cdots & w_{2h}^{[1]} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    w_{d1}^{[1]} & w_{d2}^{[1]} & \cdots & w_{dh}^{[1]} \\
+    \end{bmatrix}
+    \]
+
+
+    \begin{tcolorbox}
+        \textbf{Treated as a single hidden unit's activations (a row column vector):}
+        \[
+        \mathbf{w} = 
+        \begin{bmatrix}
+        w_1 & w_2 & \cdots & w_d\\
+        \end{bmatrix}
+        \]
+    \end{tcolorbox}
+
+    The weight matrix $W_i^{[1]}$ transforms input data from a dimension of $d$ (number of input features) to a dimension of $H$ (number of hidden units or neurons in the subsequent layer).
+    \begin{itemize}
+        \item Each column of $W^{[1]}$ typically represents the weights connecting all input features to a single hidden unit. \textit{This is what $W^T$ does when we treat it as a lone vector}.
+        \item Matrix multiplication $W^{[1]}$ results in a transformation from the input space to the hidden layer space.
+    \end{itemize}
+
+    (Once the neuron output activation function has also been applied, this transformation results in the hidden layer activation matrix \( H \in \mathbb{R}^{n \times h} \), calculated as:
+    \[
+    \mathbf{H}_{n,h} = \sigma\!\left(\mathbf{X}_{n,d}\,\mathbf{W}^{[1]}_{d,h} + \mathbf{1}_{n}\,\mathbf{b}^{[1]T}_{h}\right)
+    \]
+
+    \begin{tcolorbox}
+        NB: The row dimension $n$ never changes as you go deeper — each input sample carries forward through the network. What changes is only the column dimension (the number o features/activations), which depends on how many hidden units the layer has.
+    \end{tcolorbox}
+    
+    \textbf{Hidden Layer Activation Matrix} \( \mathbf{H} \in \mathbb{R}^{n \times h} \)
+    
+    $$\mathbf{H} = 
+    \begin{bmatrix}
+    h_{11} & h_{12} & \cdots & h_{1h} \\
+    h_{21} & h_{22} & \cdots & h_{2h} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    h_{n1} & h_{n2} & \cdots & h_{nh} \\
+    \end{bmatrix}$$
+        
+    Each element \( h_{ij} \) of \( \mathbf{H} \) represents the activation of the \( j \)-th hidden unit for the \( i \)-th input sample. The hidden layer activation matrix \( \mathbf{H} \) can be interpreted as follows:
+    
+    \begin{itemize}
+        \item \textbf{Rows} correspond to the activations of the hidden units for each input sample. Each row in $\mathbf{H}$ will represent how the network transforms that specific input based on the weights and biases of the hidden layer.
+        \begin{itemize}
+            \item Example: If we have 10 input samples and 5 hidden units, the matrix will have 10 rows. The first row would tell us the activations of the hidden units for the first input sample, the second row for the second input, and so on.
+        \end{itemize}
+        \item \textbf{Columns} correspond to the activations of a particular hidden unit across all input samples. The values in the column show how each input sample contributes to the activation of that particular hidden unit.
+        \begin{itemize}
+            \item Example: If the second column corresponds to the activations of the second hidden unit, then the values in that column show how the second hidden unit reacts to all the input samples in the batch.
+        \end{itemize}
+    \end{itemize}
+
+    \vspace{.2cm}
+
+    \hline
+
+    \vspace{.3cm}
+
+    ... jumped ahead a bit there, returning back to slides.\\
+
+    \item \textbf{Neuron \textit{input} activation for data $X \in \mathbb{R}^{n \times d}$}
+        
+    \begin{align*}
+        a(X) &= b + \sum^d_j w_j x_j \\
+        &= b + W^TX
+    \end{align*}
+
+    
+    \begin{itemize}
+        \item $X$ - input activation matrix ($n \times d$), but each observation in $X$ is treated as a single vector $\mathbb{R \in d}$ 
+        \item $W^T$ - vector of length ($d$)
+        \item $b$ - bias term (scalar)
+    \end{itemize}
+    
+    \begin{tcolorbox}
+        \textbf{NB - Bias Term:} provides an \textbf{additional degree of freedom}; it allows unit's activation function to be shifted to the \textbf{left or right}, which can be crucial for the learning process. It helps the model fit the data better by providing additional flexibility.
+    \end{tcolorbox}
+
+    \begin{tcolorbox}
+        \textbf{NB - Matrix Multiplication Order \& Dimensions}:\\        
+
+        \textcolor{red}{CHECK}\\
+        
+        \textbf{Vector Case:} \textcolor{red}{here we have $W^T X$}
+        
+        \begin{itemize}
+            \item \( X \in \mathbb{R}^d \) - column vector
+            \item \( W \in \mathbb{R}^d \) - column vector
+            \item \( W^T \in \mathbb{R}^{1 \times d} \) - row vector
+            $$
+            W^T_{(1 \times d)} X_{(d \times 1)}
+            $$
+            \item \( a \) i.e. \( (W^TX) \) = scalar
+        \end{itemize}
+
+        \textbf{Matrix Case}: \textcolor{red}{here we have $XW$}
+
+        \begin{itemize}
+            \item \( X \in \mathbb{R}^{n \times d} \) - input matrix (with \( n \) samples, each having \( d \) features)
+            \item \( W \in \mathbb{R}^{d \times h} \) - weight matrix (mapping from \( d \) features to \( h \) hidden units)
+            $$
+            X_{(n \times d)} W_{(d \times h)} = (XW) \in \mathbb{R}^{n \times h}
+            $$
+            \item \( a(X) \), i.e., \( XW \) is now \( \mathbb{R}^{n \times h} \) - result is a matrix of size \( n \times h \)
+        \end{itemize}
+
+        Matrix multiplication $W^{[1]}$ results in a transformation from the input space to the hidden layer space.
+\end{tcolorbox}
+
+    
+    \item \textbf{Neuron \textit{output} activation}: 
+    \begin{align*}
+        h(X) &= g(a(X))\\
+        &= g \left( b + \sum^d_j w_j x_j \right)
+    \end{align*}
+    \begin{itemize}
+        \item $g(\cdot)$ - activation function, applied piece wise to input activation.
+    \end{itemize}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\linewidth]{images/week_2/hidden layer.png}
+        \caption{hidden unit's connection to input activation}
+        \label{fig:enter-label}
+    \end{figure}
+        
+    \item Non-linear activation function allows the NN to be expressive (w/o which the layers collapse and it becomes one big linear regression equation)
+\end{itemize}
+
+\begin{tcolorbox}
+    Looking at hidden unit $i$: \textcolor{red}{i think normal notation is hidden units $j$, inputs $i$, but I'm following lecture slides here.}
+
+    \begin{align*}
+        h_i(X) &= g(a_i(X))\\
+        &= g \left( b_i + \sum^d_j w_{ij}^{[1]} x_j \right)
+    \end{align*}
+\end{tcolorbox}
+
+\subsection{Output layer (in a single-layered NN)}
+
+Again consists of a linear combination of the hidden units, with an activation
+function $o(\cdot)$:
+
+\[
+f(X) = o \left( b^{[2]} + \sum_{i=1}^{H} w_i^{[2]} \, x_i \right)
+\]
+
+\begin{tcolorbox}
+    \textbf{Generic $l(-1?)$ layers:}
+
+    \[
+    f(X) = o \left( b^{[l]} + \sum_{i=1}^{H} w_i^{[l]} \, x_i \right)
+    \]
+\end{tcolorbox}
+
+Where
+\begin{itemize}
+    \item $\sum_{i=1}^{H}...$ - \textbf{weighted sum of inputs:}
+    \begin{itemize}
+        \item $H$ represents the number of hidden units in the preceding layer
+        \item $w_i^{[l]}$ are the weights connecting the $i$th hidden unit from the layer $l-1$ to the (single) output neuron
+        \item $x_i$ are the activations (outputs) from the hidden units in layer $l-1$
+    \end{itemize}
+    \item $o(\cdot)$ - activation function
+    \item $b^{[l]}$ - bias term for penultimate layer
+    
+\end{itemize}
+
+\subsection{Single-layer NNs}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/single-layered NN.png}
+    \label{fig:enter-label}
+    \caption{NB: $W^{[1]}$ is a matrix; $w^{(2)}$ is a vector!}
+\end{figure}
+\begin{itemize}
+    \item $i$ - index for hidden neurons
+    \item $j$ - index for input features
+    \item \textbf{Weights:} \( w_{ij}^{[l]} \) connects the \( j \)-th neuron from layer \( l-1 \) to the \( i \)-th neuron in layer \( l \). \textcolor{red}{NB!!!}
+    \item \textbf{Biases:} \( b_i^{[l]} \) is the bias for the \( i \)-th neuron in layer \( l \).
+\end{itemize}
+
+\begin{tcolorbox}
+    $\mathbf{H} = \mathbf{X}\mathbf{W}$:
+
+    $$X_{(n,d)} \times W_{(d,h)} = H_{(n \times h)}$$
+
+    \[
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{x_{11}}} & \textcolor{red}{\mathbf{x_{12}}} & \textcolor{red}{\dots} & \textcolor{red}{\mathbf{x_{1d}}} \\
+    \textcolor{gray}{x_{21}}         & \textcolor{gray}{x_{22}} & \dots & \textcolor{gray}{x_{2d}} \\
+    \vdots                           & \vdots                   & \ddots & \vdots                   \\
+    \textcolor{gray}{x_{n1}}         & \textcolor{gray}{x_{n2}} & \dots & \textcolor{gray}{x_{nd}}
+    \end{pmatrix}
+    \!\times\!
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{w_{11}}} & \textcolor{gray}{w_{12}} & \dots & \textcolor{gray}{w_{1h}} \\
+    \textcolor{red}{\mathbf{x_{21}}}         & \textcolor{gray}{w_{22}} & \dots & \textcolor{gray}{w_{2h}} \\
+    \textcolor{red}{\vdots}                          & \vdots                   & \ddots & \vdots                   \\
+    \textcolor{red}{\mathbf{x_{d1}}}         & \textcolor{gray}{w_{d2}} & \dots & \textcolor{gray}{w_{dh}}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{h_{11}}} & \textcolor{gray}{h_{12}} & \dots & \textcolor{gray}{h_{1h}} \\
+    \textcolor{gray}{h_{21}}         & \textcolor{gray}{h_{22}} & \dots & \textcolor{gray}{h_{2h}} \\
+    \vdots                           & \vdots                   & \ddots & \vdots                   \\
+    \textcolor{gray}{h_{n1}}         & \textcolor{gray}{h_{n2}} & \dots & \textcolor{gray}{h_{nh}}
+    \end{pmatrix}
+    \]
+    
+    \[
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{x_{11}}} & \textcolor{red}{\mathbf{x_{12}}} & \textcolor{red}{\dots} & \textcolor{red}{\mathbf{x_{1d}}} \\
+    \textcolor{gray}{x_{21}}         & \textcolor{gray}{x_{22}}         & \dots & \textcolor{gray}{x_{2d}} \\
+    \vdots                           & \vdots                           & \ddots & \vdots                           \\
+    \textcolor{gray}{x_{n1}}         & \textcolor{gray}{x_{n2}}         & \dots & \textcolor{gray}{x_{nd}}
+    \end{pmatrix}
+    \!\times\!
+    \begin{pmatrix}
+    \textcolor{gray}{w_{11}}         & \textcolor{red}{\mathbf{w_{12}}} & \dots & \textcolor{gray}{w_{1h}}         \\
+    \textcolor{gray}{w_{21}}         & \textcolor{red}{\mathbf{x_{22}}}         & \dots & \textcolor{gray}{w_{2h}}         \\
+    \vdots                           & \textcolor{red}{\vdots}                           & \ddots & \vdots                           \\
+    \textcolor{gray}{w_{d1}}         & \textcolor{red}{\mathbf{x_{d2}}}         & \dots & \textcolor{gray}{w_{dh}}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+    \textcolor{gray}{h_{11}}         & \textcolor{red}{\mathbf{h_{12}}} & \dots & \textcolor{gray}{h_{1h}}         \\
+    \textcolor{gray}{h_{21}}         & \textcolor{gray}{h_{22}}         & \dots & \textcolor{gray}{h_{2h}}         \\
+    \vdots                           & \vdots                           & \ddots & \vdots                           \\
+    \textcolor{gray}{h_{n1}}         & \textcolor{gray}{h_{n2}}         & \dots & \textcolor{gray}{h_{nh}}
+    \end{pmatrix}
+    \]
+    
+    \[
+    \begin{pmatrix}
+    \textcolor{gray}{x_{11}}         & \textcolor{gray}{x_{12}}         & \dots & \textcolor{gray}{x_{1d}}         \\
+    \textcolor{red}{\mathbf{x_{21}}} & \textcolor{red}{\mathbf{x_{22}}} & \textcolor{red}{\dots} & \textcolor{red}{\mathbf{x_{2d}}} \\
+    \vdots                           & \vdots                           & \ddots & \vdots                           \\
+    \textcolor{gray}{x_{n1}}         & \textcolor{gray}{x_{n2}}         & \dots & \textcolor{gray}{x_{nd}}
+    \end{pmatrix}
+    \!\times\!
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{w_{11}}} & \textcolor{gray}{w_{12}}         & \dots & \textcolor{gray}{w_{1h}}         \\
+    \textcolor{red}{\mathbf{w_{21}}} & \textcolor{gray}{w_{22}}         & \dots & \textcolor{gray}{w_{2h}}         \\
+    \vdots                           & \vdots                           & \ddots & \vdots                           \\
+    \textcolor{red}{\mathbf{w_{d1}}} & \textcolor{gray}{w_{d2}}         & \dots & \textcolor{gray}{w_{dh}}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+    \textcolor{gray}{h_{11}}         & \textcolor{gray}{h_{12}}         & \dots & \textcolor{gray}{h_{1h}}         \\
+    \textcolor{red}{\mathbf{h_{21}}} & \textcolor{gray}{h_{22}}         & \dots & \textcolor{gray}{h_{2h}}         \\
+    \vdots                           & \vdots                           & \ddots & \vdots                           \\
+    \textcolor{gray}{h_{n1}}         & \textcolor{gray}{h_{n2}}         & \dots & \textcolor{gray}{h_{nh}}
+    \end{pmatrix}
+    \]
+    
+    \[
+    \begin{pmatrix}
+    \textcolor{gray}{x_{11}}         & \textcolor{gray}{x_{12}}         & \dots & \textcolor{gray}{x_{1d}}         \\
+    \textcolor{red}{\mathbf{x_{21}}} & \textcolor{red}{\mathbf{x_{22}}} & \textcolor{red}{\dots} & \textcolor{red}{\mathbf{x_{2d}}} \\
+    \vdots                           & \vdots                           & \ddots & \vdots                           \\
+    \textcolor{gray}{x_{n1}}         & \textcolor{gray}{x_{n2}}         & \dots & \textcolor{gray}{x_{nd}}
+    \end{pmatrix}
+    \!\times\!
+    \begin{pmatrix}
+    \textcolor{gray}{w_{11}}         & \textcolor{red}{\mathbf{w_{12}}} & \dots & \textcolor{gray}{w_{1h}}         \\
+    \textcolor{gray}{w_{21}}         & \textcolor{red}{\mathbf{w_{22}}} & \dots & \textcolor{gray}{w_{2h}}         \\
+    \vdots                           & \textcolor{red}{\vdots}                           & \ddots & \vdots                           \\
+    \textcolor{gray}{w_{d1}}         & \textcolor{red}{\mathbf{w_{d2}}} & \dots & \textcolor{gray}{w_{dh}}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+    \textcolor{gray}{h_{11}}         & \textcolor{gray}{h_{12}}         & \dots & \textcolor{gray}{h_{1h}}         \\
+    \textcolor{gray}{h_{21}}         & \textcolor{red}{\mathbf{h_{22}}} & \dots & \textcolor{gray}{h_{2h}}         \\
+    \vdots                           & \vdots                           & \ddots & \vdots                           \\
+    \textcolor{gray}{h_{n1}}         & \textcolor{gray}{h_{n2}}         & \dots & \textcolor{gray}{h_{nh}}
+    \end{pmatrix}
+    \]
+        
+    \vspace{.2cm}
+    
+    Each element of $h_{ij}$ of $H$ is computed as the dot product of a row of $X$ and a column of $W$:
+    \[
+    h_{ij} = \sum_{k=1}^{d} X_{ik} \, W_{kj}
+    \]
+
+    \hline
+    \vspace{.2cm}
+
+    NB how \( w_{ij}^{[l]} \) connects 
+    \begin{itemize}
+        \item $i$: layer \( l \) neuron \( i \) 
+        \item $j$: layer \( l-1 \), neuron \( j \) 
+    \end{itemize}
+
+\end{tcolorbox}
+
+\begin{tcolorbox}
+    \textbf{Treating $X$ as a single row observation $x_i$: a vector $\in \mathbb{R}^d$}:
+
+
+    $$x_{i_{(1, d)}} \times W_{(d,h)} = H_{i_{(1, h)}}$$
+    
+
+    NB This highlights how a single observation $x_i$ is transformed by the matrix from a $d$ dimensional (transposed column) vector into an $h$ dimensional vector (column) in the hidden layer's $H$ matrix.\\
+
+    This can be expressed as $$h_{ik} = \sum^d_{j=1} x_{ij} w_{jk}$$
+
+    These row vectors are effectively stacked into an $H$ matrix.
+
+    % Transformation of h_{i1}
+    \[
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{x_{i1}}} & \textcolor{red}{\mathbf{x_{i2}}} & \dots & \textcolor{red}{\mathbf{x_{i d}}}
+    \end{pmatrix}
+    \!\times\!
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{w_{11}}} & \textcolor{gray}{w_{12}} & \dots & \textcolor{gray}{w_{1h}} \\
+    \textcolor{red}{\mathbf{w_{21}}} & \textcolor{gray}{w_{22}} & \dots & \textcolor{gray}{w_{2h}} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    \textcolor{red}{\mathbf{w_{d1}}} & \textcolor{gray}{w_{d2}} & \dots & \textcolor{gray}{w_{dh}}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{h_{i1}}} & h_{i2} & \dots & h_{ih}
+    \end{pmatrix}
+    \]
+    
+    % Transformation of h_{i2}
+    \[
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{x_{i1}}} & \textcolor{red}{\mathbf{x_{i2}}} & \dots & \textcolor{red}{\mathbf{x_{i d}}}
+    \end{pmatrix}
+    \!\times\!
+    \begin{pmatrix}
+    \textcolor{gray}{w_{11}} & \textcolor{red}{\mathbf{w_{12}}} & \dots & \textcolor{gray}{w_{1h}} \\
+    \textcolor{gray}{w_{21}} & \textcolor{red}{\mathbf{w_{22}}} & \dots & \textcolor{gray}{w_{2h}} \\
+    \vdots & \textcolor{red}{\vdots} & \ddots & \vdots \\
+    \textcolor{gray}{w_{d1}} & \textcolor{red}{\mathbf{w_{d2}}} & \dots & \textcolor{gray}{w_{dh}}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+    h_{i1} & \textcolor{red}{\mathbf{h_{i2}}} \dots & h_{ih}
+    \end{pmatrix}
+    \]
+    
+    % Transformation of h_{i3}
+    \[
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{x_{i1}}} & \textcolor{red}{\mathbf{x_{i2}}} & \dots & \textcolor{red}{\mathbf{x_{i d}}}
+    \end{pmatrix}
+    \!\times\!
+    \begin{pmatrix}
+    \textcolor{gray}{w_{11}} & \textcolor{gray}{w_{12}} & \textcolor{red}{\mathbf{w_{13}}} & \dots \\
+    \textcolor{gray}{w_{21}} & \textcolor{gray}{w_{22}} & \textcolor{red}{\mathbf{w_{23}}} & \dots \\
+    \vdots & \vdots & \textcolor{red}{\vdots} & \ddots \\
+    \textcolor{gray}{w_{d1}} & \textcolor{gray}{w_{d2}} & \textcolor{red}{\mathbf{w_{d3}}} & \dots
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+    h_{i1} & h_{i2} & \textcolor{red}{\mathbf{h_{i3}}} & h_{ih}
+    \end{pmatrix}
+    \]
+    
+    % Transformation of h_{ih}
+    \[
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{x_{i1}}} & \textcolor{red}{\mathbf{x_{i2}}} & \dots & \textcolor{red}{\mathbf{x_{i d}}}
+    \end{pmatrix}
+    \!\times\!
+    \begin{pmatrix}
+    \textcolor{gray}{w_{11}} & \textcolor{gray}{w_{12}} & \dots & \textcolor{red}{\mathbf{w_{1h}}} \\
+    \textcolor{gray}{w_{21}} & \textcolor{gray}{w_{22}} & \dots & \textcolor{red}{\mathbf{w_{2h}}} \\
+    \vdots & \vdots & \ddots & \textcolor{red}{\vdots} \\
+    \textcolor{gray}{w_{d1}} & \textcolor{gray}{w_{d2}} & \dots & \textcolor{red}{\mathbf{w_{dh}}}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+    h_{i1} & h_{i2} & \dots \textcolor{red}{\mathbf{h_{ih}}}
+    \end{pmatrix}
+    \]
+
+    Alternatively, if we want to emphasize the contribution to a specific hidden unit $h_{ik}$ we focus on a particular column of $W$
+
+    \[
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{x_{i1}}} & \textcolor{red}{\mathbf{x_{i2}}} & \dots & \textcolor{red}{\mathbf{x_{i d}}}
+    \end{pmatrix}
+    \!\times\!
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{w_{1k}}} \\
+    \textcolor{red}{\mathbf{w_{2k}}} \\
+    \textcolor{red}{\vdots} \\
+    \textcolor{red}{\mathbf{w_{dk}}}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{h_{ik}}}
+    \end{pmatrix}
+    \]
+
+    This highlights that just the $x_i$ observation contributes only one value ($h_{ik}$) to the $k$th hidden unit vector
+\end{tcolorbox}
+
+\begin{tcolorbox}
+    \textbf{For final layer in multiclass classification, where $\mathbb{W}^{[2]}$ is a matrix to produce an output matrix $Z$ consisting of stacked vectors $z_i \in \mathbb{R}^c$ for each observation}\\
+
+    $$H_{(n,h)} \times W^{[2]}_{(h, c)} = Z_{n, c}$$ 
+
+
+    This shows how it collapses it down to a vector output of $c$ dimensions for each $x_i$ observation. These row vectors are stacked into a matrix $Z$ of $n \times c$.\\
+
+    \[
+    H_{(n,h)} \times W^{[2]}_{(h,c)} = Z_{(n,c)}
+    \]
+    
+    \[
+    \begin{pmatrix}
+    h_{11} & h_{12} & \dots & h_{1h} \\
+    \textcolor{red}{\mathbf{h_{21}}} & \textcolor{red}{\mathbf{h_{22}}} & \dots & \textcolor{red}{\mathbf{h_{2h}}} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    h_{n1} & h_{n2} & \dots & h_{nh}
+    \end{pmatrix}
+    \!\times\!
+    \begin{pmatrix}
+    w^{[2]}_{11} & \textcolor{red}{\mathbf{w^{[2]}_{12}}} & \dots & w^{[2]}_{1c} \\
+    w^{[2]}_{21} & \textcolor{red}{\mathbf{w^{[2]}_{22}}} & \dots & w^{[2]}_{2c} \\
+    \vdots & \textcolor{red}{\vdots} & \ddots & \vdots \\
+    w^{[2]}_{h1} & \textcolor{red}{\mathbf{w^{[2]}_{h2}}} & \dots & w^{[2]}_{hc}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+    z_{11} & z_{12} & \dots & z_{1c} \\
+    z_{21} & \textcolor{red}{\mathbf{z_{22}}} & \dots & z_{2c} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    z_{n1} & z_{n2} & \dots & z_{nc}
+    \end{pmatrix}
+    \]
+    
+    Example of computing \( z_{22} \)
+    \[
+    z_{22} = h_{21}w^{[2]}_{12} + h_{22}w^{[2]}_{22} + \dots + h_{2h}w^{[2]}_{h2}
+    \]
+    
+    General example of computing \( z_{ij} \)
+    \[
+    z_{ij} = \sum_{k=1}^{h} h_{ik} \cdot w^{[2]}_{kj}
+    \]
+
+
+\end{tcolorbox}
+
+\begin{tcolorbox}
+    \textbf{For final layer in regression, where $\mathbb{W}^{[2]}$ is a vector to produce an output column vector $\hat{Y} \in \mathbb{R}^n$ - consisting of scalars for each observation}
+
+    $$H_{(n,h)} \times W^{[2]}_{(h, 1)} = \hat{Y}_{n, 1}$$ 
+
+    Each observation $x_i$ has a single $\hat{y}_i$ scalar value. Collectively these form a column vector.
+
+    \[
+    H_{(n,h)} \times W^{[2]}_{(h,1)} = \hat{Y}_{(n,1)}
+    \]
+    
+    \[
+    \begin{pmatrix}
+    h_{11} & h_{12} & \dots & h_{1h} \\
+    \textcolor{red}{\mathbf{h_{21}}} & \textcolor{red}{\mathbf{h_{22}}} & \dots & \textcolor{red}{\mathbf{h_{2h}}} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    h_{n1} & h_{n2} & \dots & h_{nh}
+    \end{pmatrix}
+    \!\times\!
+    \begin{pmatrix}
+    \textcolor{red}{\mathbf{w^{[2]}_{11}}} \\
+    \textcolor{red}{\mathbf{w^{[2]}_{21}}} \\
+    \textcolor{red}{\mathbf{\vdots}} \\
+    \textcolor{red}{\mathbf{w^{[2]}_{h1}}}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+    y_{11} \\
+    \textcolor{red}{\mathbf{y_{21}}} \\
+    \vdots \\
+    y_{n1}
+    \end{pmatrix}
+    \]
+    
+    Example of computing \( y_{21} \)
+    \[
+    y_{21} = h_{21}w^{[2]}_{11} + h_{22}w^{[2]}_{21} + \dots + h_{2h}w^{[2]}_{h1}
+    \]
+    
+    General example of computing \( y_{i1} \)
+    \[
+    y_{i1} = \sum_{k=1}^{h} h_{ik} \cdot w^{[2]}_{k1}
+    \]
+\end{tcolorbox}
+
+\subsubsection{Feed-forward NN}
+
+We have \textbf{input data $X$} with $d$ features ($X=[x_1, x_2, \cdots, x_d]^T$).\\
+
+\textbf{For hidden unit $h_i$:}\\
+
+The NN ties many neurons (hidden units) together that \textit{each are a different transformation of the original features}.\\
+
+\begin{align*}
+    \textcolor{red}{h_i}^{[1]}(X) &= g(a^{[1]}_{\textcolor{red}{i}}(X)) \\
+    &= g \left( b\textcolor{red}{_i}^{[1]} + \sum^d_{\textcolor{green}{j}} w_{\textcolor{red}{i}\textcolor{green}{j}}^{\textcolor{red}{[1]}} x_\textcolor{green}{j} \right)
+\end{align*}
+
+\begin{itemize}
+    \item $i$ index: hidden unit.
+    \item $j$ index: original features.
+\end{itemize}
+
+Each hidden unit \textcolor{red}{$h_i$} computes a weighted sum of the all input features \textcolor{green}{$i$} plus a bias, and then applies an activation function $g$.
+\begin{itemize}
+    \item $b_i^{[1]}$ - bias for the $i$th hidden unit in the first layer (NB: there's a single bias term per output neuron).
+    \item $w_{ij}^{[1]}$ - weight connecting \textcolor{green}{$j$th input feature} to \textcolor{red}{$i$th hidden unit} (number of input dimensions x number of hidden units) - indexed by $j$ and $i$ respectively. 
+
+    \textbf{Weight matrix $W^{[1]}$ contains $d \times H$ weights}
+    \[
+    \mathbf{W}^{[1]} = 
+    \begin{bmatrix}
+    w_{11}^{[1]} & w_{12}^{[1]} & \cdots & w_{1H}^{[1]} \\
+    w_{21}^{[1]} & w_{22}^{[1]} & \cdots & w_{2H}^{[1]} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    w_{d1}^{[1]} & w_{d2}^{[1]} & \cdots & w_{dH}^{[1]} \\
+    \end{bmatrix}
+    \]
+    Where
+    \begin{itemize}
+        \item $d$ - number of input features (dimensions)
+        \item $H$ - number of hidden units in the first layer
+        \item The weights are indexed by \( j \) and \( i \), where:
+        \begin{itemize}
+            \item \( j = 1, 2, \dots, d \) indexes the input features.
+            \item \( i = 1, 2, \dots, H \) indexes the hidden units.
+        \end{itemize}
+    \end{itemize}
+
+
+
+
+
+    Connection Directions:
+    \begin{itemize}
+        \item Each input feature \( j \) is connected to \textbf{every} hidden unit \( i \), meaning that \( w_{ij}^{[1]} \) exists for all combinations of \( j \) and \( i \).
+        \item Conversely, each hidden unit \( i \) receives input from \textbf{all} input features \( j \).
+    
+
+        \begin{tcolorbox}
+            \textbf{Explanation}:\\
+
+            \textbf{Rows}: Each row corresponds to the weights associated with one output neuron. For example, for $i$ ($w_{i1}, w_{i2} \dots, w_{id}$) represents the weights connecting all $d$ inputs to the $i$th output.\\
+
+            \textbf{Columns}: Each column corresponds to the weights associated with one input feature. For example, column $j$ (($w_{1j}, w_{2j} \dots, w_{H,j}$) represents the weights connecting the $j$th input to all $h$ output neurons.
+        \end{tcolorbox}
+    \end{itemize}
+\end{itemize}
+
+...the hidden activations are crucial for transforming the input data into a representation that can be effectively used by the output layer.\\
+
+Below, $h^{[1]}$ represents the hidden activations for a single input observation after the transformation through the first layer's weight matrix.\\
+
+The transformation involves a matrix multiplication of the weight matrix with the input vector, addition of the bias vector, and application of the activation function.
+
+\[
+\mathbf{h}^{[1]} = 
+\begin{bmatrix}
+h_{1}^{[1]} \\
+h_{2}^{[1]} \\
+\vdots \\
+h_{H}^{[1]} \\
+\end{bmatrix}
+\]
+
+Each element  \( h_{i}^{[1]} \) is the output of the $i$th neuron in the hidden layer, computed as:
+
+\[
+h_{i}^{[1]} = g\left( b_{i}^{[1]} + \sum_{j=1}^{d} w_{ij}^{[1]} x_j \right)
+\]
+
+\begin{itemize}
+    \item \textbf{Activation Function \( g(\cdot) \):} Introduces non-linearity, enabling the network to model complex relationships.
+    \item \textbf{Bias Term \( b_{i}^{[1]} \):} Allows each hidden neuron to adjust the activation function independently.
+    \item \textbf{Weights \( w_{ij}^{[1]} \):} Determine the influence of each input feature \( x_j \) on the hidden neuron \( h_{i}^{[1]} \).
+    \item \textbf{Input Features \( x_j \):} The original input data with \( d \) features.
+\end{itemize}
+
+\textbf{Vectorized Representation (single input vector):}
+
+\begin{tcolorbox}
+\textbf{Convention: Input vs. Weight Matrix Order} \\[0.2cm]
+
+There are two common conventions for writing the linear transformation in a neural network:
+
+\begin{enumerate}
+    \item \textbf{Deep Learning / ML library convention (PyTorch, TensorFlow, etc.)}:  
+    Inputs are stored as \emph{row vectors}, so we put the input matrix/vector first:
+    \[
+    X \in \mathbb{R}^{n \times d}, \quad W \in \mathbb{R}^{d \times h}, \quad H = XW \in \mathbb{R}^{n \times h}.
+    \]
+    \begin{itemize}
+        \item \(n\) = number of samples (rows)  
+        \item \(d\) = number of input features  
+        \item \(h\) = number of hidden units  
+    \end{itemize}
+    Each row of \(H\) is the hidden representation of one input sample.
+
+    \item \textbf{Math / linear algebra convention}:  
+    Inputs are stored as \emph{column vectors}, so we put the weight matrix first:
+    \[
+    x \in \mathbb{R}^{d \times 1}, \quad W \in \mathbb{R}^{h \times d}, \quad h = Wx \in \mathbb{R}^{h \times 1}.
+    \]
+\end{enumerate}
+
+\textbf{Key Takeaway:}  
+Both are mathematically consistent.  
+\begin{itemize}
+    \item If inputs are row vectors (as in ML libraries), always write \(XW\).  
+    \item If inputs are column vectors (as in math derivations), write \(Wx\).  
+\end{itemize}
+\end{tcolorbox}
+
+
+For computational efficiency, the hidden activations for a single observation 
+can be represented in matrix form:
+
+\[
+\mathbf{h}^{[1]} = g\left( (\mathbf{W}^{[1]})^T \mathbf{x} + \mathbf{b}^{[1]} \right)
+\]
+
+Where:
+\begin{itemize}
+    \item \( \mathbf{W}^{[1]} \in \mathbb{R}^{d \times H} \) is the weight matrix connecting the input layer to the hidden layer.
+    \item \( \mathbf{x} \in \mathbb{R}^{d \times 1} \) is the input feature vector.
+    \item \( \mathbf{b}^{[1]} \in \mathbb{R}^{H \times 1} \) is the bias vector for the hidden layer.
+    \item \( g(\cdot) \) is applied element-wise to the resulting vector.
+\end{itemize}
+
+\textbf{Example:}
+
+Consider a neural network with:
+\begin{itemize}
+    \item \( d = 3 \) input features
+    \item \( H = 4 \) hidden units
+\end{itemize}
+
+The hidden activation vector \( \mathbf{h}^{[1]} \) would be:
+
+\[
+\mathbf{h}^{[1]} = 
+\begin{bmatrix}
+h_{1}^{[1]} \\
+h_{2}^{[1]} \\
+h_{3}^{[1]} \\
+h_{4}^{[1]} \\
+\end{bmatrix}
+\]
+
+Each \( h_{i}^{[1]} \) is computed as:
+
+\[
+h_{i}^{[1]} = g\left( b_{i}^{[1]} + w_{1i}^{[1]} x_1 + w_{2i}^{[1]} x_2 + w_{3i}^{[1]} x_3 \right),
+\quad \text{for } i = 1, 2, 3, 4
+\]
+
+
+
+
+... gives us equation of \textbf{output layer}: computed by applying an activation function to a weighted sum of the hidden units plus a bias.
+
+\begin{align*}
+    f(X) = o\left( b^{[2]} + \sum_{\textcolor{red}{i}}^{H} w_{\textcolor{red}{i}}^{[2]} h_{\textcolor{red}{i}}^{[\textcolor{green}{1}]} \right)
+\end{align*}
+
+\begin{itemize}
+    \item \textbf{Bias term ($b^{[2]})$}: just one bias term (a scalar) as we have a single output neuron, so no subscript $i$ for $b$.
+    
+    \item \textbf{Weights term (w$_i^{[2]})$}: 
+    \begin{itemize}
+        \item a vector of size $H \times 1$ 
+        \item $\mathbf{w}^{[2]} = [w^{[2]}_1, w^{[2]}_2, \cdots , w^{[2]}_H]^T$
+    \end{itemize}
+        $$\mathbf{w}^{[2]} = \begin{bmatrix}
+        w_1^{[2]} \\
+        w_2^{[2]} \\
+        \vdots \\
+        w_H^{[2]}
+        \end{bmatrix}$$
+        \item connects each hidden unit to the output neuron, determining the influence of each hidden activation on the final output 
+        \item collapses
+    \end{itemize}
+    
+    \item \textbf{Hidden activations ($h^{[\textcolor{green}{1}]}$)} 
+    \begin{itemize}
+        \item a vector of size $H \times 1$ 
+            \[
+            \mathbf{h}^{[1]} = 
+            \begin{bmatrix}
+            h_{1}^{[1]} \\
+            h_{2}^{[1]} \\
+            \vdots \\
+            h_{H}^{[1]} \\
+            \end{bmatrix}
+            \]
+        \item \textit{from the previous layer} (replace $x$'s role in the initial \textit{input} layer)
+        \begin{itemize}
+            \item \textbf{input layer} receives raw input features $x_j$
+            \item \textbf{hidden layer} processes inputs and production activation functions $h_i^{[l-1]}$
+            \item \textbf{output layer} 
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Multiplication process: dot product ($\mathbf{w}^{[2]T} \times \mathbf{h}^{[1]}$) -> scalar})
+    \begin{itemize}
+        \item $\mathbf{w}^{[2]} = H \times 1$
+        \item $\mathbf{w}^{[2]T} = 1 \times H$
+            \[
+            \mathbf{W}^{[2]T} = 
+            \begin{bmatrix}
+            w_{11}^{[2]} & w_{12}^{[2]} & \cdots & w_{1H}^{[2]} \\
+            \end{bmatrix}
+            \]
+        
+        \item $\mathbf{h}^{[1]} = H \times 1$
+            \[
+            \mathbf{h}^{[1]} = 
+            \begin{bmatrix}
+            h_{1}^{[1]} \\
+            h_{2}^{[1]} \\
+            \vdots \\
+            h_{H}^{[1]} \\
+            \end{bmatrix}
+            \]
+
+        $$\mathbf{w}^{[2]T} \times \mathbf{h}^{[1]} = \sum^H_i w_i^{[2]} h_i^{[1]}$$
+    \end{itemize}
+    
+    ...this \textbf{dot product} produces new \textbf{single activation scalar}! This represents the combined activation from the hidden units fed into the output neuron.
+
+    
+    \item and we are summing over $H$ (number of hidden units in previous layer) rather than $d$ (number of dimensions in the input activation data)
+    \begin{itemize}
+        \item The multiplication transforms the dimensions from $H \times 1$ (hidden activations) to $1 \times 1$ (output scalar).
+        \item Whereas the previous multiplication in the hidden layer (the input layer) involves taking an input matrix of dimensions $n \times d$, multiplying by a matrix of dim $d \times H$ resulting in a column vector of hidden activations $h^{[1]} = H \times 1$
+    \end{itemize}
+\end{itemize}
+
+... we can write the \textbf{complete equation} for the whole network of a single layered network!\\
+
+\begin{align*}
+    f(X) &= o(a^{[2]}) \\
+    &= o\left( b^{[2]} + \sum_{i}^{H} w_i^{[2]} \textcolor{green}{h_i (X)} \right) \\
+    &= o\left( b^{[2]} + \sum_{i}^{H} w_i^{[2]} \textcolor{green}{g\left( b_{i}^{[1]} + \sum_{j=1}^{d} w_{ij}^{[1]} x_j \right)} \right)
+\end{align*}
+
+Here, The $H$ hidden units feed into the output layer, which again consists of a linear combination of the hidden units, with an activation function applied.
+
+\vspace{.4cm}
+\hline
+
+\section{NNs basic components}
+
+In theory, a single hidden layer with a large number of units has the ability to approximate most functions. 
+
+\subsection{Parameters \& hyperparameteters} 
+
+We learn the weights ($b, W$) from the data; all the rest are set as hyperparameters.
+
+\subsection{Back propagation} 
+
+To learn the weights, we minimize a loss function using gradient descent. When we apply this to neural networks and compute the gradient of the loss function, we call this backpropagation (how we turn info from our loss function into updates of $b$s and $W$s).\\
+
+\subsection{Non linear activation functions:} 
+\begin{itemize}
+    \item To prevent collapse into a linear model.
+    \item Can capture complex non-linearities and interaction effects - allows NNs to display any complex function. Whereas in linear regression we have to add the interactions by hand, the NN is able to express them itself.
+    \item Analogous to the brain: 
+    \begin{itemize}
+        \item values of the activations $h_i(X) = g(a_i(X))$ in each neuron close to 1 are 'firing',
+        \item values of the activations $h_i(X) = g(a_i(X))$ in each neuron close to 0 are silent.
+    \end{itemize}
+    \item For this, we need a function that is \textit{low below a threshold}, and \textit{then high}...
+    \begin{itemize}
+        \item Sigmoid
+        \item ReLU
+        \item Heavyside function
+        \item Tanh
+    \end{itemize}
+\end{itemize}
+
+\textbf{Sigmoid} ("Logistic activation function" given similarity to logistic function)
+
+\begin{align*}
+    g(z) &= \sigma(z) \\
+    &= \frac{e^z}{1+e^z} \\
+    &= \frac{1}{1+e^{-z}}
+\end{align*}
+
+\textbf{ReLU} (Rectified Linear Unit)
+
+\[
+g(z) = \max(0, z)
+\]
+
+Outputs the input directly if it is positive; otherwise, it outputs zero.
+    \[
+    g(z) = 
+    \begin{cases}
+    z & \text{if } z > 0 \\
+    0 & \text{otherwise}
+    \end{cases}
+    \]
+
+Can be computed and stored \textit{more efficiently} than a sigmoid function.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/sigmoid_relu.png}
+    \caption{Comparing sigmoid vs ReLU}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{tcolorbox}
+    \textbf{Other activation functions (less common)}\\
+
+    \textbf{Hyperbolic tangent (tanh)}:
+
+    $$g(z) = tanh z = \frac{e^z - e^{-z}}{e^z + e^{-z}}$$
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\linewidth]{images/week_2/tanh.png}
+        \caption{Tanh}
+        \label{fig:enter-label}
+    \end{figure}
+
+    \textbf{Heavyside} step function:
+
+    \begin{align*}
+        g(z) &= H(z) \\
+        &= I(z>0) \\
+        &= \begin{cases}
+        1 & \text{for } z > 0 \\
+        0 & \text{for } z \leq 0
+        \end{cases}
+    \end{align*}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.5\linewidth]{images/week_2/heavyside.png}
+        \caption{Heavyside}
+        \label{fig:enter-label}
+    \end{figure}
+
+    \textbf{Linear} (only for output layers)
+    $$ g(z) = z$$
+    It's just the identity
+\end{tcolorbox}
+
+\subsection{Output layer activation function}
+
+\subsubsection{Single output}
+\begin{itemize}
+    \item \textbf{Regression} - we just use the identity $o(a{[l]}) = a^{[l]}$ 
+    \item \textbf{Binary classification} - we use the sigmoid $o(a^{[l]} = \sigma(a^{[l]})$
+\end{itemize}
+
+\subsubsection{Multiclass classification}
+
+\textit{Produces a vector of probabilities mapping each observation to $k$ possible classes. Requires $k$ nodes in final output layer}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/multiclass classification.png}
+    \caption{for $k$ output nodes; $W^{[2}]$ now has $k \times i$ dim; biases = vector of $k$}
+    \label{fig:enter-label}
+\end{figure}
+
+Network with $K$ classes for classification:
+$$f_k(X) = o(a^{[L]})_k$$
+Where 
+\begin{enumerate}
+    \item $o(\cdot)$ - activation function for output layer
+    \item $a_k^{[L]}$ - pre-activation value for the $k$-th class at final layer $L$.
+\end{enumerate}
+
+\textbf{1) Pre-activation value}
+$$a_k^{[l]} = b_k^{[L]} + \sum^H_i w^{[L]}_{ki} h_i^{L-1}(X)$$
+Where
+\begin{itemize}
+    \item $b_k^{[L]}$ - bias term for the k-th output neuron
+    \item $w^{[2]}_{ki}$ - weights connecting $i$th hidden unit to $k$th output unit
+    \item $h_i^{L-1}$ - activation from the $i$th hidden unit in penultimate layer
+\end{itemize}
+
+\textbf{2) Output activation}\\
+
+Softmax: $o: \mathbb{R}^K \rightarrow (0,1)^K$ \\
+
+\textit{(Unlike if we were to use sigmoid activation function again for our output activation, the softmax scales the output so that the vector values sum to 1 ($\sum^K_{l=1} o(a^{[2]})_k = 1$); fulfils axioms of probability)}
+\[
+o(a_k^{[L]}) = \frac{e^{a_k^{[L]}}}{\sum_{l=1}^{K} e^{a_l^{[L]}}}
+\]
+Where 
+\begin{itemize}
+    \item $K$ is the total number of classes
+\end{itemize}
+
+\begin{tcolorbox}
+    \textbf{Example with two classes}: dog vs cat. \\
+    
+    If the raw output values are:
+    
+    \[
+    a^{[2]} = 
+    \begin{bmatrix}
+    1.2 \\
+    0.3
+    \end{bmatrix}
+    \]
+    
+    The softmax function would compute the probabilities as follows:
+    
+    \[
+    o(a^{[2]}) = 
+    \begin{bmatrix}
+    \frac{e^{1.2}}{e^{1.2} + e^{0.3}} \\
+    \frac{e^{0.3}}{e^{1.2} + e^{0.3}}
+    \end{bmatrix}
+    \]
+    
+    Calculating these would yield:
+    
+    \[
+    o_{\text{dog}} = \frac{e^{1.2}}{e^{1.2} + e^{0.3}} \approx 0.71, \quad o_{\text{cat}} = \frac{e^{0.3}}{e^{1.2} + e^{0.3}} \approx 0.29
+    \]
+    
+    This means the model predicts a 71\% probability that the input is a dog and a 29\% probability that it is a cat.
+
+\end{tcolorbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/process.png}
+    \caption{The process thus far}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Loss function}
+
+\textit{Ultimately depends on tasks we are looking at / what we want to optimise for.}
+
+\subsubsection{Loss function for regression}
+
+\textbf{\textit{Sum} of Squared Errors (SSE)}:
+$$L(\theta) = L(f(X),y) = \sum^N_{i=1}(y_i - f(x_i))^2$$
+
+Or \textbf{\textit{Mean} Squared Error (MSE)}:
+
+$$\text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+$$
+
+\begin{tcolorbox}
+    \textbf{Other (less common) loss functions}:\\
+
+    \textbf{Mean absolute error}\\
+    MAE is more robust to outliers because it doesn’t square the errors, so large errors have a lesser impact on the overall loss compared to Mean Squared Error (MSE).
+    $$
+    \text{MAE} = \frac{1}{N} \sum_{i=1}^{N} \left| y_i - \hat{y}_i \right|
+    $$
+    
+    \textbf{Mean absolute percentage error}\\
+    Measures the average absolute percentage difference between the predicted values and the actual values.
+    $$
+    \text{MAPE} = \frac{100\%}{N} \sum_{i=1}^{N} \left| \frac{y_i - \hat{y}_i}{y_i} \right|
+    $$
+    MAPE is useful when you need a relative error measure and is sensitive to the scale of the data.\\
+    
+    \textbf{Mean squared logarithmic error}\\
+    Measures the squared difference between the logarithms of the predicted and actual value. 
+    $$
+    \text{MSLE} = \frac{1}{N} \sum_{i=1}^{N} \left( \log(1 + y_i) - \log(1 + \hat{y}_i) \right)^2
+    $$
+    MSLE is less sensitive to large differences for high target values and penalizes underestimation more than overestimation.\\
+    
+    \textbf{Cosine similarity}\\
+    Measures the cosine of the angle between two non-zero vectors of an inner product space.
+    $$
+    \text{Cosine Similarity} = \frac{A \cdot B}{\|A\| \|B\|}
+    $$
+    Used primarily in text analysis and clustering to measure how similar two vectors are. It ranges from -1 to 1, where 1 means the vectors are perfectly aligned, and 0 means they are orthogonal (no similarity).
+
+\end{tcolorbox}
+
+\subsubsection{Loss function for K-class classification}
+\begin{enumerate}
+    \item \textbf{Sum of Squared Errors} (SSE):
+    $$L(\theta) = L(f(X),y) = \sum^N_{i=1}\sum^K_{k=1}(y_{ik} - f_k(x_i))^2$$
+    We could use this in theory, but it's not ideal.
+
+    \begin{tcolorbox}
+        The \textit{outer sum} iterates over each data sample in the dataset, where $N$ is the total number of samples. Each sample is indexed by $i$.\\
+
+        The \textit{inner sum} iterates over each class for a given sample $i$, where $K$ is the total number of classes. Each class is indexed by $k$.\\
+
+        The actual loss function term computes the loss contribution for class $k$ for sample $i$:
+        \begin{itemize}
+            \item $y_{ik}$ = the actual value for class $k$ for sample $i$. Typically, in a one-hot encoding format, this value is 1 if the sample belongs to class $k$, and 0 otherwise.
+            \item $f_k(x_i)$ = the predicted probability for class $k$ for sample $i$, generated by the model.
+        \end{itemize}
+
+        = computes the squared error for each class for each sample, then sums up these errors across all classes for a given sample and across all samples in the dataset.
+        
+    \end{tcolorbox}
+    
+    \item \textbf{Cross-entropy loss}: (more commonly used)\\
+    
+    Measures the difference between two probability distributions: the actual distribution (one-hot encoded class labels) and the predicted distribution.\\
+
+    $$L(\theta) = \sum^N_{i=1}\sum^K_{k=1}(y_{ik} \cdot \log f_k(x_i))$$
+
+    It penalizes incorrect class probabilities in a smooth and probabilistic way. \\
+
+    The cross-entropy loss penalizes incorrect predictions based on how confident the model is about its classification. 
+    \begin{itemize}
+        \item $y_{ik}$ - \textbf{binary ground truth indicator} 
+        \begin{itemize}
+            \item Ground truths one-hot encoded $\rightarrow$ measures difference between estimated distribution from ground truth distribution
+            \item NB $y_{ik}$ is a scalar: 1 if $x_i$ belongs to class $k$, and 0 otherwise
+        \end{itemize}
+        \item $f_k(x_i)$ - \textbf{predicted probability} of class $k$ for sample $i$ 
+        \begin{itemize}
+            \item (the prob that the model assigns to class $k$ for example $x_i$.)
+        \end{itemize}
+        \item So the \textbf{resulting dot product}: $y_{ik} \cdot \text{log} f_k(x_i)$\\
+        $\rightarrow$ for each sample:
+        \begin{itemize}
+            \item only the log probability of the \textbf{true class} is considered in the loss.
+            \item all the other terms are 0'd out.
+        \end{itemize}
+        \begin{enumerate}
+        \item If the model assigns a \textbf{low probability to the correct} class (i.e., $f_k(x_i) \approx 0$) $\rightarrow$ logarithm term becomes a large negative value, resulting in a high loss. 
+        \item For a \textbf{correct and confident prediction} (i.e., $f_k(x_i) \approx 1$), $\rightarrow$ the logarithm approaches 0, resulting in a low loss.
+        \end{enumerate}
+
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.5\linewidth]{images/week_2/log_function.png}
+            \caption{$x$ approaches 0 -> $y$ negative; $x$ approaches 1 -> $y$ 0 }
+            \label{fig:placeholder}
+        \end{figure}
+        \end{itemize}  
+\end{enumerate}
+
+\section{Capacity of a NN (`expressiveness')}
+
+Expressiveness of a single-layer NN using a single neuron with a sigmoid activation function:\\
+
+Activation Function: 
+$$g(a(X)) = \frac{1}{1+e^{-a(X)}}$$
+
+As before, this gives our single neuron output as:
+$$h(X)=g\left( b + \sum^d_{j=1} w_j x_j \right)$$
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{images/week_2/linear_separation.png}
+    \caption{Top: linearly separable; bottom, not linearly-separable}
+    \label{fig:enter-label}
+\end{figure}
+
+\textbf{Top figure is linearly separable}, meaning a single linear decision boundary (e.g., a straight line) can separate the classes; \textit{a single neuron can solve this problem}, as it can create a decision boundary with the weighted sum output formula.\\
+
+\textbf{Bottom pattern is not linearly separable} (it resembles the XOR problem). \textit{A single neuron cannot learn this problem} (because a single neuron can only create linear decision boundaries. To solve it, we’d need more complex networks with multiple neurons or hidden layers to capture non-linear patterns.
+
+\begin{tcolorbox}
+    \textbf{Single neurons are limited to linear decision boundaries}. Thus, their expressive capacity is constrained to problems that are linearly separable.\\
+    
+    For \textbf{non-linearly separable} problems, we need \textbf{a combination of neurons (or multi-layer networks)} to build non-linear boundaries, thereby increasing the model’s capacity and expressiveness.
+\end{tcolorbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{images/week_2/linear_separation_2.png}
+    \caption{Linearly separable problems}
+    \label{fig:enter-label}
+\end{figure}
+
+A single neuron with sigmoid activation can be interpreted as estimating $P(y=1|X)$ (logistic classifier).\\
+
+To solve non-linearly separable problems, we need to \textbf{transform input features} to make them linearly-separable.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/week_2/linear_separation_3.png}
+    \caption{Transformation of input features}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_2/linear separation_4.png}
+    \caption{Illustration of a how a single-layer NN can represent a non-linearfunction with activations.}
+    \label{fig:enter-label}
+\end{figure}
+
+This network is trying to learn a function that has a class 1 in the middle but class 0 everywhere else.
+\begin{itemize}
+    \item Each of the four neurons learns a separate linearly separable part of this function.
+    \item When these outputs are combined, the network can form a surface that captures the desired complex pattern.
+\end{itemize}
+
+Set up:
+\begin{itemize}
+    \item We have a NN with four neurons in a single hidden layer.
+    \item Each neuron takes the input features ($x_1, x_2$) and applies a linear transformation followed by a non-linear activation function.
+    \item The individual neurons are learning simple linearly separable functions, such as planes or ridges.
+    \item When the outputs of multiple neurons are combined (using the network’s final layer), the resulting function can become highly expressive.
+    \item The sum (linear combination?) of the activation functions (with bias terms) allows the network to create complex decision boundaries and represent non-linear functions.
+    \item By adding up these simple patterns, the network can approximate a complex function that is non-linear and multidimensional.
+\end{itemize}
+
+\textbf{Key Takeaway: Single-layer networks can represent non-linear functions by combining multiple linear neurons.} This highlights the importance of activation functions and the combination of neurons for the expressive power of neural networks, even with a single layer.
+
+\subsubsection{Universal Approximation Theorem}
+
+\textit{“A single hidden layer neural network with a linear output unit can approximate any continuous function arbitrarily well, given enough hidden units"}\\
+- Hornik (1991) \\
+
+\textbf{However}, this does not mean that there is learning algorithm that can find the necessary parameter values.
+
+
+\section{Gradient Descent}
+
+\begin{itemize}
+    \item In statistical learning we want to find the function (model) $f(X)$ that minimizes the prediction loss (expressed by using one of various loss functions $L(f(X,\theta),Y))$
+    \item Statistical models are a function of the data and many parameters $f(X,\theta)$.
+    \item In DL, NNs easily have billions of params (weights \& biases).
+    \item \textbf{Problem:} Following the calculus approach of setting partial derivatives to zero, we would end up with as many equations $\frac{\delta l}{\delta \theta_i} = 0$ as there are parameters (computationally intractable).
+    \item \textbf{Solution:} Gradient descent is computationally tractable - approaching the minimum step by step along the direction of steepest descent.
+    \begin{itemize}
+        \item We only need to compute the gradient wrt to all our parameters...
+        \item ... we do not need to then set to zero and solve (a large system of equations) for the parameters.
+    \end{itemize}
+
+\end{itemize}
+
+Instead of 
+$$\frac{\delta l}{\delta \theta_i} = 0$$
+
+we do 
+$$\theta \leftarrow \theta - \eta\frac{\delta l}{\delta \theta_i}$$
+
+Example: $f(x,y) = \frac{1}{2} (x^2 + y^2)$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\linewidth]{images/week_2/grad_descent.png}
+    \caption{The gradient is just a \textbf{vector of the partial derivatives}. We need to take the negative of this in order to approach the min.}
+    \label{fig:enter-label}
+\end{figure}
+
+Iteratively finds the optimal parameters by following the gradient of the loss function, making it a scalable.\\
+
+\textit{NB: only with convex functions would we be guaranteed to  1) move directly on a path to the minimum, 2) reach the global minimum using gradient descent. For non-convex loss functions, gradient descent can be inefficient, or get stuck in local maxima.}
+
+\begin{tcolorbox}
+    \textbf{Gradient Descent Method:}\\
+
+    Given an initial starting point $x^{(0)}$, we want to find a (local) minumum of $f(x)$. We do this until a stopping criterion is fulfilled for each step $k$:
+    \begin{enumerate}
+        \item Find the gradient (or search direction) $\Delta x^{(k)} = - \Delta f(x^{(k)})$
+        \item Choose a stepsize $\eta^{(k)}$ (learning rate)
+        \item Update with $x^{(k+1)}= x^{(k)} + \eta \Delta x^{(k)}$
+    \end{enumerate}
+
+    \textit{NB: $x$ is vector of variables}, $\eta >0$ is a scalar.\\
+
+    \textbf{Stopping criterion}:
+    \begin{itemize}
+        \item In grad descent, we have that $f(x^{(k+1)}) < f(x^{(k)})$ for some $\eta$, except when $x^{(k)}$ is optimal.
+        \item $\rightarrow$ a possible stopping criterion: $\| \nabla f(x^{(k)}) \|_2 \leq \epsilon$.
+    \end{itemize}
+
+    \textbf{Early Stopping}:
+        \begin{itemize}
+            \item In DL we tend to use \textit{early stopping} instead of a stopping criterion!
+            \item i.e. where we use validation data to determine when to stop. 
+            \item So we stop \textit{before} we reach the minimum training error.
+            \item This avoids overfitting.
+        \end{itemize}
+\end{tcolorbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/grad_descent_2.png}
+    \caption{\textit{NB, even for fixed $\eta$, the steps becomes smaller; as we get closer to 0 the functional values that we plug in will becomes smaller, the gradient evaluated at each successive point becomes smaller. The steps become smaller as the gradients' curve approaches 0, (algebraically the gradient component of the formula gets smaller)}}
+    \label{fig:enter-label}
+\end{figure}
+
+\section{Calculating Loss \& Backpropagation}
+
+\subsection{Backpropagation process:
+}
+\textbf{Using SGD} - optimises loss function by iteratively updating the parameters based on a subset (mini-batch) of the training data.
+    \begin{enumerate}
+        \item \textbf{Forward Pass} - apply model to training data $X$ to get a prediction $\hat{y}$. \textit{See how well the network is currently predicting by calculating the current loss.}
+        \item \textbf{Compute Loss} - apply loss function to get a new loss. Calculates difference between predicted values $\hat{y}$ and actual values $y$ using cross-entropy loss or MSE (as measures of distance). \textit{Tells us how far off the predictions are.}
+        \item \textbf{Backward Pass (Backpropagation) - computes gradient of the loss function wrt each weight.}
+    Determines \textit{how much each weight contributed} to the overall error and calculate its gradient.
+        \begin{enumerate}
+            \item \textbf{Calculate the partial derivatives} of the loss function $L$ with respect to each model parameter $\theta$.
+            \begin{itemize}
+                \item This involves using chain rule differentiation to propagate the error backwards through the network layers (from output layer to input layer).
+                \item $\rightarrow$ this gives us the gradient vector ($\frac{\delta L}{\delta \theta}$).
+                \item The functional form of these gradients is needed to update the weights in the direction that reduces the loss (this is what chain rule derivatives gives us).
+            \end{itemize}
+            \item \textbf{Plug in \textit{current} parameter values} into $\frac{\delta L}{\delta \theta}$ 
+            \begin{itemize}
+                \item This computes the gradient for current values of the weights and data points/mini-batches.
+            \end{itemize}
+        \end{enumerate}
+        \item \textbf{Update the Parameters} - using update rule from above
+        \begin{itemize}
+            \item apply the update rule:
+            $$\theta \leftarrow \theta - \eta \cdot \frac{\delta L}{ \delta \theta}$$
+        \end{itemize}
+\end{enumerate}
+ 
+ Repeated over many \textbf{epochs} (full passes through the dataset) until the model converges to a set of parameters that minimize the loss.\\
+
+
+\begin{tcolorbox}
+    The hard part is computing the gradient (the backpropagation in step 3).
+\end{tcolorbox}
+
+\subsection{Computing the Gradient in Backpropagation (step \#3)}
+
+The function $f(X)$ for a simple single layer neural network with one output (regression) can be represented as:
+\begin{align*}
+    f(X) &= o \left( b^{[2]} + \sum_{i}^{H} w_i^{[2]} h_i(X)  \right)\\
+    &= o \left( b^{[2]} + \sum_{i}^{H} w_i^{[2]} g \left( b^{[1]} + \sum_{j}^{d} w_{ij}^{[1]} x_j \right) \right)
+\end{align*}
+
+\textbf{Computing gradient of the loss}:\\
+
+Loss function measures error between predicted vs ground truth.\\
+
+The gradient vector is composed of the following partial derivatives for that function:
+
+$$\nabla L \left( X, y; b_i^{[1]}, w_{ij}^{[1]}, b^{[2]}, w_i^{[2]} \right)
+= 
+\begin{bmatrix}
+\frac{\partial L}{\partial b_i^{[1]}} \\
+\frac{\partial L}{\partial w_{ij}^{[1]}} \\
+\frac{\partial L}{\partial b^{[2]}} \\
+\frac{\partial L}{\partial w_i^{[2]}}
+\end{bmatrix}
+$$
+
+This is just the gradient of the loss wrt \textit{each parameter in the original loss function} (i.e. the bias \& weights across each different layer).\\
+
+
+However, these partial derivatives are \textbf{not computed directly}. Instead, we apply the chain rule through multiple layers of activations, which involve several intermediate terms (activation function, and preceding layers).\\
+
+$$\nabla L \left( X, y; b_i^{[1]}, w_{ij}^{[1]}, b^{[2]}, w_i^{[2]} \right)
+= 
+\begin{bmatrix}
+\frac{\partial L}{\partial \textcolor{red}{b_i^{[1]}}} \\
+\frac{\partial L}{\partial \textcolor{red}{w_{ij}^{[1]}}} \\
+\frac{\partial L}{\partial \textcolor{red}{b^{[2]}}} \\
+\frac{\partial L}{\partial \textcolor{red}{w_i^{[2]}}}
+\end{bmatrix}
+= 
+\begin{bmatrix}
+\frac{\partial L}{\partial a^{[1]}} \frac{\partial a^{[1]}}{\partial z^{[1]}} \frac{\partial z^{[1]}}{\partial \textcolor{red}{b_i^{[1]}}} \\
+\frac{\partial L}{\partial a^{[1]}} \frac{\partial a^{[1]}}{\partial z^{[1]}} \frac{\partial z^{[1]}}{\partial \textcolor{red}{w_{ij}^{[1]}}} \\
+\frac{\partial L}{\partial a^{[2]}} \frac{\partial a^{[2]}}{\partial z^{[2]}} \frac{\partial z^{[2]}}{\partial \textcolor{red}{b^{[2]}}} \\
+\frac{\partial L}{\partial a^{[2]}} \frac{\partial a^{[2]}}{\partial z^{[2]}} \frac{\partial z^{[2]}}{\partial \textcolor{red}{w_i^{[2]}}}
+\end{bmatrix}
+$$
+
+\textcolor{red}{NB: the above simplification is still missing the derivative of the activations, which are necessary to compute the chain rule (below).}\\
+
+Where
+\begin{itemize}
+    \item $a^{[1]}$ is the activation in the first layer, which depends on $z^{[1]}$ (the linear combination of the inputs and weights before applying the activation function).
+    \item $a^{[2]}$ is the output activation, which depends on the final layer's linear combination $z^{[2]}$.
+\end{itemize}
+
+\textbf{Chain rule for Nested Functions} of a NN:
+
+$$L=L(o(h(g(x))))$$
+
+Each layer’s output depends on the previous layer’s activations, and so the gradients must be propagated backwards using the chain rule.
+\begin{itemize}
+    \item \textit{(Each weight and bias in a neural network indirectly affects the final output through a series of nested transformations (non-linear activations).)}
+    \item \textit{Thus, to compute the true gradient with respect to a given weight or bias, we need to account for all intermediate activations and their gradients.}
+\end{itemize}
+
+E.g. to calculate $\frac{\delta L}{\delta w_{ij}^{[1]}}$, we need
+\[
+\frac{\partial L}{w^{[1]}_{ij}} = \frac{\partial L}{\partial o} \cdot \frac{\partial o}{\partial h_i} \cdot \frac{\partial h_i}{\partial g} \cdot \frac{\partial g}{\partial w^{[1]}_{ij}}
+\]
+
+For this, we will need the derivative of (i) the loss function, (ii) the activation functions, and (iii) the output activation.\\
+
+For example, if the output layer uses softmax for multi-class classification, the partial derivatives of the loss $\frac{\delta L}{\delta w_i^{[2]}}$ will involve the softmax gradient because the loss depends on the probability scores produced by softmax.
+
+\subsubsection{Multivariate chain rule}
+
+Chains of multivariate functions are common in NNs
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/chain rule.png}
+    \caption{$f(u,v)$, but also $f(a,b)$ and $f(w,x,y,z)$}
+    \label{fig:enter-label}
+\end{figure}
+
+Multivariate chain rule: $$\frac{\delta}{\delta a} f(u(a,b), v(a,b)) = \frac{\delta f}{\delta u} \frac{\delta u}{\delta a} + \frac{\delta f}{\delta v} \frac{\delta v}{\delta a}$$
+
+Visual intuition, we are just adding all the paths between $a$ and $f$!\\
+
+In multivariate setting, we have to consider all the variables:
+e.g. between $f$ and $w$:
+\[
+\frac{\partial f}{\partial w} = \frac{\partial f}{\partial u} \frac{\partial u}{\partial a} \frac{\partial a}{\partial w} + \frac{\partial f}{\partial v} \frac{\partial v}{\partial a} \frac{\partial a}{\partial w} + \frac{\partial f}{\partial u} \frac{\partial u}{\partial b} \frac{\partial b}{\partial w} + \frac{\partial f}{\partial v} \frac{\partial v}{\partial b} \frac{\partial b}{\partial w}
+\]
+
+\begin{tcolorbox}
+    \textbf{Single-layer neural network unravelled:}
+
+    \[
+    f(X) = o(a^{[2]}) \quad
+    \]
+    this is the last layer which contains all the layers output * final activation.
+
+    \[
+    = o\left(b^{[2]} + \sum_{i} w^{[2]}_{i} h^{[1]}\right) \quad
+    \]
+    here we also have all the hidden units $h$
+
+    
+    \[
+    = o\left(b^{[2]} + \sum_{i} w^{[2]}_{i} g\left(a^{[1]}_{i}\right)\right) \quad
+    \]
+    here we know what goes into \textit{h}, it's the activations from the previous layer
+
+    
+    \[
+    = o\left(b^{[2]} + \sum_{i} w^{[2]}_{i} g\left(b^{[1]}_{i} + \sum_{j} w^{[1]}_{ij} x_{j}\right)\right)
+    \]
+
+    \vspace{.3cm}
+    \hline
+    \vspace{.3cm}
+
+
+    We compute the derivatives of each one of these nested components, rather than thinking about it all at once:
+    
+    \begin{enumerate}
+        \item weight $b_i^{[i]}$ with linear output $o()$:
+    
+        \[
+        \frac{\partial L(f(X), y)}{\partial b^{[1]}} = \frac{\partial L}{\partial f} \cdot \frac{\partial f}{\partial a^{[2]}} \cdot \frac{\partial a^{[2]}}{\partial h^{[1]}_i} \cdot \frac{\partial h^{[1]}_i}{\partial a^{[1]}_i} \cdot \frac{\partial a^{[1]}_i}{\partial b^{[1]}_i} \quad
+        \]
+        \begin{itemize}
+            \item loss wrt to output of the function (last layer) ($\frac{\delta L}{\delta f}$) (also can be written as $o(a^{[2]}$)
+            \item wrt output activation layer $a^{[2]}$
+            \item activation function is itself a function of the output of the hidden layer before the activation function is applied ($h^{[1]}$)
+            \item which it itself a function of the previous activation layer $a^{[1]}$ (the weighted inputs from the previous layer)
+            \item which is itself a function of $b_i^{[i]}$
+        \end{itemize}
+    
+        \item weight $w_{ij}$
+        \[
+        \frac{\partial L(f(X), y)}{\partial b^{[1]}} = \frac{\partial L}{\partial f} \cdot \frac{\partial f}{\partial a^{[2]}} \cdot \frac{\partial a^{[2]}}{\partial h^{[1]}_i} \cdot \frac{\partial h^{[1]}_i}{\partial a^{[1]}_i} \cdot \frac{\partial a^{[1]}_i}{\partial w^{[1]}_i} \quad
+        \]
+    
+        \end{enumerate}
+
+\end{tcolorbox}
+
+Many of the partial derivatives are known. Derivatives of common activation functions:\\
+
+\textbf{Sigmoid}
+\[
+g(z) = \sigma(z) = \frac{e^z}{1 + e^z}
+\]
+\[
+g'(z) = \sigma'(z) = \sigma(z)(1 - \sigma(z))
+\]
+
+\textbf{Tanh}
+\[
+g(z) = \tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}
+\]
+\[
+g'(z) = 1 - \tanh^2(z)
+\]
+
+\textbf{ReLu}
+\[
+g(z) = \begin{cases}
+0 & \text{if } z < 0 \\
+z & \text{otherwise}
+\end{cases}
+\]
+
+\textbf{Softmax} (for multi-class classification output)
+
+\[
+o(z_i) = \frac{e^{z_i}}{\sum_{j=1}^{K} e^{z_j}}
+\]
+
+The derivative of the softmax output with respect to \( z_j \) is given by:
+
+\[
+\frac{\partial o(z_i)}{\partial z_j} = 
+\begin{cases} 
+o(z_i)(1 - o(z_j)) & \text{if } i = j \\ 
+-o(z_i) o(z_j) & \text{if } i \neq j 
+\end{cases}
+\]
+
+NB: has 2 cases (indicates how a change in one input affects the probabilities of all classes):
+\begin{enumerate}
+    \item $i=j$ - indicates the influence of class $i$ on itself.
+    \item $i \neq j$ - indicates influence of class $j$ on class $i$.
+\end{enumerate}
+
+Alternatively, using the Kronecker delta \( \delta_{ij} \), the derivative can be expressed as:
+
+\[
+\frac{\partial o(z_i)}{\partial z_j} = o(z_i)(\delta_{ij} - o(z_j))
+\]
+
+\begin{tcolorbox}
+    \textbf{Worked out example} \textit{- Single-layer neural net with squared error loss, linear output fn, and
+    sigmoid activation fn}\\
+
+Network definition/output:
+
+\[
+f(X) = b^{[2]} + \sum_{i}^{H} w_{i}^{[2]} \sigma\left(b_{i}^{[1]} + \sum_{j}^{d} w_{ij}^{[1]} x_{j}\right)
+\]
+
+Loss for one data point \((x, y)\) is given by:
+
+\[
+L(f(X), y) = (y - f(X))^2
+\]
+
+Gradient for weight \(w_{ij}^{[1]}\):
+
+\[
+\frac{\partial L(f(X), y)}{\partial w_{ij}^{[1]}} = \frac{\partial L}{\partial f} \cdot \frac{\partial f}{\partial a^{[2]}} \cdot \frac{\partial a^{[2]}}{\partial h_{i}^{[1]}} \cdot \frac{\partial h_{i}^{[1]}}{\partial a_{i}^{[1]}} \cdot \frac{\partial a_{i}^{[1]}}{\partial w_{ij}^{[1]}}
+\]
+
+
+\begin{enumerate}
+    \item \textbf{Term 1 (Derivative of Loss)}
+    \[
+    \frac{\partial L}{\partial f} = \frac{\partial}{\partial f} \left( y - f(x) \right)^2 = -2 \left( y - f \right)
+    \]
+    
+    \item \textbf{Term 2 (Derivative of Linear Output)}
+    \[
+    \frac{\partial f}{\partial a^{[2]}} = \frac{\partial a^{[2]}}{\partial a^{[2]}} = 1
+    \]
+    
+    \item \textbf{Term 3 (Derivative of Output Activation)}
+    \[
+    \frac{\partial a^{[2]}}{\partial h^{[1]}_i} = \frac{\partial}{\partial h^{[1]}_i} \left( b^{[2]} + \sum_{l}^{H} w^{[2]}_{l} h^{[1]}_{l} \right) = w^{[2]}_{i}
+    \]
+    \textit{NB!!!}
+    
+    \item \textbf{Term 4 (Derivative of Activation Function)}
+    \[
+    \frac{\partial h_{i}^{[1]}}{\partial a_{i}^{[1]}} = \frac{\partial \sigma(a_{i}^{[1]})}{\partial a_{i}^{[1]}} = \sigma(a_{i}^{[1]}) \left( 1 - \sigma(a_{i}^{[1]}) \right)
+    \]
+    
+    \item \textbf{Term 5 (Derivative for Hidden Layer Activation)}
+    \[
+    \frac{\partial a^{[1]}}{\partial w_{ij}^{[1]}} = \frac{\partial}{\partial w_{ij}^{[1]}} \left( b_{i}^{[1]} + \sum_{m}^{d} w_{im}^{[1]} x_{m} \right) = x_{j}
+    \]
+    \textit{NB!!!??????}\\
+
+    \textbf{Putting it together}
+    $$-2(y-f(x))w_i^{[2]}\sigma (a^{[1]})(1-\sigma(a)^{[1]}))x_j$$
+\end{enumerate}
+\end{tcolorbox}
+
+\subsubsection{Gradient update}
+
+\begin{align*}
+    w_{ij}^{(r+1)} &= w_{ij}^{(r)} + \eta \Delta w_{ij}^{(r)} \\
+    &= w_{ij}^{(r)} - \eta \left( \frac{\partial L(f(X), y)}{\partial w_{ij}}\right)^{(r)}\\
+    \textit{*}&= w_{ij}^{(r)} - \eta \left(-2(y-f(x))w_i^{[2]}\sigma (a^{[1]})(1-\sigma(a)^{[1]}))x_j\left)^{(r)}
+\end{align*}
+
+\textit{*for a single-layered NN w/ linear output activation}\\
+
+To get the weight updates for the $r+1$th iteration: we plug in all the values for the $r$th iteration of:
+\begin{itemize}
+    \item the other weights
+    \item all input features of the data
+    \item ground truths \& prediction
+\end{itemize}
+
+\section{Bigger picture}
+
+All of this has been for toy example: single layered NN with a linear output activation. In real life we don't have linear output activation, and we use deep networks:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_2/big picture.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}

@@ -1,0 +1,747 @@
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}}
+{\large \bf ML Lecture Notes 2024 \\ Henry Baker}
+\hline
+\\
+\end{tabular}
+
+\vspace*{0.3cm}
+\begin{center}
+	{\Large \bf ML Lecture Notes: Week 2\\ Training, Divergence, Loss \& Optimisation}
+	\vspace{2mm}
+
+\end{center}
+\vspace{0.4cm}
+
+\section{The Optimisation Framework}
+
+Machine learning is fundamentally about finding parameters that make models fit data well. This week, we formalise what ``fitting well'' means and develop the mathematical machinery to achieve it. The central insight is that \emph{modelling is optimisation}: we define a measure of fit (the loss function), then search for parameters that optimise it.
+
+\begin{greybox}[Parameter Estimation as Optimisation]
+$$\hat{\theta} = \argmin_{\theta} \mathcal{L}(\theta)$$
+where:
+\begin{itemize}
+    \item $\hat{\theta}$ is the \textbf{point estimate}-our best guess for the parameters
+    \item $\mathcal{L}(\theta)$ is the \textbf{loss function}-measures how poorly the model fits
+    \item $\argmin$ returns the parameter value that minimises the loss
+\end{itemize}
+\end{greybox}
+
+The choice of loss function $\mathcal{L}$ determines what ``fitting well'' means. Different losses encode different priorities: accuracy, robustness, calibration, or interpretability. This is a \emph{design choice}-there is no single ``correct'' loss function, and the choice should reflect what we actually care about in a given application.
+
+\begin{bluebox}[Key Insight]
+\textbf{Modelling is empirical risk minimisation.} We define risk through a loss function and optimise to minimise it. The loss function is a design choice that should reflect what we care about.
+\end{bluebox}
+
+\section{Maximum Likelihood Estimation (MLE)}
+
+\textbf{Maximum Likelihood Estimation} is a principled approach that chooses parameters to maximise the probability of observing the data we actually observed. Rather than inventing an ad-hoc loss function, MLE derives the loss from probabilistic principles.
+
+\begin{greybox}[Maximum Likelihood Estimation]
+Given data $\mathcal{D} = \{(x_1, y_1), \ldots, (x_n, y_n)\}$ and a probabilistic model $p(y|x, \theta)$:
+$$\hat{\theta}_{\text{MLE}} = \argmax_{\theta} p(\mathcal{D}|\theta) = \argmax_{\theta} \prod_{i=1}^{n} p(y_i | x_i, \theta)$$
+
+The product assumes \textbf{i.i.d.} (independent and identically distributed) observations.
+\end{greybox}
+
+The quantity $p(\mathcal{D}|\theta)$ is called the \textbf{likelihood}. Note the perspective here: we treat the data $\mathcal{D}$ as fixed (it's what we observed) and ask which parameter values $\theta$ would have made this data most probable. This is the \textbf{frequentist} perspective-parameters are fixed but unknown constants, and data is the random variable.
+
+\begin{bluebox}[MLE as a Loss Function]
+MLE is just a method that chooses a particular loss function (the Negative Log-Likelihood). The key insight is that MLE seeks to find the model parameters that make the observed data maximally probable-equivalently, making the model as ``close'' as possible to the data in a probabilistic sense.
+\end{bluebox}
+
+\subsection{The i.i.d.\ Assumption}
+
+The factorisation $p(\mathcal{D}|\theta) = \prod_{i=1}^{n} p(y_i | x_i, \theta)$ relies on two assumptions:
+\begin{enumerate}
+    \item \textbf{Independence}: Observations don't influence each other. Knowing $y_1$ tells us nothing about $y_2$ beyond what we already know from the model.
+    \item \textbf{Identical distribution}: All observations follow the same model with the same parameters.
+\end{enumerate}
+
+\begin{redbox}[The i.i.d.\ Assumption is Substantive]
+The i.i.d.\ assumption is \textbf{substantively meaningful} and often violated in practice. Examples of violations:
+\begin{itemize}
+    \item \textbf{Time series data}: Today's stock price depends on yesterday's (temporal dependence)
+    \item \textbf{Spatial data}: Nearby locations have correlated measurements (spatial correlation)
+    \item \textbf{Clustered data}: Students within the same school are more similar (hierarchical structure)
+    \item \textbf{Network data}: Connected individuals influence each other (relational dependence)
+\end{itemize}
+Violations can lead to underestimated standard errors and overconfident inference. When i.i.d.\ fails, we need more sophisticated models (time series models, mixed effects models, spatial models, etc.).
+\end{redbox}
+
+\subsection{From Likelihood to Negative Log-Likelihood}
+
+Working with products is problematic for two reasons:
+\begin{enumerate}
+    \item \textbf{Numerical instability}: Multiplying many small probabilities causes \textbf{underflow}-the computer rounds to zero
+    \item \textbf{Mathematical awkwardness}: Derivatives of products are messy (product rule applied repeatedly)
+\end{enumerate}
+
+Taking logarithms converts products to sums, solving both problems:
+
+\begin{greybox}[Negative Log-Likelihood (NLL)]
+$$\text{NLL}(\theta) = -\log p(\mathcal{D}|\theta) = -\sum_{i=1}^{n} \log p(y_i | x_i, \theta)$$
+
+Since $\log$ is monotonically increasing:
+$$\hat{\theta}_{\text{MLE}} = \argmax_{\theta} p(\mathcal{D}|\theta) = \argmin_{\theta} \text{NLL}(\theta)$$
+
+Optimisers typically minimise, so we work with NLL rather than likelihood.
+\end{greybox}
+
+\begin{bluebox}[Why Negative Log-Likelihood?]
+\begin{enumerate}
+    \item \textbf{Numerical stability}: Sums don't underflow like products of small numbers
+    \item \textbf{Computational convenience}: Derivatives of sums are sums of derivatives
+    \item \textbf{Convention}: Optimisation libraries minimise by default, so we negate
+    \item \textbf{Interpretation}: NLL measures ``surprise''-lower NLL means the data is less surprising under the model, indicating better fit
+\end{enumerate}
+\end{bluebox}
+
+\section{Linear Regression as MLE}
+
+Linear regression emerges naturally from MLE when we assume normally distributed errors. This connection is profound: it tells us that the familiar least squares method isn't arbitrary-it's the principled thing to do when errors are Gaussian.
+
+\subsection{The Probabilistic Model}
+
+Assume each observation follows:
+$$y_i \sim \mathcal{N}(\mu_i, \sigma^2) \quad \text{where} \quad \mu_i = x_i^\top \beta$$
+
+This says: the response $y_i$ is the linear prediction $x_i^\top \beta$ plus Gaussian noise with variance $\sigma^2$.
+
+\begin{greybox}[Linear Regression Model]
+$$y_i = x_i^\top \beta + \epsilon_i \quad \text{where} \quad \epsilon_i \stackrel{\text{iid}}{\sim} \mathcal{N}(0, \sigma^2)$$
+
+Model parameters: $\theta = (\beta, \sigma^2)$
+
+The probability density for observation $y_i$:
+$$p(y_i | x_i, \theta) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(y_i - x_i^\top\beta)^2}{2\sigma^2}\right)$$
+\end{greybox}
+
+Let's unpack this model:
+\begin{itemize}
+    \item \textbf{Simple Normal Model}: If $y_i \sim \mathcal{N}(\mu, \sigma)$ with fixed mean, the parameters are $\theta = (\mu, \sigma)$. All observations come from a normal distribution with the same mean and variance.
+    \item \textbf{Normal Model with Linear Predictor}: If $y_i \sim \mathcal{N}(\mu_i, \sigma)$ where $\mu_i = x_i^\top\beta$, then $\theta = (\beta, \sigma)$. The mean varies across observations as a linear function of predictors-this is \textbf{linear regression}.
+\end{itemize}
+
+\begin{bluebox}[Linear Regression = Normal Model with Linear Predictor]
+Linear regression assumes:
+\begin{enumerate}
+    \item \textbf{Normal Distribution}: Each observation $y_i$ comes from a normal distribution
+    \item \textbf{Linear Relationship}: The mean $\mu_i = x_i^\top\beta$ is a linear combination of predictors
+    \item \textbf{Homoskedasticity}: The variance $\sigma^2$ is constant across all observations
+\end{enumerate}
+This forms the basis of linear regression models, where we assume normally distributed errors.
+\end{bluebox}
+
+\subsection{Deriving the NLL}
+
+Taking the negative log of the Gaussian density for a single observation:
+
+\begin{align*}
+-\log p(y_i | x_i, \theta) &= -\log \left[ \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(y_i - x_i^\top\beta)^2}{2\sigma^2}\right) \right] \\
+&= \frac{1}{2}\log(2\pi\sigma^2) + \frac{(y_i - x_i^\top\beta)^2}{2\sigma^2}
+\end{align*}
+
+Summing over all observations:
+
+\begin{align*}
+\text{NLL}(\theta) &= -\sum_{i=1}^{n} \log p(y_i | x_i, \theta) \\
+&= \frac{n}{2}\log(2\pi\sigma^2) + \frac{1}{2\sigma^2} \sum_{i=1}^{n} (y_i - x_i^\top\beta)^2
+\end{align*}
+
+\begin{bluebox}[MLE = Least Squares for Gaussian Errors]
+The NLL has two terms:
+\begin{enumerate}
+    \item $\frac{n}{2}\log(2\pi\sigma^2)$: Depends only on $\sigma^2$ (constant w.r.t.\ $\beta$)
+    \item $\frac{1}{2\sigma^2} \sum_{i=1}^{n} (y_i - x_i^\top\beta)^2$: The sum of squared residuals, scaled by $1/(2\sigma^2)$
+\end{enumerate}
+Since $\sigma^2 > 0$, minimising NLL over $\beta$ is equivalent to minimising the \textbf{Residual Sum of Squares (RSS)}. The Gaussian assumption justifies least squares!
+\end{bluebox}
+
+\begin{greybox}[The MLE-RSS Connection]
+The goal in MLE is to find the parameter values that minimise the NLL. For linear regression with Gaussian errors:
+
+\begin{itemize}
+    \item The first term $\frac{n}{2}\log(2\pi\sigma^2)$ is constant for a given $\sigma$ and affects all observations equally
+    \item The second term $\frac{1}{2\sigma^2}\sum_i(y_i - x_i^\top\beta)^2$ penalises deviations of observed values from their predicted means
+    \item Since $\sigma^2$ is a positive constant (w.r.t.\ $\beta$), minimising NLL over $\beta$ is equivalent to minimising the sum of squared residuals
+\end{itemize}
+
+This means MLE for linear regression with Gaussian errors produces the same $\hat{\beta}$ as ordinary least squares (OLS).
+\end{greybox}
+
+\section{Residual Sum of Squares and the OLS Solution}
+
+\begin{greybox}[Residual Sum of Squares]
+$$\text{RSS}(\beta) = \sum_{i=1}^{n} (y_i - x_i^\top\beta)^2 = \|y - X\beta\|_2^2 = (y - X\beta)^\top(y - X\beta)$$
+
+where $X \in \mathbb{R}^{n \times p}$ is the design matrix and $y \in \mathbb{R}^n$ is the response vector.
+
+\textbf{Mean Squared Error}: $\text{MSE}(\beta) = \frac{1}{n}\text{RSS}(\beta)$
+\end{greybox}
+
+The RSS measures the total squared deviation between observed values and predictions. The factor of $\frac{1}{2}$ sometimes appears for convenience (it cancels with the 2 from differentiation), but doesn't affect the optimal $\beta$.
+
+\subsection{The Analytic Solution}
+
+To find the minimum, we take the gradient and set it to zero. This is possible because RSS is a \textbf{convex quadratic} function of $\beta$-it has a unique global minimum.
+
+\begin{greybox}[Derivation of OLS Estimator]
+\textbf{Step 1}: Expand RSS
+\begin{align*}
+\text{RSS}(\beta) &= (y - X\beta)^\top(y - X\beta) \\
+&= y^\top y - y^\top X\beta - \beta^\top X^\top y + \beta^\top X^\top X \beta \\
+&= y^\top y - 2\beta^\top X^\top y + \beta^\top X^\top X \beta
+\end{align*}
+(The middle terms are equal since they're scalars and $(y^\top X\beta)^\top = \beta^\top X^\top y$.)
+
+\textbf{Step 2}: Take the gradient w.r.t.\ $\beta$
+
+Using matrix calculus identities $\nabla_\beta(\beta^\top a) = a$ and $\nabla_\beta(\beta^\top A\beta) = 2A\beta$ for symmetric $A$:
+$$\nabla_\beta \text{RSS} = -2X^\top y + 2X^\top X \beta$$
+
+\textbf{Step 3}: Set to zero and solve
+\begin{align*}
+-2X^\top y + 2X^\top X \beta &= 0 \\
+X^\top X \beta &= X^\top y \\
+\hat{\beta}_{\text{OLS}} &= (X^\top X)^{-1} X^\top y
+\end{align*}
+
+This is the \textbf{Ordinary Least Squares (OLS)} estimator. The equation $X^\top X \beta = X^\top y$ is called the \textbf{normal equations}.
+\end{greybox}
+
+\begin{redbox}[When OLS Fails]
+The OLS solution requires $X^\top X$ to be invertible. This fails when:
+\begin{itemize}
+    \item $n < p$ (more features than observations)-the system is underdetermined
+    \item Features are \textbf{perfectly collinear}-one feature is an exact linear combination of others
+    \item Features are \textbf{near-collinear}-numerical instability, huge variance in estimates
+\end{itemize}
+These issues motivate \textbf{regularisation} (Week 3): adding a penalty term that makes the problem well-posed even when $X^\top X$ is singular or near-singular.
+\end{redbox}
+
+\subsection{What OLS Gives Us}
+
+With $\hat{\beta} = (X^\top X)^{-1} X^\top y$, we can:
+
+\begin{itemize}
+    \item \textbf{Predict}: $\hat{y} = X\hat{\beta}$-fitted values for training data (or new data with the same features)
+    \item \textbf{Interpret}: $\hat{\beta}_j$ is the expected change in $y$ for a unit change in $x_j$, \emph{holding other features constant}. More precisely:
+    $$\frac{\partial \hat{y}}{\partial x_j} = \hat{\beta}_j$$
+    \item \textbf{Quantify uncertainty}: Via $\text{Var}(\hat{\beta})$-how much would our estimates change with different data?
+\end{itemize}
+
+\section{KL Divergence and Cross-Entropy}
+
+An alternative motivation for MLE comes from information theory: we want a model distribution $q_\theta$ that is ``close'' to the true data distribution $p$. But what does ``close'' mean for probability distributions?
+
+\subsection{Kullback-Leibler Divergence}
+
+\begin{greybox}[Kullback-Leibler Divergence]
+The KL divergence from $p$ to $q$ measures how much information is lost when $q$ is used to approximate $p$:
+
+$$D_{\text{KL}}(p \| q) = \sum_{y} p(y) \log \frac{p(y)}{q(y)} = \mathbb{E}_{y \sim p}\left[\log \frac{p(y)}{q(y)}\right]$$
+
+This can be decomposed as:
+$$D_{\text{KL}}(p \| q) = \underbrace{-\sum_y p(y) \log p(y)}_{H(p) = \text{Entropy of } p} - \underbrace{\left(-\sum_y p(y) \log q(y)\right)}_{-H(p, q) = \text{neg. Cross-entropy}}$$
+
+So: $D_{\text{KL}}(p \| q) = H(p, q) - H(p)$
+
+Properties:
+\begin{itemize}
+    \item $D_{\text{KL}}(p \| q) \geq 0$ (Gibbs' inequality)
+    \item $D_{\text{KL}}(p \| q) = 0$ if and only if $p = q$
+    \item \textbf{Not symmetric}: $D_{\text{KL}}(p \| q) \neq D_{\text{KL}}(q \| p)$ in general
+\end{itemize}
+\end{greybox}
+
+The asymmetry matters! $D_{\text{KL}}(p \| q)$ penalises cases where $p(y) > 0$ but $q(y) \approx 0$ (the model assigns low probability to events that actually happen). This is appropriate for density estimation.
+
+\begin{bluebox}[MLE Minimises KL Divergence]
+Since the entropy of the true distribution $H(p)$ is constant (doesn't depend on model parameters), minimising KL divergence is equivalent to minimising cross-entropy:
+$$\argmin_\theta D_{\text{KL}}(p \| q_\theta) = \argmin_\theta H(p, q_\theta)$$
+
+In practice, we don't know $p$, but we can estimate the cross-entropy from samples:
+$$H(p, q_\theta) \approx -\frac{1}{n}\sum_{i=1}^n \log q_\theta(y_i) = \frac{1}{n}\text{NLL}(\theta)$$
+
+Thus: \textbf{MLE finds the model closest to the data in the KL sense.}
+\end{bluebox}
+
+\section{Variance of the OLS Estimator}
+
+To do inference (hypothesis tests, confidence intervals), we need the sampling distribution of $\hat{\beta}$. The key question: if we collected new data and recomputed $\hat{\beta}$, how much would it vary?
+
+\subsection{Deriving the Variance}
+
+Starting from $\hat{\beta} = (X^\top X)^{-1} X^\top y$ and substituting $y = X\beta + \epsilon$:
+
+\begin{align*}
+\hat{\beta} &= (X^\top X)^{-1} X^\top (X\beta + \epsilon) \\
+&= (X^\top X)^{-1} X^\top X\beta + (X^\top X)^{-1} X^\top \epsilon \\
+&= \beta + (X^\top X)^{-1} X^\top \epsilon
+\end{align*}
+
+This shows that $\hat{\beta}$ equals the true $\beta$ plus a random perturbation that depends on the errors $\epsilon$.
+
+\textbf{Unbiasedness}: Since $\mathbb{E}[\epsilon] = 0$:
+$$\mathbb{E}[\hat{\beta}] = \beta + (X^\top X)^{-1} X^\top \mathbb{E}[\epsilon] = \beta$$
+
+So OLS is an \textbf{unbiased estimator}-on average, it gives the right answer.
+
+\begin{greybox}[Sandwich Form of Variance]
+\begin{align*}
+\text{Var}(\hat{\beta}) &= \mathbb{E}[(\hat{\beta} - \beta)(\hat{\beta} - \beta)^\top] \\
+&= \mathbb{E}[(X^\top X)^{-1} X^\top \epsilon \epsilon^\top X (X^\top X)^{-1}] \\
+&= (X^\top X)^{-1} X^\top \mathbb{E}[\epsilon\epsilon^\top] X (X^\top X)^{-1}
+\end{align*}
+
+This is the \textbf{sandwich estimator}:
+$$\text{Var}(\hat{\beta}) = \underbrace{(X^\top X)^{-1} X^\top}_{\text{bread}} \underbrace{\mathbb{E}[\epsilon\epsilon^\top]}_{\text{meat}} \underbrace{X (X^\top X)^{-1}}_{\text{bread}}$$
+\end{greybox}
+
+The ``meat'' $\mathbb{E}[\epsilon\epsilon^\top]$ is the covariance matrix of the errors. Its structure depends on our assumptions about the error distribution.
+
+\subsection{Homoskedastic Errors}
+
+\begin{greybox}[Variance Under Homoskedasticity]
+If errors have constant variance and are uncorrelated: $\mathbb{E}[\epsilon\epsilon^\top] = \sigma^2 I$
+
+Then the sandwich simplifies dramatically:
+\begin{align*}
+\text{Var}(\hat{\beta}) &= (X^\top X)^{-1} X^\top \sigma^2 I \cdot X (X^\top X)^{-1} \\
+&= \sigma^2 (X^\top X)^{-1} X^\top X (X^\top X)^{-1} \\
+&= \sigma^2 (X^\top X)^{-1}
+\end{align*}
+
+The variance $\sigma^2$ is estimated by:
+$$\hat{\sigma}^2 = \frac{1}{n-p} \sum_{i=1}^n (y_i - x_i^\top\hat{\beta})^2 = \frac{\text{RSS}}{n-p}$$
+
+(We divide by $n-p$ rather than $n$ for unbiasedness-we ``used up'' $p$ degrees of freedom estimating $\beta$.)
+
+The \textbf{standard error} of $\hat{\beta}_j$ is: $\text{SE}(\hat{\beta}_j) = \hat{\sigma}\sqrt{[(X^\top X)^{-1}]_{jj}}$
+\end{greybox}
+
+\subsection{Heteroskedastic Errors}
+
+When error variance varies across observations, the homoskedastic formula understates uncertainty for some coefficients and overstates it for others. We need \textbf{robust standard errors}.
+
+\begin{greybox}[Heteroskedasticity-Consistent (HC) Standard Errors]
+If $\text{Var}(\epsilon_i) = \sigma_i^2$ (varies with $i$), we can't simplify the sandwich. Instead, we estimate the meat directly:
+$$\mathbb{E}[\epsilon\epsilon^\top] \approx \text{diag}(\hat{e}_1^2, \ldots, \hat{e}_n^2)$$
+where $\hat{e}_i = y_i - x_i^\top\hat{\beta}$ are the residuals.
+
+The \textbf{HC0 estimator} (White's robust standard errors):
+$$\widehat{\text{Var}}(\hat{\beta}) = (X^\top X)^{-1} X^\top \text{diag}(\hat{e}^2) X (X^\top X)^{-1}$$
+
+\textbf{To compute robust standard errors}:
+\begin{enumerate}
+    \item Calculate residuals: $\hat{e}_i = y_i - x_i^\top\hat{\beta}$
+    \item Form the diagonal matrix $\text{diag}(\hat{e}_1^2, \ldots, \hat{e}_n^2)$
+    \item Compute the sandwich: $(X^\top X)^{-1} X^\top \text{diag}(\hat{e}^2) X (X^\top X)^{-1}$
+    \item Take square roots of diagonal elements to get standard errors
+\end{enumerate}
+\end{greybox}
+
+\begin{bluebox}[When to Use Robust Standard Errors]
+\begin{itemize}
+    \item \textbf{Always safe}: Robust SEs are valid under both homo- and heteroskedasticity
+    \item \textbf{Efficiency}: If errors truly are homoskedastic, classical SEs are more efficient (lower variance)
+    \item \textbf{Practice}: Many applied fields default to robust SEs as insurance
+    \item \textbf{Individual variances}: Diagonal elements give variance of each $\hat{\beta}_j$; off-diagonals give covariances between coefficient estimates
+\end{itemize}
+\end{bluebox}
+
+\begin{greybox}[Significance of the Variance of $\hat{\beta}$]
+The variance-covariance matrix of $\hat{\beta}$ enables:
+\begin{enumerate}
+    \item \textbf{Statistical Significance}: Test whether coefficients differ from zero (or other values)
+    \item \textbf{Confidence Intervals}: Quantify uncertainty in coefficient estimates
+    \item \textbf{Precision Assessment}: Smaller variance = more precise estimates
+    \item \textbf{Model Diagnostics}: High variance may indicate collinearity or insufficient data
+    \item \textbf{Covariance Information}: Off-diagonal elements show how uncertainty in one coefficient relates to uncertainty in another
+\end{enumerate}
+\end{greybox}
+
+\section{Bayesian Inference and MAP Estimation}
+
+MLE treats parameters as fixed unknowns. \textbf{Bayesian inference} treats parameters as random variables with distributions reflecting uncertainty.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_02_training/image.png}
+    \caption{Bayes' Rule: combining prior beliefs with observed data to form posterior beliefs. The posterior balances what we believed before (prior) with what the data tells us (likelihood).}
+    \label{fig:bayes-rule}
+\end{figure}
+
+\begin{greybox}[Bayes' Rule for Parameter Inference]
+$$p(\theta | \mathcal{D}) = \frac{p(\mathcal{D} | \theta) \cdot p(\theta)}{p(\mathcal{D})}$$
+
+\begin{itemize}
+    \item $p(\theta | \mathcal{D})$: \textbf{Posterior}-belief about $\theta$ after seeing data
+    \item $p(\mathcal{D} | \theta)$: \textbf{Likelihood}-probability of data given parameters (same as MLE)
+    \item $p(\theta)$: \textbf{Prior}-belief about $\theta$ before seeing data
+    \item $p(\mathcal{D})$: \textbf{Marginal likelihood} (evidence)-normalising constant ensuring the posterior integrates to 1
+\end{itemize}
+\end{greybox}
+
+\subsection{Frequentist vs Bayesian Perspectives}
+
+\begin{bluebox}[Two Philosophies of Probability]
+\begin{center}
+\begin{tabular}{l|l|l}
+& \textbf{Frequentist (MLE)} & \textbf{Bayesian} \\
+\hline
+Parameters & Fixed, unknown constants & Random variables \\
+Data & Random (from repeated sampling) & Fixed (what we observed) \\
+Probability & Long-run frequency & Degree of belief \\
+Primary quantity & $p(\mathcal{D}|\theta)$ (likelihood) & $p(\theta|\mathcal{D})$ (posterior) \\
+\end{tabular}
+\end{center}
+
+\textbf{Objective probability} (frequentist): Based on facts about properties of the world. ``If we flip this coin infinitely many times, what fraction will be heads?''
+
+\textbf{Subjective probability} (Bayesian): Based on our beliefs about the world. ``Given what I know, how confident am I that this coin is fair?''
+\end{bluebox}
+
+\subsection{Maximum A Posteriori (MAP) Estimation}
+
+Full Bayesian inference requires computing the entire posterior distribution, which can be computationally demanding. MAP estimation finds just the \emph{mode} of the posterior-the single most probable parameter value.
+
+\begin{greybox}[MAP Estimation]
+$$\hat{\theta}_{\text{MAP}} = \argmax_\theta p(\theta | \mathcal{D}) = \argmax_\theta \frac{p(\mathcal{D}|\theta) \cdot p(\theta)}{p(\mathcal{D})}$$
+
+Since $p(\mathcal{D})$ doesn't depend on $\theta$:
+$$\hat{\theta}_{\text{MAP}} = \argmax_\theta \left[ p(\mathcal{D}|\theta) \cdot p(\theta) \right]$$
+
+Taking logs (for computational convenience):
+$$\hat{\theta}_{\text{MAP}} = \argmax_\theta \left[ \log p(\mathcal{D}|\theta) + \log p(\theta) \right]$$
+
+This is MLE plus a \textbf{regularisation term} from the prior.
+\end{greybox}
+
+\begin{bluebox}[Connection Between MAP and Regularisation]
+The choice of prior determines the type of regularisation:
+\begin{itemize}
+    \item \textbf{Gaussian prior}: $p(\theta) \propto \exp(-\lambda\|\theta\|_2^2)$ $\Rightarrow$ \textbf{Ridge regression} (L2 penalty)
+    \item \textbf{Laplace prior}: $p(\theta) \propto \exp(-\lambda\|\theta\|_1)$ $\Rightarrow$ \textbf{Lasso} (L1 penalty)
+    \item \textbf{Uniform/flat prior} (improper): $p(\theta) \propto 1$ $\Rightarrow$ MAP = MLE
+\end{itemize}
+Regularisation isn't just a computational trick-it has a probabilistic interpretation as encoding prior beliefs about parameter values.
+\end{bluebox}
+
+\subsection{Interpreting Uncertainty: Credible vs Confidence Intervals}
+
+With $\text{Var}(\hat{\beta})$, we can construct intervals. The interpretation differs fundamentally between paradigms:
+
+\textbf{Bayesian (Credible Intervals)}:
+\begin{itemize}
+    \item Assume $\beta$ is random, data is fixed
+    \item ``There is a 95\% probability that $\beta \in [l, u]$''
+    \item Direct probability statement about the parameter
+    \item Based on the posterior distribution $p(\beta|\mathcal{D})$
+\end{itemize}
+
+\textbf{Frequentist (Confidence Intervals)}:
+\begin{itemize}
+    \item Assume $\beta$ is fixed, data is random
+    \item ``If we repeated this experiment many times, 95\% of the constructed intervals would contain the true $\beta$''
+    \item Statement about the \emph{procedure}, not the parameter
+    \item We don't assume a distribution for $\beta$; instead, we think about a process for constructing intervals
+\end{itemize}
+
+\begin{greybox}[Confidence Interval Construction]
+$$[\hat{\beta} - z_{\alpha/2} \cdot \text{SE}(\hat{\beta}), \quad \hat{\beta} + z_{\alpha/2} \cdot \text{SE}(\hat{\beta})]$$
+
+For 95\% confidence: $z_{0.025} \approx 1.96$
+
+With finite samples and unknown $\sigma^2$, use $t$-distribution critical values instead:
+$$[\hat{\beta} - t_{n-p, \alpha/2} \cdot \text{SE}(\hat{\beta}), \quad \hat{\beta} + t_{n-p, \alpha/2} \cdot \text{SE}(\hat{\beta})]$$
+\end{greybox}
+
+\section{Empirical Risk Minimisation}
+
+MLE is one instance of a broader framework: \textbf{Empirical Risk Minimisation (ERM)}. The idea is simple: define a loss function that measures prediction error, then minimise the average loss on training data.
+
+\begin{greybox}[Empirical Risk Minimisation]
+Given a loss function $\ell(y, \hat{y})$ measuring prediction error:
+$$\hat{\theta} = \argmin_\theta \frac{1}{n} \sum_{i=1}^n \ell(y_i, f(x_i; \theta))$$
+
+This minimises the \textbf{empirical risk}-the average loss on training data.
+
+Common loss functions include:
+\begin{itemize}
+    \item \textbf{NLL (for MLE)}: $\ell(y, \theta; x) = -\log p(y|x,\theta)$
+    \item \textbf{Squared error}: $\ell(y, \hat{y}) = (y - \hat{y})^2$
+    \item \textbf{0-1 loss}: $\ell(y, \hat{y}) = \mathbf{1}[y \neq \hat{y}]$
+\end{itemize}
+\end{greybox}
+
+\subsection{Common Loss Functions}
+
+\begin{center}
+\begin{tabular}{l|l|l}
+\textbf{Loss} & \textbf{Formula} & \textbf{Use Case} \\
+\hline
+Squared (L2) & $(y - \hat{y})^2$ & Regression \\
+Absolute (L1) & $|y - \hat{y}|$ & Robust regression \\
+NLL (Gaussian) & $-\log p(y|\hat{y}, \sigma)$ & Probabilistic regression \\
+0-1 Loss & $\mathbf{1}[y \neq \hat{y}]$ & Classification (ideal) \\
+Log Loss (Cross-entropy) & $-y\log\hat{p} - (1-y)\log(1-\hat{p})$ & Probabilistic classification \\
+Hinge Loss & $\max(0, 1 - y \cdot \hat{y})$ & SVM classification \\
+\end{tabular}
+\end{center}
+
+\subsection{The Problem with 0-1 Loss}
+
+\begin{redbox}[0-1 Loss is Intractable]
+The \textbf{0-1 loss} (misclassification rate) is the natural classification loss-it directly measures what we care about. But it is:
+\begin{itemize}
+    \item \textbf{Non-convex}: Has many local minima
+    \item \textbf{Non-differentiable}: Can't use gradient-based optimisation
+    \item \textbf{Flat almost everywhere}: Gradient is zero except at decision boundary
+\end{itemize}
+
+We cannot optimise it with gradient methods. Instead, we use \textbf{surrogate losses}.
+\end{redbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_02_training/image_1.png}
+    \caption{Surrogate loss functions compared to 0-1 loss. All surrogate losses upper bound the 0-1 loss while being differentiable and (mostly) convex.}
+    \label{fig:surrogate-losses}
+\end{figure}
+
+\textbf{Surrogate losses} replace the 0-1 loss with something we can actually optimise. A good surrogate should:
+\begin{enumerate}
+    \item \textbf{Upper bound} the 0-1 loss (so minimising the surrogate also reduces misclassification)
+    \item Be \textbf{convex} (guarantees finding global minimum)
+    \item Be \textbf{differentiable} (enables gradient-based optimisation)
+    \item Be ``tight'' (close to 0-1 loss, so the approximation is good)
+\end{enumerate}
+
+\subsection{Classification Errors}
+
+\begin{greybox}[Confusion Matrix]
+\begin{center}
+\begin{tabular}{cc|cc}
+& & \multicolumn{2}{c}{\textbf{Predicted}} \\
+& & Positive & Negative \\
+\hline
+\multirow{2}{*}{\textbf{Actual}} & Positive & TP (True Positive) & FN (False Negative) \\
+& Negative & FP (False Positive) & TN (True Negative) \\
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+    \item \textbf{Type I Error} (False Positive): Predict positive when actually negative. ``False alarm.''
+    \item \textbf{Type II Error} (False Negative): Predict negative when actually positive. ``Missed detection.''
+\end{itemize}
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_02_training/image_2.png}
+    \caption{Confusion matrix structure showing the four possible outcomes of binary classification.}
+    \label{fig:confusion-matrix}
+\end{figure}
+
+Different applications weight these errors differently:
+\begin{itemize}
+    \item \textbf{Medical screening}: False negatives are dangerous (missing disease), so we tolerate more false positives
+    \item \textbf{Spam filtering}: False positives are annoying (good email marked as spam), so we tolerate more false negatives
+    \item \textbf{Criminal justice}: ``Beyond reasonable doubt'' means we prefer false negatives to false positives
+\end{itemize}
+
+\section{Logistic Regression}
+
+For binary classification, we need a model that outputs probabilities in $[0, 1]$. Linear regression won't work-it can produce any real number. We need a function that ``squashes'' the linear predictor into the valid probability range.
+
+\begin{greybox}[Logistic Regression Model]
+$$p(y = 1 | x, \beta) = \sigma(x^\top\beta) = \frac{1}{1 + e^{-x^\top\beta}}$$
+
+where $\sigma(\cdot)$ is the \textbf{sigmoid} (logistic) function.
+
+Equivalently, the observation follows a Bernoulli distribution:
+$$y_i \sim \text{Bernoulli}(\sigma(x_i^\top\beta))$$
+
+The \textbf{log-odds} (logit) is linear in the features:
+$$\log \frac{p(y=1|x)}{p(y=0|x)} = \log \frac{p(y=1|x)}{1 - p(y=1|x)} = x^\top\beta$$
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_02_training/image_3.png}
+    \caption{The sigmoid (logistic) function $\sigma(z) = 1/(1 + e^{-z})$ maps any real number to $(0, 1)$. At $z=0$, $\sigma(0) = 0.5$. The function saturates at 0 and 1 for large $|z|$.}
+    \label{fig:sigmoid}
+\end{figure}
+
+The sigmoid function has useful properties:
+\begin{itemize}
+    \item Maps $\mathbb{R} \to (0, 1)$-valid probabilities
+    \item Symmetric: $\sigma(-z) = 1 - \sigma(z)$
+    \item Nice derivative: $\sigma'(z) = \sigma(z)(1 - \sigma(z))$
+    \item Monotonic: larger $x^\top\beta$ means higher probability
+\end{itemize}
+
+\subsection{Training: Binary Cross-Entropy}
+
+\begin{greybox}[Binary Cross-Entropy Loss]
+The NLL for logistic regression (also called ``log loss'' or ``binary cross-entropy''):
+
+Starting from the Bernoulli likelihood:
+$$p(y_i | x_i, \beta) = \mu_i^{y_i} (1-\mu_i)^{1-y_i}$$
+
+where $\mu_i = \sigma(x_i^\top\beta)$.
+
+Taking the negative log:
+\begin{align*}
+\text{NLL}(\beta) &= -\frac{1}{n} \sum_{i=1}^n \log\left[\mu_i^{y_i} (1-\mu_i)^{1-y_i}\right] \\
+&= -\frac{1}{n} \sum_{i=1}^n \left[ y_i \log \mu_i + (1-y_i) \log(1-\mu_i) \right]
+\end{align*}
+
+\textbf{Gradient}:
+$$\nabla_\beta \text{NLL} = \frac{1}{n} \sum_{i=1}^n (\mu_i - y_i) x_i = \frac{1}{n} X^\top (\mu - y)$$
+
+This has the same form as linear regression's gradient! But $\mu$ depends nonlinearly on $\beta$ through the sigmoid.
+\end{greybox}
+
+\begin{redbox}[No Closed-Form Solution]
+Unlike linear regression, logistic regression has \textbf{no closed-form solution}. The dependence of $\mu_i$ on $\beta$ through the sigmoid makes the normal equations nonlinear. Setting the gradient to zero gives:
+$$\sum_{i=1}^n (\sigma(x_i^\top\beta) - y_i) x_i = 0$$
+
+This cannot be solved algebraically for $\beta$. We must use iterative optimisation:
+\begin{itemize}
+    \item Gradient descent
+    \item Newton's method (IRLS-Iteratively Reweighted Least Squares)
+    \item Quasi-Newton methods (L-BFGS)
+\end{itemize}
+\end{redbox}
+
+\subsection{Decision Boundaries}
+
+The classifier predicts $\hat{y} = 1$ when $p(y=1|x) > 0.5$. Since $\sigma(0) = 0.5$, this happens when $x^\top\beta > 0$.
+
+\begin{bluebox}[Linear Decision Boundary]
+The decision boundary $\{x : x^\top\beta = 0\}$ is a \textbf{hyperplane} in feature space.
+
+Logistic regression is a \textbf{linear classifier}-it can only separate classes with a linear boundary. For nonlinear boundaries, we need:
+\begin{itemize}
+    \item \textbf{Feature engineering}: Add polynomial features, interactions (e.g., $x_1^2$, $x_1 x_2$)
+    \item \textbf{Kernel methods}: Implicitly map to high-dimensional feature space
+    \item \textbf{Neural networks}: Learn nonlinear transformations of features
+\end{itemize}
+\end{bluebox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_02_training/image_4.png}
+    \caption{Linear decision boundary separating two classes. The boundary is the hyperplane where $x^\top\beta = 0$. Points on one side are classified as positive, points on the other as negative.}
+    \label{fig:decision-boundary}
+\end{figure}
+
+\section{The Bias-Variance Tradeoff}
+
+A fundamental tension in statistical learning: simple models underfit (high bias), complex models overfit (high variance). Understanding this tradeoff is crucial for building models that generalise well.
+
+\begin{greybox}[Bias-Variance Decomposition]
+For an estimator $\hat{\theta}$ of true parameter $\theta$:
+
+\textbf{Bias}: $\text{Bias}(\hat{\theta}) = \mathbb{E}[\hat{\theta}] - \theta$
+
+How far is the average estimate from the truth?
+
+\textbf{Variance}: $\text{Var}(\hat{\theta}) = \mathbb{E}[(\hat{\theta} - \mathbb{E}[\hat{\theta}])^2]$
+
+How much does the estimate vary across different datasets?
+
+\textbf{MSE Decomposition}:
+\begin{align*}
+\text{MSE}(\hat{\theta}) &= \mathbb{E}[(\hat{\theta} - \theta)^2] \\
+&= \mathbb{E}[(\hat{\theta} - \mathbb{E}[\hat{\theta}] + \mathbb{E}[\hat{\theta}] - \theta)^2] \\
+&= \mathbb{E}[(\hat{\theta} - \mathbb{E}[\hat{\theta}])^2] + (\mathbb{E}[\hat{\theta}] - \theta)^2 \\
+&= \text{Var}(\hat{\theta}) + \text{Bias}(\hat{\theta})^2
+\end{align*}
+\end{greybox}
+
+\begin{bluebox}[The Tradeoff]
+\begin{itemize}
+    \item \textbf{Low bias, high variance}: Complex models (many parameters) fit training data well but vary wildly between samples-they \textbf{overfit}
+    \item \textbf{High bias, low variance}: Simple models (few parameters) are stable but systematically wrong-they \textbf{underfit}
+    \item \textbf{Optimal}: Balance that minimises total error (MSE = Bias$^2$ + Variance)
+\end{itemize}
+
+\textbf{Key insight}: Unbiased is not always best! If an unbiased estimator has high variance, a biased estimator with lower variance may have better overall performance (lower MSE).
+\end{bluebox}
+
+\subsection{Example: Shrinkage Estimators}
+
+Consider estimating the mean $\mu$ of a normal distribution from $n$ samples $y_i \sim \mathcal{N}(\mu, \sigma^2)$.
+
+\textbf{Sample mean}: $\bar{y} = \frac{1}{n}\sum_i y_i$
+\begin{itemize}
+    \item Unbiased: $\mathbb{E}[\bar{y}] = \mu$
+    \item Variance: $\text{Var}(\bar{y}) = \sigma^2/n$
+    \item MSE: $\sigma^2/n$
+\end{itemize}
+
+\textbf{Shrinkage estimator}: $\tilde{y} = \frac{n}{n+k}\bar{y}$ (shrinks toward zero)
+\begin{itemize}
+    \item Biased: $\mathbb{E}[\tilde{y}] = \frac{n}{n+k}\mu \neq \mu$
+    \item Lower variance: $\text{Var}(\tilde{y}) = \left(\frac{n}{n+k}\right)^2 \frac{\sigma^2}{n}$
+\end{itemize}
+
+\begin{greybox}[Bias-Variance Tradeoff in Shrinkage]
+For the shrinkage estimator with parameter $k$:
+\begin{itemize}
+    \item \textbf{Bias}: $\mu - \frac{n}{n+k}\mu = \frac{k}{n+k}\mu$ (increases with $k$)
+    \item \textbf{Variance}: $\left(\frac{n}{n+k}\right)^2 \frac{\sigma^2}{n}$ (decreases with $k$)
+\end{itemize}
+
+The parameter $k$ controls the compromise:
+\begin{itemize}
+    \item $k = 0$: No shrinkage, recover the unbiased sample mean
+    \item Large $k$: Heavy shrinkage toward zero, low variance but high bias
+\end{itemize}
+
+When $|\mu|$ is small relative to $\sigma/\sqrt{n}$ (i.e., the true mean is close to our prior belief of zero), the variance reduction can outweigh the bias, giving lower MSE than the unbiased estimator.
+\end{greybox}
+
+This technique is useful when:
+\begin{itemize}
+    \item The sample size is small
+    \item There is substantial uncertainty about the sample mean
+    \item We wish to incorporate external information or beliefs into our estimation
+\end{itemize}
+
+\begin{bluebox}[Practical Implications]
+\textbf{Unbiased is not always best.} If an unbiased estimator has high variance, a biased estimator with lower variance may have better overall performance (lower MSE). This insight motivates:
+\begin{itemize}
+    \item \textbf{Regularisation}: L1 (Lasso), L2 (Ridge) penalties shrink coefficients toward zero
+    \item \textbf{Bayesian priors}: Encode beliefs that shrink estimates toward prior mean
+    \item \textbf{Ensemble methods}: Averaging multiple models reduces variance
+    \item \textbf{Early stopping}: Stop training before the model fully fits the training data
+\end{itemize}
+\end{bluebox}
+
+\section{Summary}
+
+\begin{bluebox}[Key Concepts from Week 2]
+\begin{enumerate}
+    \item \textbf{MLE}: Choose parameters to maximise probability of observed data
+    \item \textbf{NLL}: Negative log-likelihood-the loss function for MLE; minimising NLL = maximising likelihood
+    \item \textbf{i.i.d.\ assumption}: Independence and identical distribution; substantively meaningful and often violated
+    \item \textbf{Linear regression}: MLE with Gaussian errors $\Leftrightarrow$ least squares; justified by probabilistic assumptions
+    \item \textbf{OLS solution}: $\hat{\beta} = (X^\top X)^{-1} X^\top y$; requires invertible $X^\top X$
+    \item \textbf{Variance of $\hat{\beta}$}: Sandwich form $(X^\top X)^{-1} X^\top \mathbb{E}[\epsilon\epsilon^\top] X (X^\top X)^{-1}$
+    \item \textbf{Robust SEs}: Handle heteroskedasticity via HC estimators; use squared residuals in the sandwich
+    \item \textbf{KL divergence}: MLE minimises KL divergence from true distribution to model
+    \item \textbf{Bayesian inference}: Parameters as random variables; posterior = likelihood $\times$ prior
+    \item \textbf{MAP}: MLE + prior = regularised estimation; Gaussian prior $\to$ Ridge, Laplace prior $\to$ Lasso
+    \item \textbf{Logistic regression}: Classification via sigmoid; trained with cross-entropy; no closed form
+    \item \textbf{Surrogate losses}: Differentiable, convex approximations to 0-1 loss
+    \item \textbf{Bias-variance}: MSE = Bias$^2$ + Variance; the tradeoff is fundamental to statistical learning
+\end{enumerate}
+\end{bluebox}
+

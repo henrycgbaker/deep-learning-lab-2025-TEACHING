@@ -1,0 +1,96 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{hyperref}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize Math for Data Science: Problem Set 1}
+\rhead{\footnotesize } 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf GRAD C23: Mathematics for Data Science} \\
+Hertie School \\ Fall 2024  \\ Prof. Magazinnik \\
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf Problem Set 1}
+	\vspace{2mm}
+	
+\textbf{Names:} %YOUR NAMES GO HERE 
+\\
+\textbf{Due Date:} Monday, September 30 by the end of the day \\
+(The Moodle submission link will become inactive at midnight of September 31.)
+\end{center}  
+
+\vspace{0.4cm}
+
+{\bf Instructions:} Please submit one solution set per group and include your group members' names at the top. Please show all work and explain all reasoning; this is the only way to receive partial credit. 
+
+
+\begin{enumerate}
+  \item \textbf{Conducting a survey.} (10 points, 2 points per question.) 
+  Suppose the Hertie School has 600 affiliated members: 400 students, 50 faculty, and 150 staff. An administrator hires you to conduct a survey of the Hertie School community to learn what can be improved. 
+  \begin{enumerate}
+      \item Unfortunately, you haven't been given the budget to survey everyone, so you have to randomly sample 60 individuals. You choose to sample without replacement. How many ways are there to construct your sample? (For this question, we don't care about order --- just the composition of the group.) \\
+      
+      \item What is the probability that the survey sample  from part (a) contains only students? \\
+
+      \item To guard against this possibility, let's construct our sample in a way that ensures equal representation: we randomly sample exactly 40 students from the 400, then 5 faculty from the 50, and 15 staff from the 150. This technique is called \textit{blocking}. How many ways are there to construct the survey sample now? (Again, we don't care about order here, and we are still sampling without replacement.)  \\
+
+      \item Now, you want to follow up on your survey with a focus group of 10 people, also randomly sampled from the 600, who will be arranged around a circular table. How many ways can you construct your focus group when they have assigned seats? (In other words, we count the same group of people in two different seating arrangements as two distinct ways to construct the focus group.) \\
+      
+      \item Now consider only the focus group samples that contain five students and five non-students. Within this subset, what is the probability that all five students are seated next to each other? \\
+
+    
+      \end{enumerate}
+
+  \item \textbf{Medical testing.} (8 points) Company A has just developed a diagnostic test for a certain disease. The disease afflicts 1\% of the population. As defined in Example 2.3.9 in Blitzstein and Hwang, the \textit{sensitivity} of the test is the probability of someone testing positive, given that they have the disease, and the \textit{specificity} of the test is the probability of someone testing negative, given that they don't have the disease. Company A's test has a sensitivity of 0.95 and a specificity of 0.95 as well. 
+
+  Company B, which is a rival of Company A, offers a competing test for the disease. Company B claims that their test is faster and less expensive to perform than Company A's test, is less painful (Company A's test requires an incision), and yet has a higher  accuracy, which is defined as the overall probability of making a correct diagnosis. 
+
+  \begin{enumerate}
+      \item (2 points) Write down the accuracy of a test in this population as a function of its sensitivity and specificity. \\
+
+    
+      \item (2 points) It turns out that Company B's test can be described and performed very simply: no matter who the patient is, diagnose that they do not have the disease. Is Company B's claim true? That is, is Company B's test indeed more accurate than Company A's test? Please justify your answer. \\
+
+        
+      \item (1 point) If Company B's test is more accurate, explain why Company A's test may still be useful. \\
+
+      
+      \item (3 points) Company A wants to develop a new test that beats Company B on accuracy. If the sensitivity and specificity of the new test are equal, how high do they have to be to achieve this goal? If Company A can get the sensitivity to equal 1, how high does the specificity have to be to achieve this goal? If Company A can get the specificity to equal 1, how high does the sensitivity have to be to achieve this goal? \\
+
+       
+  \end{enumerate}
+
+  \item \textbf{Monty Hall revisited.} (10 points)  
+  \begin{enumerate}
+      \item (6 points) Please solve the Monty Hall problem given in \#45 on p. 93 of Blitzstein and Hwang.
+      \item (4 points) Code up a small simulation in R to check your solution. 
+\end{enumerate}
+\end{enumerate}
+\end{document}

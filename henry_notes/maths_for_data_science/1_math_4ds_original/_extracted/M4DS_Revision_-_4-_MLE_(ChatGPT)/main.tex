@@ -1,0 +1,108 @@
+\documentclass[a4paper,11pt]{article} 
+
+\usepackage[top = 2.5cm, bottom = 2.5cm, left = 2.5cm, right = 2.5cm]{geometry} 
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow} 
+\usepackage{booktabs}
+\usepackage{graphicx} 
+\usepackage{setspace}
+\setlength{\parindent}{0in}
+\usepackage{enumerate}
+\usepackage{float}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+
+\pagestyle{fancy} 
+\fancyhf{}
+\lhead{\footnotesize M4DS Mid-term revision}
+\rhead{\footnotesize Henry Baker} 
+\cfoot{\footnotesize \thepage} 
+
+
+\begin{document}
+
+
+\thispagestyle{empty}
+\begin{tabular}{p{15.5cm}} 
+{\large \bf Mid Terms Fall 2023  \\ Henry Baker}
+\hline 
+\\
+\end{tabular} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Mid Terms Revision: \\ MLE}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Introduction}
+Maximum Likelihood Estimation (MLE) is a method used in statistics to estimate the parameters of a statistical model. The idea is to find the parameter values that maximize the likelihood of the observed data given the model.
+
+\section{Theoretical Overview}
+Given a set of independent and identically distributed (i.i.d) data points $\bm{X} = (X_1, X_2, \dots, X_n)$, the likelihood function, denoted by $\mathcal{L}(\theta; \bm{X})$, represents the joint probability of observing the given data as a function of the parameter(s) $\theta$. The aim is to find the value of $\theta$ that maximizes this likelihood function.
+
+\section{Steps for Maximum Likelihood Estimation}
+
+\begin{enumerate}
+    \item \textbf{Specify the Statistical Model:} Define the probability distribution that models your data, parameterized by $\theta$.
+
+    \item \textbf{Construct the Likelihood Function:} Write down the likelihood function $\mathcal{L}(\theta; \bm{X})$. For i.i.d data, this is often the product of the individual probabilities or probability densities.
+
+    \item \textbf{Take the Logarithm:} To simplify calculations, take the natural logarithm of the likelihood function. This is called the log-likelihood, and is denoted as $\ell(\theta) = \log \mathcal{L}(\theta; \bm{X})$. Maximizing the log-likelihood is equivalent to maximizing the likelihood because the natural logarithm is a monotonically increasing function.
+
+    \item \textbf{Differentiate and Set to Zero:} Find the derivative of the log-likelihood with respect to the parameter(s) $\theta$. Set the derivative (or gradient, for multiple parameters) to zero to find the critical points.
+
+    \item \textbf{Solve for $\theta$:} Solve the equation from the previous step to get the MLE of $\theta$, often denoted as $\hat{\theta}_{MLE}$.
+
+    \item \textbf{Check for Maximum:} Ensure that the critical point obtained is a maximum by checking the second derivative or the Hessian matrix (for multiple parameters).
+\end{enumerate}
+
+\section{Worked-out Examples}
+
+\subsection{Example 1: Exponential Distribution}
+Given a sample of size $n$ from an exponential distribution with parameter $\lambda$, find the MLE of $\lambda$.
+
+\textit{Solution:} [Detailed solution follows, applying the steps mentioned above.]
+
+\subsection{Example 2: Normal Distribution}
+Given a sample of size $n$ from a normal distribution with unknown mean $\mu$ and known variance $\sigma^2$, find the MLE of $\mu$.
+
+\textit{Solution:} [Detailed solution follows, applying the steps mentioned above.]
+
+\section{Practice Exercises}
+
+\begin{enumerate}
+    \item Given a sample from a Poisson distribution with parameter $\lambda$, find the MLE of $\lambda$.
+    \item Given a sample from a binomial distribution with parameters $n$ and $p$, and known $n$, find the MLE of $p$.
+    \item Given a sample from a uniform distribution on the interval $[0, \theta]$, find the MLE of $\theta$.
+\end{enumerate}
+
+\textit{Note:} Solutions to the practice exercises can be found in [reference textbook or solution manual].
+
+Maximum Likelihood Estimation (MLE) is a statistical method used for estimating the parameters of a statistical model. It is a fundamental concept in probability theory and statistics, widely used in various fields, including machine learning and optimization. The core idea of MLE is to find the parameter values that maximize the likelihood function, which measures how well the model with those parameters explains the observed data.
+
+Here's a more detailed breakdown of the MLE concept:
+
+Statistical Model: A statistical model is a mathematical representation of a real-world process, described by a set of parameters. For example, in a normal distribution, the mean and variance are its parameters.
+
+Likelihood Function: The likelihood function is a function of the model parameters given the observed data. It represents the probability of observing the given data under different parameter values of the model. The likelihood is different from probability as it treats the observed data as fixed and the parameters as variables.
+
+Maximizing the Likelihood: MLE seeks to find the parameter values that maximize the likelihood function. These values are called the maximum likelihood estimates. The idea is that the best model parameters are those under which the observed data is most probable.
+
+Log-Likelihood: In practice, it's common to work with the logarithm of the likelihood function, known as the log-likelihood. This transformation simplifies the calculations, especially for products, as it turns them into sums. The maximization principle remains the same since logarithm is a monotonic function.
+
+Finding the Maximum: To find the maximum of the likelihood or log-likelihood, we often use calculus, setting the derivative with respect to the parameters to zero and solving for the parameters. In complex models, this process may require numerical methods.
+
+Applications: MLE is used in various contexts like regression analysis, time series analysis, and machine learning models. It provides a way of fitting a model to data and is foundational in the field of inferential statistics.
+
+For example, in the case of a normal distribution, the MLE for the mean and variance can be calculated using the observed data, and these estimates will be the sample mean and sample variance, respectively.
+
+Would you like to see an example of MLE in practice, perhaps through a specific problem or a demonstration in R code?
+
+\end{document}

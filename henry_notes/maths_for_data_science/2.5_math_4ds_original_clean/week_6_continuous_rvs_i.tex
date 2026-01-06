@@ -1,0 +1,397 @@
+% =============================================================================
+% Week 6: Continuous Random Variables I
+% =============================================================================
+
+\chapter{Continuous Random Variables I}
+\label{ch:week6}
+
+\thispagestyle{empty}
+{\large \textbf{Finals Fall 2023  --  Henry Baker}}
+\par\noindent\rule{\textwidth}{0.4pt} 
+
+\vspace*{0.3cm} 
+\begin{center} 
+	{\Large \bf M4DS Finals Revision: Session 6\\ Calculus Meets Probability / Continuous Random Variables I}
+	\vspace{2mm}
+	
+\end{center}  
+\vspace{0.4cm}
+
+\section{Continuous r.v.s: relationship between PDF-CDF}
+
+\subsection{an r.v. has a continuous distribution if its CDF is differentiable}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/Screenshot 2024-01-15 at 13.35.59.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+Left: CDF of a discrete r.v. \\
+Right: CDF of a continuous r.v.
+
+\subsection{PDF of $X$ is the Derivative of the CDF}
+\textit{Remember: PDF is a function that describes the relative likelihood for this random variable to take on a given value.} \\
+For a continuous r.v. $X$ with CDF $F$, the PDF of $X$ is the derivative of $f$ of the CDF, given 
+\[f(x) = F'(x)\]
+The support of $X$ is the set of $x$ where $f(x) > 0$ \\
+The height is NOT a probability (it is mostly meaningless; simply standardised so that integrates (ie the AUC) is equal to 1. Instead, the area (integral) is the probability.\\
+
+\textit{NB: with CDFs: you can always just take the integral from minus infinite to infinite, this is the same as just giving the integral for the common support of $x$}\\
+
+
+An important way in which continuous r.v.s differ from discrete r.v.s is that for continuous r.v.s, $P(X = x) = 0$ for all $x$.\\
+\begin{itemize}
+    \item Why? Continuous r.v.s can take on infinite values
+    \item So, we do NOT interpret PDF of $X$ as $P(X = x)$
+    \item Instead, PDF gives density function from which probabilities can be obtained for intervals of values. The value of the PDF at any given point can be interpreted as a density, not a probability.
+    \item However, CDF remains interpretable as $P(X \leq x)$
+\end{itemize}
+
+\subsection{Probability of a Continuous Random Variable}
+Whereas for discrete variables' PDFs we were interested in probabilities associated with values $X$ could take\ldots{} \\
+... for continuouse variable PDFs we are interested in the probability of $X$ falling in some interval $(a,b)$ (or $[a,b]$ or $(a,b]$, or $[a,b)$:
+
+\[P(a < X \leq b) = F(b) --- F(a) = \int_{a}^{b} f(x) \, dx\]
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/Screenshot 2024-01-25 at 11.06.02.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\textit{The probability that a continuous random variable falls within a particular interval is given by the area under the PDF curve over that interval. This is why the total area under the PDF curve across all possible values of the variable is always equal to 1. \\
+In areas where the PDF curve is higher, the continuous random variable is \textbf{more likely} to fall within these values.}
+
+\subsection{Valid PDFs}
+A valid PDF must satisfy 2 conditions:
+\begin{enumerate}
+    \item Non-negative: $f(x)\geq 0$
+    \item integrates to 1: $\int_{-\infty}^{\infty} f(x) \, dx = 1$
+\end{enumerate}
+
+\section{Expectation of a Continuous r.v}
+Mean / expected value: 
+\[E(X) = \int_{-\infty}^{\infty} xf(x) \, dx\]
+
+Broken down:
+\begin{itemize}
+    \item $x$ = possible value of r.v. $X$
+    \item $f(x)$ = PDF of $X$ --- ie the relative likelihood for this continuous r.v. to occur at each value of $x$
+    \item $\int_{-\infty}^{\infty}$ = integral over all possible values of $X$. We use integral because for continuous variables, probabilities are integrals of the PDF.
+    \item $xf(x)dx$ = weighted value of the r.v. ($f(x$ acts as weight indicating how much each value of $x$ contributes to the avg.)
+\end{itemize}
+
+... so expected value E(X) interpreted as weighted avg, where each possible value of $X$ weighted according to its prob density.\\
+... gives a single number that represents ``center of mass'' or ``balance point'' of the distribution $X$.\\
+\textit{for continuous PDFs, think of y-dimension as density $\rightarrow$ with the mean: trying to balance this object: the mean is at the balancing point of the mass, which is the integral of the density across all common support (ie minus infinite to infinity)} \\
+
+In simpler terms: ``To find the expected value of a continuous random variable, take every possible value that variable can have, multiply each by the probability of that value occurring, and then sum all these products together.''
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/Screenshot 2024-01-25 at 11.08.07.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+\section{E.g. 1: Uniform Distribution, Continuous}
+\subsection{PDF}
+A continuous r.v. $X$ is said to have uniform distribution on the interval (a,b) if its PDF is:
+\[f(x) = \begin{cases} 
+\frac{1}{b-a} & \text{if } a < x < b \\
+0 & \text{otherwise}
+\end{cases}\]
+
+NB: Uniform distribution's PDF function doesn't actually have $x$ parameter: is the same whatever $x$ is.\\
+Proof it is a valid PMF: it sums (integrates) to 1 : rectangle (b-a)*(1/b-a) = 1
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/Screenshot 2024-01-25 at 11.09.22.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+\subsection{CDF}
+\[F(x) = \begin{cases} 
+0 & \text{if } x \leq a \\
+\frac{x --- a}{b --- a} & \text{if } a < x < b \\
+1 & \text{if } x \geq b
+\end{cases}
+\]
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/Screenshot 2024-01-25 at 11.09.56.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Mean}
+Mean / expected value: 
+\[E(X) = \int_{-\infty}^{\infty} xf(x) \, dx\]
+Plug in the function for the distribution (ie the PDF).\\
+Plug in $f(x)$ for the Uniform \\
+\textit{(and focus on the support of $X$ because for all non $(a,b)$ values $X = 0$, so they do not contreibute to the mean).}
+
+\begin{align*}
+    \int_{a}^{b} x \frac{1}{b --- a} \, dx &= \frac{x^2}{2(b --- a)} + c \bigg|_{a}^{b} \\
+    &= \frac{b^2 --- a^2}{2(b --- a)} \\
+    &= \frac{(b + a)(b --- a)}{2(b --- a)} \\
+    &= \frac{a + b}{2}
+\end{align*}
+NB: The integral of $x$ with respect to $x$ is $\frac{x^2}{2}$, so when we include the constant, it becomes $\frac{x^2}{2(b-a)}$.
+
+DO I NEED TO KNOW HOW TO DO THIS????
+
+\section{E.g.2: Normal Distribution}
+\textit{(NB: is always continuous)}
+\subsection{PDF} 
+\[\phi(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x --- \mu}{\sigma}\right)^2}\]
+NB: 2x params: $\mu$ (mean) and $\sigma^2$ (variance). \\
+Standard Normal is just the Normal with $\mu = 0$ and $\sigma^2 = 1$:
+\[\phi(x) = \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2} x^2}\]
+
+Technically, the Normal's support is -infinite to infinite. \\
+NB as it is continuous, the height is NOT a probability (it is mostly meaningless; simply standardised so that integrates (ie the AUC) is equal to 1. Instead, the area (integral) is the probability.
+
+\subsection{CDF}
+By convention, CDF of $X$ written $\phi(x)$ --- the functional form of CDF is ugly and unimportant.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/Screenshot 2024-01-25 at 11.11.18.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Parameters}
+Mean $\mu$ = 'location' parameter (ie where the distribution is centred). \\
+Variance $\sigma^2$ is called the scale parameter (ie determines shape)
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/Screenshot 2024-01-25 at 11.11.48.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/Screenshot 2024-01-25 at 11.12.15.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/Screenshot 2024-01-25 at 11.12.49.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Standardization}
+Any Normal-distributed r.v. $X$ with mean $\mu$ and variance $\sigma^2 \rightarrow$ transformable into Standard Normal:
+
+If \[Z \sim \mathcal{N}(0,1) \\ \text{, then } X = \mu + \sigma Z \sim \mathcal{N}(\mu, \sigma^2)\]
+
+$\rightarrow$ can transform any Normal-distributed r.v. into a Standard Normal: \[Z = \frac{X --- \mu}{\sigma}\]
+\begin{enumerate}
+    \item demean
+    \item divide by $\sigma$ 
+\end{enumerate}
+
+This is just what z-scores are. Allows for regression interpretation: 1 unit of $X$ associated with a $\beta$ change in $Y$. \\
+\textbf{NB: r.v. itself does NOT have to be Normal distribution --- can be ANY distribution; so long as it is i.i.d $\rightarrow$ you can take the mean and that will be normally distributed.}
+
+\subsection{Features of the Normal}
+\begin{enumerate}
+    \item Central Limit Theorem: \textit{For i.i.d r.v.s, sampling distribution of the standardized sampled mean tends towards the Standard Normal distribution, even if the original variables themselves are not normally distributed.}
+    \begin{itemize}
+        \item underlying r.v. distribution doesn;t have to be Normal distributed.
+        \item if i.i.d $\rightarrow$ its sample mean will be normally distributed.
+        \item this insight allows us to do statistical inference: the sample means are Normal distributed around the mean, so we standardise this.
+    \end{itemize}
+    \item Symmetry of the PDF: $\phi(z) = \phi(-z)$
+    \item Symmetry of the tails: $\phi(z) = \phi(-z)$
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/Screenshot 2024-01-25 at 11.13.31.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Benchmarks of the Normal}
+
+$\text{If } X \sim \mathcal{N}(\mu, \sigma^2), \text{ then:}$ \\
+\begin{align*}
+    P(|X --- \mu| < \sigma) &\approx 0.68 \\
+    P(|X --- \mu| < 2\sigma) &\approx 0.95 \\
+    P(|X --- \mu| < 3\sigma) &\approx 0.997
+\end{align*}
+
+\section{E.g. 3: Exponential}
+
+\subsection{PDF}
+\[f(x) = \lambda e^{-\lambda x}, \quad x > 0\]
+NB: 1x parameter: $\lambda$: $X \sim \text{Expo}(\lambda)$
+
+\subsection{CDF}
+\[F(x) = 1 --- e^{-\lambda x}, \quad x > 0\]
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/Screenshot 2024-01-25 at 11.14.01.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Modelling purpose}
+= the continuous analog of the Geometric
+\begin{itemize}
+    \item Geometric r.v. counts number of failures until first success in a sequence of Bernoulli trials.
+    \item Exponential r.v. represents continuous time you have to wait before arrival of first success.
+    \item Parameter $\lambda$  = rate of success per some unit of time.
+    \item NB: connection to the Poisson (part of the Exponential family); the discrete number of events per some unit of time.
+\end{itemize}
+
+\subsection{Features: memorylessness}
+\[P(X \geq s + t | X \geq s) = P(X \geq t)\]
+\begin{itemize}
+    \item time spent waiting already has no effect on time you will spend waiting for the event
+    \item ie. after waiting $s$ minutes, probability you'll have to wait another $t$ mins is same as prob of having to wait $t$ mins with no prev waiting time under your belt
+    \item if human lifetimes were Exponential: life expectancy age 80 same as if newborn baby
+    \item  exponential model is particularly useful in situations where a process decreases or increases at a rate proportional to its current value. 
+    \item radioactive decay / compound interest in finance / population growth-decline / cooling-heating in thermodynamics / spread of infectious diseases
+    \item more importantly, Exponential is a building block for more flexible distributions that do account for the passage of time (eg the Weibull)
+\end{itemize}
+
+\section{Continuous variables applied to Probability}
+
+\subsection{Joint Distribution of Continuous r.v.s}
+
+\subsubsection{CDF}
+
+If $X$ and $Y$ have a continuous joint distribution, we require that the \textbf{joint CDF}...
+\[F_{X,Y}(x,y) = P(X \leq x, Y \leq y)\]
+... be differentiable with respect to both $x$ and $y$.\\
+The partial derivative with respect to $x$ and $y$ is the \textbf{joint PDF} \\
+This is quite similar to single r.v.s, where the derivative of the CDF is the PDF, but here since we have two variables we need to differentiate it with respect to both (i.e partial derivatives).
+
+\subsubsection{PDF}
+Joint PDF gives the likelihood of $X$ and $Y$ both taking on specific values $x$ and $y$\\
+
+The \textbf{joint PDF} is obtained by taking the partial derivatives of the \textbf{joint CDF}.
+
+\[f_{X,Y}(x,y) = \frac{\partial^2}{\partial x \partial y} F_{X,Y}(x,y)\]
+
+This means you first take the partial derivative of $F_{X,Y}(x,y)$ with respect to $x$, and then take the partial derivative of the result with respect to $y$. \\
+E.g. $F(x,y) = \frac{1}{2} x^2 y^3$\\
+
+CDF: $F(x,y) = \frac{1}{2} x^2 y^3 \rightarrow$ PDF: $f (x,y) = 3xy^2$\\
+
+To find the joint PDF, you would take the partial derivatives of this CDF function with respect to $x$ and then $y$, in turn:
+\[f_{X,Y}(x,y) = \frac{\partial^2}{\partial x \partial y} \left( \frac{1}{2} x^2 y^3 \right)\]
+results in a function that represents the joint PDF, which describes how the probability density is distributed across the different values $x$ and $Y$.\\
+
+\begin{tcolorbox}
+    \textbf{NB this is not the same as just taking the partial derivatives in parrallel, here we are taking them sequentially}
+
+Partial Derivative with respect to $x$ ($\frac{\partial F}{\partial x}$):
+
+When differentiating with respect to $x$, $y$ is treated as a constant. So,
+\[
+\frac{\partial}{\partial x}\left(\frac{1}{2}x^2y^3\right) = y^3\left(\frac{\partial}{\partial x}\left(\frac{1}{2}x^2\right)\right).
+\]
+Differentiate $\frac{1}{2}x^2$ with respect to $x$, which gives $x$.
+Therefore,
+\[
+\frac{\partial F}{\partial x} = xy^3.
+\]
+
+Partial Derivative with respect to $y$ ($\frac{\partial F}{\partial y}$):
+
+When differentiating with respect to $y$, $x$ is treated as a constant. So,
+\[
+\frac{\partial}{\partial y}\left(\frac{1}{2}x^2y^3\right) = x^2\left(\frac{\partial}{\partial y}(y^3)\right).
+\]
+Differentiate $y^3$ with respect to $y$, which gives $3y^2$.
+Therefore,
+\[
+\frac{\partial F}{\partial y} = \frac{3}{2}x^2y^2.
+\]
+
+So, the partial derivatives of $F(x,y) = \frac{1}{2}x^2y^3$ are $\frac{\partial F}{\partial x} = xy^3$ and $\frac{\partial F}{\partial y} = \frac{3}{2}x^2y^2$.\\
+
+\textbf{\ldots{}that is NOT the same as the mixed partial derivative you end up with when getting Joint PDF from Joint CDF of continuous variables}\\
+
+First, differentiate $f(x,y) = \frac{1}{2}x^2y^3$ with respect to $x$:
+\[
+\frac{\partial f}{\partial x} = xy^3.
+\]
+
+Then, differentiate the result with respect to $y$:
+\[
+\frac{\partial^2 f}{\partial x \partial y} = x \cdot 3y^2 = 3xy^2.
+\]
+
+Thus, the mixed partial derivative $\frac{\partial^2}{\partial x \partial y}$ of $F_{X,Y}(x,y) = \frac{1}{2}x^2y^3$ is $3xy^2$.\\
+
+    NB some of the $F$ vs $f$ notation ^^^ not right
+\end{tcolorbox}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/Screenshot 2024-01-25 at 11.14.49.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Marginal Distribution of Continuous r.v.s}
+
+To get marginal distribution of $X$, integrate over all values of $Y$ from the Joint PDF\\
+
+This process essentially sums out  the effect of $Y$, leaving the distribution of $X$ alone. We have collapsed the 2D distribution into a 1D distribution\\
+
+...\textit{rather than summing (as we did for discrete r.v.s); in effect integration is a form of summing if you think about it in terms of the area under the curve}.
+\[f_X(x) = \int_{-\infty}^{\infty} f_{X,Y}(x,y) \, dy\]
+
+Marginal = when we strip out one of the variables (we are no longer interested in, by summing/integrating all instances)\\
+
+The marginal PDF $f_X(x)$ tells you about the probability distribution of $X$ irrespective of $Y$. It is now just the PDF of $X$
+
+... it also allows us to renormalise from the Joint PDF \textit{(ie the Joint / Marginal)} to get to the Conditional Joint PDF: 
+
+\subsection{Conditional PDF}
+Conditional PDF of $Y$ given $X = x$ is: 
+\[ f_{Y|X}(y|x) = \frac{f_{X,Y}(x,y)}{f_X(x)}\]
+
+As with discreet r.v.s, the conditional is the joint over the marginal. \\
+NB: How can we condition on $X = x$ for a continuous r.v. when we learned that the event has prob 0? Technically we're conditioning on the event that $X$ falls in some small interval containing $x$, say $(x --- \varepsilon, x + \varepsilon)$, and then taking the limit as $\varepsilon$ goes to 0.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/Screenshot 2024-01-25 at 11.15.24.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Bayes Rule and LOTP for continuous r.v.s}
+Bayes rule:
+\[f_{Y|X}(y|x) = \frac{f_{X|Y}(x|y) f_{Y}(y)}{f_{X}(x)}\]
+
+LOTP:
+\[f_{X}(x) = \int_{-\infty}^{\infty} f_{X|Y}(x|y) f_{Y}(y) \, dy\]
+
+We simply replaced sum from the discrete world with an integral.
+
+\subsection{Can combine discreet and continuous r.v.s}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_6/Screenshot 2024-01-25 at 11.15.51.png}
+    \caption{Enter Caption}
+    \label{fig:enter-label}
+\end{figure}

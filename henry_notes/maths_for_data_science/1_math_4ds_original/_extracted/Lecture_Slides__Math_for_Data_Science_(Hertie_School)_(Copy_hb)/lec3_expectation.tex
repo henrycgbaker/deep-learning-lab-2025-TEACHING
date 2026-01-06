@@ -1,0 +1,468 @@
+%\documentclass[xcolor=dvipsnames]{beamer}
+\documentclass[xcolor=dvipsnames,handout]{beamer}
+
+\setbeamertemplate{blocks}[rounded][shadow=true]
+\usepackage{etex}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{epsfig}
+\usepackage[english]{babel}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{fancyvrb}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{epsdice}
+
+\hypersetup{
+    colorlinks = true
+}
+
+\definecolor{newred}{RGB}{127,0,0}
+\let\iitemize=\itemize \let\endiitemize=\enditemize \renewenvironment{itemize}{\iitemize \vspace{1mm} \itemsep2mm}{\endiitemize}
+\let\eenumerate=\enumerate \let\endeenumerate=\endenumerate \renewenvironment{enumerate}{\eenumerate \vspace{1mm} \itemsep2mm}{\endeenumerate}
+% == theme & colors
+\mode<presentation>
+{
+
+
+\usetheme[progressbar=frametitle]{metropolis}
+\usecolortheme{beaver}
+  \setbeamercovered{invisible} %or transparent
+  \metroset{block=fill}
+  \setbeamercolor{block title example}{fg=gray!40!black}
+  \setbeamercolor{itemize item}{fg=gray!40!black} 
+  \setbeamercolor{title}{fg=newred} 
+}
+
+      
+
+
+% === tikz for pictures ===
+\usepackage{tikz}
+\usepackage[latin1]{inputenc}
+\usetikzlibrary{shapes,arrows,trees,fit,positioning}
+\usetikzlibrary{decorations.pathreplacing}
+\tikzstyle{doublearr}=[latex-latex, black, line width=0.5pt]
+
+% === if you want more than one slides on one page ===
+\usepackage{pgfpages}
+
+
+
+\title{Mathematics for Data Science}
+\subtitle[]{Lecture 3: Random Variables and Their Distributions Continued; Expectation; Joint Distributions}
+\author[Asya Magazinnik]{Asya Magazinnik}
+\institute{Hertie School}
+\date{\today}
+
+\renewcommand\r{\right}
+\renewcommand\l{\left}
+% \newcommand\sign{{\rm sign}}
+
+%% == change spacing for itemize
+%\let\oldframe\frame
+%\renewcommand{\frame}[1][1]{
+%\oldframe[#1]
+%\let\olditemize\itemize
+%\renewcommand\itemize{\olditemize\addtolength{\itemsep}{.25\baselineskip}}
+%}
+
+
+
+\def\insertnavigation#1{\relax}
+% \usefonttheme{serif}
+\usepackage[all]{xy}
+\usepackage{geometry,colortbl,wrapfig}
+\usepackage{tikz}  
+\usepackage{graphicx,setspace,subfigure}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\newcommand{\Ex}{\textsc{Example  }}
+\newcommand{\series}{\sum_{n=1}^{\infty}} 
+\newcommand{\ball}[1]{B( #1)} 
+\newcommand{\inner}[1]{\ensuremath{\langle #1 \rangle}}
+\newcommand{\e}{\epsilon}
+\newcommand{\grad}{\nabla}
+\newcommand{\pa}{\pause \item}
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\be}{\begin{enumerate}}
+\newcommand{\ee}{\end{enumerate}}
+\newcommand{\R}{\mathbb{R}}
+\newtheorem{proposition}{Proposition}
+\newtheorem{axiom}{Axiom}
+\newtheorem{assumption}{Assumption}
+\newtheorem{remark}{Remark}
+
+
+
+
+\newcommand{\indep}{{\bot\negthickspace\negthickspace\bot}}
+
+\begin{document}
+
+\subject{Talks}
+\AtBeginSection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+\AtBeginSubsection[]
+{
+  \begin{frame}[plain]
+    \frametitle{}
+    \tableofcontents[currentsection,currentsubsection]
+    \addtocounter{framenumber}{-1}
+  \end{frame}
+}
+
+
+\frame[plain]{
+  \titlepage
+  \addtocounter{framenumber}{-1}
+}
+
+
+
+
+\section{Random Variables and Their Distributions (Continued)}
+\begin{frame}{Functions of Random Variables}
+    \textbf{Definition:} For an experiment with sample space $S$, a r.v. $X$, and a one-to-one function $g$, $g(X)$ is the random variable that maps $s$ to $g(X(s))$ for all $s \in S$. \\
+    \vspace{3mm} \pause 
+    In other words: 
+    \begin{enumerate}
+        \item First apply $X$
+        \item Then take $g(X)$
+    \end{enumerate}
+    \pause
+    Assuming $g(x)$ is a one-to-one function, 
+    \[ P(Y=g(x)) = P(X=x) \]
+\end{frame}
+
+\begin{frame}{Example: A Random Walk}
+\textbf{Example 3.7.2} A drunk man stumbling home moves 1 step to the left and 1 step to the right with equal probabilities. Assume all steps are independent. Let $Y$ be his position after $n$ steps. What is the PMF of $Y$?
+\\ \vspace{2mm} \pause 
+\begin{itemize} \small 
+    \item Consider every step to be a Bernoulli trial, with right considered a success and left a failure.  \pause 
+    \item The number of steps taken to the right after $n$ steps is then $X \sim \text{Bin}(n, 1/2)$. \pause 
+    \item If $X=j$, the number of steps taken to the left is $n-j$. So the final position is $j - (n-j) =2j-n$.
+    \pause 
+    \item Define the final position as the r.v. $Y$:
+    \[ P(Y=k) = P(2X - n = k) = P(X=(n+k)/2) = {n \choose \frac{n+k}{2} } \left( \frac{1}{2} \right)^n \]
+\end{itemize}
+\end{frame}
+
+\begin{frame}{A Function of Two Random Variables}
+\textbf{Definition:} Given an experiment with sample space $S$, if $X$ and $Y$ are r.v.s that map $s \in S$ to $X(s)$ and $Y(s)$ respectively, then $g(X,Y)$ is the r.v. that maps $s$ to $g(X(s), Y(s))$. 
+\end{frame}
+
+{
+\setbeamercolor{background canvas}{bg=white}
+\begin{frame}{Example: Maximum of Two Dice Rolls}
+\textbf{Example 3.7.6:} We roll two fair 6-sided dice. Let $X$ be the number on the first die and $Y$ be the number on the second die. What is the PMF of $\max(X,Y)$?
+\pause 
+\begin{figure}
+    \centering
+\includegraphics[width=.5\textwidth]{images/pmf_2.png}
+\end{figure} \pause 
+Then we compute the PMF of $\max(X,Y)$ by tallying up the possible outcomes and computing their probabilities.
+\end{frame}
+}
+
+\begin{frame}{Independence of Random Variables}
+\vspace{3mm}
+    Random variables $X$ and $Y$ are \alert{independent} if \[
+    P(X \leq x, Y \leq y) = P(X \leq x) P(Y \leq y)
+    \]
+    for all $x, y \in \mathbb{R}$.
+    \\ \vspace{5mm} \pause In the discrete case where we are now working, this is equivalent to the condition: 
+    \[ P(X=x, Y=y) = P(X=x) P(Y=y) \]
+    
+    \vspace{2mm} \pause
+    If $X$ and $Y$ are independent r.v.s, then any function of $X$ is independent of any function of $Y$.
+\end{frame}
+
+\begin{frame}{Independent and Identically Distributed Random Variables}
+    We will often work with \alert{independent and identically distributed (i.i.d.)} random variables. Independent means they provide no information about each other. Identically distributed means they come from the same exact PMF. Give an example of two variables that are:
+    \begin{itemize}
+        \item Independent and identically distributed
+        \item Independent and not identically distributed
+        \item Dependent and identically distributed 
+        \item Dependent and not identically distributed 
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Conditional Independence of Random Variables}
+    Random variables $X$ and $Y$ are \alert{conditionally independent} given a r.v. $Z$ if:
+    \[ P(X \leq x, Y \leq y | Z=z) = P(X\leq x | Z =z) P(Y\leq y |Z=z) \]
+    \pause 
+\end{frame}
+
+\begin{frame}{Independence and Conditional Independence}
+\vspace{2mm}
+    \alert{Independence does not imply conditional independence.} 
+    \begin{itemize} \small 
+        \item Let $X$ be an indicator for whether my friend Bob calls me next Friday and $Y$ be an indicator for whether my friend Alice calls next Friday, and suppose $X$ and $Y$ are independent
+        \item Let $Z$ be an indicator for exactly one of my friends calling me next Friday
+        \item Then, $X$ and $Y$ are (perfectly) dependent given $Z$.
+    \end{itemize}
+    \pause 
+    \alert{Conditional independence does not imply independence.}
+    \begin{itemize} \small 
+        \item A lot of applied causal inference is built on finding conditional independence where there is not independence, e.g. by applying statistical controls
+        \item E.g., no selection into treatment \textit{given} some conditions
+    \end{itemize}
+\end{frame}
+
+ \section{Expectation}
+ \begin{frame}{Definition of Expectation}
+     Usually, we want to summarize a r.v. rather than write up all its values and their probabilities. \\
+     \vspace{3mm} \pause 
+     The \alert{expected value} of a random variable (also called the \alert{expectation} or the \alert{mean}) is the weighted average of the possible values that $X$ can take on, weighted by their probabilities: 
+     \[ E(x) = \sum_x \underbrace{x}_{\text{value}} \underbrace{P(X=x)}_{\text{PMF at x}} \]
+     where the sum is over all possible values of $x$. 
+ \end{frame}
+
+ \begin{frame}{Examples of Expectations}
+     1. Let $X$ be the result of rolling a 6-sided die. The expected value of $X$ is: 
+     \[ E(X) = \frac{1}{6} (1 + 2 + 3 + 4 + 5 + 6) = 3.5 \]
+     \pause 
+     
+     Note that $X$ never \textit{equals} its mean, which is fine. The average number of children per household in some country could be 1.8, but no household has exactly 1.8 children. \\
+     \vspace{3mm} \pause 
+     2. Let $X \sim \text{Bern}(p)$. Then, 
+     \[ E(X) = 1p + 0(1-p) = p \]
+ \end{frame}
+
+\begin{frame}{Linearity of Expectation}
+    A handy property of expectation is \alert{linearity}:
+    \begin{align*}
+    E(cX) &= cE(X) \\
+    E(X+Y) &= E(X) + E(Y) 
+    \end{align*}
+    \pause 
+    This holds whether or not $X$ and $Y$ are independent! Consider the most extreme dependence, $X=Y$.
+    \begin{itemize}
+        \item Then $X+Y = 2X$.
+        \item $E(X+Y)=E(2X) = 2E(X)$
+        \item $E(X) + E(Y) = 2E(X)$
+        
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Linearity of Expectation}
+    But note that this only works with linear functions. In general,
+    $E(g(X))$ is \textit{not equal to} $g(E(X))$ when $g(X)$ is nonlinear, namely: 
+    \begin{itemize}
+        \item $g(x) = x^3$
+        \item $g(x) = \sqrt{x} $
+        \item $g(x) = |x|$
+    \end{itemize}
+    \vspace{2mm}
+    In all of these cases,
+    \[ E(g(X)) = \sum_x g(x) P(X=x) \]
+\end{frame}
+     
+ \begin{frame}{Variance}
+     \vspace{2mm}
+     The \alert{variance} of a r.v. $X$ is defined as: 
+     \[ \text{Var}(X) = E((X - EX)^2) \]
+     and the \alert{standard deviation} is the square root of the variance. \\
+     \vspace{3mm} \pause 
+     Intuitively, this is the average (squared) deviation of the variable from the mean. (Why squared?)  \\
+     \vspace{3mm} \pause
+     \textbf{Example:} What is the variance of $X$ if $X$ is the result of one roll of a fair six-sided die? Recall that $E(X)=3.5$. Then the variance is:
+     \[ \frac{1}{6} \left( (1-3.5)^2 + (2-3.5)^2 + ... + (6-3.5)^2 \right) \approx 2.9 \]
+      And the standard deviation is about 1.7.
+ \end{frame}
+
+ \begin{frame}{Another Useful Definition of Variance}
+ \vspace{2mm}
+Another way to compute variance is as:
+\[ \text{Var}(X) = E(X^2) - (EX)^2 \] 
+     Let's prove this from the definition of variance, letting $E(X)=\mu$.  \\ \vspace{2mm} \pause 
+     First note that we \alert{cannot} say $E((X-\mu)^2) = (E(X-\mu))^2$ because this function of $X$ is nonlinear. Instead, we do:  
+     \begin{align*}
+         E((X-\mu)^2) &= E(X^2 - 2\mu X + \mu^2) \\ 
+         &= E(X^2) - E(2\mu X) + E(\mu^2) \\
+         &= E(X^2) - 2 \mu E(X) + \mu^2 \\
+         &= E(X^2) - 2 \mu^2 + \mu^2 \\
+         &= E(X^2) - \mu^2 
+     \end{align*}
+ \end{frame}
+
+ \begin{frame}{Some Useful Variance Facts}
+     \begin{enumerate}
+        \item $\text{Var}(c) = 0$ for any constant $c$
+         \item $\text{Var}(X+c) = \text{Var}(X)$ for any constant $c$
+         \item $\text{Var}(cX) = c^2 \text{Var}(X)$ for any constant $c$
+         \item $\text{Var}(X + Y) = \text{Var}(X) + \text{Var}(Y)$ \alert{only if $X$ and $Y$ are independent} (not in general)
+     \end{enumerate}
+     \pause 
+Thus note that unlike expectation, variance is not linear, so $\text{Var}(cX) \neq c \text{Var}(X)$ and $\text{Var}(X+Y) \neq \text{Var}(X) + \text{Var}(Y)$ (in general) 
+\end{frame}
+
+\section{Joint Distributions}
+\begin{frame}{Introducing Joint Distributions}
+\begin{itemize}
+    \item  We have learned that two random variables can be independent or dependent; 
+    \item We have learned how to characterize PMFs of functions of random variables;
+    \item But what if we want more detailed information about how two variables interact? 
+    \item Examples abound: effectiveness of a medical treatment, interactions between genetic markers of a disease, electoral conditions
+\end{itemize}
+\end{frame}
+
+\begin{frame}{The Joint PMF and CDF}
+ \vspace{2mm}
+    The \alert{joint PMF} of discrete variables $X$ and $Y$ is defined as:
+    \[ p_{X,Y}(x,y) = P(X=x, Y=y) \] 
+\pause
+    
+    Much like a univariate PMF, a joint PMF has to sum to 1 over all values of $X$ and $Y$:
+    \[ \sum_x \sum_y P(X=x, Y=y) = 1 \] 
+
+\pause
+    The \alert{joint CDF} is defined: 
+    \[ F_{X,Y}(x,y) = P(X \leq x, Y \leq y) \]
+\end{frame}
+
+{
+\setbeamercolor{background canvas}{bg=white}
+\begin{frame}{A Joint PMF}
+    \begin{center}
+        \includegraphics[width=\textwidth]{images/joint_pmf_ex.png}
+    \end{center}
+\end{frame}
+}
+
+\begin{frame}{The Marginal PMF}
+The \alert{marginal PMF} of $X$ is defined as: 
+\[ P(X=x) = \sum_y P(X=x, Y=y) \]
+The marginal PMF of the joint distribution of $X$ and $Y$ \textit{is} the PMF of $X$.  
+\begin{itemize}
+    \item The act of summing over the possible values of $Y$ to get the PMF of $X$ is called \alert{marginalizing out $Y$}. 
+\end{itemize}
+\end{frame}
+
+{
+\setbeamercolor{background canvas}{bg=white}
+\begin{frame}{A Marginal PMF}
+    \begin{center}
+        \includegraphics[height=.9\textheight]{images/marginal_pmf_ex.png}
+    \end{center}
+\end{frame}
+}
+
+\begin{frame}{The Conditional PMF}
+The \alert{conditional PMF} of $Y$ given $X=x$ is:
+\[ P(Y=y | X=x) = \frac{P(X=x, Y=y)}{P(X=x)}\]
+\end{frame} 
+
+{
+\setbeamercolor{background canvas}{bg=white}
+\begin{frame}{A Conditional PMF}
+    \begin{center}
+        \includegraphics[width=\textwidth]{images/cond_pmf_ex.png}
+    \end{center}
+\end{frame}
+}
+
+\begin{frame}{Putting It All Together}
+The following \alert{contingency table} illustrates the above concepts. 
+\begin{table}
+   \begin{tabular}{ccc}
+     \hline
+     & $Y=1$ & $Y=0$ \\
+     \hline 
+    $X=1$ & $\frac{5}{100}$ & $\frac{20}{100}$ \\
+    $X=0$ & $\frac{3}{100}$ & $\frac{72}{100}$
+\end{tabular} 
+\end{table}
+
+Suppose we randomly sample an adult male from the population. Let $X$ be an indicator for the presence of a gene and $Y$ be an indicator for developing a certain disease at some point in his life.  \\
+\vspace{5mm} \pause  What is the joint PMF of $X$ and $Y$? What are the marginal probabilities of $X$ and $Y$? What is the conditional probability of $Y$ given $X=1$?
+\end{frame}
+
+\begin{frame}{Putting It All Together}
+  What is the joint PMF of $X$ and $Y$?
+\pause \vspace{5mm}
+    \begin{table}
+   \begin{tabular}{ccc}
+     \hline
+     & $Y=1$ & $Y=0$ \\
+     \hline 
+    $X=1$ & $\frac{5}{100}$ & $\frac{20}{100}$ \\
+    $X=0$ & $\frac{3}{100}$ & $\frac{72}{100}$
+\end{tabular} 
+\end{table}
+This is given by the contingency table itself. 
+\end{frame}
+
+\begin{frame}{Putting It All Together}
+What are the marginal distributions of $X$ and $Y$?
+\pause \vspace{5mm}
+    \begin{table}
+   \begin{tabular}{ccc|c}
+     \hline
+     & $Y=1$ & $Y=0$ & Total \\
+     \hline 
+    $X=1$ & $\frac{5}{100}$ & $\frac{20}{100}$ & $\frac{25}{100}$ \\
+    $X=0$ & $\frac{3}{100}$ & $\frac{72}{100}$ & $\frac{75}{100}$ \\
+    \hline
+    Total & $\frac{8}{100}$ & $\frac{92}{100}$ & $\frac{100}{100}$
+\end{tabular} 
+\end{table}
+\pause 
+$X$ is distributed Bernoulli(0.25). $Y$ is distributed Bernoulli(0.08). 
+\end{frame}
+
+\begin{frame}{Putting It All Together}
+    What is the conditional distribution of $Y$ given $X=1$? 
+    \pause \vspace{5mm}
+    \begin{table}
+   \begin{tabular}{ccc|c}
+     \hline
+     & $Y=1$ & $Y=0$ & Total \\
+     \hline 
+    $X=1$ & $\frac{5}{100}$ & $\frac{20}{100}$ & $\frac{25}{100}$ \\
+    $X=0$ & $\frac{3}{100}$ & $\frac{72}{100}$ & $\frac{75}{100}$ \\
+    \hline
+    Total & $\frac{8}{100}$ & $\frac{92}{100}$ & $\frac{100}{100}$
+\end{tabular} 
+\end{table}
+\[ P(Y=1|X=1) = \frac{P(X=1, Y=1)}{P(X=1)} = \cfrac{\frac{5}{100}}{\frac{25}{100}} = 0.2 \]
+So the conditional distribution of $Y$ given $X=1$ is Bernoulli(0.2). 
+\end{frame}
+
+\begin{frame}{Independence}
+Random variables $X$ and $Y$ are \alert{independent} if:
+\[ P(X=x, Y=y) = P(X=x) P(Y=y) \]
+\end{frame}
+
+\begin{frame}{Are these two variables independent?}
+    \begin{table}
+   \begin{tabular}{ccc|c}
+     \hline
+     & $Y=1$ & $Y=0$ & Total \\
+     \hline 
+    $X=1$ & $\frac{5}{100}$ & $\frac{20}{100}$ & $\frac{25}{100}$ \\
+    $X=0$ & $\frac{3}{100}$ & $\frac{72}{100}$ & $\frac{75}{100}$ \\
+    \hline
+    Total & $\frac{8}{100}$ & $\frac{92}{100}$ & $\frac{100}{100}$
+\end{tabular} 
+\end{table}
+Finding even one pair of values such that $P(X=x, Y=y) \neq P(X=x) P(Y=y)$ is enough to rule out independence. 
+\end{frame}
+    
+\end{document}
