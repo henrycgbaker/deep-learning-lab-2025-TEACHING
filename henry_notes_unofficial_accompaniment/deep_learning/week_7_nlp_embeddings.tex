@@ -1,0 +1,2326 @@
+% Week 7: Natural Language Processing I
+\chapter{Week 7: Natural Language Processing I}
+\label{ch:week7}
+
+How do we teach a computer to understand language? At first glance, this seems impossibly difficult-language is nuanced, context-dependent, and deeply tied to human experience. Yet modern NLP systems can translate between languages, answer questions, and even write essays. The key insight that makes this possible is surprisingly simple: \textit{we can represent words as numbers}.
+
+This chapter traces the evolution of text representations, from simple word counts to the sophisticated contextual embeddings that power modern AI. We begin with a fundamental question: if ``happy'' and ``joyful'' mean similar things, shouldn't their numerical representations somehow reflect this similarity? Traditional approaches like Bag of Words treat every word as completely unrelated-``happy'' is no more similar to ``joyful'' than to ``refrigerator''. Word embeddings solve this by learning dense vector representations where semantically similar words cluster together in vector space.
+
+But single-vector-per-word approaches have a critical limitation: the word ``bank'' means something entirely different in ``river bank'' versus ``investment bank''. Contextual embeddings, culminating in the Transformer architecture, address this by generating different representations depending on surrounding context. Understanding this progression-from counting words to contextual understanding-provides the foundation for all modern NLP.
+
+\begin{quickref}[Chapter Overview]
+\textbf{Core goal:} Understand text representation, word embeddings, and modern NLP architectures.
+
+\textbf{Key topics:}
+\begin{itemize}
+    \item Text as data: tokenisation, vocabulary, preprocessing
+    \item Classical representations: Bag of Words, TF-IDF
+    \item Static word embeddings: Word2Vec (Skip-Gram, CBOW), GloVe
+    \item Contextual embeddings: ELMo, BERT
+    \item The Transformer architecture: self-attention, multi-head attention, positional encoding
+    \item Sentiment analysis with RNNs
+    \item Regularisation: weight sharing, weight decay, dropout
+\end{itemize}
+
+\textbf{Key equations:}
+\begin{itemize}
+    \item Skip-Gram: $P(w_o \mid w_c) = \frac{\exp(u_o^\top v_c)}{\sum_{i \in \mathcal{V}} \exp(u_i^\top v_c)}$
+    \item Scaled dot-product attention: $\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V$
+    \item Cosine similarity: $\cos(\theta) = \frac{A \cdot B}{\|A\| \|B\|}$
+    \item Word arithmetic: $\text{king} - \text{man} + \text{woman} \approx \text{queen}$
+\end{itemize}
+\end{quickref}
+
+%==============================================================================
+\section{Text and Public Policy}
+%==============================================================================
+
+Language is central to political and legislative contexts. Political discourse is predominantly text-based:
+\begin{itemize}
+    \item \textbf{Legislative texts}: Laws, regulations, policy documents
+    \item \textbf{Parliamentary records}: Debates, speeches, committee transcripts
+    \item \textbf{Party manifestos}: Policy positions and platforms
+    \item \textbf{Social media}: Real-time public sentiment and discourse
+\end{itemize}
+
+\begin{rigour}[Traditional vs Modern Text Analysis]
+\textbf{Traditional} (manual coding):
+\begin{itemize}
+    \item Labour-intensive categorisation by human coders
+    \item Cannot scale to modern data volumes
+\end{itemize}
+
+\textbf{Modern} (text-as-data):
+\begin{itemize}
+    \item Deep learning for automated analysis at scale
+    \item Pattern recognition across massive corpora
+\end{itemize}
+\end{rigour}
+
+\subsection{Example Applications}
+
+\begin{quickref}[NLP in Policy Research]
+\textbf{Manifesto Analysis} (Bilbao-Jayo \& Almeida, 2018):
+\begin{itemize}
+    \item 56 categories across 7 policy areas
+    \item CNN-based sentence classification
+    \item Multi-language: Spanish, Finnish, German
+\end{itemize}
+
+\textbf{Climate Risk Disclosure} (Friedrich et al., 2021):
+\begin{itemize}
+    \item 5000+ corporate annual reports
+    \item BERT classification of climate-related paragraphs
+    \item Informs investment and policy decisions
+\end{itemize}
+\end{quickref}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_7/climate risk.png}
+    \caption{Climate risk disclosure identification in corporate reports.}
+    \label{fig:climate-risk}
+\end{figure}
+
+\begin{redbox}
+\textbf{NLP's equity issue:} Most languages are underrepresented in ML models. Models trained primarily on English may perform poorly on other languages, limiting global applicability.
+\end{redbox}
+
+%==============================================================================
+\section{Common NLP Tasks}
+%==============================================================================
+
+\begin{quickref}[NLP Task Categories]
+\begin{itemize}
+    \item \textbf{Text classification}: Sentiment analysis, topic categorisation, spam detection
+    \item \textbf{Sequence labelling}: Named Entity Recognition (NER), POS tagging
+    \item \textbf{Text generation}: Summarisation, translation, dialogue systems
+    \item \textbf{Question answering}: Extractive and generative QA
+    \item \textbf{Natural language inference}: Entailment, contradiction detection
+\end{itemize}
+\end{quickref}
+
+%==============================================================================
+\section{Text as Data}
+%==============================================================================
+
+Before we can apply machine learning to text, we need to convert words into numbers. This is less straightforward than it might seem-text has no natural numerical representation. Unlike images (which are naturally arrays of pixel intensities) or audio (which is naturally a waveform), text is a sequence of discrete symbols. The first step in any NLP pipeline is \textbf{tokenisation}: breaking text into atomic units that we can then map to numbers.
+
+But what should those atomic units be? Should we work with characters, words, or something in between? Each choice has trade-offs. Word-level tokenisation gives us meaningful units (``cat'' is a word with clear meaning) but creates a vocabulary problem-there are hundreds of thousands of English words, and new ones appear constantly (``selfie'', ``COVID-19''). Character-level tokenisation has a tiny vocabulary but loses semantic meaning-``c'', ``a'', ``t'' individually tell us nothing about cats.
+
+Modern systems use \textbf{subword tokenisation}, which learns to break words into meaningful pieces. Common words stay whole, while rare words decompose into recognisable subunits: ``unhappiness'' might become ``un'', ``happy'', ``ness''. This balances vocabulary size with meaningful units.
+
+\begin{rigour}[Core Concepts]
+\begin{itemize}
+    \item \textbf{String}: Raw sequence of characters
+    \item \textbf{Token}: Atomic unit (word, subword, or character)
+    \item \textbf{Corpus}: Collection of documents
+    \item \textbf{Vocabulary $\mathcal{V}$}: Set of unique tokens in the corpus
+    \item \textbf{n-gram}: Contiguous sequence of $n$ tokens
+    \item \textbf{Embedding}: Numerical vector representation of text
+\end{itemize}
+\end{rigour}
+
+%==============================================================================
+\section{Text Preprocessing}
+\label{sec:text-preprocessing}
+%==============================================================================
+
+\begin{rigour}[NLP Pipeline]
+\begin{enumerate}
+    \item \textbf{Load text}: Read raw text data into memory as strings
+    \item \textbf{Tokenisation}: Split text into tokens (words, subwords, or characters)
+    \item \textbf{Vocabulary creation}: Assign each unique token an index
+    \item \textbf{Index conversion}: Convert text to sequences of numerical indices
+\end{enumerate}
+
+\textbf{Additional considerations}:
+\begin{itemize}
+    \item \textbf{Token granularity}: Words, subwords, or characters depending on model
+    \item \textbf{Special tokens}: \texttt{<unk>} for out-of-vocabulary words, \texttt{<pad>} for padding, \texttt{<bos>}/\texttt{<eos>} for sequence boundaries
+\end{itemize}
+\end{rigour}
+
+\subsection{Tokenisation Strategies}
+\label{subsec:tokenisation}
+
+The choice of tokenisation strategy profoundly affects model performance, vocabulary size, and the ability to handle unseen words.
+
+\begin{quickref}[Tokenisation Trade-offs]
+\begin{tabular}{lccc}
+\textbf{Level} & \textbf{Vocab Size} & \textbf{OOV Handling} & \textbf{Semantics} \\
+\hline
+Word & Large ($>$100k) & Poor (many \texttt{<unk>}) & Direct \\
+Subword & Medium (30k--50k) & Good & Partial \\
+Character & Small ($<$300) & Perfect & Requires learning \\
+\end{tabular}
+
+\textbf{Modern practice}: Subword tokenisation (BPE, WordPiece, SentencePiece) dominates, balancing vocabulary size with semantic preservation.
+\end{quickref}
+
+\subsubsection{Word-Level Tokenisation}
+
+\begin{rigour}[Word-Level Tokenisation]
+\textbf{Method}: Split on whitespace and punctuation.
+
+\textbf{Example}: ``The cat sat on the mat.'' $\rightarrow$ [``The'', ``cat'', ``sat'', ``on'', ``the'', ``mat'', ``.'']
+
+\textbf{Advantages}:
+\begin{itemize}
+    \item Tokens have direct semantic meaning
+    \item Simple implementation
+    \item Interpretable vocabulary
+\end{itemize}
+
+\textbf{Disadvantages}:
+\begin{itemize}
+    \item \textbf{Large vocabulary}: English alone requires $>$100,000 tokens for good coverage
+    \item \textbf{Out-of-vocabulary (OOV) problem}: Unseen words mapped to \texttt{<unk>}
+    \item \textbf{Morphological blindness}: ``running'', ``ran'', ``runs'' are unrelated tokens
+    \item \textbf{Sparse embeddings}: Rare words have poorly trained representations
+\end{itemize}
+
+\textbf{The OOV problem in practice}:
+Consider a model trained on news articles encountering ``COVID-19'' in 2020-it would be mapped to \texttt{<unk>}, losing all semantic information.
+\end{rigour}
+
+\subsubsection{Character-Level Tokenisation}
+
+\begin{rigour}[Character-Level Tokenisation]
+\textbf{Method}: Each character (including spaces) is a token.
+
+\textbf{Example}: ``cat'' $\rightarrow$ [``c'', ``a'', ``t'']
+
+\textbf{Vocabulary}: For English, approximately 26 letters + digits + punctuation + special characters $\approx$ 100--300 tokens.
+
+\textbf{Advantages}:
+\begin{itemize}
+    \item \textbf{No OOV}: Any string can be tokenised
+    \item \textbf{Tiny vocabulary}: Massive reduction in embedding parameters
+    \item \textbf{Morphological patterns}: Model can learn prefixes/suffixes
+\end{itemize}
+
+\textbf{Disadvantages}:
+\begin{itemize}
+    \item \textbf{Long sequences}: ``machine learning'' becomes 16 tokens instead of 2
+    \item \textbf{Semantic distance}: Characters carry no inherent meaning
+    \item \textbf{Computational cost}: Longer sequences require more computation
+    \item \textbf{Harder optimisation}: Model must learn word boundaries and semantics from scratch
+\end{itemize}
+\end{rigour}
+
+\subsubsection{Subword Tokenisation}
+
+Subword methods split words into meaningful subunits, providing a middle ground between word and character tokenisation.
+
+\begin{quickref}[Subword Tokenisation]
+\textbf{Key insight}: Frequent words remain whole; rare words decompose into common subunits.
+
+\textbf{Example} (BPE with typical vocabulary):
+\begin{itemize}
+    \item ``lower'' $\rightarrow$ [``lower''] (common word, kept whole)
+    \item ``lowest'' $\rightarrow$ [``low'', ``est''] (decomposed into morphemes)
+    \item ``Transformers'' $\rightarrow$ [``Trans'', ``form'', ``ers'']
+\end{itemize}
+
+\textbf{Benefits}:
+\begin{itemize}
+    \item Handles rare/unseen words gracefully
+    \item Captures morphological structure (``un-'', ``-ing'', ``-tion'')
+    \item Manageable vocabulary size (typically 30k--50k)
+\end{itemize}
+\end{quickref}
+
+\begin{rigour}[Byte Pair Encoding (BPE) Algorithm]
+BPE (Sennrich et al., 2016) is a data compression algorithm adapted for tokenisation.
+
+\textbf{Training algorithm}:
+\begin{enumerate}
+    \item \textbf{Initialise}: Start with character-level vocabulary (each character is a token)
+    \item \textbf{Count pairs}: Find the most frequent adjacent token pair in the corpus
+    \item \textbf{Merge}: Replace all occurrences of this pair with a new token
+    \item \textbf{Repeat}: Continue until vocabulary reaches desired size or no pairs remain
+\end{enumerate}
+
+\textbf{Formal procedure}:
+\begin{enumerate}
+    \item Let vocabulary $\mathcal{V} = \{\text{all characters in corpus}\}$
+    \item Repeat $k$ times (where $k$ = desired number of merges):
+    \begin{enumerate}
+        \item Find pair $(a, b)$ with highest frequency in corpus
+        \item Create new token $ab$ by concatenating $a$ and $b$
+        \item Add $ab$ to $\mathcal{V}$
+        \item Replace all ``$a$ $b$'' sequences in corpus with ``$ab$''
+    \end{enumerate}
+\end{enumerate}
+
+\textbf{Tokenisation} (at inference):
+Apply learned merges in order of learning (most frequent first).
+\end{rigour}
+
+\begin{quickref}[BPE Worked Example]
+\textbf{Training corpus}: ``low low low lower lower lowest''
+
+\textbf{Step 0}: Character vocabulary with end-of-word marker:
+\[
+\mathcal{V} = \{\text{l, o, w, e, r, s, t, </w>}\}
+\]
+Corpus representation: ``l o w </w>'' (×3), ``l o w e r </w>'' (×2), ``l o w e s t </w>'' (×1)
+
+\textbf{Step 1}: Most frequent pair = (l, o) with count 6
+\begin{itemize}
+    \item Merge: ``lo''
+    \item $\mathcal{V} = \{\text{l, o, w, e, r, s, t, </w>, lo}\}$
+    \item Corpus: ``lo w </w>'' (×3), ``lo w e r </w>'' (×2), ``lo w e s t </w>'' (×1)
+\end{itemize}
+
+\textbf{Step 2}: Most frequent pair = (lo, w) with count 6
+\begin{itemize}
+    \item Merge: ``low''
+    \item $\mathcal{V} = \{\ldots, \text{lo, low}\}$
+    \item Corpus: ``low </w>'' (×3), ``low e r </w>'' (×2), ``low e s t </w>'' (×1)
+\end{itemize}
+
+\textbf{Step 3}: Most frequent pair = (low, </w>) with count 3
+\begin{itemize}
+    \item Merge: ``low</w>''
+    \item Corpus: ``low</w>'' (×3), ``low e r </w>'' (×2), ``low e s t </w>'' (×1)
+\end{itemize}
+
+\textbf{Continue} until desired vocabulary size...
+
+\textbf{Final tokenisation}:
+\begin{itemize}
+    \item ``low'' $\rightarrow$ [``low</w>'']
+    \item ``lower'' $\rightarrow$ [``low'', ``er</w>'']
+    \item ``lowest'' $\rightarrow$ [``low'', ``est</w>'']
+    \item ``lowering'' (unseen) $\rightarrow$ [``low'', ``er'', ``ing</w>'']
+\end{itemize}
+\end{quickref}
+
+\begin{rigour}[WordPiece and SentencePiece]
+\textbf{WordPiece} (used by BERT):
+\begin{itemize}
+    \item Similar to BPE but uses likelihood-based merging criterion
+    \item Merges pairs that maximise language model likelihood
+    \item Uses \texttt{\#\#} prefix to indicate continuation tokens
+    \item Example: ``unhappiness'' $\rightarrow$ [``un'', ``\#\#happy'', ``\#\#ness'']
+\end{itemize}
+
+\textbf{SentencePiece} (used by T5, GPT-2+):
+\begin{itemize}
+    \item Language-agnostic: treats input as raw Unicode
+    \item Does not require pre-tokenisation (handles whitespace internally)
+    \item Uses \texttt{\_} (U+2581) to represent spaces
+    \item Example: ``Hello world'' $\rightarrow$ [``\_Hello'', ``\_world'']
+\end{itemize}
+
+\textbf{Unigram Language Model} (alternative to BPE):
+\begin{itemize}
+    \item Starts with large vocabulary, iteratively removes tokens
+    \item Selects tokenisation that maximises corpus likelihood
+    \item Often combined with SentencePiece
+\end{itemize}
+\end{rigour}
+
+\begin{redbox}
+\textbf{Tokeniser-model matching:} When using pretrained models, you must use the corresponding tokeniser. Vocabulary indices must match those used during pretraining.
+
+\textbf{Example}: Using GPT-2's tokeniser with BERT's model will produce nonsensical results because:
+\begin{itemize}
+    \item Token indices map to different words
+    \item Special tokens differ (\texttt{[CLS]} vs \texttt{<|endoftext|>})
+    \item Subword splits differ (WordPiece vs BPE)
+\end{itemize}
+\end{redbox}
+
+\subsection{Further Preprocessing Techniques}
+
+\begin{rigour}[Text Normalisation]
+\begin{itemize}
+    \item \textbf{Lowercasing}: Case-insensitive processing (``The'' $\rightarrow$ ``the'')
+    \item \textbf{Stop-word removal}: Remove ``the'', ``and'', ``is'' (use with caution-may lose meaning)
+    \item \textbf{Stemming}: Rule-based reduction to root form (``developing'' $\rightarrow$ ``develop'')
+    \item \textbf{Lemmatisation}: Dictionary-based reduction (``drove'' $\rightarrow$ ``drive'', ``better'' $\rightarrow$ ``good'')
+\end{itemize}
+
+\textbf{Modern practice}: With subword tokenisation and large models, minimal preprocessing is often best. Let the model learn what matters.
+
+\textbf{When to use traditional preprocessing}:
+\begin{itemize}
+    \item Small datasets where vocabulary reduction helps
+    \item Bag-of-words or TF-IDF representations
+    \item Domain-specific applications (legal, medical)
+\end{itemize}
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_7/zipf.png}
+    \caption{Zipf's law: word frequency follows power law-few tokens occur very frequently, many tokens occur rarely.}
+    \label{fig:zipf}
+\end{figure}
+
+\begin{rigour}[Zipf's Law]
+Word frequencies in natural language follow Zipf's law:
+\[
+f(r) \propto \frac{1}{r^\alpha}
+\]
+where $f(r)$ is the frequency of the $r$-th most common word, and $\alpha \approx 1$.
+
+\textbf{Implications for NLP}:
+\begin{itemize}
+    \item A small number of words account for most tokens (``the'', ``of'', ``and'')
+    \item The ``long tail'' contains many rare words, each appearing few times
+    \item Vocabulary coverage increases slowly with size
+    \item Motivates subword tokenisation: rare words decompose into common subunits
+\end{itemize}
+\end{rigour}
+
+%==============================================================================
+\section{Classical Document Representations}
+\label{sec:doc-embeddings}
+%==============================================================================
+
+Once we have tokenised our text, we need to convert it into a numerical representation that machine learning models can process. The simplest approach is to count how often each word appears. This \textbf{Bag of Words} (BoW) representation treats a document as an unordered collection of words-like dumping all the words from a sentence into a bag and shaking it up. The sentence ``the cat sat on the mat'' becomes a list of counts: \{the: 2, cat: 1, sat: 1, on: 1, mat: 1\}.
+
+This representation is remarkably effective for many tasks despite its simplicity. If you want to classify documents by topic, knowing that a document mentions ``election'', ``parliament'', and ``vote'' many times is strong evidence it's about politics, regardless of word order. However, BoW has a problem: common words like ``the'' dominate the counts without providing useful information. \textbf{TF-IDF} (Term Frequency-Inverse Document Frequency) addresses this by downweighting words that appear in many documents while upweighting distinctive terms.
+
+These count-based methods remain useful baselines and are still effective for many applications, particularly when computational resources are limited or interpretability is important.
+
+\subsection{Bag of Words (BoW)}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_7/BoW.png}
+    \caption{Bag of Words: document as unordered collection of word counts.}
+    \label{fig:bow}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_7/BoW_2.png}
+    \caption{Word occurrence matrix / count vectorisation.}
+    \label{fig:bow-matrix}
+\end{figure}
+
+\begin{rigour}[Bag of Words]
+\textbf{Definition}: Each document is represented as a vector of word counts:
+\[
+\mathbf{d} = [c_1, c_2, \ldots, c_{|\mathcal{V}|}] \in \mathbb{N}^{|\mathcal{V}|}
+\]
+where $c_i = \#\{\text{occurrences of word } i \text{ in document}\}$.
+
+\textbf{Document-term matrix}: For corpus of $n$ documents:
+\[
+\mathbf{D} \in \mathbb{N}^{n \times |\mathcal{V}|}
+\]
+where $D_{ij}$ = count of word $j$ in document $i$.
+
+\textbf{Properties}:
+\begin{itemize}
+    \item \textbf{Sparse}: Most entries are zero
+    \item \textbf{High-dimensional}: $|\mathcal{V}|$ can exceed 100,000
+    \item \textbf{Order-invariant}: ``dog bites man'' = ``man bites dog''
+    \item \textbf{No semantics}: ``happy'' and ``joyful'' are orthogonal
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[BoW Example]
+\textbf{Vocabulary}: $\mathcal{V}$ = \{cat, dog, sat, the, on, mat, chased\}
+
+\textbf{Document 1}: ``The cat sat on the mat''
+\[
+\mathbf{d}_1 = [1, 0, 1, 2, 1, 1, 0]
+\]
+
+\textbf{Document 2}: ``The dog chased the cat''
+\[
+\mathbf{d}_2 = [1, 1, 0, 2, 0, 0, 1]
+\]
+
+\textbf{Similarity}: $\mathbf{d}_1 \cdot \mathbf{d}_2 = 1 + 0 + 0 + 4 + 0 + 0 + 0 = 5$
+
+The documents share ``the'' (×2) and ``cat'' (×1), reflected in the dot product.
+\end{quickref}
+
+\subsection{TF-IDF}
+\label{subsec:tfidf}
+
+Bag of Words treats all words equally, but common words like ``the'' dominate counts without providing discriminative information. TF-IDF addresses this by weighting terms by their importance.
+
+\begin{rigour}[Term Frequency--Inverse Document Frequency]
+\textbf{Term Frequency (TF)}: How often does term $t$ appear in document $d$?
+\[
+\text{TF}(t, d) = \frac{f_{t,d}}{\sum_{t' \in d} f_{t',d}}
+\]
+where $f_{t,d}$ is the raw count of term $t$ in document $d$.
+
+Alternative formulations:
+\begin{itemize}
+    \item \textbf{Raw count}: $\text{TF}(t,d) = f_{t,d}$
+    \item \textbf{Boolean}: $\text{TF}(t,d) = \mathbf{1}[t \in d]$
+    \item \textbf{Log-scaled}: $\text{TF}(t,d) = 1 + \log(f_{t,d})$ if $f_{t,d} > 0$, else $0$
+\end{itemize}
+
+\textbf{Document Frequency (DF)}: In how many documents does term $t$ appear?
+\[
+\text{DF}(t) = |\{d \in \mathcal{D} : t \in d\}|
+\]
+
+\textbf{Inverse Document Frequency (IDF)}: How ``rare'' or discriminative is term $t$?
+\[
+\text{IDF}(t) = \log \frac{N}{\text{DF}(t)}
+\]
+where $N = |\mathcal{D}|$ is the total number of documents.
+
+\textbf{TF-IDF score}:
+\[
+\text{TF-IDF}(t, d) = \text{TF}(t, d) \times \text{IDF}(t)
+\]
+\end{rigour}
+
+\begin{quickref}[IDF Intuition]
+\textbf{Why inverse document frequency?}
+
+Consider a corpus of 10,000 documents:
+\begin{itemize}
+    \item ``the'' appears in 10,000 documents: $\text{IDF} = \log(10000/10000) = 0$
+    \item ``climate'' appears in 100 documents: $\text{IDF} = \log(10000/100) = \log(100) \approx 4.6$
+    \item ``anthropocene'' appears in 5 documents: $\text{IDF} = \log(10000/5) = \log(2000) \approx 7.6$
+\end{itemize}
+
+\textbf{Effect}: Rare, discriminative terms get high weight; ubiquitous terms get low/zero weight.
+\end{quickref}
+
+\begin{rigour}[TF-IDF Derivation from Information Theory]
+The IDF can be motivated from an information-theoretic perspective.
+
+\textbf{Setup}: Consider a random document $D$ and the event ``term $t$ appears in $D$''.
+
+\textbf{Self-information}: The information content of observing term $t$ is:
+\[
+I(t) = -\log P(t) = -\log \frac{\text{DF}(t)}{N} = \log \frac{N}{\text{DF}(t)} = \text{IDF}(t)
+\]
+
+\textbf{Interpretation}:
+\begin{itemize}
+    \item Common events (high $P(t)$) carry little information
+    \item Rare events (low $P(t)$) carry much information
+    \item IDF measures how much information observing term $t$ provides about document identity
+\end{itemize}
+
+\textbf{TF-IDF as expected information}:
+The TF-IDF score weights the information content by how often the term appears, giving a measure of how much discriminative information the term contributes to the document representation.
+\end{rigour}
+
+\begin{rigour}[TF-IDF Variants and Smoothing]
+\textbf{Problem}: What if $\text{DF}(t) = 0$ or $\text{DF}(t) = N$?
+
+\textbf{Smoothed IDF}:
+\[
+\text{IDF}(t) = \log \frac{N + 1}{\text{DF}(t) + 1} + 1
+\]
+This ensures IDF is always positive and handles edge cases.
+
+\textbf{Sublinear TF scaling}:
+\[
+\text{TF}(t, d) = 1 + \log(f_{t,d}) \quad \text{if } f_{t,d} > 0
+\]
+Prevents documents with many repetitions of a term from dominating.
+
+\textbf{L2 normalisation} (common in practice):
+\[
+\mathbf{d}_{\text{norm}} = \frac{\mathbf{d}}{\|\mathbf{d}\|_2}
+\]
+Ensures documents of different lengths are comparable.
+\end{rigour}
+
+\begin{quickref}[TF-IDF in Practice]
+\textbf{scikit-learn defaults} (\texttt{TfidfVectorizer}):
+\begin{itemize}
+    \item Sublinear TF: Optional (off by default)
+    \item Smoothed IDF: $\log \frac{N+1}{\text{DF}(t)+1} + 1$
+    \item L2 normalisation: Applied by default
+\end{itemize}
+
+\textbf{Typical workflow}:
+\begin{enumerate}
+    \item Fit TF-IDF vectoriser on training corpus
+    \item Transform documents to TF-IDF vectors
+    \item Use as features for classification (SVM, logistic regression, etc.)
+\end{enumerate}
+
+\textbf{Strengths}: Simple, interpretable, strong baseline for document classification.
+
+\textbf{Weaknesses}: No word order, no semantic similarity, requires large vocabulary.
+\end{quickref}
+
+\subsection{Visualising Embeddings}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_7/doc embeddings.png}
+    \caption{Document embeddings: documents mapped to a space where similar topics cluster (e.g., government borrowings, energy markets).}
+    \label{fig:doc-embeddings}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_7/word embeddings.png}
+    \caption{Word embeddings: words like ``development'' and ``transactions'' are closer due to contextual similarity, indicating embeddings capture semantic meaning.}
+    \label{fig:word-embeddings}
+\end{figure}
+
+Embeddings reveal structure within text data, organising information along dimensions that correspond to latent topics or semantic relationships.
+
+\subsection{Simple NLP Pipeline for Document Classification}
+
+\begin{quickref}[Traditional Pipeline]
+\begin{enumerate}
+    \item \textbf{Tokenisation \& preprocessing}: Lowercase, remove stopwords, stem
+    \item \textbf{Bag of Words}: Document as word count vector
+    \item \textbf{TF-IDF weighting}: Emphasise distinctive terms
+    \item \textbf{Classification}: SVM, Random Forest, or Gradient Boosting
+\end{enumerate}
+
+\textbf{Advantages}: Effective for simple tasks; small, interpretable models.
+
+\textbf{Improvements}: Use learned embeddings (Word2Vec, BERT) and sequence-aware classifiers (LSTM, Transformer).
+\end{quickref}
+
+%==============================================================================
+\section{Deep Learning for NLP: Architecture}
+%==============================================================================
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{images/week_7/DL NLPe.png}
+    \caption{Modular NLP architecture: pretraining $\rightarrow$ architecture $\rightarrow$ application.}
+    \label{fig:dl-nlp}
+\end{figure}
+
+\begin{rigour}[NLP Architecture Layers]
+\textbf{Pretraining layer}:
+\begin{itemize}
+    \item Word2Vec, GloVe: static word embeddings
+    \item BERT, GPT: contextual embeddings (integrated with architecture)
+\end{itemize}
+
+\textbf{Architecture layer}:
+\begin{itemize}
+    \item MLP: Simple tasks, no context handling
+    \item CNN: Local pattern capture, sentence classification
+    \item RNN: Sequential data, contextual information across tokens
+    \item Attention/Transformer: Focus on specific input parts
+\end{itemize}
+
+\textbf{Application layer}: Sentiment, NER, translation, QA, etc.
+
+\textbf{Key point}: Embeddings are foundational-often pretrained and sometimes integrated directly into the model (e.g., BERT).
+\end{rigour}
+
+%==============================================================================
+\section{Word Embeddings I: One-Hot Encoding}
+%==============================================================================
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{images/week_7/one hot encode.png}
+    \caption{One-hot encoding: sparse, high-dimensional, no semantic similarity.}
+    \label{fig:one-hot}
+\end{figure}
+
+\begin{rigour}[One-Hot Encoding]
+Each word represented as a sparse vector:
+\[
+\text{``this''} \rightarrow [1, 0, 0, \ldots, 0] \in \mathbb{R}^{|\mathcal{V}|}
+\]
+
+\textbf{Properties}:
+\begin{itemize}
+    \item Vector length = vocabulary size (often $>$100,000)
+    \item All words are orthogonal: $\cos(\text{``happy''}, \text{``joyful''}) = 0$
+    \item No semantic similarity captured
+\end{itemize}
+
+This lack of semantic relationships motivates continuous embeddings.
+\end{rigour}
+
+\begin{rigour}[Cosine Similarity]
+For continuous embeddings, semantic similarity is measured by:
+\[
+\cos(A, B) = \frac{A \cdot B}{\|A\| \|B\|} = \frac{\sum_i A_i B_i}{\sqrt{\sum_i A_i^2} \sqrt{\sum_i B_i^2}}
+\]
+
+Range: $[-1, 1]$ where 1 = identical direction, 0 = orthogonal, $-1$ = opposite.
+\end{rigour}
+
+%==============================================================================
+\section{Word Embeddings II: Word2Vec}
+\label{sec:word2vec}
+%==============================================================================
+
+One-hot encoding treats every word as equally different from every other word. But intuitively, ``happy'' should be more similar to ``joyful'' than to ``refrigerator''. How can we learn representations that capture this semantic similarity?
+
+The key insight behind Word2Vec is the \textbf{distributional hypothesis}: words that appear in similar contexts tend to have similar meanings. If we repeatedly see ``The \textbf{cat} sat on the mat'' and ``The \textbf{dog} sat on the mat'', we can infer that ``cat'' and ``dog'' are semantically related-they both fit into the same linguistic slot. Word2Vec operationalises this by training a simple neural network on a prediction task: given a word, predict the words that tend to appear nearby.
+
+Crucially, we don't actually care about the predictions themselves. The real goal is to extract the internal representations (embeddings) that the network learns in order to make these predictions. Words that frequently appear in similar contexts will develop similar embeddings, because they need to generate similar predictions.
+
+The result is a dense vector for each word (typically 100--300 dimensions) where the geometry of the space encodes meaning. Similar words cluster together, and remarkably, semantic relationships appear as \textit{directions} in the space: the vector from ``king'' to ``queen'' is approximately the same as the vector from ``man'' to ``woman'', enabling the famous analogy completion: $\text{king} - \text{man} + \text{woman} \approx \text{queen}$.
+
+Word2Vec (Mikolov et al., 2013) learns these dense, continuous word vectors through two related architectures: Skip-Gram and CBOW.
+
+\begin{quickref}[Word2Vec Properties]
+\begin{itemize}
+    \item Shallow neural networks trained on large corpora (unsupervised)
+    \item Dense vectors (typically 100--300 dimensions)
+    \item Semantically similar words have similar vectors
+    \item Captures analogies: $\text{king} - \text{man} + \text{woman} \approx \text{queen}$
+    \item Two architectures: Skip-Gram and CBOW
+    \item Extensions: doc2vec (document embeddings), BioVectors (biological sequences)
+\end{itemize}
+\end{quickref}
+
+\subsection{The Distributional Hypothesis}
+
+\begin{rigour}[Distributional Hypothesis]
+\textit{``You shall know a word by the company it keeps.''} (Firth, 1957)
+
+Words that appear in similar contexts have similar meanings.
+
+\textbf{Example}:
+\begin{itemize}
+    \item ``The \textbf{cat} sat on the mat.''
+    \item ``The \textbf{dog} sat on the mat.''
+\end{itemize}
+``Cat'' and ``dog'' appear in identical contexts, suggesting semantic similarity.
+
+\textbf{Formalisation}: Word2Vec learns embeddings such that words with similar context distributions have similar vectors.
+\end{rigour}
+
+\subsection{Skip-Gram Model}
+
+Skip-Gram predicts \textbf{context words} given a \textbf{centre word}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_7/image.png}
+    \caption{Skip-Gram: $P(\text{``the''}, \text{``man''}, \text{``his''}, \text{``son''} \mid \text{``loves''})$.}
+    \label{fig:skip-gram}
+\end{figure}
+
+\subsubsection{Model Setup}
+
+\begin{rigour}[Skip-Gram Setup]
+Context words are assumed \textbf{conditionally independent} given the centre word:
+\[
+P(\text{``the'', ``man'', ``his'', ``son''} \mid \text{``loves''}) = P(\text{``the''} \mid \text{``loves''}) \cdot P(\text{``man''} \mid \text{``loves''}) \cdots
+\]
+
+\textbf{Two vectors per word}:
+\begin{itemize}
+    \item $v_i \in \mathbb{R}^d$: embedding when word $i$ is \textbf{centre word}
+    \item $u_i \in \mathbb{R}^d$: embedding when word $i$ is \textbf{context word}
+\end{itemize}
+
+Each word appears in both $u$ and $v$-two representations depending on role.
+\end{rigour}
+
+\begin{rigour}[Conditional Probability (Softmax)]
+\[
+P(w_o \mid w_c) = \frac{\exp(u_{w_o}^\top v_{w_c})}{\sum_{i \in \mathcal{V}} \exp(u_i^\top v_{w_c})}
+\]
+
+where $\mathcal{V} = \{0, 1, \ldots, |\mathcal{V}| - 1\}$ is the vocabulary index set.
+
+\textbf{Softmax interpretation}:
+\begin{itemize}
+    \item Normalises similarity scores ($u_o^\top v_c$) into probabilities
+    \item Higher dot product $\Rightarrow$ higher probability
+    \item Model learns to maximise probabilities of actual context words
+\end{itemize}
+\end{rigour}
+
+\begin{rigour}[Why Softmax? A Probabilistic Model for Word Embeddings]
+The softmax function serves as a probabilistic model to capture semantic relationships between words:
+
+\begin{enumerate}
+    \item \textbf{Probability distribution}: Softmax transforms the dot product $u_{w_o}^\top v_{w_c}$ (which measures similarity between context and centre word vectors) into a probability. This ensures $P(w_o \mid w_c)$ is a valid probability distribution over all possible context words, summing to 1.
+
+    \item \textbf{Exponentiation for emphasis}: Exponentiating the similarity scores (i.e., $\exp(u_{w_o}^\top v_{w_c})$) accentuates differences between them. Words with higher similarity to the centre word have a larger impact on the probability, reflecting the intuition that words in similar contexts should appear together more often.
+
+    \item \textbf{Raw scores to probabilities}: Softmax normalises the score (or ``affinity'') of each context word relative to the centre word, turning \textbf{raw similarity scores} into \textbf{probabilities}.
+
+    \item \textbf{Training objective}: The probabilistic model is built around \textbf{maximising the likelihood of context words given centre words}. The neural network learns to \textbf{adjust the vectors (as parameters)} so that the output probabilities align with actual observed context words.
+
+    \item \textbf{Optimisation}: During training, the model \textbf{optimises the word vectors} so that predicted probabilities for observed context words are maximised, while decreasing probabilities for incorrect ones.
+
+    \item \textbf{Computational efficiency}: Softmax (combined with negative sampling or hierarchical softmax for large vocabularies) allows the model to learn meaningful word vectors by maximising probabilities of observed word pairs. The log-likelihood becomes tractable for gradient-based optimisation.
+\end{enumerate}
+
+Thus, softmax serves both as a way to interpret similarity scores as probabilities and as a mechanism for training word embeddings that encode semantic information aligned with actual word co-occurrences.
+\end{rigour}
+
+\subsubsection{Objective Function}
+
+\begin{rigour}[Skip-Gram Likelihood]
+For a sequence of length $T$ with context window $m$, the likelihood is:
+\[
+\mathcal{L}(\theta) = \prod_{t=1}^{T} \prod_{\substack{-m \leq j \leq m \\ j \neq 0}} P(w^{(t+j)} \mid w^{(t)})
+\]
+
+\textbf{Parameters}: $\theta = \{v_i, u_i\}_{i \in \mathcal{V}}$ (all centre and context embeddings).
+\end{rigour}
+
+\begin{quickref}[Worked Example: ``the man loves his son'']
+With $m=2$ and centre word $w^{(t)} = \text{``loves''}$:
+\[
+\prod_{-m \leq j \leq m, j \neq 0} P(w^{(t+j)} \mid w^{(t)})
+\]
+\[
+= P(\textcolor{blue}{\text{``the''}} \mid \text{``loves''}) \cdot P(\textcolor{blue}{\text{``man''}} \mid \text{``loves''}) \cdot P(\textcolor{blue}{\text{``his''}} \mid \text{``loves''}) \cdot P(\textcolor{blue}{\text{``son''}} \mid \text{``loves''})
+\]
+
+We then take the product over \textbf{all centre words} in the sequence, not just ``loves''.
+\end{quickref}
+
+\begin{rigour}[Log-Likelihood Loss]
+Taking the negative log-likelihood:
+\[
+\mathcal{J}(\theta) = -\sum_{t=1}^{T} \sum_{\substack{-m \leq j \leq m \\ j \neq 0}} \log P(w^{(t+j)} \mid w^{(t)})
+\]
+
+Expanding the softmax:
+\[
+\mathcal{J}(\theta) = -\sum_{t=1}^{T} \sum_{\substack{-m \leq j \leq m \\ j \neq 0}} \left[ u_{w^{(t+j)}}^\top v_{w^{(t)}} - \log \sum_{i \in \mathcal{V}} \exp(u_i^\top v_{w^{(t)}}) \right]
+\]
+
+Minimising this loss learns embeddings that predict context accurately.
+\end{rigour}
+
+\subsubsection{Training Process}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\linewidth]{images/week_7/skipgramge.png}
+    \caption{Prediction task: predict context words $w^{(t+j)}$ from centre word $w^{(t)}$.}
+    \label{fig:skipgram-task}
+\end{figure}
+
+\begin{rigour}[Training Data: Co-occurring Word Pairs]
+\textbf{Key insight}: We don't care about the predictions-we want the learned embedding matrices!
+
+\begin{enumerate}
+    \item \textbf{Training data}: Each word is treated as centre; words within window are context. Example: ``The quick brown fox jumps...''
+    \begin{itemize}
+        \item Centre: ``quick'' $\Rightarrow$ Pairs: (``quick'', ``the''), (``quick'', ``brown'')
+    \end{itemize}
+    \item \textbf{Model input $x$}: One-hot encoded centre word (dimension $|\mathcal{V}|$)
+    \item \textbf{Model output $\hat{y}$}: Predicted probabilities for each word (dimension $|\mathcal{V}|$)
+    \item \textbf{Ground truth $y$}: One-hot encoded context word (dimension $|\mathcal{V}|$)
+    \item \textbf{Learned embeddings}: Model adjusts weights so similar words have similar embeddings
+\end{enumerate}
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\linewidth]{images/week_7/quick brown fox.png}
+    \caption{Training pairs from ``the quick brown fox...''}
+    \label{fig:quick-brown-fox}
+\end{figure}
+
+\subsubsection{Network Architecture}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{images/week_7/skip gram arch.png}
+    \caption{Skip-Gram architecture. Input = centre word $v_i$; output = context word $u_j$; embedding matrix $W$ contains centre word vectors.}
+    \label{fig:skip-gram-arch}
+\end{figure}
+
+\begin{rigour}[Skip-Gram Architecture Details]
+\textbf{Dimensions at each step}:
+\begin{enumerate}
+    \item \textbf{Input} (one-hot vector of word $i$): $V \times 1$
+    \item \textbf{After multiplication with $W$}: $h = W \cdot x$ results in $N \times 1$
+    \item \textbf{After multiplication with $W'$}: $W' \cdot h$ results in $V \times 1$
+\end{enumerate}
+
+\textbf{Components}:
+\begin{itemize}
+    \item \textbf{Input layer}: One-hot encoded centre word $x \in \mathbb{R}^V$
+    \item \textbf{Embedding matrix $W$}: Dimensions $V \times N$. Multiplying by one-hot vector \textbf{selects a single row}-the centre word embedding $v_c \in \mathbb{R}^N$
+    \item \textbf{Hidden layer $h$}: Simply the embedding $v_c$ (no activation function!)
+    \item \textbf{Context matrix $W'$}: Dimensions $N \times V$. Maps embedding to vocabulary-sized scores
+    \item \textbf{Output}: Softmax over scores gives probability distribution $\hat{y} \in \mathbb{R}^V$
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[Skip-Gram: Numerical Dimension Example]
+\textbf{Setup:} Vocabulary $V = 10{,}000$ words, embedding dimension $N = 300$.
+
+\textbf{Step-by-step forward pass:}
+\begin{enumerate}
+    \item \textbf{Input}: One-hot vector for word ``king'' (index 42):
+    \[
+    x = [0, \ldots, 0, \underbrace{1}_{\text{pos 42}}, 0, \ldots, 0]^\top \in \mathbb{R}^{10000}
+    \]
+
+    \item \textbf{Embedding lookup}: Multiply by $W \in \mathbb{R}^{10000 \times 300}$:
+    \[
+    h = W^\top x = \text{row 42 of } W \in \mathbb{R}^{300}
+    \]
+    This is the 300-dimensional embedding for ``king''.
+
+    \item \textbf{Score computation}: Multiply by $W' \in \mathbb{R}^{300 \times 10000}$:
+    \[
+    s = (W')^\top h \in \mathbb{R}^{10000}
+    \]
+    Each entry $s_j$ is the dot product between ``king'' embedding and context embedding for word $j$.
+
+    \item \textbf{Softmax}: Convert scores to probabilities:
+    \[
+    \hat{y}_j = \frac{\exp(s_j)}{\sum_{i=1}^{10000} \exp(s_i)}
+    \]
+    This gives $P(\text{word } j \mid \text{``king''})$ for all vocabulary words.
+\end{enumerate}
+
+\textbf{Memory requirements:}
+\begin{itemize}
+    \item $W$: $10{,}000 \times 300 = 3{,}000{,}000$ parameters (12 MB at 32-bit)
+    \item $W'$: $300 \times 10{,}000 = 3{,}000{,}000$ parameters (12 MB at 32-bit)
+    \item Total: 6 million parameters (24 MB)
+\end{itemize}
+
+\textbf{Computational bottleneck:} The softmax denominator sums over all 10,000 words-this motivates negative sampling.
+\end{quickref}
+
+\begin{rigour}[Why No Activation Function?]
+In the Skip-Gram and CBOW models, there is \textbf{no non-linear activation} between the embedding and output layers. The architecture relies purely on linear transformations followed by softmax.
+
+\textbf{Embedding interpretation}:
+\begin{itemize}
+    \item When we multiply the one-hot vector $x$ by the embedding matrix $W$, we effectively select a single row from $W$, corresponding to the embedding $v_c$ of the centre word
+    \item So $h$ is just the embedding vector $v_c$ from within $W$
+    \item This vector acts as the learned representation, capturing semantic properties based on co-occurrence with context words
+\end{itemize}
+
+\textbf{Why no activation doesn't lead to collapse}:
+\begin{itemize}
+    \item The model doesn't collapse because the training objective is to maximise likelihood of predicting correct context words
+    \item The softmax + cross-entropy loss encourages embeddings to spread out in $N$-dimensional space reflecting semantic similarity
+    \item Words appearing in similar contexts get similar (but not identical) embeddings
+\end{itemize}
+
+\textbf{Role of $W$ and $W'$}:
+\begin{itemize}
+    \item The two matrices work together during training and are updated independently via backpropagation
+    \item $W$ generates word embeddings; $W'$ transforms embeddings into a space for vocabulary-wide probability computation
+    \item This separation prevents collapse, as output scores derive from a different transformation than the embedding itself
+\end{itemize}
+
+\textbf{Effect of the loss function}:
+\begin{itemize}
+    \item The negative log-likelihood (cross-entropy) loss encourages the model to adjust $W$ and $W'$ so context words have high probabilities and non-context words have low probabilities
+    \item This gradient-based optimisation implicitly promotes diversity among embeddings
+\end{itemize}
+\end{rigour}
+
+\subsubsection{Gradient Derivation}
+
+\begin{rigour}[Log-Likelihood for Single Pair]
+For a single centre-context pair $(w_c, w_o)$:
+\[
+\log P(w_o \mid w_c) = \log \frac{\exp(u_o^\top v_c)}{\sum_{i \in \mathcal{V}} \exp(u_i^\top v_c)}
+\]
+
+Applying log rules:
+\[
+= u_o^\top v_c - \log \left( \sum_{i \in \mathcal{V}} \exp(u_i^\top v_c) \right)
+\]
+
+The loss for a single word pair is the negative log-likelihood:
+\[
+\ell(w_c, w_o) = -u_o^\top v_c + \log \left( \sum_{i \in \mathcal{V}} \exp(u_i^\top v_c) \right)
+\]
+\end{rigour}
+
+\begin{rigour}[Gradient with Respect to Centre Word]
+\[
+\frac{\partial \log P(w_o \mid w_c)}{\partial v_c} = u_o - \sum_{j \in \mathcal{V}} P(w_j \mid w_c) u_j
+\]
+
+\textbf{Derivation}:
+\begin{align*}
+\frac{\partial}{\partial v_c} \left[ u_o^\top v_c - \log \sum_i \exp(u_i^\top v_c) \right] &= u_o - \frac{\partial}{\partial v_c} \log \sum_i \exp(u_i^\top v_c) \\
+&= u_o - \frac{\sum_i \exp(u_i^\top v_c) \cdot u_i}{\sum_i \exp(u_i^\top v_c)} \\
+&= u_o - \sum_j P(w_j \mid w_c) u_j
+\end{align*}
+
+\textbf{Interpretation}:
+\begin{itemize}
+    \item First term $u_o$: move towards observed context word
+    \item Second term: move away from expected (probability-weighted) context
+    \item Net effect: increase similarity to actual contexts, decrease to expected contexts
+\end{itemize}
+\end{rigour}
+
+\begin{rigour}[Gradient with Respect to Context Word]
+For the observed context word $u_o$:
+\[
+\frac{\partial \log P(w_o \mid w_c)}{\partial u_o} = v_c - P(w_o \mid w_c) v_c = v_c(1 - P(w_o \mid w_c))
+\]
+
+For any other word $u_k$ where $k \neq o$:
+\[
+\frac{\partial \log P(w_o \mid w_c)}{\partial u_k} = -P(w_k \mid w_c) v_c
+\]
+
+\textbf{Interpretation}:
+\begin{itemize}
+    \item Observed context: pulled towards centre word, scaled by ``surprise'' $(1 - P)$
+    \item Non-context words: pushed away from centre word, proportional to their predicted probability
+\end{itemize}
+\end{rigour}
+
+\subsubsection{Negative Sampling}
+
+\begin{redbox}
+\textbf{Computational problem}: The softmax denominator sums over the \textbf{entire vocabulary}:
+\[
+\sum_{j \in \mathcal{V}} P(w_j \mid w_c) u_j
+\]
+
+For vocabularies with millions of tokens, this is prohibitively expensive.
+\end{redbox}
+
+\begin{rigour}[Negative Sampling]
+Approximate the loss by sampling:
+\begin{itemize}
+    \item \textbf{Positive pair} $(w_c, w_o)$: actual context pair from corpus
+    \item \textbf{Negative pairs} $(w_c, w_{\text{neg}})$: $K$ randomly sampled words (not in context)
+\end{itemize}
+
+\textbf{New objective}: Binary classification using sigmoid:
+\[
+P(D=1 \mid w_c, w_o) = \sigma(u_o^\top v_c) = \frac{1}{1 + \exp(-u_o^\top v_c)}
+\]
+
+Maximise $P(D=1)$ for positive pairs, $P(D=0)$ for negative pairs.
+
+\textbf{Efficiency}: Computational cost scales with $K$ (typically 5--20), not $|\mathcal{V}|$.
+\end{rigour}
+
+\begin{rigour}[Negative Sampling Loss Derivation]
+\textbf{Setup}: Given positive pair $(w_c, w_o)$ and $K$ negative samples $\{n_1, \ldots, n_K\}$.
+
+\textbf{Objective}: Maximise the log-likelihood of:
+\begin{itemize}
+    \item Positive pair being from data ($D=1$)
+    \item Negative pairs being noise ($D=0$)
+\end{itemize}
+
+\[
+\mathcal{L}_{\text{NEG}} = \log \sigma(u_o^\top v_c) + \sum_{k=1}^{K} \log \sigma(-u_{n_k}^\top v_c)
+\]
+
+\textbf{Loss to minimise}:
+\[
+\mathcal{J}_{\text{NEG}} = -\log \sigma(u_o^\top v_c) - \sum_{k=1}^{K} \log \sigma(-u_{n_k}^\top v_c)
+\]
+
+\textbf{Gradients}:
+\begin{align*}
+\frac{\partial \mathcal{J}_{\text{NEG}}}{\partial v_c} &= -(\sigma(-u_o^\top v_c)) u_o + \sum_{k=1}^{K} \sigma(u_{n_k}^\top v_c) u_{n_k} \\
+&= -(1 - \sigma(u_o^\top v_c)) u_o + \sum_{k=1}^{K} \sigma(u_{n_k}^\top v_c) u_{n_k}
+\end{align*}
+
+\textbf{Interpretation}: Push $v_c$ towards positive context $u_o$, away from negative samples.
+\end{rigour}
+
+\begin{quickref}[Negative Sampling: Practical Details]
+\textbf{Core idea:} Instead of predicting ``which word is the context?'' (multi-class over $V$ classes), ask ``is this word from the context?'' (binary classification).
+
+\textbf{Training procedure:}
+\begin{enumerate}
+    \item Take positive pair (centre word $c$, true context word $o$)
+    \item Sample $K$ negative words $\{n_1, \ldots, n_K\}$ from a noise distribution
+    \item Train to distinguish positive from negative pairs
+\end{enumerate}
+
+\textbf{Noise distribution}:
+Negative samples are drawn from a modified unigram distribution:
+\[
+P_n(w) \propto \text{freq}(w)^{0.75}
+\]
+
+The $0.75$ exponent (rather than $1.0$) upweights rare words, preventing the model from only learning about frequent words. Without this, common words like ``the'' would dominate negative samples.
+
+\textbf{Choosing $K$:}
+\begin{itemize}
+    \item Small datasets: $K = 5\text{--}20$
+    \item Large datasets: $K = 2\text{--}5$ (more data compensates for fewer negatives)
+\end{itemize}
+
+\textbf{Speedup:} For $V = 1{,}000{,}000$ and $K = 15$, we compute 16 dot products instead of 1 million-a $60{,}000\times$ speedup!
+\end{quickref}
+
+\subsection{Continuous Bag of Words (CBOW)}
+
+CBOW predicts the \textbf{centre word} from \textbf{context words}-the reverse of Skip-Gram.
+
+% Note: Figure with special characters in filename omitted (CBOW probability illustration)
+% The CBOW architecture is shown in the figure below.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_7/cbow.png}
+    \caption{CBOW architecture: average context embeddings, predict centre word.}
+    \label{fig:cbow}
+\end{figure}
+
+\begin{rigour}[CBOW Model]
+\textbf{Objective}: Predict centre word $w_t$ from context words $(w_{t-m}, \ldots, w_{t+m})$.
+
+\textbf{Context representation}: Average of context embeddings:
+\[
+\bar{v} = \frac{1}{2m} \sum_{\substack{-m \leq j \leq m \\ j \neq 0}} v_{w_{t+j}}
+\]
+
+\textbf{Probability}:
+\[
+P(w_t \mid w_{t-m}, \ldots, w_{t+m}) = \frac{\exp(u_{w_t}^\top \bar{v})}{\sum_{i \in \mathcal{V}} \exp(u_i^\top \bar{v})}
+\]
+
+\textbf{Architecture}:
+\begin{itemize}
+    \item Input: Multiple one-hot vectors (each $V \times 1$), $C$ context words
+    \item Embedding layer $W$: $V \times N$, produces embeddings that are \textbf{averaged}
+    \item Hidden layer $h$: Averaged embedding vector ($N \times 1$)
+    \item Output layer $W'$: $N \times V$, produces vocabulary-sized scores
+    \item Final output: Softmax probability distribution ($V \times 1$)
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[Skip-Gram vs CBOW]
+\begin{tabular}{lcc}
+& \textbf{Skip-Gram} & \textbf{CBOW} \\
+\hline
+Predicts & Context from centre & Centre from context \\
+Training examples & Many (one per context word) & Few (one per window) \\
+Better for & Rare words & Frequent words \\
+Dataset size & Works well on large & Better on smaller \\
+Training speed & Slower & Faster \\
+\end{tabular}
+
+\textbf{Why Skip-Gram is better for rare words}: Skip-Gram updates the rare word's embedding multiple times (once per context word), while CBOW averages context and updates once.
+\end{quickref}
+
+\subsection{Word2Vec Properties and Evaluation}
+
+\begin{rigour}[Linear Structure in Embeddings]
+Word2Vec embeddings exhibit remarkable linear structure:
+
+\textbf{Analogy completion}:
+\[
+v_{\text{king}} - v_{\text{man}} + v_{\text{woman}} \approx v_{\text{queen}}
+\]
+
+\textbf{Interpretation}: The vector $v_{\text{king}} - v_{\text{man}}$ captures the ``royalty'' concept, independent of gender. Adding this to $v_{\text{woman}}$ yields the female equivalent.
+
+\textbf{Other examples}:
+\begin{itemize}
+    \item $v_{\text{Paris}} - v_{\text{France}} + v_{\text{Italy}} \approx v_{\text{Rome}}$ (capitals)
+    \item $v_{\text{walking}} - v_{\text{walk}} + v_{\text{swim}} \approx v_{\text{swimming}}$ (tense)
+    \item $v_{\text{bigger}} - v_{\text{big}} + v_{\text{small}} \approx v_{\text{smaller}}$ (comparative)
+\end{itemize}
+\end{rigour}
+
+\begin{redbox}
+\textbf{Limitations of Word2Vec}:
+\begin{itemize}
+    \item \textbf{Static embeddings}: Each word has exactly one vector, regardless of context
+    \item \textbf{Polysemy ignored}: ``bank'' (financial) and ``bank'' (river) have the same embedding
+    \item \textbf{No morphological awareness}: ``run'', ``running'', ``ran'' are unrelated
+    \item \textbf{Out-of-vocabulary words}: Cannot embed unseen words
+    \item \textbf{Biases}: Embeddings capture and amplify societal biases in training data
+\end{itemize}
+\end{redbox}
+
+%==============================================================================
+\section{Word Embeddings III: GloVe}
+\label{sec:glove}
+%==============================================================================
+
+Word2Vec learns embeddings by making local predictions: given a word, predict its neighbours. But it turns out that Word2Vec is implicitly capturing something about \textit{global} word co-occurrence statistics. GloVe (Global Vectors for Word Representation) makes this explicit.
+
+The key insight is that word meaning is reflected in co-occurrence \textit{ratios}. Consider the words ``ice'' and ``steam''. If we compare how often various probe words appear near each, we can distinguish their meanings:
+\begin{itemize}
+    \item ``solid'' appears much more often with ``ice'' than ``steam'' (high ratio)
+    \item ``gas'' appears much more often with ``steam'' than ``ice'' (low ratio)
+    \item ``water'' appears equally often with both (ratio $\approx$ 1)
+\end{itemize}
+
+GloVe learns embeddings such that dot products approximate the logarithm of these co-occurrence ratios. This gives it a more principled objective function than Word2Vec while producing embeddings of similar quality.
+
+GloVe (Global Vectors for Word Representation; Pennington et al., 2014) combines the benefits of count-based methods with prediction-based methods like Word2Vec.
+
+\begin{quickref}[GloVe: Key Ideas]
+\textbf{Insight}: Word2Vec implicitly factorises a word-context co-occurrence matrix. GloVe makes this explicit.
+
+\textbf{Key differences from Word2Vec}:
+\begin{itemize}
+    \item Uses \textbf{global co-occurrence statistics} (not local windows during training)
+    \item \textbf{Symmetric} treatment of centre and context words
+    \item \textbf{Explicit matrix factorisation} objective
+    \item \textbf{Weighted least squares} loss
+\end{itemize}
+\end{quickref}
+
+\subsection{Co-occurrence Matrix}
+
+\begin{rigour}[Co-occurrence Matrix]
+\textbf{Definition}: Let $X \in \mathbb{R}^{|\mathcal{V}| \times |\mathcal{V}|}$ be the word-word co-occurrence matrix, where:
+\[
+X_{ij} = \#\{\text{times word } j \text{ appears in context of word } i\}
+\]
+
+\textbf{Properties}:
+\begin{itemize}
+    \item $X_{ij}$ counts co-occurrences within a window of size $m$
+    \item Symmetric: $X_{ij} = X_{ji}$ (if using symmetric windows)
+    \item Sparse: most word pairs never co-occur
+\end{itemize}
+
+\textbf{Derived quantities}:
+\begin{itemize}
+    \item $X_i = \sum_k X_{ik}$: total number of words appearing in context of word $i$
+    \item $P_{ij} = P(j \mid i) = X_{ij} / X_i$: probability that word $j$ appears in context of word $i$
+\end{itemize}
+\end{rigour}
+
+\subsection{GloVe Objective Derivation}
+
+\begin{rigour}[GloVe Motivation: Co-occurrence Ratios]
+Consider words $i = \text{``ice''}$, $j = \text{``steam''}$, and probe words $k$.
+
+\textbf{Key observation}: The ratio $P_{ik}/P_{jk}$ reveals word relationships:
+
+\begin{center}
+\begin{tabular}{lcccc}
+Probe $k$ & $P(k \mid \text{ice})$ & $P(k \mid \text{steam})$ & Ratio \\
+\hline
+solid & $1.9 \times 10^{-4}$ & $2.2 \times 10^{-5}$ & Large ($>1$) \\
+gas & $6.6 \times 10^{-5}$ & $7.8 \times 10^{-4}$ & Small ($<1$) \\
+water & $3.0 \times 10^{-3}$ & $2.2 \times 10^{-3}$ & $\approx 1$ \\
+fashion & $1.7 \times 10^{-5}$ & $1.8 \times 10^{-5}$ & $\approx 1$ \\
+\end{tabular}
+\end{center}
+
+\textbf{Interpretation}:
+\begin{itemize}
+    \item Large ratio: $k$ is more related to $i$ than $j$
+    \item Small ratio: $k$ is more related to $j$ than $i$
+    \item Ratio $\approx 1$: $k$ is equally related (or unrelated) to both
+\end{itemize}
+
+\textbf{Goal}: Learn embeddings such that dot products encode these ratios.
+\end{rigour}
+
+\begin{rigour}[GloVe Objective Function]
+\textbf{Starting point}: We want:
+\[
+w_i^\top w_k - w_j^\top w_k \approx \log \frac{P_{ik}}{P_{jk}}
+\]
+
+\textbf{Simplifying}: This suggests:
+\[
+w_i^\top \tilde{w}_k \approx \log P_{ik} = \log X_{ik} - \log X_i
+\]
+where $w_i$ is the word vector and $\tilde{w}_k$ is the context vector.
+
+\textbf{Problem}: The right-hand side is asymmetric ($\log X_i$ depends only on $i$).
+
+\textbf{Solution}: Absorb $\log X_i$ into bias terms:
+\[
+w_i^\top \tilde{w}_j + b_i + \tilde{b}_j = \log X_{ij}
+\]
+
+\textbf{GloVe loss function}:
+\[
+\mathcal{J} = \sum_{i,j=1}^{|\mathcal{V}|} f(X_{ij}) \left( w_i^\top \tilde{w}_j + b_i + \tilde{b}_j - \log X_{ij} \right)^2
+\]
+
+where $f(X_{ij})$ is a weighting function.
+\end{rigour}
+
+\begin{rigour}[GloVe Weighting Function]
+\textbf{Purpose}: Weight co-occurrences to:
+\begin{itemize}
+    \item Avoid $\log(0)$ for zero co-occurrences
+    \item Downweight very frequent co-occurrences (often uninformative)
+    \item Upweight rare but meaningful co-occurrences
+\end{itemize}
+
+\textbf{Definition}:
+\[
+f(x) = \begin{cases}
+(x/x_{\max})^\alpha & \text{if } x < x_{\max} \\
+1 & \text{otherwise}
+\end{cases}
+\]
+
+\textbf{Typical parameters}: $x_{\max} = 100$, $\alpha = 0.75$.
+
+\textbf{Effect}:
+\begin{itemize}
+    \item $f(0) = 0$: zero co-occurrences contribute nothing
+    \item $f(x)$ grows sublinearly: frequent pairs don't dominate
+    \item $f(x) \leq 1$: maximum weight is bounded
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[GloVe Summary]
+\textbf{Training}:
+\begin{enumerate}
+    \item Construct co-occurrence matrix $X$ from corpus
+    \item Minimise weighted least squares objective
+    \item Final embedding: $w_i + \tilde{w}_i$ (average of word and context vectors)
+\end{enumerate}
+
+\textbf{Comparison with Word2Vec}:
+\begin{tabular}{lcc}
+& \textbf{Word2Vec} & \textbf{GloVe} \\
+\hline
+Statistics & Local (windows) & Global (co-occurrence matrix) \\
+Training & Online (SGD on windows) & Batch (on full matrix) \\
+Loss & Cross-entropy & Weighted least squares \\
+Memory & Low (stream data) & High (store matrix) \\
+\end{tabular}
+
+\textbf{Performance}: Generally comparable; GloVe often slightly better on analogy tasks.
+\end{quickref}
+
+%==============================================================================
+\section{Contextual Embeddings}
+\label{sec:contextual-embeddings}
+%==============================================================================
+
+Word2Vec and GloVe represented a major advance: they learned dense vectors that captured semantic similarity. But they share a fundamental limitation-each word gets exactly \textbf{one} vector, regardless of how it is used.
+
+Consider the word ``bank''. In ``I deposited money in the bank'', it refers to a financial institution. In ``I sat on the river bank'', it refers to the edge of a river. These are completely different meanings, yet Word2Vec gives them identical representations. The same problem affects words with subtler contextual variations: ``cold'' in ``cold weather'' versus ``cold response'' versus ``cold war''.
+
+This motivates \textbf{contextual embeddings}: representations that depend not just on the word itself, but on its surrounding context. The embedding for ``bank'' should be different depending on whether the sentence mentions money or rivers. Contextual embeddings achieve this by running a deep neural network over the entire sentence and using the network's internal representations-which have been shaped by the surrounding words-as the word embeddings.
+
+The progression from static to contextual embeddings represents a paradigm shift in NLP. Instead of looking up a word in a fixed table, we \textit{compute} its representation based on context. This enables models to handle polysemy, capture nuanced meaning, and achieve human-level performance on many language understanding tasks.
+
+Static embeddings (Word2Vec, GloVe) assign each word a single vector, regardless of context. This fundamentally limits their ability to handle polysemy and context-dependent meaning.
+
+\begin{rigour}[Static vs Contextual Embeddings]
+\textbf{Static} (Word2Vec, GloVe): One embedding per word type.
+\[
+\text{embed}(\text{``bank''}) = v_{\text{bank}} \in \mathbb{R}^d \quad \text{(always the same)}
+\]
+
+\textbf{Contextual}: Embedding depends on surrounding words.
+\[
+\text{embed}(\text{``bank''}, \text{context}) = f(v_{\text{bank}}, \text{context}) \in \mathbb{R}^d
+\]
+
+\textbf{Problem-polysemy}:
+\begin{itemize}
+    \item ``I deposited money in the \textbf{bank}.'' (financial institution)
+    \item ``I sat on the river \textbf{bank}.'' (edge of river)
+\end{itemize}
+
+Static embedding: identical vector for both usages.
+Contextual embedding: different vectors reflecting different meanings.
+\end{rigour}
+
+\subsection{ELMo: Embeddings from Language Models}
+
+ELMo (Peters et al., 2018) was the first widely successful contextual embedding method.
+
+\begin{rigour}[ELMo Architecture]
+\textbf{Core idea}: Train a deep bidirectional LSTM language model, then use internal representations as embeddings.
+
+\textbf{Model structure}:
+\begin{enumerate}
+    \item \textbf{Character-level CNN}: Produces initial word representations (handles OOV)
+    \item \textbf{Forward LSTM}: Predicts next word given left context
+    \item \textbf{Backward LSTM}: Predicts previous word given right context
+    \item \textbf{Multiple layers}: Typically 2 bidirectional LSTM layers
+\end{enumerate}
+
+\textbf{Training objective}: Bidirectional language modelling:
+\[
+\mathcal{L} = -\sum_{t=1}^{T} \left[ \log P(w_t \mid w_1, \ldots, w_{t-1}) + \log P(w_t \mid w_{t+1}, \ldots, w_T) \right]
+\]
+
+\textbf{ELMo embedding for word at position $t$}:
+\[
+\text{ELMo}_t = \gamma \sum_{\ell=0}^{L} s_\ell h_t^\ell
+\]
+where:
+\begin{itemize}
+    \item $h_t^\ell$ = hidden state at layer $\ell$ for position $t$
+    \item $s_\ell$ = learned scalar weights (task-specific)
+    \item $\gamma$ = overall scaling factor
+    \item $L$ = number of layers
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[ELMo Key Insights]
+\textbf{Different layers capture different information}:
+\begin{itemize}
+    \item \textbf{Layer 0} (word embeddings): Syntactic information
+    \item \textbf{Layer 1}: Local syntax (POS, chunking)
+    \item \textbf{Layer 2}: Semantics (word sense disambiguation, NER)
+\end{itemize}
+
+\textbf{Usage}: Pre-trained ELMo + task-specific weights $s_\ell$.
+
+\textbf{Limitations}:
+\begin{itemize}
+    \item Sequential processing (slow for long sequences)
+    \item Separate forward and backward models (not truly bidirectional)
+    \item Feature extraction only (not fine-tunable end-to-end)
+\end{itemize}
+\end{quickref}
+
+\subsection{BERT: Bidirectional Encoder Representations from Transformers}
+
+BERT (Devlin et al., 2019) revolutionised NLP by combining Transformer architecture with novel pretraining objectives.
+
+\begin{rigour}[BERT Architecture]
+\textbf{Base model}: Transformer encoder (see Section~\ref{sec:transformers})
+\begin{itemize}
+    \item BERT-Base: 12 layers, 768 hidden dimensions, 12 attention heads, 110M parameters
+    \item BERT-Large: 24 layers, 1024 hidden dimensions, 16 attention heads, 340M parameters
+\end{itemize}
+
+\textbf{Input representation}:
+\[
+\text{Input} = \text{Token} + \text{Segment} + \text{Position embeddings}
+\]
+\begin{itemize}
+    \item \textbf{Token}: WordPiece embedding of each subword
+    \item \textbf{Segment}: Indicates sentence A or B (for sentence pair tasks)
+    \item \textbf{Position}: Learned positional embedding
+\end{itemize}
+
+\textbf{Special tokens}:
+\begin{itemize}
+    \item \texttt{[CLS]}: Classification token (first position)
+    \item \texttt{[SEP]}: Separator between sentences
+    \item \texttt{[MASK]}: Placeholder for masked tokens during pretraining
+\end{itemize}
+\end{rigour}
+
+\begin{rigour}[BERT Pretraining Objectives]
+\textbf{1. Masked Language Modelling (MLM)}:
+
+Randomly mask 15\% of input tokens and predict them:
+\begin{itemize}
+    \item 80\% replaced with \texttt{[MASK]}
+    \item 10\% replaced with random token
+    \item 10\% unchanged
+\end{itemize}
+
+\textbf{Loss}:
+\[
+\mathcal{L}_{\text{MLM}} = -\sum_{i \in \mathcal{M}} \log P(w_i \mid \mathbf{h}_i)
+\]
+where $\mathcal{M}$ is the set of masked positions.
+
+\textbf{Why this matters}: Unlike left-to-right language models, MLM allows bidirectional context-the model sees both left and right context when predicting masked words.
+
+\textbf{2. Next Sentence Prediction (NSP)}:
+
+Given sentence pair (A, B), predict whether B follows A in the original text.
+
+\textbf{Training data}:
+\begin{itemize}
+    \item 50\% positive: B actually follows A
+    \item 50\% negative: B is random sentence
+\end{itemize}
+
+\textbf{Loss}:
+\[
+\mathcal{L}_{\text{NSP}} = -\log P(\text{IsNext} \mid \mathbf{h}_{\texttt{[CLS]}})
+\]
+
+\textbf{Note}: Later work (RoBERTa) showed NSP may not be necessary.
+
+\textbf{Total pretraining loss}:
+\[
+\mathcal{L} = \mathcal{L}_{\text{MLM}} + \mathcal{L}_{\text{NSP}}
+\]
+\end{rigour}
+
+\begin{quickref}[Using BERT]
+\textbf{Two paradigms}:
+
+\textbf{1. Feature extraction} (freeze BERT):
+\begin{itemize}
+    \item Pass input through pretrained BERT
+    \item Use \texttt{[CLS]} embedding or average of token embeddings
+    \item Train task-specific classifier on top
+    \item Fast, works with small data
+\end{itemize}
+
+\textbf{2. Fine-tuning} (update BERT):
+\begin{itemize}
+    \item Add task-specific layer on top of BERT
+    \item Train entire model end-to-end on task data
+    \item Better performance, requires more data and compute
+\end{itemize}
+
+\textbf{Common tasks}:
+\begin{itemize}
+    \item \textbf{Classification}: Use \texttt{[CLS]} embedding
+    \item \textbf{Token classification} (NER): Use each token's embedding
+    \item \textbf{Question answering}: Predict start/end positions
+    \item \textbf{Sentence pairs}: Input as ``\texttt{[CLS]} A \texttt{[SEP]} B \texttt{[SEP]}''
+\end{itemize}
+\end{quickref}
+
+\begin{redbox}
+\textbf{BERT's limitations}:
+\begin{itemize}
+    \item \textbf{Max sequence length}: 512 tokens (architectural constraint)
+    \item \textbf{Masked tokens during fine-tuning}: No \texttt{[MASK]} tokens seen during fine-tuning, creating train-test mismatch
+    \item \textbf{Not generative}: Encoder-only architecture cannot generate text autoregressively
+    \item \textbf{Computational cost}: Fine-tuning requires significant GPU resources
+\end{itemize}
+\end{redbox}
+
+%==============================================================================
+\section{The Transformer Architecture}
+\label{sec:transformers}
+%==============================================================================
+
+RNNs process sequences one element at a time, maintaining a hidden state that accumulates information as we move through the sequence. This sequential nature creates two problems. First, it prevents parallelisation-we cannot process position 10 until we have processed positions 1--9. Second, information from early positions must pass through many time steps to influence later positions, leading to the vanishing gradient problem and difficulty capturing long-range dependencies.
+
+The Transformer architecture, introduced in the landmark paper ``Attention Is All You Need'' (Vaswani et al., 2017), solves both problems with a single mechanism: \textbf{self-attention}. Instead of processing sequentially, self-attention allows every position to directly attend to every other position in a single step. To understand why this is so powerful, consider the sentence ``The cat that I saw yesterday sat on the mat''. An RNN processing ``sat'' must somehow remember ``cat'' through the intervening words ``that I saw yesterday''. With self-attention, ``sat'' can directly look at ``cat'' and recognise it as its subject-no information bottleneck.
+
+The core idea is simple: for each word, we ask ``which other words should I pay attention to?'' We compute a compatibility score between the current word and all other words, normalise these scores into a probability distribution (using softmax), and then take a weighted average of all word representations according to these attention weights. Words that are relevant to understanding the current word receive high attention weights.
+
+This chapter unpacks the components of the Transformer: the Query-Key-Value framework for computing attention, multi-head attention for capturing different relationship types, positional encoding for injecting sequence order, and the overall encoder architecture. These components form the foundation of BERT, GPT, and virtually all modern language models.
+
+The Transformer (Vaswani et al., 2017) replaced recurrence with attention, enabling parallelisation and capturing long-range dependencies more effectively.
+
+\begin{quickref}[Transformer: Key Innovations]
+\textbf{``Attention Is All You Need''}:
+\begin{itemize}
+    \item No recurrence (RNN) or convolution (CNN)
+    \item Purely attention-based architecture
+    \item Enables parallel processing of all positions
+    \item Better at capturing long-range dependencies
+\end{itemize}
+
+\textbf{Components}:
+\begin{itemize}
+    \item Self-attention mechanism
+    \item Multi-head attention
+    \item Positional encoding
+    \item Feed-forward networks
+    \item Layer normalisation and residual connections
+\end{itemize}
+\end{quickref}
+
+\subsection{Self-Attention Mechanism}
+
+Self-attention allows each position to attend to all other positions in the sequence.
+
+\begin{rigour}[Query, Key, Value Framework]
+\textbf{Intuition}: Self-attention can be understood as a soft lookup table.
+
+For each position $i$:
+\begin{itemize}
+    \item \textbf{Query} $q_i$: ``What am I looking for?''
+    \item \textbf{Key} $k_j$: ``What do I contain?'' (for position $j$)
+    \item \textbf{Value} $v_j$: ``What information do I provide?'' (for position $j$)
+\end{itemize}
+
+\textbf{Attention computation}:
+\begin{enumerate}
+    \item Compare query $q_i$ with all keys $k_j$ (via dot product)
+    \item Normalise scores to get attention weights (via softmax)
+    \item Weight values $v_j$ by attention weights and sum
+\end{enumerate}
+
+\textbf{Result}: Each position aggregates information from all positions, weighted by relevance.
+\end{rigour}
+
+\begin{rigour}[Self-Attention: Formal Definition]
+\textbf{Input}: Sequence of embeddings $X \in \mathbb{R}^{n \times d}$ (n positions, d dimensions)
+
+\textbf{Learnable parameters}:
+\begin{itemize}
+    \item $W^Q \in \mathbb{R}^{d \times d_k}$: Query projection
+    \item $W^K \in \mathbb{R}^{d \times d_k}$: Key projection
+    \item $W^V \in \mathbb{R}^{d \times d_v}$: Value projection
+\end{itemize}
+
+\textbf{Projections}:
+\[
+Q = XW^Q \in \mathbb{R}^{n \times d_k}, \quad K = XW^K \in \mathbb{R}^{n \times d_k}, \quad V = XW^V \in \mathbb{R}^{n \times d_v}
+\]
+
+\textbf{Scaled dot-product attention}:
+\[
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)V
+\]
+
+\textbf{Dimensions}:
+\begin{itemize}
+    \item $QK^\top \in \mathbb{R}^{n \times n}$: Attention scores (position $\times$ position)
+    \item $\text{softmax}(\cdot) \in \mathbb{R}^{n \times n}$: Attention weights (rows sum to 1)
+    \item Output $\in \mathbb{R}^{n \times d_v}$: Weighted combination of values
+\end{itemize}
+\end{rigour}
+
+\begin{rigour}[Why Scale by $\sqrt{d_k}$?]
+\textbf{Problem}: For large $d_k$, dot products $q_i^\top k_j$ have high variance.
+
+\textbf{Analysis}: If components of $q$ and $k$ are independent with mean 0 and variance 1:
+\[
+\text{Var}(q^\top k) = \text{Var}\left(\sum_{i=1}^{d_k} q_i k_i\right) = d_k
+\]
+
+\textbf{Issue}: Large dot products push softmax into regions with tiny gradients (saturation).
+
+\textbf{Solution}: Scale by $\sqrt{d_k}$ to maintain unit variance:
+\[
+\text{Var}\left(\frac{q^\top k}{\sqrt{d_k}}\right) = 1
+\]
+
+This keeps softmax in a well-behaved regime with meaningful gradients.
+\end{rigour}
+
+\begin{quickref}[Self-Attention: Step-by-Step Example]
+\textbf{Setup}: Sequence ``The cat sat'' with $d = 4$, $d_k = d_v = 2$.
+
+\textbf{Step 1}: Input embeddings $X \in \mathbb{R}^{3 \times 4}$:
+\[
+X = \begin{bmatrix} x_{\text{The}} \\ x_{\text{cat}} \\ x_{\text{sat}} \end{bmatrix}
+\]
+
+\textbf{Step 2}: Project to Q, K, V (each $\in \mathbb{R}^{3 \times 2}$):
+\[
+Q = XW^Q, \quad K = XW^K, \quad V = XW^V
+\]
+
+\textbf{Step 3}: Compute attention scores $QK^\top \in \mathbb{R}^{3 \times 3}$:
+\[
+\text{scores} = \frac{1}{\sqrt{2}} \begin{bmatrix}
+q_{\text{The}}^\top k_{\text{The}} & q_{\text{The}}^\top k_{\text{cat}} & q_{\text{The}}^\top k_{\text{sat}} \\
+q_{\text{cat}}^\top k_{\text{The}} & q_{\text{cat}}^\top k_{\text{cat}} & q_{\text{cat}}^\top k_{\text{sat}} \\
+q_{\text{sat}}^\top k_{\text{The}} & q_{\text{sat}}^\top k_{\text{cat}} & q_{\text{sat}}^\top k_{\text{sat}}
+\end{bmatrix}
+\]
+
+\textbf{Step 4}: Apply softmax row-wise to get attention weights $\alpha \in \mathbb{R}^{3 \times 3}$:
+\[
+\alpha_{ij} = \frac{\exp(\text{score}_{ij})}{\sum_k \exp(\text{score}_{ik})}
+\]
+Each row sums to 1.
+
+\textbf{Step 5}: Compute output as weighted sum of values:
+\[
+\text{output}_i = \sum_j \alpha_{ij} v_j
+\]
+
+\textbf{Interpretation}: Each word's output is a weighted combination of all words' values, where weights reflect relevance (determined by query-key similarity).
+\end{quickref}
+
+\subsection{Multi-Head Attention}
+
+\begin{rigour}[Multi-Head Attention]
+\textbf{Motivation}: A single attention head can only focus on one type of relationship. Multiple heads allow capturing different relationship types in parallel.
+
+\textbf{Definition}: Run $h$ attention heads in parallel, then concatenate:
+\[
+\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \ldots, \text{head}_h) W^O
+\]
+
+where each head is:
+\[
+\text{head}_i = \text{Attention}(XW_i^Q, XW_i^K, XW_i^V)
+\]
+
+\textbf{Parameters per head}:
+\begin{itemize}
+    \item $W_i^Q \in \mathbb{R}^{d \times d_k}$
+    \item $W_i^K \in \mathbb{R}^{d \times d_k}$
+    \item $W_i^V \in \mathbb{R}^{d \times d_v}$
+\end{itemize}
+
+\textbf{Output projection}:
+\begin{itemize}
+    \item $W^O \in \mathbb{R}^{hd_v \times d}$
+\end{itemize}
+
+\textbf{Typical setup}: $d_k = d_v = d/h$, so total computation is similar to single-head attention with full dimension.
+\end{rigour}
+
+\begin{quickref}[Multi-Head Attention: Intuition]
+\textbf{Different heads capture different patterns}:
+\begin{itemize}
+    \item Head 1: Syntactic relationships (subject-verb agreement)
+    \item Head 2: Positional patterns (adjacent words)
+    \item Head 3: Semantic relationships (coreference)
+    \item Head 4: Long-range dependencies
+\end{itemize}
+
+\textbf{Example}: In ``The cat that I saw yesterday sat on the mat'':
+\begin{itemize}
+    \item One head might link ``cat'' with ``sat'' (subject-verb)
+    \item Another might link ``cat'' with ``that'' (relative clause)
+    \item Another might link ``I'' with ``saw'' (local syntax)
+\end{itemize}
+
+\textbf{Computational cost}:
+With $h$ heads and $d_k = d/h$:
+\[
+\text{Parameters} = h \cdot 3 \cdot d \cdot (d/h) + d \cdot d = 4d^2
+\]
+Same as single-head attention with full dimension.
+\end{quickref}
+
+\subsection{Positional Encoding}
+
+Self-attention is permutation-equivariant: shuffling the input shuffles the output identically. To inject position information, we add positional encodings.
+
+\begin{rigour}[Positional Encoding]
+\textbf{Problem}: Self-attention treats input as a set, not a sequence. Without position information:
+\[
+\text{Attention}(\pi(X)) = \pi(\text{Attention}(X))
+\]
+for any permutation $\pi$. The model cannot distinguish ``dog bites man'' from ``man bites dog''.
+
+\textbf{Solution}: Add positional information to embeddings:
+\[
+\tilde{X} = X + P
+\]
+where $P \in \mathbb{R}^{n \times d}$ contains positional encodings.
+
+\textbf{Two approaches}:
+\begin{enumerate}
+    \item \textbf{Sinusoidal} (fixed): Deterministic functions of position
+    \item \textbf{Learned}: Trainable embedding for each position
+\end{enumerate}
+\end{rigour}
+
+\begin{rigour}[Sinusoidal Positional Encoding]
+\textbf{Definition}: For position $\text{pos}$ and dimension $i$:
+\[
+PE_{(\text{pos}, 2i)} = \sin\left(\frac{\text{pos}}{10000^{2i/d}}\right)
+\]
+\[
+PE_{(\text{pos}, 2i+1)} = \cos\left(\frac{\text{pos}}{10000^{2i/d}}\right)
+\]
+
+\textbf{Properties}:
+\begin{itemize}
+    \item Each dimension oscillates at a different frequency
+    \item Low dimensions: high frequency (capture fine position differences)
+    \item High dimensions: low frequency (capture coarse position)
+    \item $PE_{\text{pos}+k}$ can be expressed as a linear function of $PE_{\text{pos}}$ (facilitates learning relative positions)
+\end{itemize}
+
+\textbf{Relative position property}:
+\[
+PE_{\text{pos}+k} = T_k \cdot PE_{\text{pos}}
+\]
+where $T_k$ is a rotation matrix depending only on $k$, not on $\text{pos}$.
+\end{rigour}
+
+\begin{quickref}[Positional Encoding Visualisation]
+\textbf{Sinusoidal encoding pattern}:
+\begin{verbatim}
+Position:  0   1   2   3   4   5   ...
+Dim 0:    sin sin sin sin sin sin   (high freq)
+Dim 1:    cos cos cos cos cos cos   (high freq)
+Dim 2:    sin sin sin sin sin sin   (med freq)
+...
+Dim d-1:  cos cos cos cos cos cos   (low freq)
+\end{verbatim}
+
+Each row has a unique ``fingerprint'' of sine/cosine values.
+
+\textbf{Learned vs Sinusoidal}:
+\begin{itemize}
+    \item \textbf{Sinusoidal}: Extrapolates to longer sequences; no additional parameters
+    \item \textbf{Learned}: Often slightly better performance; limited to training length
+\end{itemize}
+
+Modern models often use learned positional embeddings (BERT) or relative position encodings (Transformer-XL, RoPE).
+\end{quickref}
+
+\subsection{Feed-Forward Networks}
+
+Each Transformer layer includes a position-wise feed-forward network applied to each position independently.
+
+\begin{rigour}[Position-wise Feed-Forward Network]
+\textbf{Definition}:
+\[
+\text{FFN}(x) = \max(0, xW_1 + b_1)W_2 + b_2
+\]
+or equivalently:
+\[
+\text{FFN}(x) = \text{ReLU}(xW_1 + b_1)W_2 + b_2
+\]
+
+\textbf{Dimensions}:
+\begin{itemize}
+    \item Input: $x \in \mathbb{R}^d$
+    \item $W_1 \in \mathbb{R}^{d \times d_{ff}}$, $b_1 \in \mathbb{R}^{d_{ff}}$
+    \item $W_2 \in \mathbb{R}^{d_{ff} \times d}$, $b_2 \in \mathbb{R}^d$
+    \item Typically $d_{ff} = 4d$ (expansion factor of 4)
+\end{itemize}
+
+\textbf{Purpose}:
+\begin{itemize}
+    \item Attention aggregates information across positions
+    \item FFN processes information at each position independently
+    \item Acts as a ``memory'' storing learned patterns
+\end{itemize}
+
+\textbf{Modern variants}: GELU activation, SwiGLU, etc.
+\end{rigour}
+
+\subsection{Layer Normalisation and Residual Connections}
+
+\begin{rigour}[Transformer Layer Structure]
+Each Transformer layer consists of:
+
+\textbf{1. Multi-head self-attention with residual and layer norm}:
+\[
+x' = \text{LayerNorm}(x + \text{MultiHead}(x, x, x))
+\]
+
+\textbf{2. Feed-forward network with residual and layer norm}:
+\[
+x'' = \text{LayerNorm}(x' + \text{FFN}(x'))
+\]
+
+\textbf{Layer Normalisation}:
+\[
+\text{LayerNorm}(x) = \gamma \odot \frac{x - \mu}{\sqrt{\sigma^2 + \epsilon}} + \beta
+\]
+where:
+\begin{itemize}
+    \item $\mu, \sigma^2$: mean and variance computed over the feature dimension
+    \item $\gamma, \beta$: learned scale and shift parameters
+    \item $\epsilon$: small constant for numerical stability
+\end{itemize}
+
+\textbf{Residual connections}: Enable gradient flow and allow layers to learn ``refinements'' rather than complete transformations.
+\end{rigour}
+
+\begin{quickref}[Pre-Norm vs Post-Norm]
+\textbf{Post-Norm} (original Transformer):
+\[
+x' = \text{LayerNorm}(x + \text{Sublayer}(x))
+\]
+
+\textbf{Pre-Norm} (more stable training):
+\[
+x' = x + \text{Sublayer}(\text{LayerNorm}(x))
+\]
+
+Pre-Norm is more common in modern architectures as it enables training deeper models without careful learning rate warmup.
+\end{quickref}
+
+\subsection{Complete Transformer Encoder}
+
+\begin{rigour}[Transformer Encoder Architecture]
+\textbf{Input processing}:
+\begin{enumerate}
+    \item Tokenise input text
+    \item Look up token embeddings: $E \in \mathbb{R}^{n \times d}$
+    \item Add positional encodings: $X_0 = E + P$
+\end{enumerate}
+
+\textbf{Encoder layers} (repeated $L$ times):
+\[
+X_\ell' = \text{LayerNorm}(X_{\ell-1} + \text{MultiHead}(X_{\ell-1}, X_{\ell-1}, X_{\ell-1}))
+\]
+\[
+X_\ell = \text{LayerNorm}(X_\ell' + \text{FFN}(X_\ell'))
+\]
+
+\textbf{Output}: Contextual representations $X_L \in \mathbb{R}^{n \times d}$ for each position.
+
+\textbf{Parameters per layer}:
+\begin{itemize}
+    \item Multi-head attention: $4d^2$ (Q, K, V, output projections)
+    \item FFN: $2d \cdot d_{ff} = 8d^2$ (typically $d_{ff} = 4d$)
+    \item Layer norms: $4d$ (negligible)
+    \item Total per layer: $\approx 12d^2$
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[Transformer Encoder Summary]
+\begin{verbatim}
+Input Tokens
+    |
+    v
++-------+
+|  Token Embedding  |
+|  + Position Enc   |
++-------+
+    |
+    v
++-------+
+| Multi-Head Attn   |<--+
+| + Add & Norm      |   |
++-------+   |  x L layers
+    |                   |
+    v                   |
++-------+   |
+| Feed-Forward      |   |
+| + Add & Norm      |-+
++-------+
+    |
+    v
+Output Representations
+\end{verbatim}
+
+\textbf{BERT-Base dimensions}:
+\begin{itemize}
+    \item $L = 12$ layers
+    \item $d = 768$ hidden dimension
+    \item $h = 12$ attention heads
+    \item $d_{ff} = 3072$ FFN dimension
+    \item Total: $\sim$110M parameters
+\end{itemize}
+\end{quickref}
+
+\subsection{Computational Complexity}
+
+\begin{rigour}[Transformer Complexity Analysis]
+For sequence length $n$ and embedding dimension $d$:
+
+\textbf{Self-attention}:
+\begin{itemize}
+    \item Computing $QK^\top$: $O(n^2 d)$
+    \item Softmax and weighted sum: $O(n^2)$ and $O(n^2 d)$
+    \item \textbf{Total}: $O(n^2 d)$
+    \item \textbf{Memory}: $O(n^2)$ for attention weights
+\end{itemize}
+
+\textbf{Feed-forward network}:
+\begin{itemize}
+    \item Applied to each of $n$ positions: $O(n d_{ff} d) = O(n d^2)$
+\end{itemize}
+
+\textbf{Total per layer}: $O(n^2 d + n d^2)$
+
+\textbf{Implications}:
+\begin{itemize}
+    \item For short sequences ($n < d$): FFN dominates
+    \item For long sequences ($n > d$): Attention dominates
+    \item Quadratic scaling in $n$ limits sequence length
+\end{itemize}
+
+\textbf{Comparison with RNN}: $O(n d^2)$ per layer, but sequential (no parallelisation).
+\end{rigour}
+
+\begin{redbox}
+\textbf{The quadratic attention bottleneck}:
+
+For a sequence of 1000 tokens with $d = 768$:
+\begin{itemize}
+    \item Attention scores: $1000 \times 1000 = 1{,}000{,}000$ entries
+    \item With 12 heads and 12 layers: $\sim$144M attention weights
+\end{itemize}
+
+This limits standard Transformers to sequences of a few thousand tokens. Research on efficient attention (Linformer, Performer, etc.) aims to reduce this to $O(n)$.
+\end{redbox}
+
+%==============================================================================
+\section{Sentiment Analysis with RNNs}
+\label{sec:sentiment-rnn}
+%==============================================================================
+
+Sentiment analysis classifies text (sentence, tweet, review) as positive, negative, or neutral. While Transformers now dominate, RNN-based approaches remain instructive and are still used in practice.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_7/sentiment analysis.png}
+    \caption{Sentiment analysis: pretrained embeddings + RNN architecture + classification.}
+    \label{fig:sentiment}
+\end{figure}
+
+\subsection{Basic RNNs for Sentiment Analysis}
+
+\begin{rigour}[RNN for Sentiment]
+RNNs process each word sequentially, maintaining a hidden state that captures information about previous words.
+
+\begin{itemize}
+    \item \textbf{Input layer}: At each time step $t$, input $x_t$ is the word embedding
+    \item \textbf{Hidden layer}: $h_t$ depends on $x_t$ and $h_{t-1}$, capturing sequential patterns
+    \item \textbf{Output layer}: Final hidden state $\rightarrow$ fully connected $\rightarrow$ softmax
+\end{itemize}
+
+Hidden state update:
+\[
+h_t = f(W_h x_t + U_h h_{t-1} + b_h)
+\]
+where $f$ is typically $\tanh$.
+
+\textbf{Sentiment prediction}:
+\[
+\hat{y} = \text{softmax}(W_o h_T + b_o)
+\]
+where $h_T$ is the final hidden state.
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{images/week_7/RNN.png}
+    \caption{RNN unrolled through time for sequence classification.}
+    \label{fig:rnn-sentiment}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_7/RNN 2.png}
+    \caption{Character sequence modelling: processing ``machine'' character by character.}
+    \label{fig:rnn-char}
+\end{figure}
+
+\subsection{Challenges with Basic RNNs}
+
+\begin{redbox}
+\textbf{Exponential Forgetting}:
+
+\textbf{RNNs}: Recurrence leads to exponential forgetting with respect to time step distance. Past information gets progressively ``forgotten'' due to the sigmoid activation and recurrent connections. Earlier states contribute less to current output as time passes-long-term dependencies are hard to capture.
+
+\textbf{LSTMs}: Designed to mitigate vanishing gradients, but recurrence still causes some exponential forgetting. While gating mechanisms help preserve long-term information, they can still lose information over very long sequences.
+\end{redbox}
+
+\subsection{LSTM and GRU for Sentiment}
+
+\begin{rigour}[LSTM and GRU]
+Both architectures include \textbf{gating mechanisms} to control information flow:
+
+\textbf{LSTM}: Input, forget, and output gates decide what to keep, forget, or output. Retains relevant information over long sequences.
+
+\textbf{GRU}: Combines forget and input gates into single update gate. Computationally efficient; performs well on sentiment analysis.
+
+See Chapter~\ref{ch:week6} for detailed treatment of LSTM and GRU architectures.
+\end{rigour}
+
+\subsection{Bidirectional RNNs}
+
+\begin{rigour}[Bidirectional RNN]
+Two RNNs: one forward (start to end), one backward (end to start).
+
+Hidden state concatenates both:
+\[
+H_t = \overrightarrow{H_t} \oplus \overleftarrow{H_t} \in \mathbb{R}^{n \times 2h}
+\]
+where $h$ is hidden units per direction, and $\oplus$ is concatenation.
+
+$H_t$ is fed into the output layer.
+
+\textbf{Advantage}: Each position has context from both past and future words.
+
+\textbf{Example}: ``I am \textbf{not} happy''-understanding ``not'' requires seeing ``happy''.
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_7/bidirectional RNN.png}
+    \caption{Bidirectional RNN: forward and backward passes concatenated.}
+    \label{fig:bidirectional}
+\end{figure}
+
+\subsection{Pretraining Task: Masked Language Modelling}
+
+\begin{rigour}[Masked Language Modelling (MLM)]
+Common pretraining task for bidirectional models (e.g., BERT):
+\begin{enumerate}
+    \item Mask random tokens in input
+    \item Train model to predict masked tokens from surrounding context
+\end{enumerate}
+
+This helps the model learn to fill in missing information using both preceding and following words.
+\end{rigour}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|p{6cm}|p{4cm}|p{3cm}|}
+        \hline
+        \textbf{Sentence} & \textbf{Options} & \textbf{Removed} \\ \hline
+        I am \underline{\hspace{2cm}}. & happy, thirsty & - \\ \hline
+        \multicolumn{3}{|p{13cm}|}{\textit{Comment: can be basically anything}} \\ \hline
+        I am \underline{\hspace{2cm}} hungry. & very, not & happy, thirsty \\ \hline
+        \multicolumn{3}{|p{13cm}|}{\textit{Comment: now needs to be an adverb}} \\ \hline
+        I am \underline{\hspace{2cm}} hungry, and I can eat half a pig. & very, so & not \\ \hline
+        \multicolumn{3}{|p{13cm}|}{\textit{Comment: now quite specific-future context narrows options}} \\ \hline
+    \end{tabular}
+    \caption{Masked language modelling intuition: downstream context is informative.}
+    \label{tab:mlm}
+\end{table}
+
+\begin{quickref}[Key Insight]
+\textbf{Bidirectional context matters!} Unlike forecasting (where future is unknown), in language understanding, what comes \textit{after} a word helps determine its meaning. This is why bidirectional models like BERT outperform left-to-right models for many NLP tasks.
+\end{quickref}
+
+\subsection{Training with Sentiment Labels}
+
+\begin{rigour}[Sentiment Training]
+\textbf{Loss function}: Cross-entropy for multi-class classification:
+\[
+\mathcal{L} = -\sum_{i=1}^{N} y_i \log(\hat{y}_i)
+\]
+where $y_i$ is the true label, $\hat{y}_i$ is predicted probability, and $N$ is number of classes.
+
+\textbf{Example architecture} (movie reviews):
+\begin{enumerate}
+    \item \textbf{Input}: Word embeddings (Word2Vec, GloVe, or BERT)
+    \item \textbf{RNN layer}: Captures sequential dependencies
+    \item \textbf{Fully connected}: Maps RNN output to sentiment classes
+    \item \textbf{Output}: Softmax probabilities for positive/negative/neutral
+\end{enumerate}
+\end{rigour}
+
+%==============================================================================
+\section{Regularisation in Deep Learning}
+\label{sec:regularisation}
+%==============================================================================
+
+Regularisation prevents overfitting and can improve computational efficiency.
+
+\begin{quickref}[Regularisation Techniques]
+\begin{enumerate}
+    \item \textbf{Weight sharing}: Reuse parameters (CNNs, RNNs)
+    \item \textbf{Weight decay} ($L_2$): Penalise large weights
+    \item \textbf{Dropout}: Randomly zero neurons during training
+    \item \textbf{Label smoothing}: Soften one-hot targets
+\end{enumerate}
+\end{quickref}
+
+\subsection{Weight Sharing}
+
+\begin{rigour}[Weight Sharing]
+Reduces parameters by enforcing reuse:
+
+\textbf{CNNs}: Same filter applied across spatial locations, learning spatial hierarchies.
+
+\textbf{RNNs}: Same weights $W_{xh}, W_{hh}$ applied at each time step:
+\[
+H_t = g(X_t W_{xh} + H_{t-1} W_{hh} + b_h)
+\]
+
+Captures temporal patterns without increasing parameters per time step.
+\end{rigour}
+
+\subsection{Weight Decay ($L_2$ Regularisation)}
+
+\begin{rigour}[Weight Decay]
+Add penalty for large weights (inspired by ridge regression):
+\[
+L_{\text{new}} = L_{\text{original}}(W) + \lambda \|W\|_2^2
+\]
+
+where $\lambda$ controls the trade-off between fitting data and keeping weights small.
+
+\textbf{Effect}: Weights ``decay'' towards zero during gradient descent, encouraging simpler models.
+\end{rigour}
+
+\subsection{Dropout}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_7/before dropout.png}
+    \caption{Network before dropout: all neurons active.}
+    \label{fig:before-dropout}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_7/after dropout.png}
+    \caption{Network with dropout: random neurons zeroed.}
+    \label{fig:after-dropout}
+\end{figure}
+
+\begin{rigour}[Dropout]
+Stochastic regularisation that randomly ``drops'' neurons during training:
+
+\textbf{Procedure}:
+\begin{itemize}
+    \item Each training iteration: randomly zero out fraction $p$ of neurons per layer
+    \item Forward pass uses only active subset (different ``sub-network'' each time)
+    \item Inference: use full network, scale activations by $(1-p)$
+\end{itemize}
+
+\textbf{Effects}:
+\begin{itemize}
+    \item Prevents co-adaptation of neurons
+    \item Creates implicit ensemble of sub-networks
+    \item Model cannot rely on any single pathway
+\end{itemize}
+\end{rigour}
+
+\begin{rigour}[Dropout: Ensemble Interpretation]
+\textbf{Implicit ensemble:}
+
+A network with $n$ neurons and dropout can be viewed as an ensemble of $2^n$ different sub-networks (each neuron either present or absent). During training:
+\begin{itemize}
+    \item Each mini-batch trains a different sub-network
+    \item Sub-networks share weights (unlike true ensembles)
+    \item Effect: averaging predictions over exponentially many models
+\end{itemize}
+
+\textbf{Scaling at inference time:}
+
+During training with dropout rate $p = 0.5$:
+\begin{itemize}
+    \item Each neuron has 50\% chance of being active
+    \item Expected activation: $0.5 \cdot h$ (half the full activation)
+\end{itemize}
+
+At inference (no dropout):
+\begin{itemize}
+    \item All neurons are active
+    \item To match training statistics, scale activations: $h_{\text{test}} = (1-p) \cdot h$
+\end{itemize}
+
+\textbf{Alternative: Inverted dropout} (used in practice):
+
+Scale during training instead:
+\[
+h_{\text{train}} = \frac{\text{mask} \odot h}{1-p}
+\]
+
+Then use unmodified activations at test time. This is more efficient as scaling is done once during training.
+
+\textbf{Numerical example:}
+
+Layer with 4 neurons, dropout $p = 0.5$:
+\begin{itemize}
+    \item Full activations: $h = [2.0, 1.5, 0.8, 1.2]$
+    \item Dropout mask: $m = [1, 0, 1, 0]$ (random)
+    \item Masked activations: $h \odot m = [2.0, 0, 0.8, 0]$
+    \item Inverted dropout: $\frac{1}{1-0.5}[2.0, 0, 0.8, 0] = [4.0, 0, 1.6, 0]$
+\end{itemize}
+
+At test time: use $h = [2.0, 1.5, 0.8, 1.2]$ directly (no scaling needed).
+\end{rigour}
+
+\subsection{Dropout in NLP}
+
+\begin{rigour}[Dropout for Embeddings and Attention]
+\textbf{Embedding dropout}:
+Apply dropout to word embeddings, randomly zeroing entire word vectors. Forces model to not rely on any single word.
+
+\textbf{Attention dropout}:
+Apply dropout to attention weights after softmax:
+\[
+\text{Attention}(Q, K, V) = \text{Dropout}\left(\text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right)\right)V
+\]
+Prevents over-reliance on specific attention patterns.
+
+\textbf{Typical dropout rates in NLP}:
+\begin{itemize}
+    \item Embedding dropout: 0.1--0.3
+    \item Attention dropout: 0.1
+    \item FFN dropout: 0.1--0.3
+    \item Final classifier: 0.1--0.5
+\end{itemize}
+\end{rigour}
+
+\subsection{Label Smoothing}
+
+\begin{rigour}[Label Smoothing]
+Instead of hard one-hot targets, use ``soft'' targets:
+
+\textbf{Hard target} (standard):
+\[
+y = [0, 0, 1, 0, 0] \quad \text{(class 3)}
+\]
+
+\textbf{Soft target} (with smoothing $\epsilon = 0.1$):
+\[
+y_{\text{smooth}} = [0.025, 0.025, 0.9, 0.025, 0.025]
+\]
+
+\textbf{General formula}:
+\[
+y_{\text{smooth},i} = \begin{cases}
+1 - \epsilon & \text{if } i = \text{true class} \\
+\epsilon / (K-1) & \text{otherwise}
+\end{cases}
+\]
+where $K$ is the number of classes.
+
+\textbf{Effect}:
+\begin{itemize}
+    \item Prevents model from being ``too confident''
+    \item Improves calibration (predicted probabilities match true frequencies)
+    \item Regularises by penalising extreme logits
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[Regularisation Benefits]
+\begin{itemize}
+    \item Reduces overfitting (high train, low validation gap)
+    \item Improves generalisation to unseen data
+    \item Weight sharing also improves computational efficiency
+\end{itemize}
+\end{quickref}
+
+%==============================================================================
+\section{Summary: From Words to Transformers}
+\label{sec:summary}
+%==============================================================================
+
+\begin{quickref}[Evolution of Text Representations]
+\textbf{1. Count-based} (BoW, TF-IDF):
+\begin{itemize}
+    \item Sparse, high-dimensional
+    \item No semantic similarity
+    \item Simple, interpretable baseline
+\end{itemize}
+
+\textbf{2. Static embeddings} (Word2Vec, GloVe):
+\begin{itemize}
+    \item Dense, low-dimensional
+    \item Semantic similarity via cosine distance
+    \item One vector per word (polysemy problem)
+\end{itemize}
+
+\textbf{3. Contextual embeddings} (ELMo, BERT):
+\begin{itemize}
+    \item Embedding depends on surrounding context
+    \item Handles polysemy
+    \item Pre-train on large corpora, fine-tune for tasks
+\end{itemize}
+
+\textbf{4. Transformers}:
+\begin{itemize}
+    \item Self-attention replaces recurrence
+    \item Parallel processing, better long-range dependencies
+    \item Foundation for modern NLP (BERT, GPT, etc.)
+\end{itemize}
+\end{quickref}
+
+\begin{quickref}[Key Takeaways]
+\begin{enumerate}
+    \item \textbf{Tokenisation matters}: Subword methods (BPE) balance vocabulary size and coverage
+    \item \textbf{Distributional hypothesis}: Words with similar contexts have similar meanings
+    \item \textbf{Self-attention}: Each position attends to all positions, enabling global context
+    \item \textbf{Scale by $\sqrt{d_k}$}: Prevents softmax saturation
+    \item \textbf{Multi-head attention}: Captures different relationship types
+    \item \textbf{Positional encoding}: Injects sequence order into attention
+    \item \textbf{Pretraining}: Large-scale self-supervised learning on text corpora
+    \item \textbf{Fine-tuning}: Adapt pretrained models to specific tasks
+\end{enumerate}
+\end{quickref}

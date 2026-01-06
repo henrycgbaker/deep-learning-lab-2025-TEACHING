@@ -1,0 +1,783 @@
+
+\thispagestyle{empty}
+{\large \bfseries ML Lecture Notes 2024 \hfill Henry Baker}
+\vspace{2mm}
+\hrule
+
+\vspace*{0.3cm}
+\begin{center}
+	{\Large \bf ML Lecture Notes: Week 1\\ Intellectual History of AI and Machine Learning}
+	\vspace{2mm}
+
+\end{center}
+\vspace{0.4cm}
+
+\begin{bluebox}[Week Overview]
+This week surveys the intellectual history of AI and machine learning, from philosophical origins to the current deep learning era. The goal is not merely historical-understanding \emph{why} certain approaches succeeded or failed provides insight into current methods and their limitations.
+
+\textbf{Key questions}: Why did neural networks ``work'' in 2012 when they didn't in 1969? What is the relationship between symbolic and connectionist approaches? Why do we call it ``learning''?
+\end{bluebox}
+
+
+\section{Philosophical Foundations: The Computational Theory of Mind}
+
+\begin{bluebox}[Section Summary]
+This section traces how the ancient idea that ``thought is computation'' was formalised mathematically. Key figures: Hobbes (reasoning as symbol manipulation), Leibniz (universal calculus of thought), Turing (formalisation of computation itself). The Church-Turing thesis establishes what can be computed; Turing's test operationalises machine intelligence.
+\end{bluebox}
+
+The idea that reasoning can be mechanised has deep philosophical roots. Thomas Hobbes (1588--1679) argued that ``reason is nothing but reckoning''-that thinking is fundamentally a form of computation over symbols. This radical claim suggests that the seemingly mysterious process of human thought might be reducible to mechanical operations, not unlike arithmetic. If true, it implies that brains \emph{compute}, and what computes can, in principle, be approximated or replicated by other computing devices.
+
+Gottfried Wilhelm Leibniz (1646--1716) extended this vision, dreaming of a \emph{calculus ratiocinator}: a universal logical calculus that could resolve all disputes through calculation. Leibniz imagined that when two philosophers disagreed, they could simply say ``Let us calculate!'' and arrive at the correct answer through symbolic manipulation. While this vision proved overly optimistic (G\"odel's incompleteness theorems would later show its fundamental limitations), it planted the seed for formal logic and, eventually, computer science.
+
+These ideas laid the groundwork for what philosophers now call the \textbf{computational theory of mind}-the hypothesis that cognition is fundamentally information processing, and that mental states can be understood as computational states operating over internal representations. On this view, the brain is a kind of biological computer, and thoughts are programs running on neural hardware.
+
+\begin{bluebox}[Key Insight]
+If the mind is computational, then in principle it can be replicated in a machine. This philosophical stance underpins the entire AI enterprise. Note that this is a substantive empirical claim, not a logical necessity-and it remains contested among philosophers and cognitive scientists.
+\end{bluebox}
+
+The mathematical formalisation came in the 20th century. Alan Turing's 1936 paper ``On Computable Numbers'' introduced the \emph{Turing machine}-a theoretical model of computation that showed anything ``effectively calculable'' could be computed by a simple mechanical process. This established three profound results:
+\begin{enumerate}
+    \item A precise definition of what it means to compute
+    \item The universality of computation (a single machine can simulate any other)
+    \item The limits of computation (some problems are \emph{undecidable}-no algorithm can solve them)
+\end{enumerate}
+
+Turing's 1950 paper ``Computing Machinery and Intelligence'' posed the question: \emph{Can machines think?} Rather than debating definitions (what does ``think'' even mean?), Turing proposed an operational test-the \textbf{Turing Test}-where a machine passes if a human interrogator cannot reliably distinguish it from a human through text-based conversation. This behaviourist approach sidesteps metaphysical debates about consciousness and focuses on observable capabilities.
+
+\begin{greybox}[The Church-Turing Thesis]
+Any function that can be computed by an ``effective procedure'' (an algorithm) can be computed by a Turing machine. This is not a theorem but a \emph{thesis}-it cannot be proven because ``effective procedure'' is an informal notion that predates its formalisation. However, every proposed formalisation of computation (lambda calculus, recursive functions, register machines, cellular automata) has been shown equivalent to Turing machines, lending strong empirical support to the thesis.
+
+The thesis has profound implications: if it is correct, then Turing machines capture the full extent of what can be computed-there is no ``super-computation'' beyond their reach. Any computer, from a smartphone to a supercomputer, can compute exactly the same class of functions (though with vastly different speed and memory constraints).
+\end{greybox}
+
+\begin{greybox}[Turing Machines: The Formal Model]
+A Turing machine consists of:
+\begin{itemize}
+    \item An infinite tape divided into cells, each containing a symbol from a finite alphabet $\Gamma$
+    \item A head that reads/writes symbols and moves left or right
+    \item A finite set of states $Q$, including distinguished start and halt states
+    \item A transition function $\delta: Q \times \Gamma \to Q \times \Gamma \times \{L, R\}$
+\end{itemize}
+
+\textbf{Unpacking the transition function}: Given the current state $q \in Q$ and the symbol $s \in \Gamma$ under the head, the function $\delta(q, s) = (q', s', d)$ specifies:
+\begin{itemize}
+    \item $s'$: the new symbol to write in the current cell
+    \item $d \in \{L, R\}$: the direction to move the head
+    \item $q'$: the new state to enter
+\end{itemize}
+
+The machine operates deterministically: given current state and symbol, there is exactly one action to take. Computation proceeds until reaching a halt state (or running forever if no halt state is reached).
+
+A \textbf{Universal Turing Machine} (UTM) can simulate any other Turing machine given its description as input-this is the theoretical foundation of the stored-program computer. The UTM reads a description of machine $M$ and input $x$, then simulates what $M$ would do on $x$. Your laptop is essentially a physical approximation of a UTM.
+
+\textbf{Connection to ML}: Neural networks are often described as ``universal function approximators.'' This is a \emph{different} sense of universality-they can approximate any continuous function to arbitrary precision (given sufficient width/depth), but they are still computed by (finite implementations of) Turing machines. The distinction between \emph{computing} a function exactly and \emph{approximating} it is crucial: Turing machines compute discrete functions exactly; neural networks approximate continuous functions to within $\epsilon$.
+\end{greybox}
+
+
+\section{Cybernetics and Early Neural Models (1940s--1950s)}
+
+\begin{bluebox}[Section Summary]
+The first computational models of neurons emerged from interdisciplinary work in neuroscience, mathematics, and engineering. McCulloch-Pitts neurons showed neural computation could implement Boolean logic. Hebb's learning rule proposed how connections strengthen through use. Cybernetics provided the framework of feedback and self-regulation that would later inform control-theoretic views of learning.
+\end{bluebox}
+
+\textbf{Cybernetics}, founded by Norbert Wiener in his 1948 book of the same name, studied systems that regulate themselves through feedback loops. The name comes from the Greek \emph{kybernetes} (steersman), reflecting the core metaphor: a helmsman constantly adjusts the rudder based on the ship's deviation from course. The key insight was that goal-directed behaviour emerges from systems that sense their environment and adjust their actions to reduce the error between current and desired states.
+
+\begin{bluebox}[Cybernetic Principles]
+\begin{itemize}
+    \item \textbf{Feedback}: Systems sense their outputs and adjust inputs accordingly (negative feedback reduces error; positive feedback amplifies it)
+    \item \textbf{Homeostasis}: Tendency toward stable equilibrium states through self-regulation
+    \item \textbf{Information}: ``Differences that make a difference'' (Gregory Bateson's formulation)-information is defined by its effects on the system's behaviour
+\end{itemize}
+These principles unified thinking about biological organisms, machines, and social systems under a common mathematical framework.
+\end{bluebox}
+
+Cybernetics was genuinely interdisciplinary, bringing together engineers, mathematicians, neurophysiologists, and social scientists. The Macy Conferences (1946--1953) were legendary gatherings where figures like Wiener, John von Neumann, Warren McCulloch, and Margaret Mead discussed feedback, communication, and control across domains.
+
+In 1943, Warren McCulloch (a neurophysiologist) and Walter Pitts (a mathematical prodigy) published ``A Logical Calculus of Ideas Immanent in Nervous Activity'', proposing that neurons could be modelled as logical gates. Their \textbf{McCulloch-Pitts neuron} was a binary threshold unit: it fires (outputs 1) if the weighted sum of its inputs exceeds a threshold, otherwise it remains silent (outputs 0).
+
+\begin{greybox}[McCulloch-Pitts Neuron]
+A neuron $j$ with $n$ binary inputs $x_1, \ldots, x_n$, weights $w_1, \ldots, w_n$, and threshold $\theta$ computes:
+\[
+y_j = \begin{cases} 1 & \text{if } \sum_{i=1}^{n} w_i x_i \geq \theta \\ 0 & \text{otherwise} \end{cases}
+\]
+
+\textbf{Breaking this down}:
+\begin{itemize}
+    \item Each input $x_i \in \{0, 1\}$ represents whether a presynaptic neuron is firing
+    \item Each weight $w_i$ represents the strength of the synaptic connection (positive for excitatory, negative for inhibitory)
+    \item The sum $\sum_{i=1}^{n} w_i x_i$ is the total ``evidence'' for firing
+    \item The threshold $\theta$ is the decision boundary: fire if evidence exceeds threshold
+\end{itemize}
+
+This is a step function applied to a linear combination of inputs. McCulloch and Pitts showed that networks of such neurons could compute any Boolean function-AND, OR, NOT, and therefore any logical proposition. This established a deep connection between neural activity and symbolic logic, suggesting that the brain might literally implement logical reasoning.
+
+\textbf{Example implementations}:
+\begin{itemize}
+    \item \textbf{AND gate}: Set $w_1 = w_2 = 1$ and $\theta = 2$. Both inputs must be 1 for the sum to reach threshold.
+    \item \textbf{OR gate}: Set $w_1 = w_2 = 1$ and $\theta = 1$. Either input being 1 suffices.
+    \item \textbf{NOT gate}: Set $w_1 = -1$ and $\theta = 0$. The output is 1 only when the input is 0.
+\end{itemize}
+By composing these primitives, any Boolean function is realisable.
+
+\textbf{Limitations}: The model was highly idealised. Real neurons have continuous-valued outputs, complex temporal dynamics (refractory periods, spike timing), analogue behaviour, and learning capabilities not captured by fixed weights. But as a \emph{proof of concept} that neural-like systems could perform computation, it was profoundly influential.
+\end{greybox}
+
+Donald Hebb's 1949 book \emph{The Organization of Behavior} proposed a learning rule based on a simple principle: ``Neurons that fire together, wire together.'' More precisely, if neuron A repeatedly participates in firing neuron B, the synaptic connection from A to B is strengthened. This \textbf{Hebbian learning} suggested how associations could be learned through experience-it provided a biological mechanism for memory and learning that did not require an external teacher.
+
+\begin{greybox}[Hebbian Learning: Formalisation]
+In modern notation, Hebb's principle becomes the update rule for the weight $w_{ij}$ from neuron $i$ to neuron $j$:
+\[
+\Delta w_{ij} = \eta \cdot x_i \cdot y_j
+\]
+where:
+\begin{itemize}
+    \item $\eta > 0$ is a learning rate controlling how much weights change per update
+    \item $x_i$ is the presynaptic activity (the ``sending'' neuron's output)
+    \item $y_j$ is the postsynaptic activity (the ``receiving'' neuron's output)
+\end{itemize}
+
+The weight increases when both neurons are active simultaneously. This is an \emph{unsupervised}, \emph{local} learning rule: each synapse updates based only on the activity of its pre- and post-synaptic neurons, with no global error signal required.
+
+\textbf{Problem}: Pure Hebbian learning has no mechanism for weights to decrease, leading to unbounded growth. If weights can only increase, the network eventually saturates. Modern variants address this:
+\begin{itemize}
+    \item \textbf{Oja's rule}: Adds weight decay proportional to the squared output, performing online PCA
+    \item \textbf{BCM theory}: Introduces a sliding threshold that depends on recent activity
+\end{itemize}
+
+\textbf{Connection to modern ML}: Hebbian learning is a form of correlation-based learning. It appears in:
+\begin{itemize}
+    \item Principal Component Analysis (PCA) via Oja's rule
+    \item Hopfield networks (symmetric Hebbian weights store associative memories)
+    \item Contrastive Hebbian learning in Boltzmann machines
+    \item Spike-timing-dependent plasticity (STDP) in computational neuroscience
+\end{itemize}
+The modern emphasis on gradient-based learning (backpropagation) is fundamentally different: it requires a global error signal propagated backwards through the network.
+\end{greybox}
+
+
+\section{The Birth of Artificial Intelligence (1956)}
+
+\begin{bluebox}[Section Summary]
+The Dartmouth Workshop (1956) formally established AI as a field. The founding vision was ambitious: simulate any aspect of intelligence. Early symbolic AI achieved impressive results on constrained problems (theorem proving, simple games) but struggled with real-world complexity. The tension between symbolic and connectionist approaches-rules versus learning-was present from the start.
+\end{bluebox}
+
+The term ``Artificial Intelligence'' was coined at the \textbf{Dartmouth Workshop} in the summer of 1956, organised by John McCarthy (who invented the term), Marvin Minsky, Nathaniel Rochester (IBM), and Claude Shannon (father of information theory). The funding proposal stated:
+
+\begin{quote}
+``The study is to proceed on the basis of the conjecture that every aspect of learning or any other feature of intelligence can in principle be so precisely described that a machine can be made to simulate it.''
+\end{quote}
+
+This bold conjecture-that \emph{all} aspects of intelligence are simulable-marked the formal birth of AI as a field. The workshop brought together researchers who would dominate the field for decades, establishing the optimistic, ambitious tone that would characterise early AI.
+
+Note the attendee \textbf{Claude Shannon}, the founder of information theory. His 1948 paper ``A Mathematical Theory of Communication'' introduced entropy as a measure of uncertainty-a concept now central to ML. Shannon's entropy $H(X) = -\sum_x p(x) \log p(x)$ appears throughout machine learning: in cross-entropy loss functions for classification, in information-theoretic bounds on learning, and in maximum entropy models. His participation reflects the deep connections between information theory and AI from the field's inception.
+
+The early approach was predominantly \textbf{symbolic AI} (also called GOFAI-Good Old-Fashioned AI): intelligence as manipulation of symbolic representations according to formal rules. Programs would represent knowledge as logical statements and derive conclusions through inference. The \textbf{Physical Symbol System Hypothesis} (Newell \& Simon) claimed that ``a physical symbol system has the necessary and sufficient means for general intelligent action.''
+
+\begin{bluebox}[Key Timeline: Birth of AI]
+\begin{itemize}
+    \item \textbf{1943}: McCulloch-Pitts neural model
+    \item \textbf{1948}: Wiener's \emph{Cybernetics} published; Shannon's information theory
+    \item \textbf{1949}: Hebb's learning rule
+    \item \textbf{1950}: Turing's ``Computing Machinery and Intelligence''
+    \item \textbf{1956}: Dartmouth Workshop-AI named as a field
+    \item \textbf{1957}: Rosenblatt's Perceptron
+    \item \textbf{1958}: McCarthy creates LISP, the language of AI
+\end{itemize}
+\end{bluebox}
+
+Early successes demonstrated that machines could perform tasks previously thought to require intelligence:
+\begin{itemize}
+    \item \textbf{Logic Theorist} (Newell \& Simon, 1956): Proved 38 of the first 52 theorems from \emph{Principia Mathematica}, finding a more elegant proof for one theorem than Russell and Whitehead had
+    \item \textbf{General Problem Solver} (Newell \& Simon, 1959): Attempted domain-general reasoning through means-ends analysis
+    \item \textbf{ELIZA} (Weizenbaum, 1966): Early chatbot using pattern matching to simulate a Rogerian therapist-people found it surprisingly engaging, which disturbed its creator
+\end{itemize}
+
+The early AI community was characterised by bold predictions and optimism. Herbert Simon predicted in 1957 that within ten years, a computer would be world chess champion and prove an important new mathematical theorem. Marvin Minsky predicted in 1967 that ``within a generation... the problem of creating `artificial intelligence' will substantially be solved.'' These predictions proved premature by decades-chess took until 1997, and ``solving AI'' remains elusive.
+
+\begin{redbox}[The Pattern of Overpromising]
+The pattern of overconfident predictions is a recurring theme in AI history. Early researchers underestimated:
+\begin{itemize}
+    \item The difficulty of common-sense reasoning (\textbf{Moravec's paradox}: hard problems are easy, easy problems are hard-chess is easier than walking)
+    \item The importance of embodied, situated cognition
+    \item The computational resources required
+    \item The brittleness of systems outside narrow domains
+\end{itemize}
+Understanding this history should temper both excessive hype and excessive pessimism about current AI capabilities.
+\end{redbox}
+
+
+\section{The Perceptron and Supervised Learning}
+
+\begin{bluebox}[Section Summary]
+The perceptron (Rosenblatt, 1957) introduced \emph{learning from data}-adjusting weights based on errors. It formalised supervised learning and proved convergence guarantees for linearly separable problems. The perceptron's limitations (inability to learn XOR) would later prove pivotal, but its core ideas-weighted sums, thresholds, error-driven updates-remain foundational.
+\end{bluebox}
+
+Frank Rosenblatt introduced the \textbf{Perceptron} in 1957-the first neural network that could \emph{learn} from data. Unlike the fixed McCulloch-Pitts networks, perceptrons adjusted their weights based on errors, implementing what we now call supervised learning.
+
+\begin{greybox}[Supervised Learning: Formal Definition]
+Given a training set $\mathcal{D} = \{(x_1, y_1), \ldots, (x_n, y_n)\}$ where $x_i \in \mathcal{X}$ are inputs and $y_i \in \mathcal{Y}$ are labels (provided by a ``supervisor''), the goal is to learn a function $f: \mathcal{X} \to \mathcal{Y}$ that generalises well to unseen data from the same distribution.
+
+\textbf{Unpacking the components}:
+\begin{itemize}
+    \item $\mathcal{X}$ is the \emph{input space}-the set of all possible inputs (e.g., $\mathbb{R}^d$ for $d$-dimensional feature vectors)
+    \item $\mathcal{Y}$ is the \emph{output space}-the set of all possible labels
+    \item Each pair $(x_i, y_i)$ is a \emph{training example}: an input with its correct label
+    \item ``Generalises well'' means performs accurately on new data not seen during training
+\end{itemize}
+
+\textbf{Classification}: $\mathcal{Y}$ is discrete (e.g., $\{0, 1\}$ for binary classification, or $\{1, \ldots, K\}$ for $K$-class classification)
+
+\textbf{Regression}: $\mathcal{Y} = \mathbb{R}$ (or $\mathbb{R}^d$ for multivariate regression)
+
+The learning process typically minimises an empirical risk over the training data:
+\[
+\hat{f} = \argmin_{f \in \mathcal{F}} \frac{1}{n} \sum_{i=1}^{n} L(f(x_i), y_i)
+\]
+
+\textbf{Breaking this down}:
+\begin{itemize}
+    \item $L(\hat{y}, y)$ is a \emph{loss function} measuring how bad prediction $\hat{y}$ is when the true label is $y$
+    \item $\frac{1}{n} \sum_{i=1}^{n} L(f(x_i), y_i)$ is the \emph{empirical risk}-average loss over training data
+    \item $\mathcal{F}$ is the \emph{hypothesis class}-the set of functions the learner considers
+    \item The choice of $\mathcal{F}$ embodies our \emph{inductive bias}-our assumptions about what kinds of functions are likely to be correct
+\end{itemize}
+\end{greybox}
+
+\begin{greybox}[The Perceptron Algorithm]
+For a binary classification problem with $x \in \mathbb{R}^d$ and $y \in \{-1, +1\}$:
+
+\textbf{Model}: The perceptron computes a linear decision boundary:
+\[
+\hat{y} = \text{sign}(w^\top x + b)
+\]
+where:
+\begin{itemize}
+    \item $w \in \mathbb{R}^d$ is the \emph{weight vector}
+    \item $b \in \mathbb{R}$ is the \emph{bias} (also called the intercept)
+    \item $\text{sign}(z) = +1$ if $z \geq 0$, else $-1$
+\end{itemize}
+
+\textbf{Geometric interpretation}: The weight vector $w$ defines a hyperplane $\{x : w^\top x + b = 0\}$ that separates the two classes. Points on one side are classified as $+1$, points on the other as $-1$. The vector $w$ is perpendicular to this hyperplane, and $b$ controls its offset from the origin.
+
+\textbf{Update rule}: Iterate through the training data. For each misclassified example $(x_i, y_i)$ where $y_i \neq \hat{y}_i$:
+\[
+w \leftarrow w + \eta \cdot y_i \cdot x_i
+\]
+\[
+b \leftarrow b + \eta \cdot y_i
+\]
+where $\eta > 0$ is the learning rate.
+
+\textbf{Why this update works}: When a point is misclassified, the update ``nudges'' the decision boundary toward correctly classifying that point:
+\begin{itemize}
+    \item If $y_i = +1$ but we predicted $-1$, then $w^\top x_i + b < 0$ (too negative). Adding $\eta x_i$ to $w$ increases $w^\top x_i$, pushing it toward positive territory.
+    \item If $y_i = -1$ but we predicted $+1$, then $w^\top x_i + b > 0$ (too positive). Subtracting $\eta x_i$ from $w$ decreases $w^\top x_i$, pushing it toward negative territory.
+\end{itemize}
+
+\textbf{Perceptron Convergence Theorem}: If the training data is \emph{linearly separable} (there exists a hyperplane perfectly separating positive from negative examples), the perceptron algorithm converges in a finite number of steps. Specifically, if all points satisfy $\|x_i\| \leq R$ and the best separating hyperplane has margin $\gamma$ (minimum distance from any point to the boundary), then the number of mistakes is bounded by $(R/\gamma)^2$.
+
+\textbf{Intuition}: Each update rotates the weight vector toward correctly classifying the current mistake. If a perfect separator exists, we eventually find it. The bound shows that wider margins (easier problems) lead to faster convergence.
+\end{greybox}
+
+The perceptron generated enormous excitement. The New York Times ran the headline: ``New Navy Device Learns By Doing; Psychologist Shows Embryo of Computer Designed to Read and Grow Wiser.'' Funding flowed in from the US Navy, and neural networks seemed poised to deliver on AI's promises. Rosenblatt made bold claims about perceptrons eventually being able to ``walk, talk, see, write, reproduce itself and be conscious of its existence.''
+
+
+\section{The First AI Winter (1970s)}
+
+\begin{bluebox}[Section Summary]
+Minsky and Papert's \emph{Perceptrons} (1969) proved that single-layer networks cannot learn non-linearly-separable functions like XOR. Combined with overpromising and the Lighthill Report, this triggered the first AI funding collapse. The deeper lesson: limitations of a specific model do not doom an entire paradigm, but the distinction was lost in the backlash.
+\end{bluebox}
+
+The optimism was short-lived. In 1969, Marvin Minsky and Seymour Papert published \emph{Perceptrons}, a mathematical analysis that proved devastating limitations of single-layer perceptrons.
+
+\begin{redbox}[The XOR Problem]
+Single-layer perceptrons cannot learn functions that are not \textbf{linearly separable}. The canonical example is XOR (exclusive or):
+\begin{center}
+\begin{tabular}{cc|c}
+$x_1$ & $x_2$ & $x_1 \oplus x_2$ \\
+\hline
+0 & 0 & 0 \\
+0 & 1 & 1 \\
+1 & 0 & 1 \\
+1 & 1 & 0 \\
+\end{tabular}
+\end{center}
+No single hyperplane (line in 2D) can separate the positive examples $\{(0,1), (1,0)\}$ from the negative examples $\{(0,0), (1,1)\}$-they lie on opposite corners of a square.
+
+This is not merely an artificial counterexample. Many real-world classification problems are not linearly separable, making single-layer perceptrons inadequate for practical applications.
+\end{redbox}
+
+\begin{greybox}[The XOR Problem: Solutions and Legacy]
+The XOR problem admits several solutions, each historically significant:
+
+\textbf{1. Multi-layer networks}: A hidden layer can learn intermediate representations. XOR can be decomposed as $(x_1 \land \neg x_2) \lor (\neg x_1 \land x_2)$, which breaks into two linearly separable sub-problems that a hidden layer can compute. This was known in 1969, but no efficient algorithm for training such networks was available.
+
+\textbf{2. Feature engineering}: Map inputs to a higher-dimensional space where they become linearly separable. For XOR, adding the feature $x_1 \cdot x_2$ suffices:
+\begin{center}
+\begin{tabular}{ccc|c}
+$x_1$ & $x_2$ & $x_1 x_2$ & $y$ \\
+\hline
+0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 1 \\
+1 & 0 & 0 & 1 \\
+1 & 1 & 1 & 0 \\
+\end{tabular}
+\end{center}
+Now the hyperplane $x_1 + x_2 - 2x_1 x_2 = 0.5$ separates the classes. The key insight: the right representation makes the problem easy.
+
+\textbf{3. The kernel trick} (developed later for SVMs): Implicitly map to high-dimensional feature spaces via a kernel function $k(x, x') = \langle \phi(x), \phi(x') \rangle$. We need only compute inner products in feature space, not the features themselves.
+
+\textbf{Connection to modern deep learning}: Deep networks learn hierarchical feature representations automatically-the hidden layers construct the ``features'' that make the problem linearly separable in the final layer. This is precisely the representational power that Minsky and Papert noted was missing from single-layer networks.
+\end{greybox}
+
+While multi-layer networks could in principle overcome these limitations (a two-layer network can easily compute XOR), no efficient algorithm for training them was known at the time. The perceptron learning rule only works for single layers-it provides no guidance for adjusting weights in hidden layers.
+
+The impact of \emph{Perceptrons} was amplified by broader problems in AI:
+\begin{itemize}
+    \item \textbf{Machine translation failures}: Early optimism about automatic translation proved unfounded; the ALPAC report (1966) recommended cutting funding
+    \item \textbf{The Lighthill Report} (1973): A British government report highly critical of AI progress, leading to funding cuts in the UK
+    \item \textbf{Unrealistic expectations}: Early predictions had set expectations impossibly high
+    \item \textbf{Hardware limitations}: Computers of the 1970s were vastly underpowered for the ambitions of AI researchers
+    \item \textbf{Scaling failures}: Techniques that worked on toy problems failed to scale to real-world complexity
+\end{itemize}
+
+Funding collapsed dramatically. DARPA cut AI funding; university programmes shrank. This period (roughly 1974--1980) became known as the \textbf{First AI Winter}.
+
+\begin{bluebox}[Lessons from the First AI Winter]
+\begin{itemize}
+    \item Overpromising and underdelivering damages a field's credibility for years
+    \item Proving limitations of one model (single-layer perceptrons) doesn't doom the entire approach (neural networks)
+    \item Hardware constraints were severe-many ideas were ahead of their time computationally
+    \item The gap between toy problems and real-world applications was systematically underestimated
+    \item Theoretical results (like the XOR limitation) can have outsized impact on funding and perception
+\end{itemize}
+\end{bluebox}
+
+
+\section{Knowledge-Based Systems and Expert Systems (1980s)}
+
+\begin{bluebox}[Section Summary]
+Expert systems dominated 1980s AI: encode human expertise as explicit rules, then reason over them. Commercial successes like R1/XCON showed real value. But fundamental problems emerged-the knowledge acquisition bottleneck (hard to extract and encode expertise), brittleness (failure outside narrow domains), and maintenance burden. These limitations would later motivate the shift toward learning from data.
+\end{bluebox}
+
+AI revival came through a different paradigm: \textbf{knowledge-based systems}. Rather than learning from data, these systems encoded human expertise directly. The core philosophy was articulated as: ``Don't tell the program what to do, tell it what to know.''
+
+A knowledge-based system has two components:
+\begin{enumerate}
+    \item \textbf{Knowledge base}: Facts and rules about a domain, typically encoded in logic or rule-based formalisms (IF-THEN rules, semantic networks, frames)
+    \item \textbf{Inference engine}: Mechanisms for deriving new conclusions from the knowledge base (forward chaining, backward chaining, resolution)
+\end{enumerate}
+
+\textbf{Expert systems} were knowledge-based systems designed to emulate human experts in narrow, well-defined domains. The key insight was that much human expertise could be captured as heuristic rules, even if the underlying theory was incomplete.
+
+Notable examples:
+\begin{itemize}
+    \item \textbf{MYCIN} (Stanford, 1970s): Diagnosed bacterial infections and recommended antibiotics. Used \emph{certainty factors} to handle uncertainty. Performed comparably to human experts in blind tests, but was never deployed clinically due to liability concerns.
+    \item \textbf{R1/XCON} (DEC, 1980s): Configured VAX computer systems. Saved DEC an estimated \$40 million annually by reducing errors and expert time. One of the few commercially successful expert systems.
+    \item \textbf{DENDRAL} (Stanford, 1960s--1970s): Identified molecular structures from mass spectrometry data. A pioneering application of AI to scientific discovery.
+\end{itemize}
+
+\begin{greybox}[Rule-Based Inference]
+Expert systems typically used production rules of the form:
+\[
+\text{IF } \langle\text{condition}\rangle \text{ THEN } \langle\text{action}\rangle
+\]
+For example, in MYCIN:
+\begin{verbatim}
+IF the infection is primary-bacteremia
+AND the site of the culture is a sterile site
+AND the suspected portal of entry is the GI tract
+THEN there is suggestive evidence (0.7) that
+     the identity of the organism is Bacteroides
+\end{verbatim}
+
+\textbf{Inference directions}:
+\begin{itemize}
+    \item \textbf{Forward chaining} (data-driven): Start from known facts, apply rules to derive new facts, continue until the goal is reached or no more rules apply. ``Given what I know, what can I conclude?''
+    \item \textbf{Backward chaining} (goal-driven): Start from the goal, find rules whose conclusions match, then try to establish those rules' premises (recursively). ``To prove this goal, what do I need to establish?''
+\end{itemize}
+This is equivalent to resolution theorem proving in propositional or first-order logic, giving expert systems a firm logical foundation.
+\end{greybox}
+
+The expert systems boom of the early 1980s created a commercial AI industry. Companies like Teknowledge, IntelliCorp, and Symbolics sold both expert system shells (tools for building systems) and specialised AI hardware (Lisp machines). Japan launched the ambitious Fifth Generation Computer Project (1982--1992) aiming to build ``intelligent computers.''
+
+However, fundamental problems emerged:
+\begin{itemize}
+    \item \textbf{Knowledge acquisition bottleneck}: Extracting expertise from human experts is difficult, time-consuming, and expensive. Experts often cannot articulate their knowledge explicitly-they ``just know.''
+    \item \textbf{Brittleness}: Systems failed unpredictably when encountering situations outside their encoded knowledge. They had no common sense to fall back on.
+    \item \textbf{Maintenance nightmare}: Knowledge bases became unwieldy and hard to update. Adding new rules could have unexpected interactions with existing rules.
+    \item \textbf{No learning}: Systems could not improve from experience; all knowledge had to be hand-coded.
+\end{itemize}
+
+
+\section{The Connectionist Revival (1980s)}
+
+\begin{bluebox}[Section Summary]
+Backpropagation (popularised 1986) enabled training multi-layer networks by efficiently computing gradients via the chain rule. This solved the credit assignment problem: determining which weights to blame for errors. The PDP books provided a theoretical framework arguing that intelligence emerges from distributed representations in parallel networks. Key figures: Rumelhart, Hinton, Williams, McClelland.
+\end{bluebox}
+
+While expert systems dominated commercial AI, neural networks experienced a quiet renaissance in academic research. The key breakthrough was \textbf{backpropagation}-an efficient algorithm for training multi-layer networks by propagating error signals backwards through the network.
+
+Though backpropagation was discovered independently by several researchers (Paul Werbos in his 1974 PhD thesis, David Parker in 1985, Yann LeCun in 1985), the 1986 paper by Rumelhart, Hinton, and Williams in \emph{Nature} brought it to widespread attention. Titled ``Learning representations by back-propagating errors,'' it demonstrated that:
+\begin{enumerate}
+    \item Multi-layer networks could learn useful internal representations automatically
+    \item These representations captured meaningful structure in the data
+    \item XOR and similar non-linearly-separable problems were easily solved
+    \item The representations learned were often interpretable and interesting
+\end{enumerate}
+
+\begin{greybox}[Backpropagation: Core Idea]
+For a feedforward network computing a function $f_\theta(x)$ with parameters $\theta$ (all the weights), and a loss function $L(f_\theta(x), y)$ measuring the error on example $(x, y)$, we need the gradient $\frac{\partial L}{\partial \theta}$ to perform gradient descent.
+
+The chain rule gives, for a weight $w_{ij}^{(l)}$ connecting unit $i$ in layer $l-1$ to unit $j$ in layer $l$:
+\[
+\frac{\partial L}{\partial w_{ij}^{(l)}} = \frac{\partial L}{\partial a_j^{(l)}} \cdot \frac{\partial a_j^{(l)}}{\partial w_{ij}^{(l)}} = \delta_j^{(l)} \cdot h_i^{(l-1)}
+\]
+
+\textbf{Unpacking the notation}:
+\begin{itemize}
+    \item $a_j^{(l)} = \sum_i w_{ij}^{(l)} h_i^{(l-1)}$ is the \emph{pre-activation} at unit $j$ in layer $l$
+    \item $h_i^{(l-1)}$ is the \emph{activation} (output) of unit $i$ in the previous layer
+    \item $\delta_j^{(l)} = \frac{\partial L}{\partial a_j^{(l)}}$ is the ``error signal'' at unit $j$-how much the loss would change if this pre-activation changed
+\end{itemize}
+
+\textbf{The key insight}: $\delta_j^{(l)}$ can be computed recursively from layer $l+1$:
+\[
+\delta_j^{(l)} = \sigma'(a_j^{(l)}) \sum_k w_{jk}^{(l+1)} \delta_k^{(l+1)}
+\]
+where $\sigma'$ is the derivative of the activation function. Errors ``back-propagate'' from output to input: we compute $\delta$ at the output layer (from the loss), then propagate backwards through the network.
+
+This reduces the complexity from $O(W^2)$ (naive numerical differentiation, perturbing each weight and measuring the effect) to $O(W)$ where $W$ is the total number of weights-a massive speedup that makes training practical.
+
+\textbf{The Credit Assignment Problem}: In a multi-layer network, if the output is wrong, which weights are responsible? Backpropagation provides an answer: each weight's ``blame'' is proportional to its gradient. Weights that could have reduced the loss receive larger gradients.
+
+\textbf{Connection to modern ML}: Backpropagation remains the foundation of deep learning. Modern frameworks (PyTorch, JAX) implement \emph{automatic differentiation}-a generalisation that computes gradients through arbitrary computation graphs, not just feedforward networks. The principle is the same: decompose complex functions into elementary operations, then chain-rule backwards.
+\end{greybox}
+
+The \textbf{Parallel Distributed Processing} (PDP) volumes (1986), edited by Rumelhart and McClelland, provided a comprehensive framework for connectionist cognitive science. The ``PDP research group'' at UCSD argued that intelligence emerges from many simple, neuron-like units operating in parallel, with knowledge stored in the connection weights rather than in explicit rules. This offered a radically different vision of mind than symbolic AI.
+
+
+\section{The Second AI Winter (Late 1980s--Early 1990s)}
+
+\begin{bluebox}[Section Summary]
+The expert systems bubble burst, and neural networks hit practical walls (vanishing gradients, computational cost). The term ``AI'' became toxic; researchers rebranded as ``machine learning'' or ``computational intelligence.'' Yet foundational work continued: the theoretical framework for statistical learning emerged, and key algorithms (SVMs, boosting) were developed. Winters end.
+\end{bluebox}
+
+Despite academic progress in neural networks, a second AI winter set in around 1987--1993:
+\begin{itemize}
+    \item \textbf{Expert systems bust}: The promised benefits of expert systems failed to materialise at scale. Many expensive projects were abandoned.
+    \item \textbf{Hardware disruption}: Specialised AI hardware (Lisp machines from Symbolics, LMI, TI) became obsolete almost overnight. The rise of cheap, powerful workstations from Sun and the personal computer revolution-driven by IBM and Apple-eliminated the market for expensive specialised machines. General-purpose hardware caught up and surpassed dedicated AI machines in cost-effectiveness.
+    \item \textbf{Japan's Fifth Generation failure}: The ambitious project failed to achieve its goals, dampening enthusiasm for AI investment.
+    \item \textbf{Neural network limitations}:
+    \begin{itemize}
+        \item \textbf{Vanishing gradients}: In deep networks, gradients became exponentially small in early layers, making them effectively untrainable
+        \item \textbf{Computational cost}: Training was slow on available hardware; networks were limited to a few layers
+        \item \textbf{Limited theory}: Why networks worked (or didn't) was poorly understood; training felt like ``alchemy''
+    \end{itemize}
+    \item \textbf{Alternative paradigms}: Some researchers pursued ``embodied'' or ``situated'' AI (Brooks' subsumption architecture), arguing that intelligence required physical grounding in the world, not just symbol manipulation. This fragmented the field and raised questions about whether traditional AI approaches were fundamentally misguided.
+\end{itemize}
+
+The term ``AI'' became commercially toxic. Researchers strategically rebranded their work as ``machine learning,'' ``computational intelligence,'' ``knowledge discovery,'' ``data mining,'' or ``pattern recognition'' to escape the stigma and maintain funding.
+
+
+\section{Unsupervised Learning}
+
+\begin{bluebox}[Section Summary]
+Unsupervised learning discovers structure without labels: clustering (grouping similar points), dimensionality reduction (finding compact representations), density estimation (modelling $p(x)$). Key developments: Kohonen's self-organising maps, Hopfield networks for associative memory, Boltzmann machines for probabilistic modelling. These ideas resurface in modern generative models.
+\end{bluebox}
+
+Alongside supervised learning, researchers developed methods for \textbf{unsupervised learning}-finding structure in data without labels. Where supervised learning asks ``what is the correct answer for this input?'', unsupervised learning asks ``what patterns exist in this data?''
+
+\begin{greybox}[Unsupervised Learning: Formal Definition]
+Given unlabelled data $\mathcal{D} = \{x_1, \ldots, x_n\}$ where $x_i \in \mathcal{X}$, the goal is to discover structure in the data distribution $p(x)$. There is no ``correct answer'' to supervise learning; success is measured by whether the discovered structure is useful or meaningful.
+
+\textbf{Key distinction from supervised learning}: There are no labels $y_i$. We only have inputs, and we seek patterns within them.
+
+Common tasks include:
+\begin{itemize}
+    \item \textbf{Clustering}: Partition data into groups of similar points ($k$-means, hierarchical clustering, DBSCAN). Each point is assigned to a cluster $z_i \in \{1, \ldots, K\}$.
+    \item \textbf{Dimensionality reduction}: Find low-dimensional representations that preserve important structure (PCA, autoencoders, t-SNE, UMAP). Map $x \in \mathbb{R}^d$ to $z \in \mathbb{R}^k$ where $k \ll d$.
+    \item \textbf{Density estimation}: Model the probability distribution $p(x)$ explicitly (Gaussian mixture models, kernel density estimation).
+    \item \textbf{Generative modelling}: Learn to sample new data from the learned distribution (VAEs, GANs, diffusion models).
+\end{itemize}
+
+\textbf{Why is this useful?}
+\begin{itemize}
+    \item Labels are expensive to obtain; unlabelled data is abundant
+    \item Understanding data structure helps with downstream tasks
+    \item Generative models enable data augmentation, anomaly detection, and creative applications
+    \item Learned representations often transfer to supervised tasks
+\end{itemize}
+\end{greybox}
+
+Key developments in unsupervised learning during this period included:
+\begin{itemize}
+    \item \textbf{Self-Organising Maps} (Kohonen, 1982): Neural networks that learn topological maps of high-dimensional data, preserving neighbourhood relationships. A form of competitive learning where nearby units respond to similar inputs.
+    \item \textbf{Hopfield Networks} (1982): Recurrent networks that function as associative (content-addressable) memory, using an energy function framework from statistical physics. The network stores patterns as local minima of an energy landscape; retrieval involves gradient descent to the nearest minimum.
+    \item \textbf{Boltzmann Machines} (Hinton \& Sejnowski, 1983): Stochastic neural networks that learn probability distributions over their inputs, providing a principled probabilistic framework for neural computation. The connection to statistical mechanics (Boltzmann distributions) gave theoretical grounding.
+\end{itemize}
+
+
+\section{Reinforcement Learning}
+
+\begin{bluebox}[Section Summary]
+Reinforcement learning addresses sequential decision-making: an agent takes actions in an environment, receives rewards, and learns to maximise cumulative reward. Formalised via Markov Decision Processes. Key algorithms: temporal difference learning (Sutton), Q-learning (Watkins). TD-Gammon (1992) demonstrated that RL could achieve expert-level performance through self-play.
+\end{bluebox}
+
+A third paradigm emerged: \textbf{reinforcement learning} (RL)-learning from interaction with an environment through trial and error. Unlike supervised learning (which requires labelled examples) and unsupervised learning (which has no feedback), RL learns from \emph{rewards} that signal how good an action was, without being told the correct action directly.
+
+\begin{greybox}[Reinforcement Learning: Formal Framework]
+The standard framework is the \textbf{Markov Decision Process} (MDP), consisting of:
+\begin{itemize}
+    \item $\mathcal{S}$: Set of states the environment can be in
+    \item $\mathcal{A}$: Set of actions the agent can take
+    \item $P(s' | s, a)$: Transition probability-the probability of reaching state $s'$ after taking action $a$ in state $s$
+    \item $R(s, a, s')$: Reward function-the immediate reward received for the transition
+    \item $\gamma \in [0, 1)$: Discount factor-how much to value future rewards relative to immediate ones
+\end{itemize}
+
+\textbf{Unpacking the discount factor}: $\gamma$ close to 0 means the agent is ``myopic''-it cares mostly about immediate rewards. $\gamma$ close to 1 means it values long-term rewards nearly as much as immediate ones. The constraint $\gamma < 1$ ensures the sum of discounted rewards is finite.
+
+The goal is to learn a \textbf{policy} $\pi: \mathcal{S} \to \mathcal{A}$ (or $\pi(a|s)$ for stochastic policies) that maximises expected cumulative discounted reward. The \textbf{value function} measures expected future reward from a state under policy $\pi$:
+\[
+V^\pi(s) = \mathbb{E}_\pi\left[\sum_{t=0}^{\infty} \gamma^t R(s_t, a_t, s_{t+1}) \mid s_0 = s\right]
+\]
+
+\textbf{Reading this equation}: Starting from state $s$, following policy $\pi$, what is the expected sum of discounted future rewards? The expectation is over the stochasticity of both the policy and the environment transitions.
+
+The \textbf{Bellman equation} characterises the optimal value function:
+\[
+V^*(s) = \max_a \left[ R(s, a) + \gamma \sum_{s'} P(s'|s,a) V^*(s') \right]
+\]
+
+\textbf{Interpreting the Bellman equation}: The optimal value of state $s$ equals the value of the best action, which is the immediate reward plus the discounted expected value of the next state. This recursive equation is the foundation of dynamic programming algorithms (value iteration, policy iteration) that solve MDPs when the model is known.
+\end{greybox}
+
+Key developments in RL:
+\begin{itemize}
+    \item \textbf{Temporal Difference Learning} (Sutton, 1988): Learning value functions from experience without waiting for episode completion. TD learning \emph{bootstraps}-it updates estimates based on other estimates, rather than waiting for ground truth.
+    \item \textbf{Q-Learning} (Watkins, 1989): A model-free algorithm for learning optimal policies without knowing transition probabilities. Learns the Q-function $Q(s,a) = R(s,a) + \gamma \sum_{s'} P(s'|s,a) V^*(s')$-the value of taking action $a$ in state $s$ and then acting optimally.
+    \item \textbf{TD-Gammon} (Tesauro, 1992): An RL system that achieved expert-level backgammon play through self-play, learning entirely from game outcomes. A landmark demonstration of RL's potential-the system discovered novel strategies that surprised human experts.
+\end{itemize}
+
+
+\section{The Statistical ML Renaissance (1990s--2000s)}
+
+\begin{bluebox}[Section Summary]
+Machine learning matured into a rigorous discipline, importing tools from statistics: PAC learning theory, VC dimension, cross-validation, probabilistic graphical models. SVMs combined strong theory with excellent practice. Ensemble methods (boosting, random forests) dominated competitions. The focus shifted from ``can we build intelligent machines?'' to ``can we learn accurate predictors with provable guarantees?''
+\end{bluebox}
+
+The 1990s saw machine learning mature into a rigorous scientific discipline, borrowing heavily from statistics and developing its own theoretical foundations. This period established ML as a respectable academic field with principled methodology.
+
+\begin{bluebox}[Key Themes of the Statistical ML Era]
+\begin{itemize}
+    \item \textbf{Rigour}: Formal learning theory, generalisation bounds, PAC (Probably Approximately Correct) learning, VC dimension
+    \item \textbf{Probabilistic methods}: Bayesian inference, graphical models, principled uncertainty quantification
+    \item \textbf{Evaluation discipline}: Cross-validation, held-out test sets, standardised benchmarks, statistical significance testing
+    \item \textbf{Reproducibility}: Open datasets (UCI repository), shared code, detailed experimental protocols
+\end{itemize}
+\end{bluebox}
+
+
+\subsection{Support Vector Machines}
+
+Vladimir Vapnik and colleagues developed \textbf{Support Vector Machines} (SVMs) at Bell Labs, which dominated practical ML from the mid-1990s through the 2000s. SVMs combined several appealing properties:
+\begin{itemize}
+    \item \textbf{Strong theoretical foundations}: Grounded in VC theory and structural risk minimisation, providing guarantees about generalisation
+    \item \textbf{The ``kernel trick''}: Implicitly computing in high-dimensional feature spaces without explicitly constructing them, enabling nonlinear classification with linear algorithms
+    \item \textbf{Convex optimisation}: The training problem is a quadratic program with a unique global optimum-no local minima to worry about
+    \item \textbf{Excellent empirical performance}: State-of-the-art results on many benchmarks
+    \item \textbf{Sparse solutions}: Only a subset of training points (support vectors) matter, making prediction efficient
+\end{itemize}
+
+\begin{greybox}[The Kernel Trick: Key Insight]
+The kernel trick addresses the XOR problem elegantly. Recall that non-linearly-separable data can become separable in a higher-dimensional feature space $\phi(x)$. But computing in high dimensions is expensive-potentially intractable if the feature space is infinite-dimensional.
+
+\textbf{The insight}: Many algorithms (including SVMs and perceptrons) depend on data only through inner products $\langle x_i, x_j \rangle$. If we can compute $k(x_i, x_j) = \langle \phi(x_i), \phi(x_j) \rangle$ directly-without explicitly computing $\phi$-we get the representational power of high-dimensional features at the cost of computing pairwise similarities.
+
+\textbf{Example kernels}:
+\begin{itemize}
+    \item \textbf{Polynomial kernel}: $k(x, x') = (1 + x^\top x')^d$ implicitly maps to a space containing all monomials up to degree $d$
+    \item \textbf{RBF (Gaussian) kernel}: $k(x, x') = \exp(-\|x - x'\|^2 / 2\sigma^2)$ corresponds to an infinite-dimensional feature space
+\end{itemize}
+
+\textbf{Connection to deep learning}: Deep networks learn feature representations $\phi(x)$ end-to-end from data, rather than choosing them a priori via a kernel. The relationship between kernel methods and neural networks remains an active research area (neural tangent kernels, infinite-width limits of neural networks).
+\end{greybox}
+
+
+\subsection{Ensemble Methods}
+
+The 1990s also saw the rise of ensemble methods-combining multiple models to improve predictions:
+\begin{itemize}
+    \item \textbf{Bagging} (Breiman, 1996): Train multiple models on bootstrap samples (sampling with replacement), average their predictions. Reduces variance.
+    \item \textbf{Boosting} (Freund \& Schapire, 1997): Sequentially train weak learners, with each focusing on examples the previous ones got wrong. AdaBoost won the G\"odel Prize for its theoretical elegance.
+    \item \textbf{Random Forests} (Breiman, 2001): Bagging applied to decision trees, plus random feature subsets at each split. Remarkably effective and robust.
+    \item \textbf{Stacking}: Use one model's predictions as input features for another model.
+\end{itemize}
+
+
+\subsection{Probabilistic Graphical Models}
+
+Judea Pearl's work on Bayesian networks and causal inference brought principled probabilistic reasoning into AI. His 1988 book \emph{Probabilistic Reasoning in Intelligent Systems} was transformative. Graphical models provided:
+\begin{itemize}
+    \item \textbf{Principled uncertainty quantification}: Representing and computing with probability distributions
+    \item \textbf{Modular representation}: Factorising complex joint distributions according to conditional independence
+    \item \textbf{Efficient inference algorithms}: Belief propagation, variable elimination, MCMC sampling
+    \item \textbf{Causal reasoning}: Pearl's later work on causality (the ``do-calculus'') distinguished correlation from causation
+\end{itemize}
+
+
+\section{The Deep Learning Revolution (2010s--Present)}
+
+\begin{bluebox}[Section Summary]
+Deep learning resurgence began with Hinton's 2006 work on pretraining, then exploded with AlexNet's 2012 ImageNet victory. Key enablers: GPU compute, massive datasets, architectural innovations (ReLU, dropout, residual connections). Transformers (2017) revolutionised NLP, leading to large language models. The field now grapples with scale, capabilities, and limitations of these systems.
+\end{bluebox}
+
+The current era began around 2006--2012 with dramatic breakthroughs that revived neural networks under the banner of ``deep learning.''
+
+\begin{bluebox}[Key Timeline: Deep Learning Era]
+\begin{itemize}
+    \item \textbf{2006}: Hinton's deep belief networks-greedy layer-wise pretraining enables training of deep networks
+    \item \textbf{2009}: GPU training demonstrated (Raina et al.)-order of magnitude speedup
+    \item \textbf{2012}: AlexNet wins ImageNet by large margin (15.3\% vs 26.2\% error)-CNNs take over computer vision
+    \item \textbf{2014}: GANs introduced (Goodfellow et al.)-generative modelling revolution
+    \item \textbf{2014}: Sequence-to-sequence models with attention (Bahdanau et al.)
+    \item \textbf{2015}: ResNet enables training of very deep networks (152 layers) via skip connections
+    \item \textbf{2016}: AlphaGo defeats world Go champion Lee Sedol
+    \item \textbf{2017}: ``Attention Is All You Need''-Transformers introduced, eliminating recurrence
+    \item \textbf{2018}: BERT-bidirectional pretraining for NLP
+    \item \textbf{2020}: GPT-3 (175B parameters)-emergence of in-context learning
+    \item \textbf{2022}: ChatGPT brings LLMs to mainstream attention; diffusion models for image generation
+    \item \textbf{2023--}: Multimodal models (GPT-4V, Gemini), reasoning capabilities, agent systems
+\end{itemize}
+\end{bluebox}
+
+
+\subsection{Why Now? The Convergence of Factors}
+
+Several factors converged to enable the deep learning revolution:
+\begin{enumerate}
+    \item \textbf{Compute}: GPUs provided massive parallelism for matrix operations. NVIDIA's CUDA (2007) made GPU programming accessible. Training that would take months on CPUs took days on GPUs. A modern GPU can perform $10^{13}$ floating-point operations per second-orders of magnitude more than 1980s hardware.
+    \item \textbf{Data}: The internet generated unprecedented quantities of labelled and unlabelled data. ImageNet (14M images, 1000 classes) provided a challenging benchmark. Social media, digitised text, and web scraping created training sets at previously impossible scales. Web text provides trillions of tokens for language model training.
+    \item \textbf{Algorithms}: Better architectures and training techniques solved old problems:
+    \begin{itemize}
+        \item \textbf{ReLU activations}: $\max(0, x)$ instead of sigmoid, reducing vanishing gradients
+        \item \textbf{Dropout}: Randomly zeroing activations during training, providing effective regularisation
+        \item \textbf{Batch normalisation}: Normalising layer inputs, stabilising training
+        \item \textbf{Residual connections}: $f(x) + x$ instead of $f(x)$, enabling very deep networks
+        \item \textbf{Adam} and other adaptive optimisers improved convergence
+    \end{itemize}
+    \item \textbf{Software infrastructure}: Frameworks like Theano, TensorFlow, and PyTorch made experimentation accessible. Automatic differentiation eliminated manual gradient derivation.
+    \item \textbf{Frictionless reproducibility}: Preprints on arXiv, open-source code, and rapid iteration accelerated progress. Downloading code and pretrained models to replicate results became routine.
+    \item \textbf{Industry investment}: Tech companies (Google, Facebook, Microsoft, etc.) invested billions in AI research, attracting talent and resources.
+\end{enumerate}
+
+
+\subsection{Convolutional Networks and the Path to ImageNet}
+
+The 2012 breakthrough built on decades of work. \textbf{Yann LeCun} and colleagues developed \textbf{convolutional neural networks} (CNNs) in the late 1980s, demonstrating their effectiveness on handwritten digit recognition (LeNet). The key insight: exploit the spatial structure of images through local connectivity and weight sharing.
+
+\begin{greybox}[Convolutional Neural Networks: Core Ideas]
+CNNs incorporate inductive biases suited to images:
+\begin{itemize}
+    \item \textbf{Local connectivity}: Each neuron connects only to a small spatial region (receptive field), not the entire image. This assumes nearby pixels are more relevant than distant ones.
+    \item \textbf{Weight sharing}: The same filter (set of weights) is applied across all spatial positions. If a pattern is useful to detect in one location, it's useful everywhere.
+    \item \textbf{Pooling}: Downsampling reduces spatial resolution, providing translation invariance and reducing computation.
+\end{itemize}
+
+\textbf{Why these constraints help}: They dramatically reduce the number of parameters (compared to fully-connected networks) while encoding prior knowledge that images have spatial structure. A fully-connected layer for a 224$\times$224$\times$3 image would have $\sim$150,000 input units; a convolutional layer with 64 3$\times$3 filters has only $64 \times 3 \times 3 \times 3 \approx 1,700$ parameters.
+
+\textbf{Historical note}: LeCun's LeNet (1989) was deployed commercially for cheque reading in the 1990s-a genuine industrial success during the ``AI winter.'' The architecture ideas were proven; what was missing was sufficient compute and data for harder problems.
+\end{greybox}
+
+AlexNet (2012) applied these principles at scale: 8 layers, 60 million parameters, trained on 1.2 million ImageNet images using GPUs. Its dramatic victory (reducing error from 26\% to 15\%) signalled that deep learning worked on real problems.
+
+
+\subsection{Transformers and Language Models}
+
+The Transformer architecture (Vaswani et al., 2017, ``Attention Is All You Need'') revolutionised sequence modelling. Previous approaches (RNNs, LSTMs) processed sequences step-by-step, creating bottlenecks for long sequences. Transformers process all positions in parallel through the \textbf{attention mechanism}-allowing models to dynamically focus on relevant parts of the input regardless of distance.
+
+\begin{greybox}[Scaled Dot-Product Attention]
+The core operation of Transformers. Given:
+\begin{itemize}
+    \item Queries $Q \in \mathbb{R}^{n \times d_k}$ (what we're looking for)
+    \item Keys $K \in \mathbb{R}^{m \times d_k}$ (what we're matching against)
+    \item Values $V \in \mathbb{R}^{m \times d_v}$ (what we're retrieving)
+\end{itemize}
+Attention computes:
+\[
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
+\]
+
+\textbf{Step-by-step interpretation}:
+\begin{enumerate}
+    \item $QK^\top$ computes similarity scores between each query and all keys. Entry $(i,j)$ measures how much query $i$ ``matches'' key $j$.
+    \item Dividing by $\sqrt{d_k}$ prevents scores from becoming too large, which would make softmax saturate (outputting nearly one-hot distributions with vanishing gradients).
+    \item The softmax converts scores to attention weights (probabilities that sum to 1 across keys).
+    \item Finally, we take a weighted sum of values-each query retrieves a combination of values, weighted by attention.
+\end{enumerate}
+
+\textbf{Intuition}: Think of attention as a soft lookup table. The query asks ``what information do I need?'', the keys say ``here's what I have'', and the values are the actual information retrieved. Unlike a hard lookup (which retrieves exactly one entry), attention retrieves a weighted blend.
+
+\textbf{Why $\sqrt{d_k}$?} The dot product of two random vectors with entries of variance 1 has variance $d_k$. Scaling by $\sqrt{d_k}$ restores unit variance, keeping gradients well-behaved.
+
+\textbf{Multi-head attention} runs several attention operations in parallel with different learned projections, allowing the model to attend to different types of relationships simultaneously (e.g., syntactic vs semantic relationships in language).
+
+\textbf{Key innovation over RNNs}: Unlike RNNs that process tokens sequentially, transformers process all positions in parallel. Long-range dependencies become $O(1)$ in path length rather than $O(n)$. This parallelism enables efficient training on modern hardware.
+\end{greybox}
+
+Large Language Models (LLMs) trained on internet-scale text have demonstrated remarkable capabilities:
+\begin{itemize}
+    \item \textbf{In-context learning}: Learning from examples provided in the prompt, without updating weights
+    \item \textbf{Chain-of-thought reasoning}: Generating step-by-step reasoning that improves accuracy on complex tasks
+    \item \textbf{Code generation}: Writing, explaining, and debugging code across many languages
+    \item \textbf{Multi-step problem solving}: Breaking down complex tasks and executing them
+    \item \textbf{Instruction following}: Generalising to novel tasks described in natural language
+\end{itemize}
+
+The \textbf{scaling hypothesis} suggests that many capabilities emerge from simply training larger models on more data-capabilities that were absent in smaller models appear suddenly at scale (``emergence''). This has driven an arms race in model size, from millions to billions to trillions of parameters.
+
+\begin{redbox}[Current Limitations]
+The capabilities of current AI systems, while impressive, have significant limitations:
+\begin{itemize}
+    \item \textbf{Hallucination}: Confident generation of plausible-sounding but false information
+    \item \textbf{Lack of grounding}: Models manipulate symbols without understanding their real-world referents
+    \item \textbf{Brittleness to distribution shift}: Performance degrades on data unlike the training distribution
+    \item \textbf{No robust common-sense reasoning}: Failures on simple physical or social reasoning that children handle easily
+    \item \textbf{Unclear generalisation}: What models have ``learned'' versus ``memorised'' remains debated
+    \item \textbf{Alignment challenges}: Ensuring models behave as intended and avoid harmful outputs
+    \item \textbf{Environmental cost}: Training large models requires enormous energy
+\end{itemize}
+The gap between benchmark performance and real-world robustness remains significant. Current systems are ``narrow AI''-highly capable in specific domains but far from human-like general intelligence.
+\end{redbox}
+
+
+\section{Summary: Recurring Themes in AI History}
+
+\begin{bluebox}[Section Summary]
+AI's history reveals consistent patterns: hype cycles, the symbolic-connectionist tension, hardware as a bottleneck, the importance of evaluation, and productive cross-pollination between fields. Understanding these patterns provides perspective on current advances and appropriate scepticism about future predictions.
+\end{bluebox}
+
+\begin{bluebox}[Patterns Across AI History]
+\begin{enumerate}
+    \item \textbf{Hype cycles}: Periods of optimism and investment followed by ``winters'' when expectations aren't met. We may be in a hype period now.
+    \item \textbf{Symbolic vs.\ connectionist}: The recurring tension between rule-based (explicit knowledge) and learning-based (implicit knowledge) approaches. Currently, connectionism dominates, but hybrid approaches are emerging.
+    \item \textbf{Hardware constraints}: Progress often waits for computational capacity. Many ideas from the 1980s only became practical with modern GPUs.
+    \item \textbf{The importance of data}: Modern ML success is as much about data quantity and quality as algorithmic innovation. The ``unreasonable effectiveness of data.''
+    \item \textbf{Evaluation matters}: Rigorous benchmarks drive progress but can be gamed or become saturated. What gets measured gets optimised.
+    \item \textbf{Transfer between fields}: Ideas from statistics (Bayesian inference), physics (energy-based models, diffusion), neuroscience (attention, sparse coding), and linguistics have all contributed.
+    \item \textbf{The bitter lesson} (Rich Sutton): Methods that leverage computation scale better than methods that leverage human knowledge. General methods + more compute beats clever, domain-specific methods.
+\end{enumerate}
+\end{bluebox}
+
+The history of AI is a story of grand ambitions, humbling setbacks, and gradual progress. Understanding this history provides perspective on current advances and appropriate caution about future predictions. Every generation of AI researchers has believed they were on the verge of a breakthrough; sometimes they were right (deep learning), often they were premature (expert systems, early neural networks).
+
+The fundamental questions remain open: What is intelligence? Can machines truly understand, or only simulate understanding? Will current approaches scale to general AI, or will fundamentally new ideas be needed? History suggests humility about predictions-but also persistence. Ideas dismissed as failures often return, transformed, when conditions are right.
+
+
+\subsection{Looking Ahead}
+
+The concepts introduced here-supervised learning, unsupervised learning, reinforcement learning, neural networks, loss functions, optimisation-will be developed rigorously in subsequent weeks. The historical framing should help answer the recurring question: \emph{why this approach?} Modern techniques are not arbitrary; they emerged from decades of theoretical development and empirical discovery.
+
+A note on perspective: we are currently in a period of intense progress and enthusiasm. History suggests caution about extrapolating current trends indefinitely. The interesting questions are not ``will AI keep improving?'' but rather ``what are the fundamental limitations?'' and ``what new ideas might be needed?'' These questions will recur throughout the course.
+

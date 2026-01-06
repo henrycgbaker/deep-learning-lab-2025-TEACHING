@@ -1,0 +1,163 @@
+% =============================================================================
+% Shared Preamble for M4DS Notes - Enhanced Version
+% =============================================================================
+
+\documentclass[a4paper,11pt]{report}
+
+% Page geometry
+\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+
+% Encoding
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+% Tables
+\usepackage{multirow}
+\usepackage{booktabs}
+
+% Graphics
+\usepackage{graphicx}
+\graphicspath{{./images/}}
+
+% TikZ for diagrams
+\usepackage{tikz}
+\usetikzlibrary{trees,positioning,arrows.meta}
+
+% Spacing
+\usepackage{setspace}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5\baselineskip plus 2pt minus 1pt}
+\raggedbottom  % Prevent vertical stretching to fill pages
+
+% Lists
+\usepackage{enumerate}
+\usepackage{enumitem}
+
+% Floats
+\usepackage{float}
+
+% Headers
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\footnotesize Henry Baker}
+\rhead{\footnotesize Maths for Data Science - 2024 Notes for TAing Labs}
+\cfoot{\footnotesize \thepage}
+
+% Math
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{amsthm}
+
+% Math operators
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator{\DUnif}{DUnif}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\Prob}{\mathbb{P}}
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\Corr}{Corr}
+
+% centernot for negating arrows (e.g., \centernot\implies)
+\usepackage{centernot}
+
+% =============================================================================
+% Theorem Environments
+% =============================================================================
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{example}{Example}[chapter]
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\newtheorem*{note}{Note}
+
+% =============================================================================
+% Colored Boxes (tcolorbox)
+% =============================================================================
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins}
+
+% Original blue box for key formulas
+\newtcolorbox{bluebox}[1][]{
+    colback=blue!5!white,
+    colframe=blue!75!black,
+    title=#1,
+    breakable
+}
+
+% Key result box (green)
+\newtcolorbox{keyresult}[1][Key Result]{
+    colback=green!5!white,
+    colframe=green!60!black,
+    title=#1,
+    fonttitle=\bfseries,
+    breakable
+}
+
+% Intuition box (yellow)
+\newtcolorbox{intuition}[1][Intuition]{
+    colback=yellow!5!white,
+    colframe=yellow!60!black,
+    title=#1,
+    fonttitle=\bfseries,
+    breakable
+}
+
+% Warning box (red)
+\newtcolorbox{warning}[1][Warning]{
+    colback=red!5!white,
+    colframe=red!60!black,
+    title=#1,
+    fonttitle=\bfseries,
+    breakable
+}
+
+% Rigour box (grey) - for formal definitions, proofs, derivations
+\newtcolorbox{rigour}[1][]{
+    colback=gray!8!white,
+    colframe=gray!60!black,
+    title=#1,
+    fonttitle=\bfseries,
+    breakable,
+    before upper={\parskip=0.5\baselineskip}
+}
+
+% Proof environment styling
+\renewcommand{\qedsymbol}{$\blacksquare$}
+
+% =============================================================================
+% Hyperlinks (load before cleveref)
+% =============================================================================
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!70!black,
+    citecolor=green!50!black,
+    urlcolor=blue!70!black
+}
+
+% =============================================================================
+% Cross-referencing (must load after hyperref)
+% =============================================================================
+\usepackage{cleveref}
+\crefname{theorem}{Theorem}{Theorems}
+\crefname{lemma}{Lemma}{Lemmas}
+\crefname{definition}{Definition}{Definitions}
+\crefname{example}{Example}{Examples}
+\crefname{equation}{Equation}{Equations}
+\crefname{figure}{Figure}{Figures}
+\crefname{table}{Table}{Tables}
+\crefname{chapter}{Chapter}{Chapters}
+\crefname{section}{Section}{Sections}

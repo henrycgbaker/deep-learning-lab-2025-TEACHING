@@ -1,0 +1,1496 @@
+% Week 7: Quantitative Fairness
+% Builds on Week 6 (Qualitative Fairness) with formal mathematical treatment
+
+\section{Introduction: From Qualitative to Quantitative Fairness}
+
+Week 6 established that ML systems can cause harm through bias encoded in data and algorithms, identified sources of bias, and distinguished types of harm (allocative, representational, quality-of-service). This week develops the \textbf{formal mathematical framework} for measuring and achieving fairness.
+
+The transition from qualitative to quantitative fairness is crucial: while qualitative analysis helps us \emph{identify} potential harms and their sources, quantitative frameworks give us the tools to \emph{measure} fairness, \emph{compare} different approaches, and \emph{enforce} constraints during model training or deployment. However, as we shall see, quantification comes with its own challenges-most notably, the mathematical impossibility of satisfying all reasonable fairness criteria simultaneously.
+
+\begin{bluebox}[Chapter Overview]
+This chapter covers:
+\begin{itemize}
+    \item \textbf{Classification fundamentals}: Risk scores, thresholds, and evaluation metrics
+    \item \textbf{Fairness definitions}: Four main criteria with formal definitions and intuition
+    \item \textbf{Impossibility theorems}: Why we cannot have it all
+    \item \textbf{ROC analysis}: Fairness as geometric constraints
+    \item \textbf{Algorithmic interventions}: Mathematical approaches to debiasing
+    \item \textbf{Auditing}: How to measure fairness in practice
+\end{itemize}
+
+\textbf{Key insight}: Fairness criteria are mathematically incompatible. Choosing among them is a \emph{value judgment}, not a technical decision.
+\end{bluebox}
+
+\section{Classification and Risk Scores}
+
+Binary classification learns a function $f: \mathcal{X} \rightarrow \{0, 1\}$ that maps feature vectors to class labels. However, most classifiers don't directly output hard decisions-they first produce a \textbf{risk score} that estimates the probability of the positive class, which is then thresholded to produce a classification. Understanding this two-stage process (probability estimation followed by thresholding) is essential for understanding fairness, because it reveals where value judgments enter the decision-making process.
+
+\begin{bluebox}[Section Summary]
+\begin{itemize}
+    \item Risk scores estimate $P(Y=1|X)$-classification is regression plus thresholding
+    \item Threshold $\tau$ converts continuous scores to binary decisions
+    \item Different thresholds yield different tradeoffs between error types
+    \item Cost-sensitive learning makes these tradeoffs explicit
+\end{itemize}
+\end{bluebox}
+
+\subsection{Risk Scores and Probability Estimation}
+
+\begin{greybox}[Risk Scores]
+A \textbf{risk score} $r(x)$ estimates the probability of the positive class:
+\[
+r(x) \approx \mathbb{E}[Y | X = x] = P(Y = 1 | X = x)
+\]
+
+This is regression ``hiding'' under classification-logistic regression estimates $r(x)$, then we threshold to classify:
+\[
+\hat{y}(x) = \mathbf{1}[r(x) > \tau]
+\]
+
+where $\tau$ is the decision threshold (often 0.5 by default, but this choice is itself consequential) and $\mathbf{1}[\cdot]$ is the indicator function that returns 1 if the condition is true and 0 otherwise.
+\end{greybox}
+
+\textbf{Unpacking this definition:} Let's break down what each component means:
+
+\begin{itemize}
+    \item \textbf{The risk score $r(x)$}: This is the model's estimate of how likely the positive outcome is for an individual with features $x$. For example, in a loan default prediction model, $r(x)$ might estimate the probability that an applicant with features $x$ will default on the loan.
+
+    \item \textbf{The conditional expectation $\mathbb{E}[Y | X = x]$}: Since $Y \in \{0, 1\}$, this expectation equals the probability $P(Y=1|X=x)$. This is because for a binary variable, $\mathbb{E}[Y] = 0 \cdot P(Y=0) + 1 \cdot P(Y=1) = P(Y=1)$.
+
+    \item \textbf{The threshold $\tau$}: This converts a continuous probability into a binary decision. The choice of $\tau$ is \emph{not} neutral-it encodes assumptions about the relative importance of different types of errors.
+
+    \item \textbf{The indicator function $\mathbf{1}[\cdot]$}: This mathematical notation simply means ``1 if the condition is true, 0 otherwise.'' So $\hat{y}(x) = 1$ when $r(x) > \tau$ and $\hat{y}(x) = 0$ otherwise.
+\end{itemize}
+
+\subsection{Ideal Model versus Reality}
+
+In an \textbf{ideal scenario} with perfect knowledge, we could define our classifier's action as:
+\[
+\hat{y}(x) = \mathbf{1}[\mathbb{E}[Y \mid X = x] > 0.5] =
+\begin{cases}
+1 & \text{if } \mathbb{E}[Y \mid X = x] > 0.5 \\
+0 & \text{otherwise}
+\end{cases}
+\]
+
+If the expected probability of $Y = 1$ given $X = x$ exceeds 0.5, we predict the positive class; otherwise, we predict 0. This would be the Bayes-optimal classifier under 0-1 loss (when false positives and false negatives are equally costly).
+
+\textbf{The reality} is that we don't know $\mathbb{E}[Y \mid X = x]$ \textit{a priori}. We must estimate it from data. This estimation is where regression models are ``hiding'' under the hood of classification-specifically logistic regression in many binary classification tasks. Logistic regression models the probability that $Y = 1$ as a function of $X$, providing us with an estimate $\hat{r}(x) \approx \mathbb{E}[Y \mid X = x]$.
+
+\begin{bluebox}[Key Insight: Classification as Thresholded Regression]
+The risk score is a probability prediction from a regression model. It is the expectation (probability) of the positive class, conditioned on the features. Classification decisions arise from thresholding this continuous probability estimate.
+
+This perspective reveals that binary classification involves \emph{two} separate decisions:
+\begin{enumerate}
+    \item \textbf{Model choice}: How do we estimate $P(Y=1|X)$?
+    \item \textbf{Threshold choice}: At what probability do we make a positive prediction?
+\end{enumerate}
+
+Both decisions have fairness implications, but the threshold choice is often overlooked.
+\end{bluebox}
+
+The threshold $\tau$ encodes a \textbf{value judgment} about the relative costs of errors. Setting $\tau = 0.5$ implicitly assumes false positives and false negatives are equally costly-rarely true in practice.
+
+\textbf{Examples of asymmetric costs:}
+\begin{itemize}
+    \item \textbf{Medical screening}: False negatives (missed disease) may be fatal; false positives lead to unnecessary tests. Here we might prefer a low threshold (say $\tau = 0.1$) to catch more cases, accepting more false positives.
+    \item \textbf{Spam filtering}: False positives (blocking real email) are more costly than letting spam through. Here we might prefer a high threshold (say $\tau = 0.9$) to avoid blocking legitimate email.
+    \item \textbf{Criminal justice}: False positives (wrongful detention) and false negatives (releasing dangerous individuals) have dramatically different costs to different stakeholders. The appropriate threshold depends on whose costs we prioritise.
+\end{itemize}
+
+\section{Evaluating Classifiers}
+
+Before we can discuss fairness, we need a precise vocabulary for describing how classifiers perform. This section introduces the fundamental metrics that will later be used to define fairness criteria.
+
+\begin{bluebox}[Section Summary]
+\begin{itemize}
+    \item Accuracy treats all errors equally-inappropriate for most real applications
+    \item Cost-sensitive learning assigns explicit costs $c_{FP}$ and $c_{FN}$ to different errors
+    \item ROC curves visualise TPR/FPR tradeoff across all thresholds
+    \item AUC measures threshold-independent discriminative ability
+\end{itemize}
+\end{bluebox}
+
+\subsection{Accuracy and Its Limitations}
+
+\begin{greybox}[Accuracy]
+\[
+\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN} = P(\hat{Y} = Y)
+\]
+
+where:
+\begin{itemize}
+    \item $TP$ = True Positives (correctly predicted positive)
+    \item $TN$ = True Negatives (correctly predicted negative)
+    \item $FP$ = False Positives (incorrectly predicted positive)-Type I errors
+    \item $FN$ = False Negatives (incorrectly predicted negative)-Type II errors
+\end{itemize}
+\end{greybox}
+
+\textbf{Unpacking accuracy:} Accuracy simply counts the proportion of predictions that match the true labels. The formula can be read as: ``Of all predictions made, what fraction were correct?'' This seems intuitive, but has serious limitations.
+
+\begin{redbox}
+Accuracy has three fundamental problems:
+
+\textbf{1. It treats all errors equally.} A false positive and a false negative contribute equally to the accuracy calculation, but their real-world consequences may differ enormously. A cancer screening test that misses a tumour (false negative) has very different consequences than one that triggers an unnecessary biopsy (false positive).
+
+\textbf{2. It can be misleading with imbalanced classes.} With 99\% negative cases, predicting ``negative'' always achieves 99\% accuracy while being completely useless. This is known as the ``accuracy paradox.''
+
+\textbf{3. Accuracy for whom?} Different stakeholders bear different costs from different error types. A bank cares about false negatives (defaults); applicants care about false positives (wrongful denials). Accuracy treats these symmetrically, but the people affected do not experience them symmetrically.
+\end{redbox}
+
+\subsection{The Confusion Matrix and Error Types}
+
+The confusion matrix provides a complete picture of classifier performance by tabulating all four possible outcomes when comparing predictions to truth.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{figures/week_07_fairness_quant/confmatrix.png}
+    \caption{Confusion matrix: the cost matrix $c_{ij}$ weights different outcomes. Rows represent true labels, columns represent predictions. The diagonal contains correct predictions; off-diagonal elements are errors.}
+    \label{fig:confusion-matrix-fairness}
+\end{figure}
+
+\begin{greybox}[Error Rate Definitions]
+For a classifier with predictions $\hat{Y}$ and true labels $Y$:
+
+\textbf{True Positive Rate (TPR)} / Sensitivity / Recall:
+\[
+\text{TPR} = P(\hat{Y} = 1 | Y = 1) = \frac{TP}{TP + FN}
+\]
+
+\textbf{False Positive Rate (FPR)} / Fall-out:
+\[
+\text{FPR} = P(\hat{Y} = 1 | Y = 0) = \frac{FP}{FP + TN}
+\]
+
+\textbf{True Negative Rate (TNR)} / Specificity:
+\[
+\text{TNR} = P(\hat{Y} = 0 | Y = 0) = 1 - \text{FPR} = \frac{TN}{FP + TN}
+\]
+
+\textbf{False Negative Rate (FNR)} / Miss rate:
+\[
+\text{FNR} = P(\hat{Y} = 0 | Y = 1) = 1 - \text{TPR} = \frac{FN}{TP + FN}
+\]
+
+\textbf{Positive Predictive Value (PPV)} / Precision:
+\[
+\text{PPV} = P(Y = 1 | \hat{Y} = 1) = \frac{TP}{TP + FP}
+\]
+
+\textbf{Negative Predictive Value (NPV)}:
+\[
+\text{NPV} = P(Y = 0 | \hat{Y} = 0) = \frac{TN}{TN + FN}
+\]
+\end{greybox}
+
+\textbf{Understanding the distinction between rate types:} The metrics above fall into two categories based on what we condition on:
+
+\begin{itemize}
+    \item \textbf{Conditional on truth} (TPR, FPR, TNR, FNR): These ask ``Given we know the true outcome, how likely is a particular prediction?'' For example, TPR asks ``Among people who actually have the disease, what fraction does the test correctly identify?''
+
+    \item \textbf{Conditional on prediction} (PPV, NPV): These ask ``Given a particular prediction, how likely is the true outcome?'' For example, PPV asks ``Among people who test positive, what fraction actually have the disease?''
+\end{itemize}
+
+This distinction becomes crucial when we discuss different fairness criteria. Some fairness criteria require equal rates \emph{conditional on truth} across groups (separation/equalised odds), while others require equal rates \emph{conditional on prediction} (sufficiency/calibration). These are mathematically different requirements that cannot generally be satisfied simultaneously.
+
+\textbf{Intuition through medical testing:} Consider a medical test:
+\begin{itemize}
+    \item \textbf{High TPR} (sensitivity): The test catches most cases of disease-few sick people slip through.
+    \item \textbf{Low FPR} (high specificity): The test rarely triggers false alarms-few healthy people are incorrectly flagged.
+    \item \textbf{High PPV}: When the test is positive, it's usually right-a positive result is meaningful.
+\end{itemize}
+
+A screening test for a rare disease might have high TPR and low FPR but still have low PPV, because most positive results come from the large pool of healthy people (even a low FPR applied to many people generates many false positives).
+
+\subsection{Cost-Sensitive Learning}
+
+Rather than treating all errors equally, we can explicitly encode the costs of different outcomes.
+
+\begin{greybox}[Cost-Sensitive Loss]
+Assign explicit costs to different error types:
+\[
+\mathcal{L}_{\text{cost}} = \frac{1}{n}\left(FN \times c_{FN} + FP \times c_{FP}\right)
+\]
+
+This forces you to \textbf{explicitly encode values}-what is the relative cost of a false positive versus a false negative?
+
+The optimal threshold depends on the cost ratio. If $c_{FN} = k \cdot c_{FP}$, we should predict positive when:
+\[
+r(x) > \frac{1}{1 + k}
+\]
+
+For example, if false negatives cost twice as much as false positives ($k = 2$), we should use $\tau = 1/3$ rather than $\tau = 0.5$.
+\end{greybox}
+
+\textbf{Deriving the optimal threshold:} The threshold formula $\tau = \frac{1}{1+k}$ arises from decision theory. At the threshold, we should be indifferent between predicting positive and negative. This occurs when:
+\[
+c_{FN} \cdot P(Y=1|X=x) = c_{FP} \cdot P(Y=0|X=x)
+\]
+
+Substituting $P(Y=0|X=x) = 1 - P(Y=1|X=x)$ and $c_{FN} = k \cdot c_{FP}$:
+\[
+k \cdot r(x) = 1 - r(x) \implies r(x) = \frac{1}{1+k}
+\]
+
+So we predict positive when $r(x) > \frac{1}{1+k}$.
+
+\textbf{Examples:}
+\begin{itemize}
+    \item $k = 1$ (equal costs): $\tau = 0.5$
+    \item $k = 2$ (FN costs twice FP): $\tau = 1/3 \approx 0.33$
+    \item $k = 9$ (FN costs 9 times FP): $\tau = 0.1$
+\end{itemize}
+
+This approach aims to minimise a weighted sum of errors, allowing for optimisation that reflects actual costs (financial, ethical, health-related) associated with different errors. Libraries like scikit-learn implement this concept through mechanisms like ``class weights.''
+
+\subsection{ROC Curves}
+
+The ROC (Receiver Operating Characteristic) curve is a fundamental tool for visualising classifier performance and understanding fairness constraints.
+
+\begin{greybox}[ROC Curve]
+The \textbf{Receiver Operating Characteristic (ROC) curve} plots TPR against FPR as the threshold $\tau$ varies from $\infty$ to $-\infty$:
+\begin{itemize}
+    \item At $\tau = \infty$: Nothing predicted positive $\Rightarrow$ $(FPR, TPR) = (0, 0)$
+    \item At $\tau = -\infty$: Everything predicted positive $\Rightarrow$ $(FPR, TPR) = (1, 1)$
+    \item As $\tau$ decreases: Both FPR and TPR increase (generally)
+\end{itemize}
+
+A good classifier has a curve that bows towards the top-left corner (high TPR at low FPR).
+\end{greybox}
+
+\textbf{Understanding the ROC curve geometrically:} The ROC curve traces out the achievable (FPR, TPR) pairs as we vary the threshold. Each point on the curve represents a different operating point-a different tradeoff between catching positives (TPR) and falsely flagging negatives (FPR).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_fairness_quant/ROC curve.png}
+    \caption{ROC curve. Bottom-left: nothing predicted positive (very high threshold). Top-right: everything predicted positive (very low threshold). Diagonal: random classifier-no better than guessing. The curve bowing toward the top-left indicates discriminative ability. The closer to the top-left corner, the better the classifier.}
+    \label{fig:roc-curve}
+\end{figure}
+
+\textbf{Key reference points on the ROC curve:}
+\begin{itemize}
+    \item \textbf{(0, 0)}: Predict everything negative-no false positives, but miss all true positives
+    \item \textbf{(1, 1)}: Predict everything positive-catch all true positives, but flag all negatives as false positives
+    \item \textbf{(0, 1)}: Perfect classifier-catches all true positives with no false positives
+    \item \textbf{Diagonal}: Random guessing-TPR = FPR for any threshold
+\end{itemize}
+
+\begin{greybox}[Proper Scoring Rules]
+A ``reasonable'' loss function adheres to \textbf{Proper Scoring Rules}-criteria ensuring that predicted probabilities accurately reflect true underlying probabilities. Proper Scoring Rules encourage models to estimate true probabilities as accurately as possible (treating the problem like regression), rather than merely optimising for classifications.
+
+Formally, a scoring rule $S(r, y)$ is \textbf{proper} if the expected score is maximised when $r(x) = P(Y=1|X=x)$. Examples include:
+\begin{itemize}
+    \item Log loss (cross-entropy): $S(r, y) = y \log r + (1-y) \log(1-r)$
+    \item Brier score: $S(r, y) = -(r - y)^2$
+\end{itemize}
+
+If one model's ROC curve is consistently above another's across the entire FPR range, it indicates that the former model has a better balance of true positives and false positives for \textit{all} threshold settings. For any proper scoring rule, that model is preferred.
+\end{greybox}
+
+\begin{bluebox}[Area Under Curve (AUC)]
+\begin{itemize}
+    \item AUC = 1: Perfect classifier (exists a threshold achieving TPR=1, FPR=0)
+    \item AUC = 0.5: Random classifier (no better than chance)
+    \item AUC provides threshold-independent evaluation
+\end{itemize}
+
+\textbf{Probabilistic interpretation}: AUC equals the probability that a randomly chosen positive example is scored higher than a randomly chosen negative example. Formally:
+\[
+\text{AUC} = P(r(X^+) > r(X^-))
+\]
+where $X^+$ is drawn from the positive class and $X^-$ from the negative class.
+
+\textbf{Model selection strategies:}
+\begin{enumerate}
+    \item \textbf{Threshold-led}: Fix acceptable FPR (e.g., $< 20\%$), choose model with highest TPR in that range
+    \item \textbf{Model-led}: Compare AUC across models, then choose threshold based on costs
+\end{enumerate}
+
+\textbf{Caveat}: AUC summarises performance over \emph{all} thresholds, but you typically operate at a single threshold. A model with higher AUC might still perform worse at your specific operating point.
+\end{bluebox}
+
+\section{Discrimination in Classification}
+
+Having established the mechanics of classification, we now turn to how discrimination can arise-and why simply removing protected attributes is insufficient.
+
+\begin{bluebox}[Section Summary]
+\begin{itemize}
+    \item Discrimination can be explicit (using protected attributes) or implicit (using proxies)
+    \item Redundant encoding: combinations of features can reconstruct protected attributes
+    \item Removing protected attributes does \emph{not} guarantee fairness
+    \item This motivates formal fairness criteria that can be measured and enforced
+\end{itemize}
+\end{bluebox}
+
+\subsection{How Discrimination Arises}
+
+A fundamental problem in machine learning fairness is that features $X$ can encode sensitive information about group membership, either directly or indirectly.
+
+\textbf{Explicit encoding}: Features directly encode sensitive attributes (race, gender). When features explicitly encode sensitive information, using these features in a model can lead to discriminatory outcomes. Models may learn to make decisions based on these sensitive attributes, perpetuating or exacerbating existing biases.
+
+\textbf{Implicit encoding}: Features correlate with sensitive attributes-socioeconomic indicators can predict race without using race directly. Models can learn discriminatory patterns through features that are correlated with group membership, even when sensitive attributes are not directly included.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_07_fairness_quant/sensitive features.png}
+    \caption{Accumulation of slight predictivity: Groups A and B may be similar on any single feature, making group membership hard to predict from one feature alone. But with many features, each slightly predictive of group membership, we can predict group membership extremely well. The correlation ``accumulates'' across features.}
+    \label{fig:sensitive-features}
+\end{figure}
+
+\subsection{Redundant Encodings and the Limits of Attribute Removal}
+
+\begin{redbox}
+\textbf{Redundant encodings}: Even if you remove the sensitive attribute, combinations of other features can reconstruct it. Simply dropping race or gender from your model doesn't guarantee fairness.
+
+In rich feature spaces, proxy variables are nearly impossible to eliminate completely. ZIP code, purchasing patterns, browser choice, first name-each slightly predictive, together highly predictive.
+
+\textbf{Mathematical intuition}: If $A$ is the protected attribute and $X_1, \ldots, X_p$ are features, then even if each $\text{Cor}(X_j, A)$ is small, a model trained on all features can achieve high $R^2$ in predicting $A$ from $X$. The ``curse of dimensionality'' works against fairness here.
+\end{redbox}
+
+A set of features, each with only slight predictivity for a sensitive group, can collectively enable a model to classify individuals into groups with high accuracy. This phenomenon means that ``fairness through unawareness'' (simply not using the protected attribute) is generally insufficient.
+
+\subsection{Connection to Week 6: Types of Harm and Metrics}
+
+The qualitative harms identified in Week 6 map to different quantitative concerns:
+
+\begin{greybox}[Mapping Harms to Metrics]
+\textbf{Allocative harm} (denying resources/opportunities):
+\begin{itemize}
+    \item Concern: Are positive predictions distributed fairly?
+    \item Relevant metrics: Demographic parity, equalised odds
+    \item Example: Are loans approved at similar rates across groups?
+\end{itemize}
+
+\textbf{Quality-of-service harm} (worse performance for some groups):
+\begin{itemize}
+    \item Concern: Are error rates similar across groups?
+    \item Relevant metrics: Equalised odds, equal opportunity
+    \item Example: Does facial recognition have similar accuracy across demographics?
+\end{itemize}
+
+\textbf{Representational harm} (reinforcing stereotypes):
+\begin{itemize}
+    \item Harder to quantify with classification metrics
+    \item May require auditing model associations and outputs qualitatively
+    \item Demographic parity can help but doesn't capture all representational concerns
+\end{itemize}
+\end{greybox}
+
+This mapping illustrates that different fairness metrics are appropriate for addressing different types of harm. The choice of metric should be informed by the type of harm we are most concerned about preventing.
+
+\section{Quantitative Fairness Criteria}
+
+We now formalise the major approaches to quantitative fairness. Each criterion imposes different restrictions on the relationship between the risk score, sensitive attributes, and outcomes.
+
+\begin{bluebox}[Section Summary]
+Four main fairness criteria, each formalising a different intuition:
+\begin{enumerate}
+    \item \textbf{Demographic parity}: Equal acceptance rates across groups
+    \item \textbf{Equalised odds}: Equal TPR \emph{and} FPR across groups
+    \item \textbf{Equal opportunity}: Equal TPR across groups (relaxed equalised odds)
+    \item \textbf{Calibration}: Predicted probabilities match actual frequencies within groups
+\end{enumerate}
+These criteria are \emph{mutually incompatible} when base rates differ between groups.
+\end{bluebox}
+
+\begin{greybox}[Notation]
+Throughout this section:
+\begin{itemize}
+    \item $R \in [0, 1]$: Risk score (model output, continuous)
+    \item $\hat{Y} \in \{0, 1\}$: Predicted label (thresholded from $R$)
+    \item $Y \in \{0, 1\}$: True outcome
+    \item $A \in \{0, 1\}$: Sensitive/protected attribute (e.g., race, gender)
+\end{itemize}
+
+We write $A=0$ and $A=1$ for concreteness, but the framework extends to multiple groups. The \textbf{base rate} for group $a$ is $P(Y=1 | A=a)$-the proportion of positive outcomes in that group.
+\end{greybox}
+
+\textbf{Why base rates matter:} Base rates are central to understanding fairness impossibilities. If the base rate differs between groups (e.g., different recidivism rates, different loan default rates), then achieving one fairness criterion necessarily violates others. The base rate difference is often itself a reflection of historical inequities, which raises deep questions about what ``fairness'' should mean.
+
+\subsection{Demographic Parity (Independence)}
+
+\begin{greybox}[Demographic Parity / Statistical Parity / Independence]
+\textbf{Formal definition}:
+\[
+R \perp A \quad \text{or equivalently} \quad \hat{Y} \perp A
+\]
+
+The notation $R \perp A$ means ``$R$ is independent of $A$''-knowing the group membership $A$ tells you nothing about the distribution of the risk score $R$.
+
+In terms of probabilities:
+\[
+P(\hat{Y} = 1 | A = 0) = P(\hat{Y} = 1 | A = 1)
+\]
+
+\textbf{Relaxed version} (bounded disparity):
+\[
+\left| P(\hat{Y} = 1 | A = 0) - P(\hat{Y} = 1 | A = 1) \right| \leq \epsilon
+\]
+
+or using the \textbf{disparate impact ratio} (80\% rule from US employment law):
+\[
+\frac{\min_a P(\hat{Y} = 1 | A = a)}{\max_a P(\hat{Y} = 1 | A = a)} \geq 0.8
+\]
+\end{greybox}
+
+\textbf{Unpacking demographic parity:}
+
+\begin{itemize}
+    \item \textbf{What it requires}: The probability of receiving a positive prediction must be the same for all groups. If 30\% of group A receives loans, then 30\% of group B must also receive loans.
+
+    \item \textbf{Independence interpretation}: The risk score distribution $P(R|A=a)$ should be the same for all groups. This is a strong requirement-it says the model should ``ignore'' group membership entirely in its aggregate behaviour.
+
+    \item \textbf{The 80\% rule}: In practice, perfect parity is rarely achieved or required. The disparate impact ratio provides a legal threshold: the acceptance rate for the disadvantaged group should be at least 80\% of the rate for the advantaged group.
+\end{itemize}
+
+\textbf{Intuition}: Group membership should not affect the probability of receiving a positive prediction. The classifier should ``ignore'' the protected attribute in its aggregate behaviour.
+
+\textbf{When appropriate}:
+\begin{itemize}
+    \item When we believe base rates \emph{should} be equal (e.g., inherent ability doesn't differ by group)
+    \item When historical disparities in outcomes reflect discrimination to be corrected
+    \item When the goal is proportional representation (e.g., hiring)
+\end{itemize}
+
+\textbf{When problematic}:
+\begin{itemize}
+    \item When base rates genuinely differ and we want predictions to reflect reality
+    \item Can require accepting less qualified individuals from one group over more qualified individuals from another
+    \item Provides no guarantee about error rates or calibration
+\end{itemize}
+
+\begin{bluebox}[Achieving Demographic Parity: Orthogonal Projection]
+To remove the influence of $A$ from predictors:
+\begin{enumerate}
+    \item Regress each predictor $X_j$ on $A$: $X_j = \alpha_j + \beta_j A + \epsilon_j$
+    \item Use the residuals $\tilde{X}_j = X_j - \hat{\alpha}_j - \hat{\beta}_j A$ as new predictors
+\end{enumerate}
+
+The residuals are uncorrelated with $A$ by construction (this follows from the properties of OLS residuals). Training on $\tilde{X}$ removes $A$'s linear influence.
+
+\textbf{Limitations}:
+\begin{itemize}
+    \item Only removes \emph{linear} correlation; nonlinear proxies may remain
+    \item May substantially reduce predictive power
+    \item Doesn't guarantee demographic parity if $Y$ itself correlates with $A$
+\end{itemize}
+
+\textbf{Mathematical detail}: The residual $\tilde{X}_j$ satisfies $\text{Cov}(\tilde{X}_j, A) = 0$ because OLS residuals are orthogonal to the regressors. This is ``partialling out'' or ``orthogonal projection.''
+\end{bluebox}
+
+\subsection{Equalised Odds (Separation)}
+
+\begin{greybox}[Equalised Odds / Separation]
+\textbf{Formal definition}:
+\[
+R \perp A \mid Y \quad \text{or equivalently} \quad \hat{Y} \perp A \mid Y
+\]
+
+The notation $R \perp A \mid Y$ means ``$R$ is independent of $A$ \emph{conditional on} $Y$''-within each stratum defined by the true outcome, the risk score distribution should not depend on group membership.
+
+The risk score is independent of $A$ \textbf{conditional on the true outcome}. This requires:
+\[
+P(\hat{Y} = 1 | A = 0, Y = y) = P(\hat{Y} = 1 | A = 1, Y = y) \quad \text{for } y \in \{0, 1\}
+\]
+
+Equivalently, \textbf{both error rates must be equal across groups}:
+\begin{align}
+\text{TPR}_{A=0} &= \text{TPR}_{A=1} \quad \text{(equal opportunity for positive class)} \\
+\text{FPR}_{A=0} &= \text{FPR}_{A=1} \quad \text{(equal opportunity for negative class)}
+\end{align}
+\end{greybox}
+
+\textbf{Unpacking equalised odds:}
+
+\begin{itemize}
+    \item \textbf{Conditioning on $Y$}: We look at people with the same true outcome and ask whether they're treated similarly regardless of group. Among people who truly defaulted on loans ($Y=1$), were both groups equally likely to be flagged as high risk? Among people who didn't default ($Y=0$), were both groups equally likely to be incorrectly flagged?
+
+    \item \textbf{Two separate requirements}: Equal TPR means equal detection of true positives; equal FPR means equal rates of false alarms. Both must hold.
+
+    \item \textbf{Key difference from demographic parity}: Equalised odds allows different acceptance rates if base rates differ-it only requires equal treatment within each outcome stratum.
+\end{itemize}
+
+\textbf{Intuition}: Conditioning on the true outcome ``levels the playing field.'' Among people who truly deserve a positive outcome, both groups should have equal chance of receiving one. Among people who truly deserve a negative outcome, both groups should have equal chance of being correctly rejected.
+
+\textbf{When appropriate}:
+\begin{itemize}
+    \item When we accept that base rates may differ but want equal treatment conditional on merit
+    \item When both types of errors matter (e.g., criminal justice: wrongful convictions and failures to convict both matter)
+    \item When quality-of-service should be equal across groups
+\end{itemize}
+
+\textbf{When problematic}:
+\begin{itemize}
+    \item Requires accurate labels $Y$-if labels are themselves biased, we optimise for biased accuracy
+    \item May not satisfy demographic parity (different acceptance rates if base rates differ)
+    \item May sacrifice calibration
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_fairness_quant/roc1.png}
+    \caption{Equalised odds requires operating at the same point on the ROC curve for both groups-same TPR \emph{and} same FPR. If the groups have different ROC curves, this may require using different thresholds for each group.}
+    \label{fig:roc-separation}
+\end{figure}
+
+\subsection{Equal Opportunity}
+
+\begin{greybox}[Equal Opportunity]
+A relaxation of equalised odds that requires only equal true positive rates:
+\[
+P(\hat{Y} = 1 | Y = 1, A = 0) = P(\hat{Y} = 1 | Y = 1, A = 1)
+\]
+
+Equivalently:
+\[
+\text{TPR}_{A=0} = \text{TPR}_{A=1}
+\]
+
+This ensures that \textbf{qualified individuals have equal opportunity to be selected}, regardless of group membership.
+\end{greybox}
+
+\textbf{Unpacking equal opportunity:}
+
+\begin{itemize}
+    \item \textbf{Focus on the positive class}: We only require equal TPR, not equal FPR. This makes sense when the positive outcome is the ``desirable'' one that we don't want to withhold unfairly.
+
+    \item \textbf{Weaker than equalised odds}: By not constraining FPR, we have more flexibility in model design. This can lead to better accuracy while maintaining a key fairness property.
+
+    \item \textbf{Asymmetric treatment of errors}: This criterion implicitly values avoiding false negatives more than avoiding false positives (in the fairness sense).
+\end{itemize}
+
+\textbf{Intuition}: Focus on the ``positive class'' that stands to benefit from positive predictions. Among people who deserve the opportunity (loan, job, parole), group membership shouldn't affect their chances.
+
+\textbf{When appropriate}:
+\begin{itemize}
+    \item When false negatives are the primary fairness concern (missing qualified individuals)
+    \item When the asymmetry of the decision favours focusing on the positive class
+    \item Lending: ensuring creditworthy applicants from all groups have equal access
+\end{itemize}
+
+\textbf{Limitation}: Says nothing about false positives. One group might experience far more false positives (e.g., wrongful accusations), which equal opportunity doesn't address.
+
+\subsection{Calibration (Sufficiency)}
+
+\begin{greybox}[Calibration / Sufficiency]
+\textbf{Formal definition}:
+\[
+Y \perp A \mid R
+\]
+
+The notation $Y \perp A \mid R$ means ``$Y$ is independent of $A$ conditional on $R$''-once we know the risk score, group membership provides no additional information about the outcome.
+
+Given the same risk score, the probability of a positive outcome is equal across groups:
+\[
+P(Y = 1 | R = r, A = 0) = P(Y = 1 | R = r, A = 1) = r \quad \text{for all } r
+\]
+
+A model is \textbf{well-calibrated} if predicted probabilities match actual outcome frequencies. \textbf{Calibration within groups} requires this to hold separately for each group.
+\end{greybox}
+
+\textbf{Unpacking calibration:}
+
+\begin{itemize}
+    \item \textbf{Scores mean the same thing}: If the model says someone has a 70\% chance of defaulting, they should actually default 70\% of the time-regardless of which group they belong to.
+
+    \item \textbf{Procedural fairness}: Everyone with the same score receives the same treatment. This seems intuitively fair-we're treating ``like cases alike.''
+
+    \item \textbf{Note the direction of conditioning}: Calibration conditions on the \emph{prediction}, not the \emph{outcome}. This is the opposite direction from separation/equalised odds.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_07_fairness_quant/calibration.png}
+    \caption{Calibration: a model predicting 70\% probability should be correct 70\% of the time, for each group separately. A calibration curve plots predicted probabilities against observed frequencies. Perfect calibration is the diagonal line.}
+    \label{fig:calibration}
+\end{figure}
+
+\textbf{Intuition}: The risk score means the same thing for everyone. If you score 0.7, you have a 70\% chance of the positive outcome, regardless of your group membership. This is a form of \textbf{procedural fairness}-everyone with the same score receives the same treatment.
+
+\textbf{When appropriate}:
+\begin{itemize}
+    \item When risk scores are used directly (not just for binary decisions)
+    \item When we want scores to have consistent meaning across groups
+    \item When individual accuracy is paramount
+\end{itemize}
+
+\textbf{When problematic}:
+\begin{itemize}
+    \item If base rates differ, calibration implies unequal acceptance rates (violates demographic parity)
+    \item May have unequal error rates across groups (violates equalised odds)
+    \item Preserves historical disparities if they are reflected in calibration targets
+\end{itemize}
+
+\begin{redbox}
+Sufficiency (calibration) does not guarantee high individual-level accuracy. A model can be fair in terms of sufficiency-meaning predicted probabilities match observed frequencies for each group-while still making many incorrect individual predictions. Calibration is about aggregate behaviour, not individual precision.
+
+Moreover, calibration can perpetuate discrimination: if historical discrimination causes one group to have worse outcomes (higher default rates due to predatory lending, for example), a calibrated model will reflect these differences, assigning higher risk scores to the disadvantaged group.
+\end{redbox}
+
+\begin{bluebox}[The Four Criteria at a Glance]
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Criterion} & \textbf{Independence} & \textbf{Requires} \\
+\midrule
+Demographic Parity & $\hat{Y} \perp A$ & Equal acceptance rates \\
+Equalised Odds & $\hat{Y} \perp A \mid Y$ & Equal TPR and FPR \\
+Equal Opportunity & $\hat{Y} \perp A \mid Y=1$ & Equal TPR only \\
+Calibration & $Y \perp A \mid R$ & Scores mean the same \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Each encodes a different intuition about what ``fair'' means. The choice is fundamentally normative.
+
+\textbf{Key distinction}: Independence and separation condition on different things:
+\begin{itemize}
+    \item \textbf{Independence}: No conditioning-overall rates should match
+    \item \textbf{Separation}: Condition on truth $Y$-rates within outcome strata should match
+    \item \textbf{Sufficiency}: Condition on prediction $R$-outcomes given the same score should match
+\end{itemize}
+\end{bluebox}
+
+\subsection{Geometric Interpretation: ROC Space}
+
+Fairness criteria can be understood geometrically in ROC space, which provides useful intuition and guides practical implementation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_fairness_quant/image.png}
+    \caption{With different base rates, achieving equal error rates requires different thresholds per group. The two groups may have different ROC curves, and satisfying equalised odds requires finding thresholds that map to the same point.}
+    \label{fig:separation-thresholds}
+\end{figure}
+
+Each group has its own ROC curve (potentially different if the feature-outcome relationship differs between groups). Fairness criteria constrain where we can operate:
+
+\begin{greybox}[Fairness as ROC Constraints]
+\textbf{Equalised odds}: Both groups must operate at the \emph{same point} $(FPR, TPR)$ in ROC space. If their ROC curves differ, this may require different thresholds per group.
+
+\textbf{Equal opportunity}: Both groups must have the same TPR, but FPR can differ. Graphically: operate at the same height in ROC space.
+
+\textbf{Demographic parity}: More complex-depends on base rates. If base rates equal, same threshold gives demographic parity. If base rates differ, must adjust thresholds to achieve equal acceptance rates.
+
+\textbf{Calibration}: Not directly visualised in ROC space. Requires that the score distributions, when thresholded, yield correct conditional probabilities.
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_07_fairness_quant/ROC curves for fairness.png}
+    \caption{Different fairness criteria lead to different operating points and potentially require different thresholds per group. The ``optimal'' point depends on which fairness criterion we choose to enforce.}
+    \label{fig:roc-fairness}
+\end{figure}
+
+\textbf{Practical insight}: If groups have different ROC curves (which is common when the predictive relationship between features and outcomes differs by group), then:
+\begin{itemize}
+    \item A single threshold cannot achieve equalised odds
+    \item Group-specific thresholds are required
+    \item The achievable operating points are constrained by the intersection of what's achievable for each group
+\end{itemize}
+
+\section{Impossibility Theorems}
+
+The fairness criteria introduced above represent different, intuitively appealing notions of fairness. A natural question is: can we satisfy multiple criteria simultaneously? The answer, in general, is no-and this is a mathematical fact, not an engineering limitation.
+
+\begin{bluebox}[Section Summary]
+\begin{itemize}
+    \item \textbf{Chouldechova (2017)}: Calibration + equal FPR + equal FNR impossible unless base rates equal
+    \item \textbf{Kleinberg et al.\ (2016)}: Three natural criteria mutually incompatible
+    \item These are \emph{mathematical facts}, not limitations to be engineered around
+    \item When base rates differ, we \emph{must} choose which fairness property to sacrifice
+\end{itemize}
+\end{bluebox}
+
+\subsection{Chouldechova's Impossibility Theorem}
+
+\begin{greybox}[Chouldechova's Theorem (2017)]
+Consider a classifier with:
+\begin{itemize}
+    \item Positive predictive value $\text{PPV}_a = P(Y=1 | \hat{Y}=1, A=a)$
+    \item False positive rate $\text{FPR}_a = P(\hat{Y}=1 | Y=0, A=a)$
+    \item False negative rate $\text{FNR}_a = P(\hat{Y}=0 | Y=1, A=a)$
+\end{itemize}
+
+\textbf{Theorem}: If $\text{PPV}_0 = \text{PPV}_1$ (calibration for positive predictions), then:
+\[
+\text{FPR}_0 = \text{FPR}_1 \text{ and } \text{FNR}_0 = \text{FNR}_1 \quad \Longleftrightarrow \quad P(Y=1|A=0) = P(Y=1|A=1)
+\]
+
+That is, calibration and equal error rates can \emph{only} coexist when the base rates are equal.
+\end{greybox}
+
+\textbf{What this theorem says in plain language}: If your model has the property that a ``high risk'' prediction means the same thing for both groups (equal PPV = calibration), then you can \emph{only} have equal false positive and false negative rates if the underlying base rates are equal. If one group actually has higher rates of the positive outcome, you're forced to choose between calibration and equal error rates.
+
+\begin{greybox}[Proof Sketch]
+Let $p_a = P(Y=1 | A=a)$ be the base rate for group $a$. By Bayes' theorem:
+\[
+\text{PPV}_a = \frac{\text{TPR}_a \cdot p_a}{\text{TPR}_a \cdot p_a + \text{FPR}_a \cdot (1-p_a)}
+\]
+
+This formula follows from Bayes' theorem:
+\[
+P(Y=1|\hat{Y}=1) = \frac{P(\hat{Y}=1|Y=1) P(Y=1)}{P(\hat{Y}=1|Y=1) P(Y=1) + P(\hat{Y}=1|Y=0) P(Y=0)}
+\]
+
+Rearranging for FPR:
+\[
+\text{FPR}_a = \frac{\text{TPR}_a \cdot p_a \cdot (1 - \text{PPV}_a)}{\text{PPV}_a \cdot (1 - p_a)}
+\]
+
+If $\text{PPV}_0 = \text{PPV}_1$ and $\text{TPR}_0 = \text{TPR}_1$ (equal opportunity), then:
+\[
+\text{FPR}_0 = \text{FPR}_1 \quad \Longleftrightarrow \quad \frac{p_0}{1-p_0} = \frac{p_1}{1-p_1} \quad \Longleftrightarrow \quad p_0 = p_1
+\]
+
+When base rates differ ($p_0 \neq p_1$), the same PPV and TPR imply different FPRs.
+\end{greybox}
+
+\textbf{Practical implication}: In COMPAS (the recidivism prediction tool), if Black and white defendants have different recidivism base rates, we cannot simultaneously achieve:
+\begin{itemize}
+    \item Calibration: ``High risk'' means the same probability of reoffending for both races
+    \item Equal FPR: Equal rates of falsely labelling low-risk defendants as high-risk
+    \item Equal FNR: Equal rates of falsely labelling high-risk defendants as low-risk
+\end{itemize}
+
+This explains the ProPublica/Northpointe dispute: both sides were correct about different fairness criteria. ProPublica found unequal false positive rates; Northpointe showed the tool was calibrated. Both claims were true-and both cannot be ``fixed'' because they're mathematically incompatible given unequal base rates.
+
+\subsection{Kleinberg, Mullainathan, and Raghavan's Impossibility Theorem}
+
+\begin{greybox}[Kleinberg et al.\ Impossibility (2016)]
+Consider three properties for a risk score $R$:
+
+\textbf{1. Calibration within groups}: $\mathbb{E}[Y | R=r, A=a] = r$ for all $r, a$
+
+The expected outcome given a risk score equals that score, for each group separately.
+
+\textbf{2. Balance for the positive class}: $\mathbb{E}[R | Y=1, A=0] = \mathbb{E}[R | Y=1, A=1]$
+
+Qualified individuals receive equal average scores across groups.
+
+\textbf{3. Balance for the negative class}: $\mathbb{E}[R | Y=0, A=0] = \mathbb{E}[R | Y=0, A=1]$
+
+Unqualified individuals receive equal average scores across groups.
+
+\textbf{Theorem}: Unless $P(Y=1|A=0) = P(Y=1|A=1)$ (equal base rates), these three properties are mutually incompatible except in degenerate cases (perfect prediction or $R$ constant).
+\end{greybox}
+
+\textbf{Unpacking this result}:
+
+\begin{itemize}
+    \item \textbf{Calibration}: Scores should be ``honest''-a score of 0.7 means 70\% probability.
+    \item \textbf{Balance for positives}: Among truly qualified people, both groups should receive similar scores on average. Otherwise, qualified people from one group are systematically underrated.
+    \item \textbf{Balance for negatives}: Among truly unqualified people, both groups should receive similar scores on average. Otherwise, unqualified people from one group are systematically overrated.
+\end{itemize}
+
+All three seem reasonable. The theorem says we can't have all three (unless base rates are equal).
+
+\begin{greybox}[Proof Sketch]
+Assume calibration holds. Then for group $a$:
+\[
+\mathbb{E}[R | Y=1, A=a] = \mathbb{E}[\mathbb{E}[Y|R, A=a] | Y=1, A=a]
+\]
+
+By calibration, $\mathbb{E}[Y|R=r, A=a] = r$, so:
+\[
+\mathbb{E}[R | Y=1, A=a] = \mathbb{E}[R | Y=1, A=a]
+\]
+
+Using the law of total expectation and calibration, one can show:
+\[
+\mathbb{E}[R | A=a] = P(Y=1 | A=a)
+\]
+
+This says: the average risk score for a group equals that group's base rate. \textbf{This must hold if the model is calibrated.}
+
+If base rates differ, average scores must differ. But balance for both classes would require average scores conditioned on $Y$ to be equal, which (together with different base rates) implies:
+\[
+\mathbb{E}[R | Y=1, A=0] \cdot p_0 + \mathbb{E}[R | Y=0, A=0] \cdot (1-p_0) \neq \mathbb{E}[R | Y=1, A=1] \cdot p_1 + \mathbb{E}[R | Y=0, A=1] \cdot (1-p_1)
+\]
+
+unless the conditional expectations vary to exactly compensate-which they cannot do while maintaining balance for both classes unless $p_0 = p_1$.
+\end{greybox}
+
+\subsection{The Independence-Separation-Sufficiency Tradeoffs}
+
+The impossibility theorems have important pairwise implications:
+
+\begin{greybox}[The Independence-Sufficiency Tradeoff]
+\textbf{Independence} ($R \perp A$): Risk score distribution is the same across groups, implying equal selection/acceptance rates.
+
+\textbf{Sufficiency} ($Y \perp A \mid R$): For any given risk score, outcome probabilities are equal across groups.
+
+When base rates differ:
+\begin{itemize}
+    \item \textbf{Good calibration $\Rightarrow$ unequal acceptance rates}: If the model accurately reflects differing distributions of risk between groups, acceptance rates will naturally differ
+    \item \textbf{Equal acceptance rates $\Rightarrow$ poor calibration}: Forcing equal acceptance rates means the model no longer accurately reflects the true risk distributions
+\end{itemize}
+\end{greybox}
+
+\begin{greybox}[The Independence-Separation Tradeoff]
+\textbf{Independence} ($R \perp A$): Equal acceptance rates across groups.
+
+\textbf{Separation} ($R \perp A \mid Y$): Equal error rates (TPR and FPR) across groups.
+
+When base rates differ:
+\begin{itemize}
+    \item \textbf{Equal acceptance rates $\Rightarrow$ unequal error rates}: The model disregards actual outcome distributions in favour of equalising decision rates, which can amplify disparities
+    \item \textbf{Equal error rates $\Rightarrow$ unequal acceptance rates}: The model adjusts predictions to compensate for differences in outcome distributions, leading to different acceptance rates
+\end{itemize}
+\end{greybox}
+
+\subsection{Practical Implications of Impossibility}
+
+\begin{redbox}
+These impossibility results are \textbf{mathematical facts}, not engineering limitations. No algorithm, no matter how sophisticated, can satisfy all fairness criteria when base rates differ.
+
+\textbf{This means}:
+\begin{itemize}
+    \item You \emph{must} choose which fairness property to prioritise
+    \item The choice is a \textbf{value judgment} requiring normative input
+    \item Technical experts cannot resolve this-it requires ethical and political deliberation
+    \item Different stakeholders may reasonably prefer different criteria
+\end{itemize}
+
+\textbf{When base rates are equal}, all criteria can be satisfied simultaneously. In practice, base rates often differ, forcing difficult choices.
+\end{redbox}
+
+\begin{greybox}[Which Criterion When?]
+Guidance for choosing among incompatible criteria:
+
+\textbf{Choose calibration when}:
+\begin{itemize}
+    \item Risk scores are used directly (not just for binary decisions)
+    \item Individual-level accuracy is paramount
+    \item You believe base rate differences reflect genuine differences in the outcome
+\end{itemize}
+
+\textbf{Choose equalised odds when}:
+\begin{itemize}
+    \item Error rates are the primary concern
+    \item Both false positives and false negatives are costly
+    \item Quality-of-service equality is the goal
+\end{itemize}
+
+\textbf{Choose demographic parity when}:
+\begin{itemize}
+    \item You believe base rate differences reflect historical discrimination
+    \item Proportional representation is the goal
+    \item You're correcting for measurement bias in labels
+\end{itemize}
+
+\textbf{Choose equal opportunity when}:
+\begin{itemize}
+    \item False negatives are the primary fairness concern
+    \item You want to ensure qualified individuals aren't disadvantaged
+    \item False positives are acceptable or less consequential
+\end{itemize}
+\end{greybox}
+
+\section{Fairness-Accuracy Tradeoffs}
+
+Beyond the impossibility of satisfying multiple fairness criteria simultaneously, there is typically a tradeoff between fairness and predictive accuracy. Understanding this tradeoff is essential for informed decision-making.
+
+\begin{bluebox}[Section Summary]
+\begin{itemize}
+    \item Enforcing fairness typically reduces overall accuracy
+    \item The magnitude of this tradeoff varies-sometimes steep, sometimes mild
+    \item Pareto frontiers visualise the tradeoff: can't improve fairness without sacrificing accuracy (and vice versa)
+    \item The ``cost of fairness'' depends on how different the groups are
+\end{itemize}
+\end{bluebox}
+
+\subsection{Quantifying the Tradeoff}
+
+When we constrain a model to satisfy a fairness criterion, we typically sacrifice some predictive accuracy. This tradeoff can be visualised as a \textbf{Pareto frontier}.
+
+\begin{greybox}[Pareto Frontier for Fairness]
+Define:
+\begin{itemize}
+    \item $\mathcal{A}(f)$: Accuracy (or negative loss) of classifier $f$
+    \item $\mathcal{F}(f)$: Fairness measure (e.g., $1 - |$TPR disparity$|$, so higher is fairer)
+\end{itemize}
+
+The \textbf{Pareto frontier} is the set of classifiers where:
+\begin{itemize}
+    \item No classifier has both higher accuracy \emph{and} higher fairness
+    \item Improving one metric requires sacrificing the other
+\end{itemize}
+
+Mathematically, $f^*$ is on the Pareto frontier if there exists no $f$ with $\mathcal{A}(f) > \mathcal{A}(f^*)$ and $\mathcal{F}(f) \geq \mathcal{F}(f^*)$ (or vice versa).
+\end{greybox}
+
+\textbf{Understanding the Pareto frontier}:
+
+\begin{itemize}
+    \item \textbf{Points on the frontier}: These represent optimal tradeoffs-you cannot improve one objective without worsening the other. Any classifier not on the frontier is ``dominated'' and should be discarded.
+
+    \item \textbf{The slope of the frontier}: This indicates the ``exchange rate''-how much accuracy you sacrifice per unit of fairness gained. Where the frontier is steep, fairness is expensive; where it's flat, fairness is cheap.
+
+    \item \textbf{Choice along the frontier}: Selecting a point on the frontier is a value judgment. There's no objectively ``best'' point-it depends on how much you value fairness relative to accuracy.
+\end{itemize}
+
+\textbf{Reading a Pareto frontier}:
+\begin{itemize}
+    \item Points on the frontier represent optimal tradeoffs
+    \item The slope indicates the ``exchange rate''-how much accuracy you sacrifice per unit of fairness gained
+    \item Steep regions: fairness is ``expensive''
+    \item Flat regions: fairness is ``cheap'' (can improve fairness with little accuracy loss)
+\end{itemize}
+
+\subsection{When is Fairness ``Cheap'' or ``Expensive''?}
+
+The cost of fairness depends on several factors:
+
+\begin{greybox}[Determinants of Fairness Cost]
+\textbf{Fairness is cheaper when}:
+\begin{itemize}
+    \item Base rates are similar across groups
+    \item Groups have similar feature distributions
+    \item The protected attribute is weakly predictive of the outcome
+    \item The model has excess capacity (can afford constraints)
+\end{itemize}
+
+\textbf{Fairness is more expensive when}:
+\begin{itemize}
+    \item Base rates differ substantially
+    \item Groups have very different feature-outcome relationships
+    \item The protected attribute is highly predictive
+    \item The unconstrained model is already near-optimal
+\end{itemize}
+\end{greybox}
+
+\textbf{Intuition}: If groups are similar, constraining the model to treat them similarly doesn't cost much. If groups are very different (in features, base rates, or the feature-outcome relationship), then forcing equal treatment requires ignoring genuinely predictive information, which costs accuracy.
+
+\begin{redbox}
+\textbf{A steep fairness-accuracy tradeoff is not necessarily an argument against fairness.} It may indicate:
+\begin{itemize}
+    \item The ``accuracy'' being measured includes discriminatory signal
+    \item Historical discrimination created the conditions where $A$ is predictive
+    \item Correcting deep inequities requires real costs
+\end{itemize}
+
+The question is not ``Is fairness free?'' but ``What are we willing to pay for fairness, and who pays?''
+
+Moreover, accuracy itself is not a neutral concept. Whose outcomes count in the accuracy calculation? If the training data reflects historical discrimination, then ``accuracy'' means ``reproducing historical patterns.''
+\end{redbox}
+
+\subsection{Multi-Objective Optimisation}
+
+In practice, we often care about multiple fairness criteria and accuracy simultaneously. This requires multi-objective optimisation.
+
+\begin{greybox}[Constrained Optimisation Formulation]
+\textbf{Fairness as constraint}:
+\[
+\max_f \; \mathcal{A}(f) \quad \text{subject to} \quad \mathcal{F}(f) \geq 1 - \epsilon
+\]
+
+Find the most accurate classifier among those satisfying the fairness constraint.
+
+\textbf{Fairness as regularisation}:
+\[
+\max_f \; \mathcal{A}(f) + \lambda \cdot \mathcal{F}(f)
+\]
+
+Trade off accuracy and fairness via hyperparameter $\lambda$. Larger $\lambda$ means we care more about fairness.
+
+\textbf{Fairness as Lagrangian}:
+\[
+\max_f \min_\mu \; \mathcal{A}(f) + \mu \cdot (\mathcal{F}(f) - (1-\epsilon))
+\]
+
+The dual variable $\mu$ represents the ``shadow price'' of fairness-how much accuracy is sacrificed per unit of fairness gained at the optimum.
+\end{greybox}
+
+\textbf{Interpreting these formulations}:
+
+\begin{itemize}
+    \item \textbf{Constraint approach}: You specify a minimum acceptable level of fairness and optimise accuracy subject to that. This is natural when fairness requirements are externally imposed (e.g., legal requirements).
+
+    \item \textbf{Regularisation approach}: You treat fairness as another objective to maximise alongside accuracy. The hyperparameter $\lambda$ controls the tradeoff and must be chosen based on values.
+
+    \item \textbf{Lagrangian approach}: This is the mathematical dual of the constraint approach. The dual variable $\mu$ tells you how ``tight'' the fairness constraint is-if $\mu$ is large, the constraint is binding and relaxing it slightly would yield significant accuracy gains.
+\end{itemize}
+
+\section{Algorithmic Interventions}
+
+Given the tradeoffs involved, how can we actually build fairer models? Interventions can occur at three stages: before training (pre-processing), during training (in-processing), or after training (post-processing).
+
+\begin{bluebox}[Section Summary]
+Three families of debiasing techniques:
+\begin{enumerate}
+    \item \textbf{Pre-processing}: Modify training data before model training
+    \item \textbf{In-processing}: Modify the learning algorithm itself
+    \item \textbf{Post-processing}: Modify predictions after training
+\end{enumerate}
+Each has mathematical formulations and practical tradeoffs.
+\end{bluebox}
+
+\subsection{Pre-Processing: Modifying the Data}
+
+Pre-processing techniques modify the training data to reduce bias before any model is trained. The advantage is that any downstream model inherits the fairness properties; the disadvantage is potential loss of information.
+
+\begin{greybox}[{Reweighting (Kamiran \& Calders, 2012)}]
+Assign weights to training examples to equalise the weighted label distribution across groups.
+
+For demographic parity, assign weight:
+\[
+w(x, y, a) = \frac{P(Y=y) \cdot P(A=a)}{P(Y=y, A=a)}
+\]
+
+\textbf{Unpacking the formula}: This weight makes the joint distribution of $(Y, A)$ independent in the weighted data. Examples from underrepresented (group, label) combinations get higher weights; overrepresented combinations get lower weights.
+
+\textbf{Intuition}: Upweight underrepresented (group, label) combinations; downweight overrepresented ones. If group A has fewer positive examples, those positive examples get upweighted.
+
+\textbf{Effect}: A classifier trained on reweighted data will tend toward demographic parity.
+
+\textbf{Example}: If group $A=1$ has base rate 0.3 and group $A=0$ has base rate 0.5, positive examples from group 1 will be upweighted and positive examples from group 0 will be downweighted, pushing the model toward equal acceptance rates.
+\end{greybox}
+
+\begin{greybox}[{Relabelling / Massaging (Kamiran \& Calders, 2009)}]
+Strategically flip labels near the decision boundary:
+\begin{enumerate}
+    \item Train a ranker on the original data
+    \item For the disadvantaged group: flip some negative labels to positive (highest-ranked negatives-those closest to the boundary)
+    \item For the advantaged group: flip some positive labels to negative (lowest-ranked positives-those closest to the boundary)
+    \item Balance flips to achieve desired fairness level
+\end{enumerate}
+
+\textbf{Intuition}: Correct labels that are most likely to be ``wrong'' due to historical bias. The examples near the decision boundary are the most ambiguous, so flipping their labels has the least impact on model quality.
+
+\textbf{Risk}: If labels are actually correct, we introduce noise and degrade accuracy. This method assumes that disparities near the boundary reflect bias rather than genuine differences.
+\end{greybox}
+
+\begin{greybox}[{Fair Representation Learning (Zemel et al., 2013)}]
+Learn a representation $Z = g(X)$ that:
+\begin{enumerate}
+    \item Preserves information useful for prediction: $I(Z; Y)$ high
+    \item Removes information about the protected attribute: $I(Z; A)$ low
+\end{enumerate}
+
+where $I(\cdot; \cdot)$ denotes mutual information.
+
+\textbf{Optimisation}:
+\[
+\min_g \; \mathcal{L}_{\text{pred}}(g) + \lambda \cdot \mathcal{L}_{\text{fairness}}(g)
+\]
+
+where $\mathcal{L}_{\text{fairness}}$ penalises $Z$'s dependence on $A$.
+
+\textbf{Advantage}: Any downstream model trained on $Z$ inherits the fairness properties. This provides a ``fair'' feature space that can be used with any classifier.
+
+\textbf{Challenge}: Finding a representation that removes $A$ while preserving $Y$ is difficult when $A$ and $Y$ are correlated. There's an inherent tradeoff.
+\end{greybox}
+
+\subsection{In-Processing: Modifying the Algorithm}
+
+In-processing techniques modify the learning algorithm to directly optimise for fairness during training. These methods typically provide stronger guarantees but require access to the training process.
+
+\begin{greybox}[Constrained Optimisation]
+Add fairness constraints to the learning objective:
+\[
+\min_\theta \; \mathcal{L}(\theta) \quad \text{subject to} \quad g_i(\theta) \leq 0 \quad \text{for fairness constraints } i
+\]
+
+\textbf{Example} (equalised odds constraint):
+\begin{align}
+g_1(\theta) &= \left| \text{TPR}_0(\theta) - \text{TPR}_1(\theta) \right| - \epsilon \\
+g_2(\theta) &= \left| \text{FPR}_0(\theta) - \text{FPR}_1(\theta) \right| - \epsilon
+\end{align}
+
+\textbf{Challenge}: Fairness constraints often involve indicator functions (non-differentiable). The TPR and FPR depend on discrete predictions, making gradient-based optimisation difficult.
+
+\textbf{Common solutions}:
+\begin{itemize}
+    \item Use surrogate losses (e.g., logistic loss approximates 0-1 loss)
+    \item Use constrained optimisation solvers (e.g., CVXPY for convex problems)
+    \item Use Lagrangian relaxation with iterative updates
+\end{itemize}
+\end{greybox}
+
+\begin{greybox}[{Adversarial Debiasing (Zhang et al., 2018)}]
+Train two networks jointly:
+\begin{enumerate}
+    \item \textbf{Predictor} $f$: Maps features $X$ to predictions $\hat{Y}$
+    \item \textbf{Adversary} $g$: Maps predictions $\hat{Y}$ (and possibly $Y$) to protected attribute $A$
+\end{enumerate}
+
+\textbf{Optimisation} (minimax game):
+\[
+\min_f \max_g \; \mathcal{L}_{\text{pred}}(f) - \lambda \cdot \mathcal{L}_{\text{adv}}(g, f)
+\]
+
+The predictor tries to:
+\begin{itemize}
+    \item Minimise prediction loss (be accurate)
+    \item Maximise adversary's loss (make $A$ unpredictable from $\hat{Y}$)
+\end{itemize}
+
+\textbf{For demographic parity}: The adversary tries to predict $A$ from $\hat{Y}$. If it cannot, then $\hat{Y} \perp A$.
+
+\textbf{For equalised odds}: Give adversary access to both $\hat{Y}$ and $Y$. The adversary should be unable to predict $A$ from $(\hat{Y}, Y)$, which means $\hat{Y} \perp A \mid Y$.
+
+\textbf{Intuition}: If the adversary cannot recover $A$ from predictions (possibly conditioning on $Y$), the predictions satisfy the desired independence. The predictor learns to ``hide'' group membership from its predictions.
+\end{greybox}
+
+\begin{greybox}[Fairness-Aware Regularisation]
+Add a regularisation term penalising unfairness:
+\[
+\min_\theta \; \mathcal{L}(\theta) + \lambda \cdot \mathcal{R}_{\text{fair}}(\theta)
+\]
+
+\textbf{Example regularisers}:
+\begin{itemize}
+    \item Covariance penalty: $\mathcal{R} = |\text{Cov}(\hat{Y}, A)|$-penalises correlation between predictions and group
+    \item Mutual information: $\mathcal{R} = I(\hat{Y}; A)$ (or conditional versions)-penalises information shared between predictions and group
+    \item Disparity penalty: $\mathcal{R} = (\text{TPR}_0 - \text{TPR}_1)^2 + (\text{FPR}_0 - \text{FPR}_1)^2$-directly penalises error rate differences
+\end{itemize}
+
+\textbf{Trade-off}: $\lambda$ controls the fairness-accuracy tradeoff. Higher $\lambda$ gives more weight to fairness at the cost of accuracy.
+\end{greybox}
+
+\subsection{Post-Processing: Modifying Predictions}
+
+Post-processing techniques adjust a trained model's outputs to achieve fairness, without retraining. These are useful when you cannot retrain the model (e.g., using a third-party API) or want to quickly adjust an existing deployment.
+
+\begin{greybox}[{Threshold Adjustment (Hardt et al., 2016)}]
+Use \textbf{group-specific thresholds} to achieve equalised odds:
+\[
+\hat{Y}_a = \mathbf{1}[R > \tau_a]
+\]
+
+\textbf{Algorithm}:
+\begin{enumerate}
+    \item Plot ROC curves for each group separately
+    \item Find thresholds $(\tau_0, \tau_1)$ that achieve the same $(FPR, TPR)$ point
+    \item If no exact match exists, use randomisation: with probability $p$, use one threshold; otherwise use another
+\end{enumerate}
+
+\textbf{Optimisation} (for equalised odds):
+\[
+\max_{\tau_0, \tau_1} \; \text{Accuracy} \quad \text{s.t.} \quad \text{TPR}_0(\tau_0) = \text{TPR}_1(\tau_1), \; \text{FPR}_0(\tau_0) = \text{FPR}_1(\tau_1)
+\]
+
+\textbf{Advantage}: Works with any pre-trained model (black-box). No access to training needed.
+
+\textbf{Disadvantage}: May require very different thresholds, reducing overall accuracy substantially. Also raises questions about treating individuals differently based on group membership.
+\end{greybox}
+
+\begin{greybox}[{Calibrated Equalised Odds (Pleiss et al., 2017)}]
+Achieve equalised odds while maintaining calibration (as much as possible) by finding the optimal randomised threshold policy.
+
+\textbf{Insight}: Post-processing can achieve any point in the convex hull of achievable $(FPR, TPR)$ pairs via randomisation. If we can't hit exactly $(FPR^*, TPR^*)$ with a deterministic threshold, we can mix between two thresholds probabilistically to achieve it in expectation.
+
+\textbf{Constraint}: Calibration is partially preserved if we only randomise between adjacent thresholds (thresholds that correspond to adjacent points on the ROC curve).
+\end{greybox}
+
+\begin{greybox}[Reject Option Classification]
+Abstain from predictions in uncertain regions, especially where fairness violations are likely:
+\[
+\hat{Y}(x) = \begin{cases}
+1 & \text{if } R(x) > \tau_+ \\
+0 & \text{if } R(x) < \tau_- \\
+\text{defer to human} & \text{otherwise}
+\end{cases}
+\]
+
+Set $\tau_+$ and $\tau_-$ per group to balance error rates.
+
+\textbf{Advantage}: Avoids harmful predictions in uncertain cases. Recognises that some decisions shouldn't be automated.
+
+\textbf{Disadvantage}: Requires human reviewers for deferred cases; may defer disproportionately for some groups (which itself could be a fairness concern).
+\end{greybox}
+
+\begin{bluebox}[Comparison of Intervention Approaches]
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Stage} & \textbf{Advantages} & \textbf{Disadvantages} \\
+\midrule
+Pre-processing & Model-agnostic & May lose information \\
+ & Addresses root cause & Requires access to data \\
+\midrule
+In-processing & Direct optimisation & Model-specific \\
+ & Precise guarantees & Requires retraining \\
+\midrule
+Post-processing & Black-box compatible & Band-aid solution \\
+ & No retraining needed & May degrade accuracy \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Rule of thumb}: Pre-processing is appropriate when you control the data pipeline; in-processing when you control the training process and want strong guarantees; post-processing when you're working with a fixed model or need quick adjustments.
+\end{bluebox}
+
+\section{Evaluation and Auditing}
+
+Building fair models is only part of the challenge. We also need methods to evaluate and audit models for fairness, both before deployment and during operation.
+
+\begin{bluebox}[Section Summary]
+\begin{itemize}
+    \item Fairness auditing requires disaggregated evaluation by group
+    \item Multiple metrics should be computed-no single metric suffices
+    \item Statistical uncertainty: fairness metrics have confidence intervals
+    \item Intersectionality: consider subgroups defined by multiple attributes
+\end{itemize}
+\end{bluebox}
+
+\subsection{Auditing Procedure}
+
+\begin{greybox}[Fairness Audit Checklist]
+\textbf{1. Define protected groups}
+\begin{itemize}
+    \item Which attributes are protected in this context?
+    \item How are groups defined? (Self-reported? Inferred? Administrative?)
+    \item Consider intersectionality (e.g., Black women vs white women vs Black men)
+\end{itemize}
+
+\textbf{2. Choose appropriate metrics}
+\begin{itemize}
+    \item What type of harm are we most concerned about?
+    \item Which fairness criteria align with stakeholder values?
+    \item Compute multiple metrics-they may tell different stories
+\end{itemize}
+
+\textbf{3. Compute metrics with uncertainty}
+\begin{itemize}
+    \item Point estimates are not enough-report confidence intervals
+    \item Small subgroups have high variance
+    \item Consider bootstrap or Bayesian approaches
+\end{itemize}
+
+\textbf{4. Compare to baselines}
+\begin{itemize}
+    \item How does this model compare to alternatives?
+    \item What would a ``fair'' model look like?
+    \item What is the status quo (human decision-makers)?
+\end{itemize}
+
+\textbf{5. Document and communicate}
+\begin{itemize}
+    \item Which criteria were evaluated?
+    \item Which were satisfied/violated?
+    \item What tradeoffs were made and why?
+\end{itemize}
+\end{greybox}
+
+\subsection{Statistical Considerations}
+
+Fairness metrics are \emph{estimates} computed from finite samples. They have uncertainty, and this uncertainty can be substantial for small subgroups.
+
+\begin{greybox}[Confidence Intervals for Fairness Metrics]
+For rate-based metrics (TPR, FPR, acceptance rate), use standard binomial confidence intervals.
+
+\textbf{Example}: Estimating TPR disparity $\Delta = \text{TPR}_0 - \text{TPR}_1$
+
+If $\hat{\text{TPR}}_a = \frac{TP_a}{TP_a + FN_a}$ with $n_a = TP_a + FN_a$ positive examples in group $a$:
+
+\[
+\text{SE}(\hat{\text{TPR}}_a) \approx \sqrt{\frac{\hat{\text{TPR}}_a (1 - \hat{\text{TPR}}_a)}{n_a}}
+\]
+
+This is the standard error for a proportion, derived from the binomial distribution.
+
+For the difference (assuming independence between groups):
+\[
+\text{SE}(\hat{\Delta}) = \sqrt{\text{SE}(\hat{\text{TPR}}_0)^2 + \text{SE}(\hat{\text{TPR}}_1)^2}
+\]
+
+A 95\% confidence interval: $\hat{\Delta} \pm 1.96 \cdot \text{SE}(\hat{\Delta})$
+
+\textbf{Interpretation}: If this interval contains 0, we cannot conclude the TPRs are different at the 5\% significance level.
+\end{greybox}
+
+\begin{redbox}
+\textbf{Small subgroups are problematic}. If a protected group has few examples:
+\begin{itemize}
+    \item Confidence intervals will be wide
+    \item Point estimates may be unreliable
+    \item Cannot detect fairness violations with statistical significance
+\end{itemize}
+
+Intersectional subgroups (e.g., elderly Black women) may be very small even in large datasets. This is a fundamental challenge-the groups most at risk of discrimination may be the hardest to audit.
+
+\textbf{Practical implication}: A model might appear fair simply because we lack the statistical power to detect unfairness in small subgroups. Absence of evidence is not evidence of absence.
+\end{redbox}
+
+\subsection{Multiple Metrics and Their Relationships}
+
+\begin{greybox}[Metric Relationships]
+Given the impossibility results, a model cannot satisfy all metrics simultaneously (unless base rates are equal). Observing:
+
+\textbf{Calibration satisfied, equalised odds violated}: The model is accurate but has disparate error rates. Common when base rates differ. The model treats the groups ``fairly'' in terms of score meaning but unfairly in terms of error distribution.
+
+\textbf{Demographic parity satisfied, calibration violated}: The model achieves equal acceptance rates but scores mean different things for different groups. May be appropriate if base rate differences reflect historical discrimination.
+
+\textbf{All metrics approximately satisfied}: Either base rates are similar, or the model is close to random (not useful).
+
+\textbf{Use multiple metrics to understand the full picture}:
+\begin{itemize}
+    \item Demographic parity / disparate impact ratio
+    \item TPR and FPR by group (for equalised odds)
+    \item Calibration curves by group
+    \item PPV and NPV by group
+\end{itemize}
+\end{greybox}
+
+\subsection{Intersectionality}
+
+\begin{greybox}[Intersectional Fairness]
+Standard fairness analysis considers protected attributes separately. But individuals belong to multiple groups, and harms may concentrate at intersections.
+
+\textbf{Example} (Gender Shades study, Buolamwini \& Gebru 2018): Facial recognition error rates:
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+& Male & Female \\
+\midrule
+Lighter skin & 0.8\% & 7.0\% \\
+Darker skin & 12.0\% & 34.7\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Aggregate statistics by gender or by skin tone would miss that \emph{darker-skinned women} experience dramatically worse performance.
+
+\textbf{The problem}: Looking at gender alone, you might see Female error rate $\approx 21\%$ and Male error rate $\approx 6\%$-concerning but not catastrophic. Looking at skin tone alone, you might see Darker $\approx 23\%$ and Lighter $\approx 4\%$. But the intersection (darker-skinned women at 35\%) is much worse than either marginal statistic suggests.
+
+\textbf{Recommendation}: Compute fairness metrics for intersectional subgroups, not just marginal groups. But beware: smaller subgroups mean higher variance.
+\end{greybox}
+
+\section{Fairness is Not a Technical Problem}
+
+We conclude by emphasising the fundamental point: while this chapter has provided technical tools for measuring and enforcing fairness, the choice of which fairness criterion to use is not a technical decision.
+
+\begin{bluebox}[Section Summary]
+\begin{itemize}
+    \item Quantitative fairness criteria conflict-you must choose
+    \item The choice encodes values that algorithms cannot determine
+    \item Different criteria favour different stakeholders
+    \item ``Fair ML'' is not a product but a sociotechnical process
+\end{itemize}
+\end{bluebox}
+
+\begin{greybox}[{Different Criteria, Different Models}]
+The same data, with different fairness criteria, yields different models:
+
+\textbf{Max profit / unconstrained}: No fairness constraints; potentially wildly different rates by group. Optimises pure accuracy (or profit).
+
+\textbf{Single threshold}: One threshold for all groups; achieves calibration but may violate equalised odds if groups have different ROC curves.
+
+\textbf{Demographic parity}: Equal acceptance rates; may sacrifice calibration and equalised odds. Treats groups equally in terms of outcomes.
+
+\textbf{Equalised odds}: Equal error rates; may sacrifice calibration and demographic parity. Treats groups equally in terms of accuracy.
+
+Each choice advantages some stakeholders and disadvantages others. This is an irreducibly political decision.
+\end{greybox}
+
+\subsection{POSIWID: The Purpose of a System is What it Does}
+
+\textbf{``The Purpose of a System is What it Does''} - Stafford Beer (management consultant and cybernetician)
+
+When dealing with complex systems, focus on the results they generate, not their stated intentions.
+
+Don't focus narrowly on ``the algorithm.'' Evaluate the larger system:
+\begin{itemize}
+    \item What outcomes does it produce in practice?
+    \item Who benefits and who is harmed?
+    \item What feedback loops does it create?
+    \item How does it interact with human decision-making?
+    \item What institutional incentives shape its use?
+\end{itemize}
+
+A technically ``fair'' algorithm can still produce unfair outcomes if embedded in an unfair system. Conversely, addressing algorithmic bias without addressing systemic issues may have limited impact.
+
+\begin{redbox}
+Technical fairness metrics, while useful, cannot capture the full complexity of fairness in social contexts. A model that satisfies a formal fairness criterion may still cause harm when deployed in practice. Context matters: the same model might be appropriate in one setting and harmful in another.
+
+Key questions to ask:
+\begin{itemize}
+    \item Is the outcome being predicted the right outcome to predict?
+    \item Are the labels we're training on themselves biased?
+    \item Who has power over the system's design and deployment?
+    \item Are affected communities involved in decisions about fairness criteria?
+\end{itemize}
+\end{redbox}
+
+\subsection{Returning to Week 6: The Full Picture}
+
+The quantitative tools in this chapter operationalise the qualitative concerns from Week 6:
+
+\begin{greybox}[Connecting Qualitative and Quantitative]
+\textbf{Historical bias} (Week 6) $\rightarrow$ Calibration preserves it; demographic parity may correct it
+
+\textbf{Measurement bias} (Week 6) $\rightarrow$ All metrics can be misleading if $Y$ is a poor proxy for what we actually care about
+
+\textbf{Allocative harm} (Week 6) $\rightarrow$ Demographic parity addresses disparate allocation
+
+\textbf{Quality-of-service harm} (Week 6) $\rightarrow$ Equalised odds addresses disparate error rates
+
+\textbf{Feedback loops} (Week 6) $\rightarrow$ Static fairness metrics don't capture dynamic effects; a ``fair'' model at deployment may become unfair as it influences the data it's trained on
+
+\textbf{Impossibility results} (Week 6 mention) $\rightarrow$ Now proven formally (Chouldechova, Kleinberg et al.)
+
+The qualitative analysis helps you decide \emph{which} quantitative criterion is appropriate. The quantitative analysis helps you \emph{measure and enforce} that criterion.
+\end{greybox}
+
+\section{Summary}
+
+\begin{bluebox}[Key Concepts from Week 7]
+\begin{enumerate}
+    \item \textbf{Risk scores}: Classification uses regression to estimate $P(Y=1|X)$, then thresholds. The threshold encodes value judgments about error costs.
+
+    \item \textbf{ROC curves}: Visualise TPR/FPR tradeoff across thresholds; fairness constrains operating points. AUC provides threshold-independent evaluation.
+
+    \item \textbf{Four fairness criteria}:
+    \begin{itemize}
+        \item Demographic parity: $P(\hat{Y}=1|A=0) = P(\hat{Y}=1|A=1)$-equal acceptance rates
+        \item Equalised odds: Equal TPR and FPR across groups-equal error rates
+        \item Equal opportunity: Equal TPR across groups-qualified individuals treated equally
+        \item Calibration: $P(Y=1|R=r, A=a) = r$ for all groups-scores mean the same thing
+    \end{itemize}
+
+    \item \textbf{Impossibility theorems}: Calibration + equal error rates impossible unless base rates equal. This is mathematics, not engineering.
+
+    \item \textbf{Fairness-accuracy tradeoffs}: Pareto frontiers quantify the cost of fairness. The cost depends on how different the groups are.
+
+    \item \textbf{Interventions}: Pre-processing (reweighting, relabelling, fair representations), in-processing (constrained optimisation, adversarial training, regularisation), post-processing (threshold adjustment, reject option)
+
+    \item \textbf{Auditing}: Compute multiple metrics with confidence intervals; consider intersectionality. Small subgroups pose statistical challenges.
+
+    \item \textbf{Values matter}: Choosing a fairness criterion is a normative decision, not a technical one. The impossibility results force us to make value-laden choices.
+\end{enumerate}
+\end{bluebox}
+
+\begin{bluebox}[Practical Guidance]
+\textbf{When building a model}:
+\begin{enumerate}
+    \item Identify protected groups and potential harms (Week 6 framework)
+    \item Choose fairness criterion(s) appropriate to the context and stakeholder values
+    \item Train with appropriate intervention (or use post-processing)
+    \item Audit with multiple metrics, including confidence intervals
+    \item Document tradeoffs and justify choices
+\end{enumerate}
+
+\textbf{When auditing a model}:
+\begin{enumerate}
+    \item Compute disaggregated metrics by group
+    \item Check multiple fairness criteria
+    \item Report confidence intervals, especially for small subgroups
+    \item Consider intersectional subgroups
+    \item Compare to baselines (other models, human decision-makers)
+\end{enumerate}
+\end{bluebox}
+
+\begin{redbox}
+\textbf{The impossibility results are not a counsel of despair.} They clarify the choices we face:
+\begin{itemize}
+    \item We cannot satisfy everyone simultaneously
+    \item We must be explicit about whose interests we prioritise
+    \item Technical tools can enforce our choices, but cannot make them for us
+\end{itemize}
+
+Fairness in ML is ultimately about \textbf{power}: who decides what ``fair'' means, and who bears the costs of our choices?
+
+The mathematical framework in this chapter is necessary but not sufficient for building fair systems. It must be combined with stakeholder engagement, ongoing monitoring, and willingness to revise decisions as we learn more about a system's real-world impacts.
+\end{redbox}

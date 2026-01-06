@@ -1,0 +1,1099 @@
+% =============================================================================
+% Week 2: Conditional Probability and Random Variables
+% =============================================================================
+
+\chapter{Week 2: Conditional Probability and Random Variables}
+\label{ch:week2}
+
+\begin{bluebox}[Learning Objectives]
+By the end of this chapter, you should be able to:
+\begin{itemize}
+    \item Define and compute conditional probabilities, understanding their geometric interpretation
+    \item Apply Bayes' Rule to update probabilities given new evidence
+    \item Use the Law of Total Probability to decompose complex probability calculations
+    \item Distinguish between independence and conditional independence, and identify when each holds
+    \item Define random variables and construct their probability mass functions (PMFs)
+    \item Work with cumulative distribution functions (CDFs) and understand their relationship to PMFs
+    \item Apply common discrete distributions (Bernoulli, Binomial, Discrete Uniform) to model real-world phenomena
+\end{itemize}
+\end{bluebox}
+
+\textbf{Prerequisites:} This chapter builds directly on \cref{ch:week1} and assumes familiarity with:
+\begin{itemize}
+    \item Sample spaces, events, and the Kolmogorov axioms
+    \item Set operations: union ($\cup$), intersection ($\cap$), complement ($A^c$)
+    \item Basic counting: permutations, combinations, and the binomial coefficient $\binom{n}{k}$
+    \item The naive definition of probability for finite, equally likely sample spaces
+\end{itemize}
+
+% =============================================================================
+\section{Conditional Probability}
+\label{sec:conditional-prob}
+% =============================================================================
+
+In many situations, we have partial information about an experiment's outcome. We know that some event $B$ has occurred, and we want to update our probability assessments accordingly. This leads to the fundamental concept of conditional probability.
+
+\begin{definition}[Conditional Probability]
+\label{def:conditional-prob}
+Let $A$ and $B$ be events with $P(B) > 0$. The \textbf{conditional probability of $A$ given $B$} is:
+\begin{equation}
+\label{eq:conditional-prob}
+P(A \mid B) = \frac{P(A \cap B)}{P(B)}
+\end{equation}
+This represents the probability that $A$ occurs, given that we know $B$ has occurred.
+\end{definition}
+
+\begin{bluebox}[Conditional Probability Formula]
+\[
+P(A \mid B) = \frac{P(A \cap B)}{P(B)} \quad \text{where } P(B) > 0
+\]
+Equivalently, by symmetry of intersection:
+\[
+P(B \mid A) = \frac{P(A \cap B)}{P(A)} \quad \text{where } P(A) > 0
+\]
+\end{bluebox}
+
+\subsection{Geometric Interpretation}
+
+The definition of conditional probability has an elegant geometric interpretation. Consider a Venn diagram where areas represent probabilities.
+
+\begin{figure}[H]
+    \centering
+    % Figure 2.1 placeholder - geometric interpretation of conditional probability
+    \caption{Geometric interpretation of conditional probability. When computing $P(A \mid B)$, we zoom in on event $B$: we restrict our attention to outcomes where $B$ occurred, then ask what fraction of these also lie in $A$. This requires re-normalising by dividing by $P(B)$.}
+    \label{fig:conditional-prob-geometric}
+\end{figure}
+
+\begin{intuition}[Zooming In and Re-normalising]
+When we condition on $B$, we are effectively:
+\begin{enumerate}
+    \item \textbf{Restricting the sample space:} We discard all outcomes in $B^c$ (the complement of $B$), since we know these didn't occur.
+    \item \textbf{Re-normalising:} The probabilities of the remaining outcomes no longer sum to 1 (they sum to $P(B)$), so we divide by $P(B)$ to restore a valid probability distribution.
+\end{enumerate}
+In this new, restricted probability space, $P(A \mid B)$ is simply the proportion of $B$ that overlaps with $A$.
+\end{intuition}
+
+\subsection{The Multiplication Rule}
+
+Rearranging the definition of conditional probability gives us a useful formula for joint probabilities:
+
+\begin{theorem}[Multiplication Rule for Probability]
+\label{thm:multiplication-rule}
+For any events $A$ and $B$ with $P(B) > 0$:
+\begin{equation}
+\label{eq:multiplication-rule}
+P(A \cap B) = P(A \mid B) \cdot P(B)
+\end{equation}
+By symmetry:
+\[
+P(A \cap B) = P(B \mid A) \cdot P(A)
+\]
+\end{theorem}
+
+\begin{proof}
+This follows immediately from \cref{def:conditional-prob} by multiplying both sides by $P(B)$.
+\end{proof}
+
+The multiplication rule extends naturally to chains of events:
+
+\begin{corollary}[Chain Rule for Probability]
+\label{cor:chain-rule}
+For events $A_1, A_2, \ldots, A_n$ with $P(A_1 \cap A_2 \cap \cdots \cap A_{n-1}) > 0$:
+\begin{equation}
+\label{eq:chain-rule}
+P(A_1 \cap A_2 \cap \cdots \cap A_n) = P(A_1) \cdot P(A_2 \mid A_1) \cdot P(A_3 \mid A_1 \cap A_2) \cdots P(A_n \mid A_1 \cap \cdots \cap A_{n-1})
+\end{equation}
+\end{corollary}
+
+\subsection{Key Properties and Common Misconceptions}
+
+\begin{warning}[Conditional Probability is Not Symmetric]
+In general, $P(A \mid B) \neq P(B \mid A)$. These represent fundamentally different questions:
+\begin{itemize}
+    \item $P(A \mid B)$: Given $B$ occurred, how likely is $A$?
+    \item $P(B \mid A)$: Given $A$ occurred, how likely is $B$?
+\end{itemize}
+For example, $P(\text{wet grass} \mid \text{rain})$ is high, but $P(\text{rain} \mid \text{wet grass})$ might be moderate (sprinklers also wet grass).
+\end{warning}
+
+\begin{warning}[Chronology Does Not Determine Conditioning Direction]
+A common misconception is that we can only condition on events that occurred before the event we're computing the probability of. This is false. Conditional probability is about \emph{information}, not causation or temporal order.
+
+Consider: What is the probability that it rained yesterday, given that the grass is wet today? This is a perfectly valid conditional probability $P(\text{rain yesterday} \mid \text{wet grass today})$, even though we're conditioning on a later event.
+\end{warning}
+
+\begin{example}[Playing Cards]
+\label{ex:playing-cards}
+Two cards are drawn from a standard 52-card deck without replacement. Let:
+\begin{itemize}
+    \item $A$ = first card is a heart
+    \item $B$ = second card is red (hearts or diamonds)
+\end{itemize}
+What is $P(B \mid A)$?
+
+\textbf{Solution:} Using the conditional probability formula:
+\[
+P(B \mid A) = \frac{P(A \cap B)}{P(A)}
+\]
+We compute each term:
+\[
+P(A) = \frac{13}{52} = \frac{1}{4}
+\]
+\begin{align*}
+P(A \cap B) &= P(\text{1st is heart}) \times P(\text{2nd is red} \mid \text{1st is heart}) \\
+&= \frac{13}{52} \times \frac{25}{51} = \frac{13 \times 25}{52 \times 51} = \frac{325}{2652} = \frac{25}{204}
+\end{align*}
+Here, if the first card is a heart, there remain 51 cards, of which 25 are red (12 remaining hearts plus 13 diamonds).
+
+Therefore:
+\[
+P(B \mid A) = \frac{25/204}{1/4} = \frac{25}{204} \times \frac{4}{1} = \frac{25}{51}
+\]
+
+\textbf{Verification:} This makes sense! Given that the first card was a heart, there are 51 cards remaining, of which 25 are red.
+\end{example}
+
+% =============================================================================
+\section{Bayes' Rule}
+\label{sec:bayes-rule}
+% =============================================================================
+
+Bayes' Rule is one of the most important results in probability theory, providing a systematic way to update beliefs in light of new evidence.
+
+\subsection{Derivation and Statement}
+
+\begin{theorem}[Bayes' Rule]
+\label{thm:bayes-rule}
+For events $A$ and $B$ with $P(A), P(B) > 0$:
+\begin{equation}
+\label{eq:bayes-rule}
+P(A \mid B) = \frac{P(B \mid A) \cdot P(A)}{P(B)}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+From the definition of conditional probability:
+\[
+P(A \mid B) = \frac{P(A \cap B)}{P(B)}
+\]
+By the multiplication rule (\cref{thm:multiplication-rule}):
+\[
+P(A \cap B) = P(B \mid A) \cdot P(A)
+\]
+Substituting:
+\[
+P(A \mid B) = \frac{P(B \mid A) \cdot P(A)}{P(B)}
+\]
+\end{proof}
+
+\begin{bluebox}[Bayes' Rule]
+\[
+P(A \mid B) = \frac{P(B \mid A) \cdot P(A)}{P(B)}
+\]
+In words: the probability of $A$ given $B$ equals the probability of $B$ given $A$, times the prior probability of $A$, divided by the probability of $B$.
+\end{bluebox}
+
+\subsection{Interpretation: Updating Beliefs}
+
+Bayes' Rule has a natural interpretation in terms of updating beliefs:
+
+\begin{intuition}[The Bayesian Update]
+Let $A$ be a hypothesis and $B$ be observed evidence. Then:
+\begin{itemize}
+    \item $P(A)$ is the \textbf{prior probability}: our belief in $A$ before seeing the evidence
+    \item $P(B \mid A)$ is the \textbf{likelihood}: how probable the evidence is if $A$ is true
+    \item $P(B)$ is the \textbf{marginal likelihood} (or \textbf{evidence}): the overall probability of observing $B$
+    \item $P(A \mid B)$ is the \textbf{posterior probability}: our updated belief in $A$ after seeing the evidence
+\end{itemize}
+Bayes' Rule tells us precisely how to update from prior to posterior:
+\[
+\underbrace{P(A \mid B)}_{\text{posterior}} = \frac{\overbrace{P(B \mid A)}^{\text{likelihood}} \times \overbrace{P(A)}^{\text{prior}}}{\underbrace{P(B)}_{\text{evidence}}}
+\]
+\end{intuition}
+
+\begin{remark}
+The terms \emph{prior} and \emph{posterior} refer specifically to beliefs before and after conditioning on evidence:
+\begin{itemize}
+    \item \textbf{Prior:} $P(A)$ --- probability of $A$ before considering $B$
+    \item \textbf{Posterior:} $P(A \mid B)$ --- probability of $A$ after learning $B$
+\end{itemize}
+Do not confuse these with the events $A$ and $B$ themselves. The terms describe our state of knowledge, not the events.
+\end{remark}
+
+% =============================================================================
+\section{The Law of Total Probability}
+\label{sec:lotp}
+% =============================================================================
+
+The Law of Total Probability (LOTP) allows us to compute the probability of an event by breaking it down into simpler cases.
+
+\begin{definition}[Partition]
+\label{def:partition}
+A collection of events $\{A_1, A_2, \ldots, A_n\}$ forms a \textbf{partition} of the sample space $S$ if:
+\begin{enumerate}
+    \item The events are \textbf{mutually exclusive}: $A_i \cap A_j = \emptyset$ for $i \neq j$
+    \item The events are \textbf{collectively exhaustive}: $A_1 \cup A_2 \cup \cdots \cup A_n = S$
+\end{enumerate}
+In other words, exactly one of the $A_i$ occurs in any experiment.
+\end{definition}
+
+\begin{theorem}[Law of Total Probability]
+\label{thm:lotp}
+Let $\{A_1, A_2, \ldots, A_n\}$ be a partition of $S$ with $P(A_i) > 0$ for all $i$. Then for any event $B$:
+\begin{equation}
+\label{eq:lotp}
+P(B) = \sum_{i=1}^{n} P(B \mid A_i) \cdot P(A_i)
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Since $\{A_i\}$ partitions $S$, we can write:
+\[
+B = B \cap S = B \cap (A_1 \cup A_2 \cup \cdots \cup A_n) = (B \cap A_1) \cup (B \cap A_2) \cup \cdots \cup (B \cap A_n)
+\]
+The events $B \cap A_i$ are pairwise disjoint (since the $A_i$ are). By countable additivity:
+\[
+P(B) = \sum_{i=1}^{n} P(B \cap A_i)
+\]
+Applying the multiplication rule to each term:
+\[
+P(B) = \sum_{i=1}^{n} P(B \mid A_i) \cdot P(A_i)
+\]
+\end{proof}
+
+\begin{bluebox}[Law of Total Probability]
+If $\{A_1, \ldots, A_n\}$ partitions the sample space:
+\[
+P(B) = \sum_{i=1}^{n} P(B \mid A_i) \cdot P(A_i)
+\]
+For the common case of two complementary events $A$ and $A^c$:
+\[
+P(B) = P(B \mid A) \cdot P(A) + P(B \mid A^c) \cdot P(A^c)
+\]
+\end{bluebox}
+
+\begin{intuition}[Weighted Average Interpretation]
+LOTP says that $P(B)$ is a weighted average of the conditional probabilities $P(B \mid A_i)$, where the weights are $P(A_i)$.
+
+Intuitively, we consider all the different scenarios (the $A_i$), compute how likely $B$ is in each scenario, and average according to how likely each scenario is.
+\end{intuition}
+
+\subsection{Tree Diagrams}
+
+Tree diagrams provide a visual method for organising LOTP calculations:
+
+\begin{example}[Tree Diagram Method]
+\label{ex:tree-diagram}
+Suppose a factory has two machines: Machine 1 produces 60\% of items, Machine 2 produces 40\%. Machine 1 has a 2\% defect rate; Machine 2 has a 5\% defect rate. What is the probability that a randomly selected item is defective?
+
+\textbf{Solution using LOTP:}
+
+Let $D$ = item is defective, $M_1$ = produced by Machine 1, $M_2$ = produced by Machine 2.
+
+The partition is $\{M_1, M_2\}$ with:
+\begin{align*}
+P(M_1) &= 0.60, & P(M_2) &= 0.40 \\
+P(D \mid M_1) &= 0.02, & P(D \mid M_2) &= 0.05
+\end{align*}
+
+By LOTP:
+\begin{align*}
+P(D) &= P(D \mid M_1) \cdot P(M_1) + P(D \mid M_2) \cdot P(M_2) \\
+&= 0.02 \times 0.60 + 0.05 \times 0.40 \\
+&= 0.012 + 0.020 = 0.032
+\end{align*}
+The overall defect rate is 3.2\%.
+
+\textbf{Tree diagram representation:}
+
+% Tree diagram structure:
+%         0.60     M1 --0.02--> D
+%        /            \--0.98--> D^c
+% Start
+%        \         M2 --0.05--> D
+%         0.40        \--0.95--> D^c
+
+To find $P(D)$, multiply along each path to $D$ and sum: $(0.60 \times 0.02) + (0.40 \times 0.05) = 0.032$.
+\end{example}
+
+\subsection{Combining Bayes' Rule with LOTP}
+
+When applying Bayes' Rule, we often need to compute $P(B)$ in the denominator. LOTP provides a systematic way to do this.
+
+\begin{theorem}[Bayes' Rule with LOTP]
+\label{thm:bayes-lotp}
+Let $\{A_1, \ldots, A_n\}$ be a partition of $S$ with $P(A_i) > 0$ for all $i$, and let $B$ be an event with $P(B) > 0$. Then:
+\begin{equation}
+\label{eq:bayes-lotp}
+P(A_j \mid B) = \frac{P(B \mid A_j) \cdot P(A_j)}{\sum_{i=1}^{n} P(B \mid A_i) \cdot P(A_i)}
+\end{equation}
+\end{theorem}
+
+\begin{bluebox}[Bayes' Rule with LOTP]
+For a partition $\{A_1, \ldots, A_n\}$:
+\[
+P(A_j \mid B) = \frac{P(B \mid A_j) \cdot P(A_j)}{\sum_{i=1}^{n} P(B \mid A_i) \cdot P(A_i)}
+\]
+\end{bluebox}
+
+\begin{example}[Medical Testing]
+\label{ex:medical-testing}
+A disease affects 1\% of the population. A test for the disease has:
+\begin{itemize}
+    \item \textbf{Sensitivity} (true positive rate): $P(\text{positive} \mid \text{disease}) = 0.95$
+    \item \textbf{Specificity} (true negative rate): $P(\text{negative} \mid \text{no disease}) = 0.90$
+\end{itemize}
+If a randomly selected person tests positive, what is the probability they have the disease?
+
+\textbf{Solution:} Let $D$ = has disease, $T^+$ = tests positive.
+
+We want $P(D \mid T^+)$. Using Bayes' Rule with LOTP:
+\[
+P(D \mid T^+) = \frac{P(T^+ \mid D) \cdot P(D)}{P(T^+ \mid D) \cdot P(D) + P(T^+ \mid D^c) \cdot P(D^c)}
+\]
+
+We have:
+\begin{align*}
+P(D) &= 0.01, & P(D^c) &= 0.99 \\
+P(T^+ \mid D) &= 0.95 \\
+P(T^+ \mid D^c) &= 1 - 0.90 = 0.10 & & \text{(false positive rate)}
+\end{align*}
+
+Substituting:
+\begin{align*}
+P(D \mid T^+) &= \frac{0.95 \times 0.01}{0.95 \times 0.01 + 0.10 \times 0.99} \\
+&= \frac{0.0095}{0.0095 + 0.099} = \frac{0.0095}{0.1085} \approx 0.088
+\end{align*}
+
+Despite testing positive, there is only about an 8.8\% chance of actually having the disease!
+\end{example}
+
+\begin{warning}[Base Rate Fallacy]
+The medical testing example illustrates the \textbf{base rate fallacy}. The low prior probability ($P(D) = 0.01$) dominates: even with a positive test, the posterior probability remains modest.
+
+This is because the false positives from the large healthy population (99\% of people) outnumber the true positives from the small diseased population (1\% of people).
+
+\textbf{Key insight:} When a condition is rare, even accurate tests produce many false positives relative to true positives.
+\end{warning}
+
+\subsection{Bayes' Rule with Extra Conditioning}
+
+Sometimes we want to apply Bayes' Rule within a restricted context, conditioning on additional evidence $E$.
+
+\begin{theorem}[Bayes' Rule with Extra Conditioning]
+\label{thm:bayes-extra}
+For events $A$, $B$, and $E$ with $P(A \cap E) > 0$ and $P(B \cap E) > 0$:
+\begin{equation}
+\label{eq:bayes-extra}
+P(A \mid B, E) = \frac{P(B \mid A, E) \cdot P(A \mid E)}{P(B \mid E)}
+\end{equation}
+\end{theorem}
+
+The LOTP also has a version with extra conditioning:
+
+\begin{theorem}[LOTP with Extra Conditioning]
+\label{thm:lotp-extra}
+Let $\{A_1, \ldots, A_n\}$ be a partition with $P(A_i \cap E) > 0$ for all $i$. Then:
+\begin{equation}
+\label{eq:lotp-extra}
+P(B \mid E) = \sum_{i=1}^{n} P(B \mid A_i, E) \cdot P(A_i \mid E)
+\end{equation}
+\end{theorem}
+
+Combining these:
+
+\begin{bluebox}[Bayes' Rule with LOTP and Extra Conditioning]
+\[
+P(A_j \mid B, E) = \frac{P(B \mid A_j, E) \cdot P(A_j \mid E)}{\sum_{i=1}^{n} P(B \mid A_i, E) \cdot P(A_i \mid E)}
+\]
+\end{bluebox}
+
+% =============================================================================
+\section{The Monty Hall Problem}
+\label{sec:monty-hall}
+% =============================================================================
+
+The Monty Hall problem is a classic probability puzzle that illustrates the subtleties of conditional probability. It is named after the host of the American television game show \emph{Let's Make a Deal}.
+
+\begin{example}[The Monty Hall Problem]
+\label{ex:monty-hall}
+You are on a game show with three doors. Behind one door is a car; behind the other two are goats. You choose a door (say, Door 1). The host, Monty Hall, who knows what's behind each door, opens one of the other two doors to reveal a goat (say, Door 3). He then asks: Would you like to switch to Door 2?
+
+\textbf{Question:} Should you switch? What is the probability of winning if you switch versus if you stay?
+\end{example}
+
+\subsection{Setup and Assumptions}
+
+The problem requires careful specification of the assumptions:
+\begin{enumerate}
+    \item The car is equally likely to be behind any of the three doors
+    \item The contestant initially chooses Door 1
+    \item Monty always opens a door that:
+    \begin{itemize}
+        \item The contestant did not choose
+        \item Does not contain the car
+        \item If two doors satisfy these conditions, Monty chooses uniformly at random between them
+    \end{itemize}
+    \item Monty then offers the contestant the option to switch
+\end{enumerate}
+
+\subsection{Solution Using Bayes' Rule}
+
+Let $C_i$ denote the event that the car is behind Door $i$, and let $M_j$ denote the event that Monty opens Door $j$.
+
+\textbf{Prior probabilities} (before any doors are opened):
+\[
+P(C_1) = P(C_2) = P(C_3) = \frac{1}{3}
+\]
+
+\textbf{Likelihoods} (probability Monty opens Door 3, given where the car is):
+\begin{align*}
+P(M_3 \mid C_1) &= \frac{1}{2} & &\text{(car at Door 1: Monty chooses randomly between Doors 2 and 3)} \\
+P(M_3 \mid C_2) &= 1 & &\text{(car at Door 2: Monty must open Door 3)} \\
+P(M_3 \mid C_3) &= 0 & &\text{(car at Door 3: Monty cannot open Door 3)}
+\end{align*}
+
+\textbf{Applying LOTP to find $P(M_3)$:}
+\begin{align*}
+P(M_3) &= P(M_3 \mid C_1) P(C_1) + P(M_3 \mid C_2) P(C_2) + P(M_3 \mid C_3) P(C_3) \\
+&= \frac{1}{2} \cdot \frac{1}{3} + 1 \cdot \frac{1}{3} + 0 \cdot \frac{1}{3} = \frac{1}{6} + \frac{1}{3} = \frac{1}{2}
+\end{align*}
+
+\textbf{Applying Bayes' Rule to find posterior probabilities:}
+\begin{align*}
+P(C_1 \mid M_3) &= \frac{P(M_3 \mid C_1) P(C_1)}{P(M_3)} = \frac{\frac{1}{2} \cdot \frac{1}{3}}{\frac{1}{2}} = \frac{1}{3} \\[1ex]
+P(C_2 \mid M_3) &= \frac{P(M_3 \mid C_2) P(C_2)}{P(M_3)} = \frac{1 \cdot \frac{1}{3}}{\frac{1}{2}} = \frac{2}{3} \\[1ex]
+P(C_3 \mid M_3) &= \frac{P(M_3 \mid C_3) P(C_3)}{P(M_3)} = \frac{0 \cdot \frac{1}{3}}{\frac{1}{2}} = 0
+\end{align*}
+
+\begin{bluebox}[Monty Hall Solution]
+After Monty opens Door 3 to reveal a goat:
+\begin{itemize}
+    \item Probability of winning by staying with Door 1: $\dfrac{1}{3}$
+    \item Probability of winning by switching to Door 2: $\dfrac{2}{3}$
+\end{itemize}
+\textbf{You should switch!} Switching doubles your probability of winning.
+\end{bluebox}
+
+\subsection{Intuitive Explanation}
+
+\begin{intuition}[Why Switching Wins More Often]
+Here is an intuitive way to understand the result:
+
+\textbf{Initial choice:} When you first pick Door 1, you have a $\frac{1}{3}$ chance of being right and a $\frac{2}{3}$ chance of being wrong.
+
+\textbf{Monty's action:} Monty's reveal doesn't change where the car is---it only provides information. Crucially, Monty always reveals a goat, so his action is constrained by the car's location.
+
+\textbf{Two scenarios:}
+\begin{enumerate}
+    \item If you initially chose correctly ($\frac{1}{3}$ chance): Switching loses.
+    \item If you initially chose incorrectly ($\frac{2}{3}$ chance): Monty reveals the other goat, so switching wins.
+\end{enumerate}
+Since you initially chose incorrectly $\frac{2}{3}$ of the time, switching wins $\frac{2}{3}$ of the time.
+
+\textbf{Alternative perspective:} Imagine there are 100 doors with 1 car and 99 goats. You pick one door. Monty then opens 98 doors, all revealing goats. Would you switch to the one remaining door? Almost certainly yes---your initial chance of being right was only 1\%.
+\end{intuition}
+
+\begin{remark}
+The solution critically depends on Monty knowing where the car is and always opening a door with a goat. If Monty opened a random door (that happened to have a goat), the probabilities would be different. The information Monty's action provides depends on the \emph{process} by which he chooses which door to open.
+\end{remark}
+
+% =============================================================================
+\section{Independence of Events}
+\label{sec:independence}
+% =============================================================================
+
+Two events are independent if learning that one occurred gives no information about whether the other occurred.
+
+\begin{definition}[Independence of Two Events]
+\label{def:independence}
+Events $A$ and $B$ are \textbf{independent} if:
+\begin{equation}
+\label{eq:independence}
+P(A \cap B) = P(A) \cdot P(B)
+\end{equation}
+We write $A \perp B$ to denote that $A$ and $B$ are independent.
+\end{definition}
+
+\begin{theorem}[Equivalent Characterisations of Independence]
+\label{thm:independence-equiv}
+The following are equivalent (assuming $P(A), P(B) > 0$):
+\begin{enumerate}
+    \item $P(A \cap B) = P(A) \cdot P(B)$
+    \item $P(A \mid B) = P(A)$
+    \item $P(B \mid A) = P(B)$
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+$(1) \Rightarrow (2)$: If $P(A \cap B) = P(A) \cdot P(B)$, then:
+\[
+P(A \mid B) = \frac{P(A \cap B)}{P(B)} = \frac{P(A) \cdot P(B)}{P(B)} = P(A)
+\]
+
+$(2) \Rightarrow (1)$: If $P(A \mid B) = P(A)$, then:
+\[
+P(A \cap B) = P(A \mid B) \cdot P(B) = P(A) \cdot P(B)
+\]
+
+The equivalence of (1) and (3) follows by symmetry.
+\end{proof}
+
+\begin{bluebox}[Independence]
+Events $A$ and $B$ are independent if and only if knowing whether $B$ occurred does not change the probability of $A$:
+\[
+A \perp B \quad \Longleftrightarrow \quad P(A \mid B) = P(A) \quad \Longleftrightarrow \quad P(A \cap B) = P(A) P(B)
+\]
+\end{bluebox}
+
+\subsection{Properties of Independence}
+
+\begin{theorem}[Independence is Symmetric]
+\label{thm:independence-symmetric}
+If $A \perp B$, then $B \perp A$.
+\end{theorem}
+
+\begin{proof}
+Independence is defined by $P(A \cap B) = P(A) P(B)$, which is symmetric in $A$ and $B$.
+\end{proof}
+
+\begin{theorem}[Independence with Complements]
+\label{thm:independence-complements}
+If $A$ and $B$ are independent, then so are:
+\begin{enumerate}
+    \item $A$ and $B^c$
+    \item $A^c$ and $B$
+    \item $A^c$ and $B^c$
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+We prove (1); the others follow similarly.
+\begin{align*}
+P(A \cap B^c) &= P(A) - P(A \cap B) & &\text{(since } A = (A \cap B) \cup (A \cap B^c)\text{)} \\
+&= P(A) - P(A) P(B) & &\text{(by independence of } A, B\text{)} \\
+&= P(A)(1 - P(B)) \\
+&= P(A) P(B^c)
+\end{align*}
+\end{proof}
+
+\subsection{Independence vs Disjointness}
+
+\begin{warning}[Independence $\neq$ Disjointness]
+Independence and disjointness are fundamentally different concepts:
+\begin{itemize}
+    \item \textbf{Disjoint (mutually exclusive):} $A \cap B = \emptyset$, so $P(A \cap B) = 0$
+    \item \textbf{Independent:} $P(A \cap B) = P(A) P(B)$
+\end{itemize}
+If $A$ and $B$ are disjoint with $P(A), P(B) > 0$, then they are \emph{not} independent. In fact, they are strongly dependent: knowing $A$ occurred tells you $B$ definitely did not occur!
+
+Disjoint events with positive probability can only be independent if at least one has probability zero.
+\end{warning}
+
+\begin{example}[Disjoint Implies Dependent]
+\label{ex:disjoint-dependent}
+Let $A$ = roll a 1 on a fair die and $B$ = roll a 6 on a fair die. These events are disjoint ($A \cap B = \emptyset$).
+
+Check independence:
+\begin{align*}
+P(A) \cdot P(B) &= \frac{1}{6} \cdot \frac{1}{6} = \frac{1}{36} \\
+P(A \cap B) &= 0
+\end{align*}
+Since $0 \neq \frac{1}{36}$, the events are not independent. Indeed, knowing you rolled a 1 tells you with certainty that you did not roll a 6.
+\end{example}
+
+\subsection{Independence of Multiple Events}
+
+For more than two events, independence requires more than just pairwise independence.
+
+\begin{definition}[Mutual Independence]
+\label{def:mutual-independence}
+Events $A_1, A_2, \ldots, A_n$ are \textbf{mutually independent} if for every subset $\{i_1, i_2, \ldots, i_k\} \subseteq \{1, 2, \ldots, n\}$:
+\begin{equation}
+\label{eq:mutual-independence}
+P(A_{i_1} \cap A_{i_2} \cap \cdots \cap A_{i_k}) = P(A_{i_1}) \cdot P(A_{i_2}) \cdots P(A_{i_k})
+\end{equation}
+\end{definition}
+
+\begin{example}[Three Events: Pairwise vs Mutual Independence]
+\label{ex:pairwise-mutual}
+For three events $A$, $B$, $C$ to be mutually independent, we need all four conditions:
+\begin{align}
+P(A \cap B) &= P(A) P(B) \label{eq:pairwise1} \\
+P(A \cap C) &= P(A) P(C) \label{eq:pairwise2} \\
+P(B \cap C) &= P(B) P(C) \label{eq:pairwise3} \\
+P(A \cap B \cap C) &= P(A) P(B) P(C) \label{eq:triple}
+\end{align}
+Conditions \eqref{eq:pairwise1}--\eqref{eq:pairwise3} constitute pairwise independence. Condition \eqref{eq:triple} is additional.
+
+\textbf{Pairwise independence does not imply mutual independence.}
+\end{example}
+
+\begin{example}[Pairwise but Not Mutually Independent]
+\label{ex:pairwise-not-mutual}
+Consider two fair coin flips. Let:
+\begin{align*}
+A &= \text{first flip is Heads} \\
+B &= \text{second flip is Heads} \\
+C &= \text{both flips give the same result}
+\end{align*}
+We have $P(A) = P(B) = P(C) = \frac{1}{2}$.
+
+\textbf{Checking pairwise independence:}
+\begin{align*}
+P(A \cap B) &= P(HH) = \frac{1}{4} = \frac{1}{2} \cdot \frac{1}{2} = P(A) P(B) \quad \checkmark \\
+P(A \cap C) &= P(HH) = \frac{1}{4} = \frac{1}{2} \cdot \frac{1}{2} = P(A) P(C) \quad \checkmark \\
+P(B \cap C) &= P(HH) = \frac{1}{4} = \frac{1}{2} \cdot \frac{1}{2} = P(B) P(C) \quad \checkmark
+\end{align*}
+
+\textbf{Checking triple independence:}
+\[
+P(A \cap B \cap C) = P(HH) = \frac{1}{4} \neq \frac{1}{8} = \frac{1}{2} \cdot \frac{1}{2} \cdot \frac{1}{2} = P(A) P(B) P(C) \quad \times
+\]
+The events are pairwise independent but not mutually independent.
+\end{example}
+
+\subsection{Conditional Independence}
+
+Events can be independent given some information, even if they are not unconditionally independent (and vice versa).
+
+\begin{definition}[Conditional Independence]
+\label{def:conditional-independence}
+Events $A$ and $B$ are \textbf{conditionally independent given $E$} if:
+\begin{equation}
+\label{eq:conditional-independence}
+P(A \cap B \mid E) = P(A \mid E) \cdot P(B \mid E)
+\end{equation}
+We write $A \perp B \mid E$.
+\end{definition}
+
+\begin{warning}[Independence and Conditional Independence Are Different]
+Three important facts:
+\begin{enumerate}
+    \item Conditional independence given $E$ does not imply conditional independence given $E^c$
+    \item Conditional independence does not imply (unconditional) independence
+    \item Independence does not imply conditional independence
+\end{enumerate}
+\end{warning}
+
+\begin{example}[Phone Call Example]
+\label{ex:phone-call}
+Consider whether two friends, Alice and Bob, call you on a given day. Suppose their decisions to call are made independently.
+
+Let:
+\begin{itemize}
+    \item $A$ = Alice calls
+    \item $B$ = Bob calls
+    \item $E$ = exactly one friend calls
+\end{itemize}
+
+\textbf{Independence:} $A$ and $B$ are independent (by assumption).
+
+\textbf{Conditional dependence given $E$:} Given that exactly one friend called, knowing Alice called tells you Bob did not call. So $A$ and $B$ are dependent given $E$:
+\[
+P(B \mid A, E) = 0 \neq P(B \mid E)
+\]
+
+\textbf{Conditional independence given $E^c$:} Given that it's not the case that exactly one friend called (i.e., zero or two called), knowing Alice called tells you Bob must have called too. So $A$ and $B$ are also dependent given $E^c$.
+
+This example shows that independence does not imply conditional independence, and conditional independence given $E$ says nothing about conditional independence given $E^c$.
+\end{example}
+
+\begin{intuition}[Why Conditioning Can Create Dependence]
+Conditioning on an event that involves both $A$ and $B$ can create dependence even if $A$ and $B$ are initially independent. The event $E$ acts as a constraint linking $A$ and $B$---once we know $E$ occurred, the outcomes of $A$ and $B$ must jointly satisfy this constraint, inducing dependence.
+
+This phenomenon is sometimes called \emph{explaining away} or \emph{Berkson's paradox} in causal inference.
+\end{intuition}
+
+% =============================================================================
+\section{Random Variables}
+\label{sec:random-variables}
+% =============================================================================
+
+A random variable provides a numerical summary of the outcome of a random experiment.
+
+\begin{definition}[Random Variable]
+\label{def:random-variable}
+A \textbf{random variable} is a function $X : S \to \mathbb{R}$ that assigns a real number $X(s)$ to each outcome $s$ in the sample space $S$.
+\end{definition}
+
+\begin{intuition}[Random Variables as Numerical Summaries]
+A random variable extracts a number from each experimental outcome. The outcome $s$ contains all the details of what happened; the random variable $X(s)$ is a numerical summary of interest.
+
+For example, if we flip a coin 10 times, the outcome $s$ is a sequence like $HHTTHTHHTH$. Possible random variables include:
+\begin{itemize}
+    \item $X(s)$ = number of heads in $s$
+    \item $Y(s)$ = length of longest run of heads
+    \item $Z(s)$ = 1 if the first flip is heads, 0 otherwise
+\end{itemize}
+\end{intuition}
+
+\begin{example}[Coin Flips]
+\label{ex:coin-flips-rv}
+Consider flipping a fair coin twice. The sample space is $S = \{HH, HT, TH, TT\}$.
+
+Define random variables:
+\begin{itemize}
+    \item $X$ = number of heads: $X(HH) = 2$, $X(HT) = 1$, $X(TH) = 1$, $X(TT) = 0$
+    \item $Y$ = number of tails: $Y(HH) = 0$, $Y(HT) = 1$, $Y(TH) = 1$, $Y(TT) = 2$
+    \item $I$ = indicator for first flip being heads: $I(HH) = 1$, $I(HT) = 1$, $I(TH) = 0$, $I(TT) = 0$
+\end{itemize}
+Note that $Y(s) = 2 - X(s)$ for all $s$---random variables can be related through functions.
+\end{example}
+
+\begin{definition}[Support of a Random Variable]
+\label{def:support}
+The \textbf{support} of a random variable $X$ is the set of all values $x$ such that $P(X = x) > 0$:
+\[
+\text{supp}(X) = \{x \in \mathbb{R} : P(X = x) > 0\}
+\]
+\end{definition}
+
+% =============================================================================
+\section{Probability Mass Functions}
+\label{sec:pmf}
+% =============================================================================
+
+For discrete random variables (those taking countably many values), the probability mass function completely describes the distribution.
+
+\begin{definition}[Probability Mass Function]
+\label{def:pmf}
+The \textbf{probability mass function (PMF)} of a discrete random variable $X$ is the function $p_X : \mathbb{R} \to [0, 1]$ defined by:
+\begin{equation}
+\label{eq:pmf}
+p_X(x) = P(X = x)
+\end{equation}
+The PMF gives the probability that $X$ takes each possible value. It is positive on the support of $X$ and zero elsewhere.
+\end{definition}
+
+\begin{theorem}[Properties of PMFs]
+\label{thm:pmf-properties}
+A function $p : \mathbb{R} \to \mathbb{R}$ is a valid PMF if and only if:
+\begin{enumerate}
+    \item \textbf{Non-negativity:} $p(x) \geq 0$ for all $x$
+    \item \textbf{Normalisation:} $\displaystyle\sum_x p(x) = 1$ (summing over all $x$ in the support)
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\textbf{Necessity:} If $p = p_X$ for some random variable $X$:
+\begin{enumerate}
+    \item $p_X(x) = P(X = x) \geq 0$ by non-negativity of probability.
+    \item The events $\{X = x\}$ for $x$ in the support form a partition of $S$, so:
+    \[
+    \sum_x p_X(x) = \sum_x P(X = x) = P(S) = 1
+    \]
+\end{enumerate}
+
+\textbf{Sufficiency:} Any function satisfying these properties can be used to define a probability distribution on the support, which in turn defines a random variable.
+\end{proof}
+
+\begin{bluebox}[PMF Properties]
+For any PMF $p_X$:
+\begin{enumerate}
+    \item $p_X(x) \geq 0$ for all $x$
+    \item $\displaystyle\sum_x p_X(x) = 1$
+    \item $P(X \in A) = \displaystyle\sum_{x \in A} p_X(x)$ for any set $A$
+\end{enumerate}
+\end{bluebox}
+
+\begin{example}[Constructing a PMF]
+\label{ex:construct-pmf}
+Let $X$ be the number of heads in two fair coin flips.
+
+\textbf{Step 1:} Identify the sample space and map outcomes to values:
+
+\begin{center}
+\begin{tabular}{c|c}
+\toprule
+Outcome $s$ & $X(s)$ \\
+\midrule
+$TT$ & 0 \\
+$TH$ & 1 \\
+$HT$ & 1 \\
+$HH$ & 2 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Step 2:} Calculate probabilities for each value of $X$:
+\begin{align*}
+p_X(0) &= P(X = 0) = P(\{TT\}) = \frac{1}{4} \\
+p_X(1) &= P(X = 1) = P(\{TH, HT\}) = \frac{2}{4} = \frac{1}{2} \\
+p_X(2) &= P(X = 2) = P(\{HH\}) = \frac{1}{4}
+\end{align*}
+
+\textbf{Verification:} $\frac{1}{4} + \frac{1}{2} + \frac{1}{4} = 1$ \checkmark
+
+The PMF is:
+\[
+p_X(x) = \begin{cases}
+1/4 & \text{if } x = 0 \\
+1/2 & \text{if } x = 1 \\
+1/4 & \text{if } x = 2 \\
+0 & \text{otherwise}
+\end{cases}
+\]
+\end{example}
+
+% =============================================================================
+\section{Cumulative Distribution Functions}
+\label{sec:cdf}
+% =============================================================================
+
+The cumulative distribution function provides an alternative characterisation of a random variable's distribution.
+
+\begin{definition}[Cumulative Distribution Function]
+\label{def:cdf}
+The \textbf{cumulative distribution function (CDF)} of a random variable $X$ is the function $F_X : \mathbb{R} \to [0, 1]$ defined by:
+\begin{equation}
+\label{eq:cdf}
+F_X(x) = P(X \leq x)
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Properties of CDFs]
+\label{thm:cdf-properties}
+Any CDF $F$ satisfies:
+\begin{enumerate}
+    \item \textbf{Monotonicity:} $F$ is non-decreasing: if $x_1 \leq x_2$, then $F(x_1) \leq F(x_2)$
+    \item \textbf{Limits at infinity:} $\displaystyle\lim_{x \to -\infty} F(x) = 0$ and $\displaystyle\lim_{x \to \infty} F(x) = 1$
+    \item \textbf{Right-continuity:} $F$ is right-continuous: $\displaystyle\lim_{h \to 0^+} F(x + h) = F(x)$
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\textbf{Monotonicity:} If $x_1 \leq x_2$, then $\{X \leq x_1\} \subseteq \{X \leq x_2\}$, so by monotonicity of probability:
+\[
+F(x_1) = P(X \leq x_1) \leq P(X \leq x_2) = F(x_2)
+\]
+
+\textbf{Limits:} As $x \to -\infty$, the events $\{X \leq x\}$ decrease to the empty set, so $F(x) \to 0$. As $x \to \infty$, the events $\{X \leq x\}$ increase to $S$, so $F(x) \to 1$.
+
+\textbf{Right-continuity:} This follows from the continuity of probability for decreasing sequences of events.
+\end{proof}
+
+\subsection{Relationship Between PMF and CDF}
+
+For discrete random variables, the PMF and CDF are related by:
+
+\begin{theorem}[PMF-CDF Relationship]
+\label{thm:pmf-cdf}
+For a discrete random variable $X$ with PMF $p_X$ and CDF $F_X$:
+\begin{enumerate}
+    \item \textbf{CDF from PMF:}
+    \begin{equation}
+    \label{eq:cdf-from-pmf}
+    F_X(x) = \sum_{t \leq x} p_X(t)
+    \end{equation}
+    \item \textbf{PMF from CDF:} At any point $x$ in the support,
+    \begin{equation}
+    \label{eq:pmf-from-cdf}
+    p_X(x) = F_X(x) - \lim_{t \to x^-} F_X(t)
+    \end{equation}
+    The PMF equals the size of the jump in the CDF at $x$.
+\end{enumerate}
+\end{theorem}
+
+\begin{bluebox}[CDF for Discrete Random Variables]
+\begin{itemize}
+    \item The CDF of a discrete random variable is a step function
+    \item Jumps occur at points in the support; the jump size equals the PMF value
+    \item Between jumps, the CDF is constant (flat)
+\end{itemize}
+\end{bluebox}
+
+\begin{figure}[H]
+    \centering
+    % Figure 2.2 placeholder - PMF and CDF for Binomial(4, 1/2)
+    \caption{PMF and CDF for $X \sim \text{Binomial}(4, 1/2)$. The PMF shows point masses at $x = 0, 1, 2, 3, 4$. The CDF is a step function that jumps at each point in the support, with jump sizes equal to the PMF values.}
+    \label{fig:pmf-cdf}
+\end{figure}
+
+% =============================================================================
+\section{Common Discrete Distributions}
+\label{sec:common-distributions}
+% =============================================================================
+
+Several discrete distributions arise repeatedly in applications. Understanding these named distributions provides building blocks for modelling real-world phenomena.
+
+\subsection{Bernoulli Distribution}
+
+The Bernoulli distribution models a single trial with two outcomes (success/failure).
+
+\begin{definition}[Bernoulli Distribution]
+\label{def:bernoulli}
+A random variable $X$ has a \textbf{Bernoulli distribution} with parameter $p \in [0, 1]$, written $X \sim \text{Bern}(p)$, if:
+\begin{equation}
+\label{eq:bernoulli-pmf}
+p_X(x) = P(X = x) = \begin{cases}
+1 - p & \text{if } x = 0 \\
+p & \text{if } x = 1 \\
+0 & \text{otherwise}
+\end{cases}
+\end{equation}
+Equivalently: $p_X(x) = p^x (1-p)^{1-x}$ for $x \in \{0, 1\}$.
+\end{definition}
+
+\begin{bluebox}[Bernoulli Distribution]
+$X \sim \text{Bern}(p)$:
+\begin{itemize}
+    \item \textbf{Support:} $\{0, 1\}$
+    \item \textbf{PMF:} $P(X = 1) = p$, $P(X = 0) = 1 - p$
+    \item \textbf{Interpretation:} Models a single trial with success probability $p$
+\end{itemize}
+\end{bluebox}
+
+\begin{example}[Bernoulli Applications]
+\label{ex:bernoulli}
+\begin{itemize}
+    \item \textbf{Coin flip:} $X = 1$ if heads, $X = 0$ if tails; $X \sim \text{Bern}(0.5)$ for a fair coin
+    \item \textbf{Customer purchase:} $X = 1$ if purchase made, $X = 0$ otherwise
+    \item \textbf{Medical test result:} $X = 1$ if positive, $X = 0$ if negative
+\end{itemize}
+\end{example}
+
+\subsection{Binomial Distribution}
+
+The Binomial distribution models the number of successes in multiple independent trials.
+
+\begin{definition}[Binomial Distribution]
+\label{def:binomial}
+A random variable $X$ has a \textbf{Binomial distribution} with parameters $n \in \{0, 1, 2, \ldots\}$ and $p \in [0, 1]$, written $X \sim \text{Bin}(n, p)$, if:
+\begin{equation}
+\label{eq:binomial-pmf}
+p_X(k) = P(X = k) = \binom{n}{k} p^k (1-p)^{n-k} \quad \text{for } k = 0, 1, 2, \ldots, n
+\end{equation}
+\end{definition}
+
+\begin{rigour}[Deriving the Binomial PMF]
+Consider $n$ independent trials, each with success probability $p$. Let $X$ count the number of successes.
+
+To have exactly $k$ successes:
+\begin{itemize}
+    \item We need to choose which $k$ of the $n$ trials are successes: $\binom{n}{k}$ ways
+    \item Those $k$ trials must all succeed: probability $p^k$
+    \item The remaining $n - k$ trials must all fail: probability $(1 - p)^{n-k}$
+\end{itemize}
+By independence, the probability of any specific arrangement is $p^k (1-p)^{n-k}$. Multiplying by the number of arrangements gives the PMF.
+\end{rigour}
+
+\begin{bluebox}[Binomial Distribution]
+$X \sim \text{Bin}(n, p)$:
+\begin{itemize}
+    \item \textbf{Support:} $\{0, 1, 2, \ldots, n\}$
+    \item \textbf{PMF:} $P(X = k) = \binom{n}{k} p^k (1-p)^{n-k}$
+    \item \textbf{Interpretation:} Number of successes in $n$ independent $\text{Bernoulli}(p)$ trials
+    \item \textbf{Special case:} $\text{Bin}(1, p) = \text{Bern}(p)$
+\end{itemize}
+\end{bluebox}
+
+\begin{theorem}[Sum of Bernoullis]
+\label{thm:sum-bernoulli}
+If $X_1, X_2, \ldots, X_n$ are independent $\text{Bern}(p)$ random variables, then:
+\[
+X_1 + X_2 + \cdots + X_n \sim \text{Bin}(n, p)
+\]
+\end{theorem}
+
+\begin{figure}[H]
+    \centering
+    % Figure 2.3 placeholder - Binomial PMFs for various n and p
+    \caption{Binomial PMFs for various values of $n$ and $p$. As $n$ increases, the distribution becomes more spread out. The parameter $p$ controls the location of the peak.}
+    \label{fig:binomial-pmf}
+\end{figure}
+
+\begin{example}[Quality Control]
+\label{ex:quality-control}
+A factory produces items with a 5\% defect rate. In a batch of 20 items, what is the probability of finding exactly 2 defective items?
+
+Let $X$ = number of defective items. Then $X \sim \text{Bin}(20, 0.05)$.
+\begin{align*}
+P(X = 2) &= \binom{20}{2} (0.05)^2 (0.95)^{18} \\
+&= 190 \times 0.0025 \times 0.3972 \\
+&\approx 0.189
+\end{align*}
+\end{example}
+
+\subsection{Discrete Uniform Distribution}
+
+The Discrete Uniform distribution assigns equal probability to each value in a finite set.
+
+\begin{definition}[Discrete Uniform Distribution]
+\label{def:discrete-uniform}
+A random variable $X$ has a \textbf{Discrete Uniform distribution} on a finite set $C$, written $X \sim \text{DUnif}(C)$, if:
+\begin{equation}
+\label{eq:discrete-uniform-pmf}
+p_X(x) = P(X = x) = \begin{cases}
+\dfrac{1}{|C|} & \text{if } x \in C \\[1ex]
+0 & \text{otherwise}
+\end{cases}
+\end{equation}
+\end{definition}
+
+\begin{bluebox}[Discrete Uniform Distribution]
+$X \sim \text{DUnif}(C)$:
+\begin{itemize}
+    \item \textbf{Support:} The finite set $C$
+    \item \textbf{PMF:} $P(X = x) = 1/|C|$ for all $x \in C$
+    \item For any subset $A \subseteq C$: $P(X \in A) = |A|/|C|$
+\end{itemize}
+\end{bluebox}
+
+\begin{example}[Dice Roll]
+\label{ex:dice-roll}
+Let $X$ be the result of rolling a fair six-sided die. Then $X \sim \text{DUnif}(\{1, 2, 3, 4, 5, 6\})$:
+\[
+P(X = k) = \frac{1}{6} \quad \text{for } k = 1, 2, 3, 4, 5, 6
+\]
+The probability of rolling an even number:
+\[
+P(X \in \{2, 4, 6\}) = \frac{|\{2, 4, 6\}|}{|\{1, 2, 3, 4, 5, 6\}|} = \frac{3}{6} = \frac{1}{2}
+\]
+\end{example}
+
+\begin{remark}
+The Discrete Uniform distribution is the probabilistic analogue of the naive definition of probability. When $X \sim \text{DUnif}(C)$, computing $P(X \in A)$ reduces to counting: we just need to find $|A|$ and $|C|$.
+\end{remark}
+
+% =============================================================================
+\section{Summary}
+\label{sec:week2-summary}
+% =============================================================================
+
+This chapter developed the core concepts of conditional probability and introduced random variables:
+
+\begin{bluebox}[Chapter Summary]
+\textbf{Conditional Probability:}
+\begin{itemize}
+    \item $P(A \mid B) = P(A \cap B)/P(B)$ --- probability of $A$ given $B$ occurred
+    \item Represents zooming in on outcomes where $B$ occurred and re-normalising
+    \item $P(A \mid B) \neq P(B \mid A)$ in general; chronology does not determine conditioning direction
+\end{itemize}
+
+\textbf{Bayes' Rule and LOTP:}
+\begin{itemize}
+    \item Bayes' Rule: $P(A \mid B) = P(B \mid A) P(A)/P(B)$
+    \item Updates prior belief $P(A)$ to posterior $P(A \mid B)$ using likelihood $P(B \mid A)$
+    \item LOTP: $P(B) = \sum_i P(B \mid A_i) P(A_i)$ for a partition $\{A_i\}$
+    \item Combine to compute posteriors when the marginal $P(B)$ is not directly available
+\end{itemize}
+
+\textbf{Independence:}
+\begin{itemize}
+    \item Events $A$ and $B$ are independent iff $P(A \cap B) = P(A) P(B)$
+    \item Equivalently: $P(A \mid B) = P(A)$ --- learning $B$ doesn't change our belief about $A$
+    \item Independence $\neq$ disjointness; disjoint events with positive probability are dependent
+    \item Conditional independence is a separate concept from unconditional independence
+\end{itemize}
+
+\textbf{Random Variables and Distributions:}
+\begin{itemize}
+    \item A random variable $X : S \to \mathbb{R}$ assigns numbers to outcomes
+    \item PMF: $p_X(x) = P(X = x)$; must be non-negative and sum to 1
+    \item CDF: $F_X(x) = P(X \leq x)$; non-decreasing, right-continuous, limits 0 and 1
+    \item Bernoulli: single trial with two outcomes
+    \item Binomial: number of successes in $n$ independent trials
+    \item Discrete Uniform: equal probability on a finite set
+\end{itemize}
+\end{bluebox}

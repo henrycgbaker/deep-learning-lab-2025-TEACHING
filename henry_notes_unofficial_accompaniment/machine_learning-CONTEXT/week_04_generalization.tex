@@ -1,0 +1,1314 @@
+% Week 4: Generalisation and Complexity
+
+\section*{Overview}
+
+This week addresses the fundamental question in machine learning: \textit{how well will our model perform on data it has never seen?} The ability to generalise-to make accurate predictions on new, unseen data-is what separates useful models from those that have merely memorised their training data.
+
+We develop both practical tools and theoretical frameworks for reasoning about generalisation:
+
+\begin{itemize}
+    \item \textbf{Practical validation strategies}: Cross-validation techniques for hyperparameter selection and performance estimation
+    \item \textbf{Model selection criteria}: Information-theoretic approaches (AIC, BIC) as alternatives to cross-validation
+    \item \textbf{Theoretical bounds}: Probabilistic guarantees on generalisation error
+    \item \textbf{Complexity measures}: VC dimension and Rademacher complexity for quantifying hypothesis class richness
+    \item \textbf{Dimensional regimes}: How generalisation behaviour changes in low vs.\ high dimensional settings
+\end{itemize}
+
+The tension between fitting the training data well and generalising to new data is the central theme. A model that perfectly memorises training examples (zero training error) may perform terribly on test data-this is \textbf{overfitting}. Conversely, a model that is too simple to capture patterns in the data will have high error on both training and test data-this is \textbf{underfitting}. Our goal is to find the sweet spot.
+
+%═══════════════════════════════════════════════════════════════════════════════
+\section{Cross-Validation}
+%═══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary]
+Cross-validation estimates generalisation error by repeatedly holding out portions of training data. \textbf{K-fold CV} balances bias and variance of the estimate; \textbf{LOOCV} maximises data usage but has high variance. For linear models, the \textbf{hat matrix shortcut} computes LOOCV in $O(n)$ rather than $O(n^2)$. The \textbf{one standard error rule} implements Occam's razor by preferring simpler models within noise margins. When data has structure (groups, time ordering), use \textbf{grouped} or \textbf{time series CV} to avoid information leakage.
+\end{bluebox}
+
+Cross-validation is the workhorse technique for estimating how well a model will generalise to independent data. It enables principled hyperparameter selection by providing an estimate of out-of-sample performance using only training data.
+
+\subsection{The Core Problem}
+
+We want to select hyperparameters (regularisation strength, model complexity, etc.) that will give good performance on \textit{new} data. But we cannot use the test set for this purpose-doing so would leak information and invalidate our final evaluation. Cross-validation solves this by cleverly reusing the training data.
+
+\subsection{Why Train-Test Split Isn't Enough}
+
+A single train-test split provides a point estimate of generalisation error, but this estimate has substantial \textbf{variance}. Consider the following scenario:
+
+\begin{itemize}
+    \item With $n = 100$ observations and an 80/20 split, you're estimating performance from just 20 data points
+    \item A different random split could yield a substantially different estimate
+    \item The variance of the estimate depends on the test set size: $\text{Var}(\hat{R}) \propto 1/n_{\text{test}}$
+\end{itemize}
+
+Cross-validation addresses this by averaging over multiple splits, reducing the variance of the generalisation estimate at the cost of increased computation.
+
+\textit{What this means practically}: If you report ``my model achieved 85\% accuracy'' based on a single train-test split with a small test set, that number might be 80\% or 90\% with a different split. Cross-validation gives you a more stable estimate and a sense of the uncertainty.
+
+\subsection{K-Fold Cross-Validation}
+
+\begin{greybox}[K-Fold Cross-Validation]
+Partition the training data into $K$ roughly equal-sized \textbf{folds}. For each fold $k \in \{1, \ldots, K\}$:
+\begin{enumerate}
+    \item \textbf{Hold out} fold $k$ as a validation set
+    \item \textbf{Train} the model on the remaining $K-1$ folds
+    \item \textbf{Evaluate} the trained model on fold $k$
+\end{enumerate}
+
+The cross-validation risk estimate averages performance across all folds:
+\begin{equation}
+R^{\text{cv}} = \frac{1}{K} \sum_{k=1}^{K} R\left(\hat{\theta}(D_{-k}), D_k\right)
+\end{equation}
+
+where:
+\begin{itemize}
+    \item $D_k$ denotes the data in fold $k$ (the held-out validation set)
+    \item $D_{-k}$ denotes all data \textit{except} fold $k$ (the training set for this iteration)
+    \item $\hat{\theta}(D_{-k})$ are the model parameters learned from $D_{-k}$
+    \item $R(\cdot, \cdot)$ is the risk (error) computed on the validation set
+\end{itemize}
+\end{greybox}
+
+\textit{Unpacking the notation}: The expression $\hat{\theta}(D_{-k})$ emphasises that parameters are learned from the data excluding fold $k$. This is crucial-the validation fold must be completely unseen during training for the estimate to be valid. The subscript notation $D_{-k}$ (``D minus k'') is standard shorthand for ``all data except fold $k$.''
+
+The procedure ensures that each data point is used for validation exactly once, while contributing to training in $K-1$ of the $K$ iterations. This provides a relatively low-variance estimate of out-of-sample performance.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_04_generalization/LOOCV.png}
+    \caption{5-fold cross-validation: the data is split into 5 folds, and each fold serves as the validation set exactly once while the remaining 4 folds form the training set. After all 5 iterations, every observation has been used for both training (4 times) and validation (1 time).}
+    \label{fig:kfold-cv}
+\end{figure}
+
+\textbf{After cross-validation}: Once you have selected hyperparameters using CV, \textbf{refit the model on all available training data} using those hyperparameters. The CV estimate tells us the expected performance; the final model should use all available information for maximum predictive power.
+
+\subsubsection{Bias-Variance Tradeoff in K-Fold CV}
+
+The choice of $K$ involves a bias-variance tradeoff-but importantly, this is about the \emph{CV estimate itself}, not the model's predictions. Understanding this distinction is crucial.
+
+\begin{greybox}[Bias-Variance of the CV Estimate]
+\textbf{Bias of CV estimate}: Each fold trains on $(K-1)/K$ of the data. When $K$ is small:
+\begin{itemize}
+    \item Training sets are smaller (e.g., 50\% for $K=2$)
+    \item Models trained on less data perform worse than models trained on all data
+    \item CV estimate is \textbf{pessimistically biased} (overestimates true test error of the final model trained on all data)
+\end{itemize}
+
+\textbf{Variance of CV estimate}: When $K$ is large (approaching LOOCV):
+\begin{itemize}
+    \item Training sets overlap heavily ($n-1$ shared observations between any two folds)
+    \item The $K$ error estimates are highly correlated
+    \item Averaging correlated estimates doesn't reduce variance as effectively as averaging independent estimates
+    \item CV estimate has \textbf{high variance}
+\end{itemize}
+\end{greybox}
+
+\textit{Why does overlap cause correlation?} Consider LOOCV where we leave out observation 1 vs.\ observation 2. The training sets differ by only 2 observations out of $n-1$. The fitted models are nearly identical, so the errors on the left-out observations are highly correlated. When we average $n$ highly correlated numbers, the variance reduction is much less than if we averaged $n$ independent numbers.
+
+\textit{Contrast with i.i.d.\ averages}: If you average $n$ independent random variables each with variance $\sigma^2$, the variance of the average is $\sigma^2/n$. But if the variables have correlation $\rho$, the variance of the average is approximately $\rho \sigma^2 + (1-\rho)\sigma^2/n$. When $\rho$ is close to 1 (as in LOOCV), the variance barely decreases with $n$.
+
+\begin{bluebox}[Choosing $K$: Practical Guidance]
+\begin{itemize}
+    \item \textbf{$K = 5$ or $10$}: Standard choices that balance bias and variance. Empirically, $K = 10$ often performs well and is the most common choice in practice.
+    \item \textbf{$K = n$ (LOOCV)}: Nearly unbiased but high variance; useful when $n$ is very small or when the LOOCV shortcut applies (linear models).
+    \item \textbf{$K = 2$}: High bias; rarely used except for very large datasets where computation dominates and the bias matters less.
+\end{itemize}
+
+\textbf{Rule of thumb}: Use $K = 10$ unless you have a specific reason not to. For small datasets ($n < 50$), consider $K = n$ (LOOCV) to maximise training data.
+\end{bluebox}
+
+\subsubsection{Computational Cost}
+
+\begin{greybox}[Computational Complexity of K-Fold CV]
+Let $T(n)$ denote the time to train a model on $n$ observations.
+
+\textbf{K-fold CV}: Train $K$ models, each on $\frac{K-1}{K}n$ observations:
+$$\text{Cost} = K \cdot T\left(\frac{K-1}{K}n\right) \approx K \cdot T(n)$$
+
+\textbf{LOOCV (naive)}: Train $n$ models, each on $n-1$ observations:
+$$\text{Cost} = n \cdot T(n-1) \approx n \cdot T(n)$$
+
+For $K = 10$ and $n = 10{,}000$, LOOCV is \textbf{1000$\times$ more expensive} than 10-fold CV.
+\end{greybox}
+
+For linear models, the LOOCV shortcut (Section~\ref{sec:loocv-shortcut}) eliminates this computational burden entirely, making LOOCV actually \textit{cheaper} than K-fold CV.
+
+\subsection{LOOCV for Linear Regression}
+\label{sec:loocv-shortcut}
+
+Leave-one-out cross-validation is particularly elegant for linear regression because the CV error can be computed \textbf{without actually refitting the model $n$ times}. This is one of the remarkable properties of linear regression.
+
+For linear regression, LOOCV can be computed \textbf{without refitting} $n$ times. The key is the \textbf{hat matrix}.
+
+\begin{greybox}[The Hat Matrix]
+The \textbf{hat matrix} (also called the influence matrix or projection matrix) is:
+$$H = X(X^\top X)^{-1}X^\top$$
+
+This matrix ``puts the hat on $y$'': it projects the observed responses onto the fitted values:
+$$\hat{y} = Hy$$
+
+\textbf{Key properties}:
+\begin{itemize}
+    \item $H$ is symmetric: $H = H^\top$
+    \item $H$ is idempotent: $H^2 = H$ (projecting twice is the same as projecting once-once you're on the regression plane, projecting again leaves you there)
+    \item The diagonal elements $h_{ii} \in [0, 1]$ are called \textbf{leverage scores}
+    \item $\sum_{i=1}^n h_{ii} = \text{tr}(H) = p$ (trace equals number of parameters)
+\end{itemize}
+\end{greybox}
+
+\textit{Geometric intuition}: The hat matrix projects from the $n$-dimensional space of possible response vectors onto the $p$-dimensional subspace spanned by the columns of $X$. This subspace contains all possible fitted values $X\beta$ for any choice of $\beta$.
+
+The leverage $h_{ii}$ measures how much observation $i$ influences its own prediction. Points with high leverage have unusual $x$ values-they are far from the centre of the predictor space and can disproportionately affect the fitted model.
+
+\textit{Why ``leverage''?} Think of a see-saw: a person sitting far from the fulcrum has more leverage than one sitting close. Similarly, observations with extreme predictor values have more ``leverage'' to pull the regression line toward themselves.
+
+\begin{greybox}[LOOCV Shortcut: Derivation]
+\label{box:loocv-derivation}
+
+We want to show that the leave-one-out residual can be computed from the full-data fit:
+$$y_i - \hat{y}_i^{(-i)} = \frac{y_i - \hat{y}_i}{1 - h_{ii}}$$
+
+where $\hat{y}_i^{(-i)}$ is the prediction for observation $i$ from a model trained on all data \emph{except} observation $i$.
+
+\textbf{Step 1: Express the leave-one-out prediction.}
+
+Let $\hat{\beta}^{(-i)}$ denote the OLS estimate excluding observation $i$. By the Sherman-Morrison formula for rank-one updates to matrix inverses:
+$$(X_{-i}^\top X_{-i})^{-1} = (X^\top X - x_i x_i^\top)^{-1} = (X^\top X)^{-1} + \frac{(X^\top X)^{-1} x_i x_i^\top (X^\top X)^{-1}}{1 - h_{ii}}$$
+
+\textit{What is Sherman-Morrison?} When you remove one observation, the matrix $X^\top X$ changes by a rank-one update (subtracting $x_i x_i^\top$). Sherman-Morrison provides a closed-form expression for how the inverse changes, avoiding recomputation from scratch.
+
+\textbf{Step 2: Compute the difference in predictions.}
+
+After algebra (omitted), we obtain:
+$$\hat{y}_i^{(-i)} = \hat{y}_i - h_{ii} \cdot \frac{y_i - \hat{y}_i}{1 - h_{ii}}$$
+
+\textbf{Step 3: Solve for the leave-one-out residual.}
+
+Rearranging:
+\begin{align}
+y_i - \hat{y}_i^{(-i)} &= y_i - \hat{y}_i + h_{ii} \cdot \frac{y_i - \hat{y}_i}{1 - h_{ii}} \\
+&= \frac{(1 - h_{ii})(y_i - \hat{y}_i) + h_{ii}(y_i - \hat{y}_i)}{1 - h_{ii}} \\
+&= \frac{y_i - \hat{y}_i}{1 - h_{ii}}
+\end{align}
+\end{greybox}
+
+\begin{greybox}[LOOCV Shortcut Formula]
+The LOOCV mean squared error for linear regression is:
+$$\text{MSE}_{\text{cv}} = \frac{1}{n} \sum_{i=1}^{n} \left( \frac{y_i - \hat{y}_i}{1 - h_{ii}} \right)^2 = \frac{1}{n} \sum_{i=1}^{n} \left( \frac{e_i}{1 - h_{ii}} \right)^2$$
+
+where:
+\begin{itemize}
+    \item $y_i - \hat{y}_i = e_i$ is the ordinary residual from the full-data fit
+    \item $h_{ii}$ is the leverage of observation $i$
+\end{itemize}
+\end{greybox}
+
+\textit{Interpretation}: The denominator $1 - h_{ii}$ inflates residuals for high-leverage points. This makes sense: if a point has high leverage, removing it would change the fit substantially, so the leave-one-out residual would be larger than the ordinary residual.
+
+\begin{bluebox}[Why This Only Works for Linear Models]
+The derivation relies on:
+\begin{enumerate}
+    \item \textbf{Closed-form solution}: OLS has $\hat{\beta} = (X^\top X)^{-1}X^\top y$
+    \item \textbf{Linear predictions}: $\hat{y} = X\hat{\beta}$ is linear in $y$
+    \item \textbf{Sherman-Morrison formula}: Allows efficient rank-one updates to the inverse
+\end{enumerate}
+
+For nonlinear models (neural networks, tree ensembles), these properties don't hold, and we must actually refit for each fold.
+
+However, \textbf{generalised cross-validation (GCV)} provides an approximation for some regularised linear models:
+$$\text{GCV} = \frac{1}{n} \sum_{i=1}^n \left(\frac{y_i - \hat{y}_i}{1 - \bar{h}}\right)^2$$
+where $\bar{h} = \text{tr}(H)/n$ is the average leverage. GCV replaces individual leverages with their average, simplifying computation further.
+\end{bluebox}
+
+\begin{greybox}[Computational Complexity Comparison]
+\begin{center}
+\begin{tabular}{lcc}
+\textbf{Method} & \textbf{Time Complexity} & \textbf{For $n=10^4$, $p=100$} \\
+\hline
+Naive LOOCV & $O(n \cdot np^2)$ & $\sim 10^{12}$ operations \\
+LOOCV shortcut & $O(np^2 + n)$ & $\sim 10^{8}$ operations \\
+10-fold CV & $O(10 \cdot np^2)$ & $\sim 10^{9}$ operations \\
+\end{tabular}
+\end{center}
+
+The shortcut makes LOOCV \textbf{cheaper than K-fold CV} for linear models!
+\end{greybox}
+
+\subsection{One Standard Error Rule}
+
+When comparing models using cross-validation, it is tempting to simply select the model with the lowest CV error. However, this ignores the uncertainty in our CV estimates.
+
+\begin{greybox}[One Standard Error Rule]
+Rather than selecting the model with minimum CV error:
+\begin{enumerate}
+    \item \textbf{Compute CV error for each model}: Obtain $\hat{R}_\lambda$ for each hyperparameter setting $\lambda$
+    \item \textbf{Find the minimum}: Let $\hat{R}_{\min}$ be the lowest CV error observed
+    \item \textbf{Compute the standard error}:
+    \begin{equation}
+    \text{SE} = \frac{\sigma_{\text{cv}}}{\sqrt{K}}
+    \end{equation}
+    where $\sigma_{\text{cv}}$ is the standard deviation of the $K$ fold-wise error estimates
+    \item \textbf{Select the simplest model} whose CV error satisfies:
+    \begin{equation}
+    \hat{R} \leq \hat{R}_{\min} + \text{SE}
+    \end{equation}
+\end{enumerate}
+\end{greybox}
+
+\textit{What does ``simplest'' mean?} This depends on the context. For Ridge or Lasso regression, simpler means \textbf{larger} $\lambda$ (more regularisation, which shrinks coefficients toward zero). For polynomial regression, simpler means \textbf{lower} degree. For neural networks, simpler might mean fewer layers or smaller width.
+
+\textbf{Why prefer simpler models?} This rule implements \textbf{Occam's razor}: when multiple models have statistically indistinguishable performance (within one standard error), prefer the simpler one. Simpler models are:
+\begin{itemize}
+    \item More interpretable
+    \item Less prone to overfitting
+    \item More likely to generalise to genuinely new situations (distribution shift)
+    \item Often cheaper to deploy
+\end{itemize}
+
+By acknowledging uncertainty in our risk estimates, we recognise that a slightly more regularised (simpler) model is, within the margin of error, as good as the very lowest-and since we have uncertainty, we should favour the simpler one.
+
+\subsubsection{Worked Example: Ridge Regression}
+
+\begin{greybox}[Example: Applying the One Standard Error Rule]
+Suppose we perform 10-fold CV for Ridge regression with regularisation parameter $\lambda$ on a grid:
+
+\begin{center}
+\begin{tabular}{ccc}
+$\lambda$ & CV Error & SE \\
+\hline
+0.001 & 0.852 & 0.045 \\
+0.01 & 0.823 & 0.042 \\
+0.1 & 0.801 & 0.038 \\
+1.0 & \textbf{0.795} & 0.036 \\
+10 & 0.812 & 0.041 \\
+100 & 0.891 & 0.052 \\
+\end{tabular}
+\end{center}
+
+\textbf{Step 1}: Minimum CV error is $\hat{R}_{\min} = 0.795$ at $\lambda = 1.0$.
+
+\textbf{Step 2}: Standard error at minimum is $\text{SE} = 0.036$.
+
+\textbf{Step 3}: Threshold is $0.795 + 0.036 = 0.831$.
+
+\textbf{Step 4}: The simplest model (largest $\lambda$) with CV error $\leq 0.831$ is $\lambda = 10$ (CV error = 0.812).
+
+\textbf{Selected model}: $\lambda = 10$, not $\lambda = 1$.
+\end{greybox}
+
+\textit{Commentary}: The model with $\lambda = 10$ has higher CV error than $\lambda = 1$, but the difference (0.017) is less than half a standard error. Given this uncertainty, we prefer the more regularised model. In practice, this often leads to better generalisation, especially when the test distribution differs slightly from the training distribution.
+
+\subsubsection{When to Use the One Standard Error Rule}
+
+\begin{bluebox}[When to Apply the 1SE Rule]
+\textbf{Use when}:
+\begin{itemize}
+    \item Interpretability matters (simpler models are easier to understand)
+    \item You expect distribution shift (simpler models are more robust)
+    \item Computational cost of the model matters at deployment
+    \item You're concerned about overfitting to the validation set itself
+\end{itemize}
+
+\textbf{Don't use when}:
+\begin{itemize}
+    \item Maximum predictive accuracy is paramount (e.g., Kaggle competitions)
+    \item You have very large samples (SE becomes tiny, rule has no effect)
+    \item The ``simplicity'' ordering isn't meaningful for your models
+\end{itemize}
+\end{bluebox}
+
+\begin{redbox}[Training Error is Optimistically Biased]
+Training error systematically \textbf{underestimates} true out-of-sample error. The model parameters $\theta$ were optimised on the training data, making the model potentially too tailored to idiosyncrasies of the training set.
+
+If we select hyperparameters by minimising training error:
+\begin{align}
+\hat{\lambda} &= \arg\min_\lambda \min_\theta R_\lambda(\theta, D) \\
+&= \arg\min_\lambda \left[\min_\theta R(\theta, D) + \lambda C(\theta)\right] \\
+&= 0
+\end{align}
+
+Training error \textbf{always prefers no regularisation} ($\lambda = 0$). This is precisely why we cannot use training error for model selection-it leads us to select overly complex models.
+\end{redbox}
+
+The one standard error rule embodies a \textbf{regularisation philosophy}: when two models perform similarly, prefer the simpler one. This is the same principle underlying Ridge and Lasso penalties-we're willing to accept slightly worse fit for reduced complexity.
+
+\subsection{Grouped Cross-Validation}
+
+When observations are not i.i.d., naive CV causes \textbf{information leakage}-the model ``sees'' information from the test fold during training, leading to overoptimistic performance estimates.
+
+\begin{greybox}[Violations of Independence]
+Consider a linear model $y_i = X_i\beta + \epsilon_i$ where the errors are correlated within groups:
+\begin{equation}
+\epsilon \sim \mathcal{N}(0, \Sigma) \quad \text{with} \quad \Sigma_{ij} \neq 0 \text{ if } c(i) = c(j)
+\end{equation}
+
+Here $c(i)$ denotes the group (e.g., country, patient, experimental unit) to which observation $i$ belongs. Observations from the same group are correlated; observations from different groups are independent.
+
+\textbf{Problem}: If we randomly split observations across folds, related observations may end up in both training and validation sets. The model can exploit this correlation to make artificially good predictions on the validation set-predictions that would not generalise to truly new groups.
+\end{greybox}
+
+\textit{Concrete example}: Suppose you're building a model to predict patient outcomes, and you have multiple observations per patient (e.g., multiple visits). If you randomly split observations, the model might learn patient-specific patterns during training and use them to predict that same patient's held-out visits. But at deployment, you'll encounter \textit{new} patients, not new visits from known patients. Your CV estimate will be overoptimistic.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_04_generalization/CV grouping.png}
+    \caption{\textbf{Left}: Group K-fold keeps all observations from a given group together in the same fold across all CV iterations. \textbf{Right}: Time series split respects temporal ordering, always using past data to predict future data.}
+    \label{fig:cv-grouping}
+\end{figure}
+
+\subsubsection{When Groups Matter}
+
+\begin{greybox}[Common Grouping Scenarios]
+\textbf{Longitudinal/Panel data}: Multiple observations per subject over time.
+\begin{itemize}
+    \item Medical studies: Multiple visits per patient
+    \item User behaviour: Multiple sessions per user
+    \item Must keep all of a subject's data in the same fold
+\end{itemize}
+
+\textbf{Geographic/spatial data}: Nearby observations are correlated.
+\begin{itemize}
+    \item Environmental sensors in the same region
+    \item House prices in the same neighbourhood
+    \item Group by region, city, or spatial cluster
+\end{itemize}
+
+\textbf{Hierarchical data}: Natural nesting structure.
+\begin{itemize}
+    \item Students within schools
+    \item Employees within companies
+    \item Group by the higher-level unit
+\end{itemize}
+
+\textbf{Time series}: Past predicts future, not vice versa.
+\begin{itemize}
+    \item Financial forecasting
+    \item Demand prediction
+    \item Training set must precede test set temporally
+\end{itemize}
+\end{greybox}
+
+\subsubsection{Stratified Cross-Validation}
+
+For classification with \textbf{imbalanced classes}, random splits may put all rare-class examples in one fold, leading to folds with very different class distributions. This can cause high variance in CV estimates and poor hyperparameter selection.
+
+\begin{bluebox}[Stratified K-Fold]
+\begin{enumerate}
+    \item Separate data by class
+    \item Within each class, randomly assign observations to $K$ folds
+    \item Combine across classes to form final folds
+\end{enumerate}
+
+Each fold has $\approx n_c/K$ examples from class $c$, preserving the class balance.
+
+\textbf{When to use}: Binary classification with rare positives (e.g., fraud detection, disease diagnosis), or any multi-class problem where some classes are much rarer than others.
+\end{bluebox}
+
+\subsubsection{Nested Cross-Validation}
+
+When using CV for both hyperparameter tuning \textit{and} performance estimation, we risk overfitting to the validation set. The hyperparameters are selected to perform well on the CV folds, so the CV estimate is optimistic about how well those hyperparameters will work on truly new data.
+
+\textbf{Nested CV} addresses this by using separate CV loops for selection and evaluation.
+
+\begin{greybox}[Nested Cross-Validation]
+\textbf{Outer loop}: Estimates generalisation error of the \textit{entire model selection procedure}.
+
+\textbf{Inner loop}: Selects hyperparameters for each outer fold.
+
+\begin{enumerate}
+    \item Split data into $K_{\text{outer}}$ folds
+    \item For each outer fold $k$:
+    \begin{enumerate}
+        \item Hold out fold $k$ as test
+        \item On remaining data, run $K_{\text{inner}}$-fold CV to select best $\lambda$
+        \item Train final model with selected $\lambda$ on all non-test data
+        \item Evaluate on test fold $k$
+    \end{enumerate}
+    \item Average the $K_{\text{outer}}$ test errors
+\end{enumerate}
+
+This gives an unbiased estimate of expected performance when the model selection procedure is applied to new data.
+\end{greybox}
+
+\textit{Key insight}: The outer loop estimates how well your \textit{entire pipeline}-including hyperparameter selection-will perform. The hyperparameters selected in each outer fold may be different, and that's fine. We're evaluating the procedure, not a specific model.
+
+\begin{bluebox}[Nested CV: Practical Considerations]
+\begin{itemize}
+    \item \textbf{Computational cost}: $K_{\text{outer}} \times K_{\text{inner}} \times |\text{hyperparameter grid}|$ model fits
+    \item \textbf{Common choice}: $K_{\text{outer}} = 5$, $K_{\text{inner}} = 5$ (25$\times$ cost of simple CV)
+    \item \textbf{When to use}: When you need an unbiased performance estimate \emph{and} hyperparameter tuning
+    \item \textbf{Final model}: After nested CV, refit on all data using simple CV to select $\lambda$ (the nested CV was just for estimation)
+\end{itemize}
+\end{bluebox}
+
+\begin{bluebox}[CV Strategies for Structured Data]
+\textbf{Group K-Fold}: All observations from a group stay together in the same fold. Use when data has natural clusters (patients, geographic regions, experimental units) and you want to predict for \textit{new groups} not seen during training.
+
+\textbf{Time Series Split}: Training set grows; test set is always in the future. Never use future data to predict the past.
+
+\textbf{Stratified K-Fold}: Preserve class proportions in each fold. Use for imbalanced classification.
+
+\textbf{General principle}: The CV split should mirror how the model will be deployed. If you'll predict for new groups, use group CV. If you'll predict future time points, use time series CV.
+\end{bluebox}
+
+\begin{greybox}[General Cross-Validation Principles]
+\begin{itemize}
+    \item \textbf{Information bleed}: CV should be designed so that information from one observation does not ``bleed'' into another-training data should not contain information that gives away answers for validation data.
+    \item \textbf{Same fold requirement}: Observations that are related or grouped by inherent connection (same subject, same country, sequential in time) should be placed within the same fold.
+    \item \textbf{Respect the sampling process}: When designing folds, consider the structure or dependencies in how the data was generated.
+\end{itemize}
+\end{greybox}
+
+%═══════════════════════════════════════════════════════════════════════════════
+\section{Model Selection Criteria}
+%═══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary]
+Information criteria (AIC, BIC) provide alternatives to cross-validation for model selection. They estimate out-of-sample prediction error by adding a complexity penalty to in-sample fit. AIC targets prediction accuracy; BIC targets identifying the true model. Both are fast to compute but rely on assumptions (likelihood framework, asymptotic approximations) that CV doesn't require.
+\end{bluebox}
+
+Cross-validation is computationally expensive: we must fit the model $K$ times (or $n$ times for LOOCV without the shortcut). Information criteria offer closed-form alternatives that require only a single model fit.
+
+\subsection{Akaike Information Criterion (AIC)}
+
+\begin{greybox}[AIC: Definition and Derivation]
+The \textbf{Akaike Information Criterion} estimates the expected out-of-sample deviance:
+
+$$\text{AIC} = -2 \log L(\hat{\theta}) + 2k$$
+
+where:
+\begin{itemize}
+    \item $L(\hat{\theta})$ is the maximised likelihood
+    \item $k$ is the number of estimated parameters
+    \item The factor of 2 is conventional (relates to deviance scale)
+\end{itemize}
+
+\textbf{Intuition}: The in-sample log-likelihood is optimistically biased. On average, the bias is approximately $k$ (one for each fitted parameter). AIC corrects for this bias.
+
+\textbf{For linear regression with Gaussian errors}:
+$$\text{AIC} = n \log(\hat{\sigma}^2) + 2p$$
+where $\hat{\sigma}^2 = \frac{1}{n}\sum_i (y_i - \hat{y}_i)^2$ is the residual variance and $p$ is the number of parameters.
+\end{greybox}
+
+\textit{Unpacking the formula}: The term $-2 \log L(\hat{\theta})$ measures how well the model fits the data (lower is better). The term $2k$ penalises complexity. We're trading off fit against simplicity.
+
+\textit{Why $k$ as the bias correction?} Each parameter we estimate is ``tuned'' to the training data, giving us about 1 unit of optimistic bias per parameter. This is an asymptotic result that holds under certain regularity conditions.
+
+\begin{bluebox}[Using AIC]
+\begin{itemize}
+    \item \textbf{Lower is better}: Select the model with minimum AIC
+    \item \textbf{Relative comparisons only}: AIC values are only meaningful when comparing models on the \textit{same data}
+    \item \textbf{$\Delta$AIC interpretation}: Differences in AIC can be interpreted as log-likelihood ratios; $\Delta\text{AIC} > 10$ is strong evidence against the worse model; $\Delta\text{AIC} < 2$ suggests models are roughly equivalent
+\end{itemize}
+\end{bluebox}
+
+\subsection{Bayesian Information Criterion (BIC)}
+
+\begin{greybox}[BIC: Definition]
+The \textbf{Bayesian Information Criterion} (also called Schwarz criterion) is:
+
+$$\text{BIC} = -2 \log L(\hat{\theta}) + k \log n$$
+
+The penalty term $k \log n$ grows with sample size, making BIC more conservative than AIC for large $n$.
+
+\textbf{Bayesian interpretation}: BIC approximates the log marginal likelihood (model evidence) under certain priors. Minimising BIC approximately maximises the posterior probability of the model.
+\end{greybox}
+
+\textit{Comparing penalties}: For AIC, the penalty is $2k$. For BIC, it's $k \log n$. When $n > 8$ (i.e., $\log n > 2$), BIC penalises complexity more heavily than AIC. For typical sample sizes ($n$ in thousands), BIC is \textit{much} more conservative.
+
+\subsection{AIC vs BIC: Different Goals}
+
+\begin{greybox}[Philosophical Difference]
+\textbf{AIC} is derived from minimising Kullback-Leibler divergence to the true data-generating process. It targets \textbf{prediction accuracy}.
+
+\textbf{BIC} is derived from approximating the posterior probability of a model. It targets \textbf{model identification}-finding the true model if it's in the candidate set.
+
+Key consequences:
+\begin{itemize}
+    \item AIC tends to select \textbf{larger models} (more willing to include marginally useful predictors)
+    \item BIC tends to select \textbf{smaller models} (requires stronger evidence to include predictors)
+    \item As $n \to \infty$: BIC is \textbf{consistent} (selects true model with probability approaching 1 if it's in the set), AIC is not
+    \item For finite $n$: AIC often gives better \textbf{predictions}, even if it selects the ``wrong'' model
+\end{itemize}
+\end{greybox}
+
+\textit{When is the ``wrong'' model better for prediction?} If the true model is complex, AIC might select a close approximation that predicts well. BIC might select a simpler model that's worse for prediction but happens to be ``true'' in a limiting sense. For practical prediction, we often care more about accuracy than truth.
+
+\begin{bluebox}[AIC vs BIC: Summary]
+\begin{center}
+\begin{tabular}{lcc}
+& \textbf{AIC} & \textbf{BIC} \\
+\hline
+Penalty & $2k$ & $k \log n$ \\
+Goal & Prediction & Model identification \\
+Consistency & No & Yes \\
+Typical selection & Larger models & Smaller models \\
+Use when & Prediction matters most & Parsimony matters most \\
+\end{tabular}
+\end{center}
+\end{bluebox}
+
+\subsection{Comparison with Cross-Validation}
+
+\begin{greybox}[Information Criteria vs Cross-Validation]
+\textbf{Advantages of AIC/BIC}:
+\begin{itemize}
+    \item \textbf{Fast}: Single model fit, closed-form formula
+    \item \textbf{Deterministic}: No random variation from fold assignment
+    \item \textbf{Theoretically grounded}: Clear optimality properties under assumptions
+\end{itemize}
+
+\textbf{Advantages of CV}:
+\begin{itemize}
+    \item \textbf{Model-agnostic}: Works for any model, any loss function
+    \item \textbf{No distributional assumptions}: Doesn't require likelihood specification
+    \item \textbf{Handles complex model selection}: Works for neural networks, ensembles, etc.
+    \item \textbf{Direct estimate}: Estimates exactly what you care about (test error)
+\end{itemize}
+
+\textbf{When they differ}: AIC/BIC assume the model is correctly specified and errors are well-behaved. When these assumptions fail, CV is more robust. For simple models (linear regression, GLMs) on well-behaved data, they often agree.
+\end{greybox}
+
+\begin{redbox}[Limitations of AIC and BIC]
+AIC and BIC are \textbf{not} appropriate for:
+\begin{itemize}
+    \item Comparing models with different response variables
+    \item Comparing models fitted to different data subsets
+    \item Models without a proper likelihood (e.g., some machine learning methods)
+\end{itemize}
+They are only meaningful for comparing models fitted to the \textbf{same observations} with the \textbf{same response}.
+\end{redbox}
+
+%═══════════════════════════════════════════════════════════════════════════════
+\section{Frequentist vs Bayesian Risk}
+%═══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary]
+Frequentist and Bayesian frameworks conceptualise risk differently. Frequentists treat parameters as fixed unknowns and average over repeated sampling; Bayesians treat parameters as random and average over prior uncertainty. Neither framework is ``correct''-they answer different questions. The choice depends on whether you want guarantees over repeated experiments (frequentist) or coherent probability statements given your data (Bayesian).
+\end{bluebox}
+
+The definitions of risk we have used so far are \textbf{frequentist}. It is worth contrasting this with the Bayesian perspective to understand what each framework assumes and what questions each answers.
+
+\begin{greybox}[Frequentist Risk]
+$$R(\theta, f) = \mathbb{E}_{p(x|\theta)}[\ell(\theta, f(x))]$$
+
+\textbf{Key features}:
+\begin{itemize}
+    \item $\theta$ is \textbf{fixed but unknown}-there is a true value, we just don't know it
+    \item Expectation is over the \textbf{data} $x$ drawn from $p(x|\theta)$
+    \item Risk measures average loss across repeated sampling from the same data-generating process
+    \item We imagine running the experiment many times and averaging performance
+\end{itemize}
+\end{greybox}
+
+\textit{Unpacking the notation}: The expression $\mathbb{E}_{p(x|\theta)}$ means ``average over all datasets that could be generated from the true distribution $p(x|\theta)$.'' We're asking: if we repeatedly drew data from the true distribution and applied our decision function $f$, what would our average loss be?
+
+\begin{greybox}[Bayes Risk]
+$$R_{\pi_0}(f) = \mathbb{E}_{\pi_0(\theta)}[R(\theta, f)] = \int \pi_0(\theta) \, p(x|\theta) \, \ell(\theta, f(x)) \, d\theta \, dx$$
+
+\textbf{Key features}:
+\begin{itemize}
+    \item $\theta$ is treated as a \textbf{random variable} with prior distribution $\pi_0(\theta)$
+    \item Expectation is over \textbf{both} $\theta$ and $x$
+    \item Averages performance across all possible parameter values, weighted by their prior probability
+    \item Incorporates prior beliefs about likely parameter values
+\end{itemize}
+\end{greybox}
+
+\textit{Unpacking the Bayes risk integral}: The expression $\int \pi_0(\theta) \, p(x|\theta) \, \ell(\theta, f(x)) \, d\theta \, dx$ computes a weighted average:
+\begin{enumerate}
+    \item For each potential value of $\theta$, determine the likelihood of observing data $x$
+    \item Compute the loss for decision function $f$ given that $\theta$ and $x$
+    \item Weight this loss by the joint probability of $\theta$ and $x$ (coming from prior $\times$ likelihood)
+    \item Integrate (sum) across all possible $\theta$ and all possible $x$
+\end{enumerate}
+
+\begin{bluebox}[Frequentist vs Bayesian: Key Differences]
+\begin{center}
+\begin{tabular}{lcc}
+& \textbf{Frequentist} & \textbf{Bayesian} \\
+\hline
+Parameters & Fixed, unknown & Random variable \\
+Data & Random variable & Observed (then fixed) \\
+Prior information & Not formally used & Encoded in $\pi_0(\theta)$ \\
+Uncertainty about & Data we might see & Parameter values \\
+\end{tabular}
+\end{center}
+\end{bluebox}
+
+\textit{Which is ``right''?} Neither-they answer different questions:
+\begin{itemize}
+    \item \textbf{Frequentist}: ``How will my procedure perform across many experiments?''
+    \item \textbf{Bayesian}: ``Given my prior beliefs and this data, what should I believe about the parameters?''
+\end{itemize}
+
+In practice, many methods that seem frequentist (like Ridge regression) have Bayesian interpretations, and vice versa. The distinction matters most for interpretation and when making decisions under uncertainty.
+
+%═══════════════════════════════════════════════════════════════════════════════
+\section{Generalisation Bounds}
+%═══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary]
+Generalisation bounds provide theoretical guarantees on how well empirical risk approximates true risk. The key tools are \textbf{Hoeffding's inequality} (concentration of sample means) and the \textbf{union bound} (probability of any bad event). Together, they show that generalisation error scales as $O(\sqrt{\log|\mathcal{H}|/n})$ for finite hypothesis classes. For infinite classes, we need richer complexity measures like \textbf{VC dimension} and \textbf{Rademacher complexity}.
+\end{bluebox}
+
+We now turn to \textit{theoretical} guarantees about generalisation. The goal is to bound, with high probability, how well a learned model will perform on unseen data.
+
+\subsection{Error Decomposition Recap}
+
+\begin{greybox}[Error Decomposition]
+Recall the fundamental decomposition of excess risk:
+$$\underbrace{\mathbb{E}[\mathcal{R}(f^*_n)] - \mathcal{R}(f^{**})}_{\text{Total excess risk}} = \underbrace{\mathcal{R}(f^*) - \mathcal{R}(f^{**})}_{\text{Approximation error}} + \underbrace{\mathbb{E}[\mathcal{R}(f^*_n)] - \mathcal{R}(f^*)}_{\text{Estimation error}}$$
+
+where:
+\begin{itemize}
+    \item $f^{**} = \arg\min_f \mathcal{R}(f)$: The \textbf{Bayes optimal} predictor-best possible function over all measurable functions
+    \item $f^* = \arg\min_{f \in \mathcal{H}} \mathcal{R}(f)$: Best function within our hypothesis class $\mathcal{H}$
+    \item $f^*_n = \arg\min_{f \in \mathcal{H}} \hat{\mathcal{R}}_n(f)$: Empirical risk minimiser from our data
+\end{itemize}
+\end{greybox}
+
+\textit{Unpacking the terms}:
+\begin{itemize}
+    \item \textbf{Approximation error} ($\mathcal{R}(f^*) - \mathcal{R}(f^{**})$): The cost of restricting to hypothesis class $\mathcal{H}$. If the true relationship is a polynomial of degree 5 but we only consider linear functions, the best linear function will still have some irreducible error.
+    \item \textbf{Estimation error} ($\mathbb{E}[\mathcal{R}(f^*_n)] - \mathcal{R}(f^*)$): The cost of learning from finite data. Even if $\mathcal{H}$ contains the true function, we might not find it with limited samples.
+\end{itemize}
+
+\begin{greybox}[Concrete Example: Truncating Polynomials]
+Suppose the true model is $y = \beta_0 + \beta_1 x + \beta_2 x^2 + \epsilon$ with $x \sim \text{Unif}(0,1)$.
+
+\begin{itemize}
+    \item \textbf{Best possible function}: $f^{**} = \beta_0 + \beta_1 x + \beta_2 x^2$
+    \item \textbf{Best in our hypothesis class} (linear functions only): $f^* = \beta_0^* + \beta_1^* x$
+    \item \textbf{Empirical estimate}: $f^*_n = \hat{\beta}_0 + \hat{\beta}_1 x$
+\end{itemize}
+
+The \textbf{approximation error} comes from neglecting the $x^2$ term-our hypothesis class cannot capture the true curvature. The \textbf{estimation error} comes from estimating $\beta_0^*, \beta_1^*$ from finite, noisy data.
+\end{greybox}
+
+Generalisation bounds focus primarily on the \textbf{estimation error}: given that we are restricted to $\mathcal{H}$, how close can we get to the best function in $\mathcal{H}$?
+
+\begin{redbox}[Bounds Are Not Replacements for Empirical Validation]
+Generalisation bounds are typically too loose to be directly useful for predicting actual model performance. They help us:
+\begin{itemize}
+    \item \textbf{Reason about model complexity}: Understand tradeoffs between hypothesis class richness and sample size
+    \item \textbf{Understand scaling}: How does performance vary with $n$? With model complexity?
+    \item \textbf{Identify assumptions}: What conditions are needed for good generalisation?
+    \item \textbf{Worst-case guarantees}: Even under unfavourable conditions, error will not exceed a threshold
+\end{itemize}
+
+For actual model selection, use cross-validation. Bounds provide conceptual understanding, not practical estimates.
+\end{redbox}
+
+\subsection{Building Blocks: Concentration Inequalities}
+
+To derive generalisation bounds, we need tools that quantify how sample averages concentrate around their expectations.
+
+\begin{greybox}[Hoeffding's Inequality]
+For $X_1, \ldots, X_n \stackrel{\text{iid}}{\sim} \text{Bernoulli}(\mu)$, the sample mean $\bar{X} = \frac{1}{n}\sum_{i=1}^n X_i$ satisfies:
+$$P\left(|\bar{X} - \mu| > \epsilon\right) \leq 2\exp(-2n\epsilon^2)$$
+
+\textbf{Interpretation}: The probability that the sample mean deviates from the true mean by more than $\epsilon$ decreases \textbf{exponentially} in $n$ (sample size) and $\epsilon^2$ (squared tolerance).
+\end{greybox}
+
+\textit{Key implications of Hoeffding's inequality}:
+\begin{itemize}
+    \item \textbf{The chance is small}: As $n$ increases, the probability of large deviation becomes exponentially smaller
+    \item \textbf{Law of large numbers}: With more data, sample means concentrate tightly around true means
+    \item \textbf{Quantitative control}: We can bound the probability of any specific deviation level
+\end{itemize}
+
+\textit{Example}: With $n = 100$ samples, the probability that $|\bar{X} - \mu| > 0.1$ is at most $2e^{-2} \approx 0.27$. With $n = 1000$, this drops to $2e^{-20} \approx 4 \times 10^{-9}$-essentially impossible.
+
+\begin{bluebox}[TL;DR: Hoeffding's Inequality]
+As sample size $n$ increases, sample estimates converge to their true population values, and we can precisely quantify how unlikely large deviations are. The convergence is \textbf{exponentially fast} in $n$.
+\end{bluebox}
+
+\begin{greybox}[Union Bound (Boole's Inequality)]
+For any events $\mathcal{E}_1, \ldots, \mathcal{E}_d$:
+$$P\left(\bigcup_{i=1}^d \mathcal{E}_i\right) \leq \sum_{i=1}^d P(\mathcal{E}_i)$$
+
+The probability that \textit{at least one} event occurs is at most the sum of the individual probabilities.
+\end{greybox}
+
+\textit{Why is this useful?} We want to control the probability of \textit{any} hypothesis having bad generalisation. If each hypothesis $f_i$ has a small probability of bad generalisation, the union bound lets us control the probability that \textit{some} hypothesis is bad.
+
+\textit{When is the bound tight?} The union bound is exact when events are mutually exclusive (no overlap). It's loose when events overlap significantly (we double-count the intersection). For generalisation bounds, the events are often highly correlated (similar hypotheses tend to fail together), so the bound is usually loose.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_04_generalization/venn diags.png}
+    \caption{Union bound: $P(A \cup B) \leq P(A) + P(B)$. The bound is loose when events overlap significantly (we double-count the intersection $A \cap B$), but it avoids computing complex intersections.}
+    \label{fig:union-bound}
+\end{figure}
+
+\subsection{First Generalisation Bound}
+
+Combining Hoeffding's inequality and the union bound yields our first generalisation guarantee.
+
+\begin{greybox}[Generalisation Bound for Finite Hypothesis Class]
+For binary classification with a \textbf{finite} hypothesis class $\mathcal{H}$:
+$$P\left(\max_{f \in \mathcal{H}} |\mathcal{R}(f) - \hat{\mathcal{R}}_n(f)| > \epsilon\right) \leq 2|\mathcal{H}| \cdot \exp(-2n\epsilon^2)$$
+
+Equivalently: with probability at least $1 - \delta$, for all $f \in \mathcal{H}$ simultaneously:
+$$|\mathcal{R}(f) - \hat{\mathcal{R}}_n(f)| \leq \sqrt{\frac{\log(2|\mathcal{H}|/\delta)}{2n}}$$
+\end{greybox}
+
+\textit{Reading this bound}: The statement says that with high probability, the empirical risk $\hat{\mathcal{R}}_n(f)$ is close to the true risk $\mathcal{R}(f)$ \textit{simultaneously for all hypotheses} in $\mathcal{H}$. This ``uniform convergence'' is crucial: we need the guarantee to hold for the hypothesis we select, not just for a fixed hypothesis.
+
+\begin{greybox}[Proof Sketch]
+\begin{align}
+P\left(\max_{f \in \mathcal{H}} |\mathcal{R}(f) - \hat{\mathcal{R}}_n(f)| > \epsilon\right)
+&= P\left(\bigcup_{f \in \mathcal{H}} \{|\mathcal{R}(f) - \hat{\mathcal{R}}_n(f)| > \epsilon\}\right) \\
+&\leq \sum_{f \in \mathcal{H}} P\left(|\mathcal{R}(f) - \hat{\mathcal{R}}_n(f)| > \epsilon\right) \quad \text{(Union bound)} \\
+&\leq \sum_{f \in \mathcal{H}} 2\exp(-2n\epsilon^2) \quad \text{(Hoeffding for each $f$)} \\
+&= 2|\mathcal{H}| \cdot \exp(-2n\epsilon^2) \quad \text{(Finiteness of $\mathcal{H}$)}
+\end{align}
+\end{greybox}
+
+\begin{bluebox}[Interpreting the Bound]
+\begin{itemize}
+    \item \textbf{$|\mathcal{H}|$ (hypothesis space size)}: Larger hypothesis spaces $\Rightarrow$ looser bounds. More models means more chances to overfit, so we need more data to get the same guarantee.
+    \item \textbf{$\exp(-2n\epsilon^2)$ (sample size effect)}: More data $\Rightarrow$ tighter bounds. Improvement is exponential in $n$.
+    \item \textbf{$\epsilon$ (tolerance)}: Smaller tolerance $\Rightarrow$ looser bounds. It is harder to guarantee small errors.
+\end{itemize}
+
+\textbf{The fundamental tradeoff}: Generalisation error increases with hypothesis space size but decreases with sample size. Richer model classes need more data.
+\end{bluebox}
+
+\subsection{Limitations of This Bound}
+
+\begin{enumerate}
+    \item \textbf{Finite hypothesis class required}: What about continuous parameters? Linear regression has infinitely many possible $\beta$ values.
+    \item \textbf{i.i.d.\ assumption}: Data must be independent and identically distributed.
+    \item \textbf{Looseness}: Hoeffding and union bounds may not be tight; the actual generalisation error is often much better than the bound suggests.
+\end{enumerate}
+
+These limitations motivate more sophisticated complexity measures like VC dimension and Rademacher complexity.
+
+%═══════════════════════════════════════════════════════════════════════════════
+\section{Measuring Hypothesis Class Complexity}
+%═══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary]
+Model complexity isn't simply ``number of parameters.'' \textbf{VC dimension} measures the largest set of points a hypothesis class can shatter (perfectly classify under any labelling). \textbf{Rademacher complexity} measures ability to fit random labels. Both capture the true flexibility of a model class and yield meaningful generalisation bounds, even for infinite-dimensional hypothesis classes.
+\end{bluebox}
+
+The generalisation bound above used $|\mathcal{H}|$ to measure complexity, but this only works for finite hypothesis classes. How do we quantify the ``richness'' of infinite hypothesis classes like all linear classifiers in $\mathbb{R}^d$?
+
+\begin{bluebox}[Approaches to Measuring Complexity]
+\begin{itemize}
+    \item \textbf{Parameter counting}: Number of free parameters (degrees of freedom)-simple but can be misleading
+    \item \textbf{Smoothness measures}: Derivative-based measures (e.g., Sobolev norms), quantifying ``wiggliness''
+    \item \textbf{VC dimension}: Largest set of points that can be ``shattered''-captures what the hypothesis class can represent
+    \item \textbf{Rademacher complexity}: Ability to fit random noise-captures effective flexibility on the data
+\end{itemize}
+\end{bluebox}
+
+\subsection{Intrinsic Dimensionality and the Manifold Hypothesis}
+
+Before discussing VC dimension, it is worth noting that the \textit{effective} complexity of a learning problem may be much lower than it appears.
+
+\begin{greybox}[Intrinsic Dimensionality]
+The \textbf{intrinsic dimensionality} of a dataset is the minimum number of parameters needed to accurately describe every point-the true ``complexity'' of the data, as opposed to the ambient dimension it is embedded in.
+
+\textbf{Examples}:
+\begin{itemize}
+    \item A circle in 2D has intrinsic dimension 1 (just need angle $\theta$)
+    \item Earth's surface in 3D has intrinsic dimension 2 (latitude and longitude suffice)
+    \item Face images in $10^6$-dimensional pixel space may vary along only $\sim50$ meaningful dimensions (pose, lighting, identity, expression)
+\end{itemize}
+\end{greybox}
+
+\begin{greybox}[Manifold Hypothesis]
+High-dimensional data often lies on or near a low-dimensional \textbf{manifold}-a surface that locally resembles Euclidean space of lower dimension.
+
+\textbf{Implications}:
+\begin{itemize}
+    \item High ambient dimensionality may mask low underlying intrinsic dimensionality
+    \item Learning may be easier than the nominal dimension suggests
+    \item Motivates dimensionality reduction techniques (PCA, t-SNE, autoencoders)
+\end{itemize}
+\end{greybox}
+
+\textit{Example: Location predicting vote choice}. Suppose we want to predict binary voting preferences from location features (latitude, longitude, height). If each coefficient $\beta_i$ can be $\{-1, 0, 1\}$:
+\begin{itemize}
+    \item With 3 features: $|\mathcal{H}| = 3^3 = 27$ models
+    \item With 2 features: $|\mathcal{H}| = 3^2 = 9$ models
+\end{itemize}
+
+The bound with 2 features is tighter. But is ``height'' truly adding information, or is it approximately determined by latitude and longitude (i.e., redundant)? If height is redundant, dropping it reduces hypothesis space complexity \textit{without} increasing approximation error-a pure win for generalisation.
+
+\subsection{VC Dimension}
+
+The Vapnik-Chervonenkis (VC) dimension provides a more principled measure of hypothesis class complexity that applies to infinite classes.
+
+\begin{greybox}[Shattering]
+A hypothesis class $\mathcal{H}$ \textbf{shatters} a set of $n$ points $\{x_1, \ldots, x_n\}$ if, for every possible labelling $(y_1, \ldots, y_n) \in \{0,1\}^n$, there exists some $f \in \mathcal{H}$ that correctly classifies all points:
+$$f(x_i) = y_i \quad \text{for all } i = 1, \ldots, n$$
+
+In other words, $\mathcal{H}$ can achieve zero training error on these $n$ points regardless of how they are labelled.
+\end{greybox}
+
+\textit{Intuition}: Shattering measures the ``expressiveness'' of $\mathcal{H}$. If $\mathcal{H}$ can shatter $n$ points, it can memorise any labelling of those points. This is both a strength (flexibility) and a weakness (potential for overfitting).
+
+\begin{greybox}[VC Dimension]
+The \textbf{VC dimension} $\text{VC}(\mathcal{H})$ is the largest number of points that can be shattered by $\mathcal{H}$:
+$$\text{VC}(\mathcal{H}) = \max\{n : \exists \{x_1, \ldots, x_n\} \text{ that } \mathcal{H} \text{ can shatter}\}$$
+
+If $\mathcal{H}$ can shatter arbitrarily large sets, we say $\text{VC}(\mathcal{H}) = \infty$.
+\end{greybox}
+
+\textit{Key point}: To show $\text{VC}(\mathcal{H}) \geq n$, we need to find \textit{some} set of $n$ points that can be shattered. To show $\text{VC}(\mathcal{H}) < n$, we need to show that \textit{no} set of $n$ points can be shattered.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_04_generalization/shattering.png}
+    \caption{Linear classifiers in 2D can shatter 3 points in general position: for any labelling of the 3 points, we can find a line that separates them correctly. Hence $\text{VC}(\text{linear classifiers in } \mathbb{R}^2) \geq 3$.}
+    \label{fig:shattering-1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_04_generalization/shattering 2.png}
+    \caption{However, 4 points in general position \textit{cannot} be shattered by linear classifiers in 2D. The ``XOR'' labelling (opposite corners have the same label) cannot be achieved by any line. Hence $\text{VC}(\text{linear classifiers in } \mathbb{R}^2) = 3 = d + 1$.}
+    \label{fig:shattering-2}
+\end{figure}
+
+\begin{redbox}[VC Dimension $\neq$ Parameter Count]
+A common misconception is that VC dimension equals the number of parameters. This is often approximately true but not always!
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_04_generalization/shattering 3.png}
+    \caption{The function $f(x) = \text{sign}(\sin(\omega x))$ has only \textbf{one parameter} ($\omega$) but \textbf{infinite VC dimension}. By choosing $\omega$ large enough, the function oscillates rapidly enough to shatter arbitrarily many points on the real line.}
+    \label{fig:shattering-3}
+\end{figure}
+
+This counterexample shows that counting parameters can dramatically underestimate the flexibility of a hypothesis class. The sine function is highly ``wiggly'' and can fit arbitrary patterns despite having only one tunable parameter.
+\end{redbox}
+
+\begin{bluebox}[VC Dimension for Common Hypothesis Classes]
+\begin{itemize}
+    \item \textbf{Linear classifiers in $\mathbb{R}^d$}: $\text{VC} = d + 1$
+    \item \textbf{Axis-aligned rectangles in $\mathbb{R}^d$}: $\text{VC} = 2d$
+    \item \textbf{Neural networks}: Roughly $O(W \log W)$ where $W$ is the number of weights (though this depends on architecture details)
+    \item \textbf{$\sin(\omega x)$}: $\text{VC} = \infty$ despite having 1 parameter
+\end{itemize}
+\end{bluebox}
+
+\subsection{The VC Bound}
+
+The VC dimension allows us to state generalisation bounds for infinite hypothesis classes, replacing $|\mathcal{H}|$ with $\text{VC}(\mathcal{H})$.
+
+\begin{greybox}[VC Generalisation Bound]
+With probability at least $1 - \delta$:
+$$\mathcal{R}(f^*_n) - \mathcal{R}(f^*) \leq \sqrt{\frac{1}{n}\left[V\left(\log\frac{2n}{V} + 1\right) - \log\frac{\delta}{4}\right]}$$
+
+where $V = \text{VC}(\mathcal{H})$.
+
+For large $n$, the bound scales as $O\left(\sqrt{\frac{V \log n}{n}}\right)$.
+\end{greybox}
+
+\textit{Interpretation}: The estimation error decreases as $O(1/\sqrt{n})$ with sample size, but increases with VC dimension. Richer hypothesis classes (higher $V$) need more data to achieve the same generalisation guarantee.
+
+\textit{Comparison to finite case}: For a finite hypothesis class, we had $O(\sqrt{\log |\mathcal{H}|/n})$. For infinite classes with VC dimension $V$, we have $O(\sqrt{V \log n / n})$. The VC dimension replaces $\log |\mathcal{H}|$-it's the ``effective'' log-size of the hypothesis class.
+
+\subsection{Rademacher Complexity}
+
+VC dimension is a worst-case measure over all possible data distributions. \textbf{Rademacher complexity} provides a data-dependent measure that can give tighter bounds for specific datasets.
+
+\begin{greybox}[Rademacher Complexity: Definition]
+The \textbf{empirical Rademacher complexity} of a hypothesis class $\mathcal{H}$ with respect to data $x_1, \ldots, x_n$ measures its ability to fit random noise.
+
+Generate random labels $\sigma_1, \ldots, \sigma_n \in \{-1, +1\}$ uniformly at random (Rademacher random variables). The empirical Rademacher complexity is:
+$$\hat{\mathcal{R}}_n(\mathcal{H}) = \mathbb{E}_\sigma \left[ \sup_{f \in \mathcal{H}} \frac{1}{n} \sum_{i=1}^n \sigma_i f(x_i) \right]$$
+
+This measures how well the best function in $\mathcal{H}$ can correlate with purely random labels.
+\end{greybox}
+
+\textit{Unpacking the definition}: The inner term $\frac{1}{n} \sum_{i=1}^n \sigma_i f(x_i)$ is the empirical correlation between $f$'s predictions and random labels. The $\sup$ finds the hypothesis that best fits these random labels. The expectation averages over all possible random labellings.
+
+\begin{bluebox}[Rademacher Complexity: Intuition]
+\begin{itemize}
+    \item If $\mathcal{H}$ is very flexible, it can fit random labels well: high Rademacher complexity
+    \item If $\mathcal{H}$ is constrained, it cannot fit random labels: low Rademacher complexity
+    \item Unlike VC dimension, Rademacher complexity is \textbf{data-dependent}-it can capture structure in the data distribution
+    \item A hypothesis class might have low Rademacher complexity on ``nice'' data even if it has high VC dimension
+\end{itemize}
+\end{bluebox}
+
+\textit{Connection to overfitting}: If a model class can fit random noise well (high Rademacher complexity), it can also memorise spurious patterns in real data-this is exactly overfitting. Rademacher complexity directly measures this tendency.
+
+\begin{greybox}[Rademacher Generalisation Bound]
+With probability at least $1 - \delta$:
+$$\mathcal{R}(f^*_n) \leq \hat{\mathcal{R}}_n(f^*_n) + 2\hat{\mathcal{R}}_n(\mathcal{H}) + 3\sqrt{\frac{\log(2/\delta)}{2n}}$$
+
+The generalisation gap is controlled by the Rademacher complexity.
+\end{greybox}
+
+%═══════════════════════════════════════════════════════════════════════════════
+\section{Structural Risk Minimisation}
+%═══════════════════════════════════════════════════════════════════════════════
+
+Given generalisation bounds, one might consider directly minimising them rather than using cross-validation:
+$$\hat{f} = \arg\min_{f \in \mathcal{H}} \left[\hat{\mathcal{R}}_n(f) + \text{complexity penalty}\right]$$
+
+This is \textbf{structural risk minimisation} (SRM). The idea is to balance empirical performance against hypothesis class complexity in a principled way derived from theory.
+
+\textit{Connection to regularisation}: SRM provides theoretical justification for regularisation. The complexity penalty in SRM corresponds to the regularisation term ($\lambda \|\beta\|^2$ in Ridge, $\lambda \|\beta\|_1$ in Lasso). We're adding a complexity cost to the objective, exactly as the theory recommends.
+
+\textbf{In practice}: Cross-validation usually works better because:
+\begin{itemize}
+    \item Theoretical bounds are often very loose (orders of magnitude)
+    \item Cross-validation adapts to the actual data distribution
+    \item SRM requires knowing or estimating the complexity measure, which can be hard
+\end{itemize}
+
+However, SRM provides conceptual insight: good learning algorithms should trade off fit against complexity.
+
+%═══════════════════════════════════════════════════════════════════════════════
+\section{Generalisation in Linear Regression}
+%═══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Section Summary]
+In linear regression, generalisation behaviour depends critically on the ratio $p/n$. In the \textbf{low-dimensional regime} ($p \ll n$), excess risk scales as $\frac{p\sigma^2}{n}$ and is dominated by variance. In the \textbf{high-dimensional regime} ($p \gg n$), bias dominates and the minimum-norm solution generalises differently. The transition at $p \approx n$ produces the \textbf{double descent} phenomenon, challenging classical intuitions about model complexity.
+\end{bluebox}
+
+We now examine generalisation specifically in the context of ordinary least squares (OLS) linear regression, where we can derive precise expressions for the estimation error.
+
+\subsection{OLS Estimation Error}
+
+\begin{greybox}[OLS Estimator Decomposition]
+The OLS estimator $\hat{\beta} = (X^\top X)^{-1}X^\top y$ can be decomposed as:
+$$\hat{\beta} = \beta^* + (X^\top X)^{-1}X^\top \epsilon$$
+
+where $\beta^*$ are the true parameters and $\epsilon$ is the noise vector.
+
+The \textbf{estimation error} $\hat{\beta} - \beta^* = (X^\top X)^{-1}X^\top \epsilon$ depends on:
+\begin{itemize}
+    \item The design matrix $X$ (specifically, how well-conditioned $X^\top X$ is)
+    \item The noise $\epsilon$
+\end{itemize}
+\end{greybox}
+
+\textit{Key insight}: The estimation error is linear in the noise. If $X^\top X$ is ``close to singular'' (has small eigenvalues), then $(X^\top X)^{-1}$ has large eigenvalues, amplifying the noise. This is the source of high variance in regression with correlated predictors.
+
+OLS is the Best Linear Unbiased Estimator (BLUE) under the Gauss-Markov assumptions. The estimation error vanishes in expectation ($\mathbb{E}[\hat{\beta}] = \beta^*$), but its variance depends on the design matrix and noise level.
+
+\subsection{Singular Value Decomposition (SVD)}
+
+To analyse generalisation in different dimensional regimes, we need the singular value decomposition, which reveals the geometric structure of the design matrix.
+
+\begin{greybox}[Singular Value Decomposition]
+Any $n \times p$ matrix $X$ of rank $r \leq \min(n, p)$ can be decomposed as:
+$$X = U \Sigma V^\top$$
+
+where:
+\begin{itemize}
+    \item $U$ is $n \times r$ with orthonormal columns: $U^\top U = I_r$
+    \item $\Sigma$ is $r \times r$ diagonal with singular values $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_r > 0$
+    \item $V$ is $p \times r$ with orthonormal columns: $V^\top V = I_r$
+\end{itemize}
+\end{greybox}
+
+\textit{What each component represents}:
+\begin{itemize}
+    \item The columns of $V$ are the \textbf{principal directions} in predictor space-the directions along which $X$ varies most
+    \item The singular values $\sigma_i$ quantify \textbf{how much variance} exists along each direction
+    \item The columns of $U$ are the \textbf{corresponding directions in observation space}
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_04_generalization/SVD1.png}
+    \caption{SVD dimensions: $X$ is $n \times p$, decomposed into $U$ ($n \times r$), $\Sigma$ ($r \times r$), and $V^\top$ ($r \times p$) where $r = \text{rank}(X)$.}
+    \label{fig:svd-dims}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/week_04_generalization/SVD2.png}
+    \caption{Geometric interpretation of SVD: any linear transformation can be decomposed as $V^\top$ (rotate input), $\Sigma$ (scale along axes), $U$ (rotate to output). SVD decomposes any linear transformation into rotation-scale-rotation.}
+    \label{fig:svd-transform}
+\end{figure}
+
+\begin{bluebox}[Key SVD Properties]
+\begin{itemize}
+    \item $X^\top X = V\Sigma^2 V^\top$ (eigendecomposition of $X^\top X$, with eigenvalues $\sigma_i^2$)
+    \item $XX^\top = U\Sigma^2 U^\top$ (eigendecomposition of $XX^\top$)
+    \item OLS predictions on training data: $\hat{y} = X\hat{\beta} = UU^\top y$ (projection onto column space of $X$)
+    \item Predictions on new data $\tilde{X}$: $\tilde{X}\hat{\beta} = \tilde{X}V\Sigma^{-1}U^\top y$
+\end{itemize}
+
+SVD provides a numerically stable way to compute the pseudo-inverse, even when $X^\top X$ is nearly singular or exactly singular.
+\end{bluebox}
+
+\textbf{Why SVD matters}: The SVD reveals the ``directions'' along which $X$ has variance (the columns of $V$) and how much variance exists in each direction (the singular values $\sigma_i$). Small singular values indicate near-collinearity, which inflates estimation variance.
+
+%═══════════════════════════════════════════════════════════════════════════════
+\section{Low vs High Dimensional Regimes}
+%═══════════════════════════════════════════════════════════════════════════════
+
+The behaviour of OLS depends critically on the relationship between $p$ (number of features) and $n$ (number of observations).
+
+\subsection{Low-Dimensional Regime: $p \ll n$}
+
+This is the ``classical statistics'' regime where we have many more observations than parameters.
+
+\begin{greybox}[Expected Risk in Low Dimensions]
+When $p \ll n$ and standard OLS assumptions hold (with isotropic design):
+$$R(\hat{\beta}) - R(\beta^*) = \frac{p}{n}\sigma^2$$
+
+where $\sigma^2$ is the noise variance.
+\end{greybox}
+
+\textit{Unpacking this formula}:
+\begin{itemize}
+    \item The excess risk is the variance of the estimator (no bias for OLS)
+    \item Each parameter contributes $\sigma^2/n$ to the variance
+    \item With $p$ parameters, total variance is $p\sigma^2/n$
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_04_generalization/low dim.png}
+    \caption{Low-dimensional regime: as $n$ increases, the excess risk decreases smoothly as $1/n$. More data leads to rapid improvement in generalisation.}
+    \label{fig:low-dim}
+\end{figure}
+
+\textbf{Interpretation}:
+\begin{itemize}
+    \item Risk scales linearly with $p$: more parameters $\Rightarrow$ more estimation error
+    \item Risk scales inversely with $n$: more data $\Rightarrow$ less error
+    \item The ratio $p/n$ is the key quantity controlling generalisation
+    \item Adding data provides \textbf{rapid} improvement ($\propto 1/n$)
+\end{itemize}
+
+\subsection{High-Dimensional Regime: $p > n$}
+
+When $p > n$, the system is underdetermined-there are infinitely many $\beta$ values that perfectly interpolate the training data (achieve zero training error). OLS as typically defined fails because $(X^\top X)^{-1}$ does not exist (the matrix is rank-deficient).
+
+However, the \textbf{minimum-norm} (Moore-Penrose pseudo-inverse) solution can still be computed. Among all interpolating solutions, this selects the one with smallest $\|\beta\|$.
+
+\begin{greybox}[Expected Risk in High Dimensions]
+When $p > n$ using the minimum-norm OLS solution:
+$$R(\hat{\beta}) - R(\beta^*) \approx \left(1 - \frac{n}{p}\right)\|\beta^*\|^2 + \frac{n}{p}\sigma^2$$
+\end{greybox}
+
+\textit{Unpacking this formula}:
+\begin{itemize}
+    \item The first term $(1 - n/p)\|\beta^*\|^2$ is essentially \textbf{bias}-the minimum-norm solution shrinks coefficients toward zero
+    \item The second term $\frac{n}{p}\sigma^2$ is the \textbf{variance} contribution
+    \item As $p \to \infty$ with $n$ fixed: bias dominates, approaching $\|\beta^*\|^2$
+    \item As $n$ increases with $p$ fixed: both terms decrease
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_04_generalization/high dim.png}
+    \caption{High-dimensional regime: the relationship between model complexity and error follows different dynamics. Bias dominates, and adding data helps only marginally when $p$ is very large.}
+    \label{fig:high-dim}
+\end{figure}
+
+\textbf{Interpretation}:
+\begin{itemize}
+    \item Adding more data ($n$) helps only marginally when $p$ is very large
+    \item The minimum-norm solution has low variance but high bias
+    \item This is the opposite of the low-dimensional regime where variance dominates
+\end{itemize}
+
+\begin{bluebox}[Comparing Regimes]
+\begin{center}
+\begin{tabular}{lcc}
+& \textbf{Low-dim ($p \ll n$)} & \textbf{High-dim ($p \gg n$)} \\
+\hline
+Risk scaling & $\frac{p}{n}\sigma^2$ & $(1 - \frac{n}{p})\|\beta^*\|^2 + \frac{n}{p}\sigma^2$ \\
+Dominant term & Variance & Bias \\
+Effect of more data & Rapid improvement ($\propto 1/n$) & Marginal improvement \\
+Key ratio & $p/n$ & $n/p$ \\
+\end{tabular}
+\end{center}
+\end{bluebox}
+
+\subsection{The Interpolation Threshold and Double Descent}
+
+Something interesting happens around $p \approx n$-the \textbf{interpolation threshold}. This is where the model transitions from underfitting (not enough parameters to fit the data) to interpolating (enough parameters to fit exactly).
+
+\begin{greybox}[Double Descent Phenomenon]
+Classical U-shaped bias-variance curves predict that test error should increase monotonically as model complexity exceeds the optimal point. However, empirical observations with neural networks and other overparameterised models show \textbf{double descent}:
+
+\begin{enumerate}
+    \item Error increases as $p$ approaches $n$ (classical regime)
+    \item Error \textbf{peaks} at the interpolation threshold $p \approx n$
+    \item Error \textbf{decreases again} as $p \gg n$ (overparameterised regime)
+\end{enumerate}
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/week_04_generalization/bias_variance_MSE.png}
+    \caption{Classical bias-variance tradeoff: total error (MSE, solid black) is the sum of squared bias (decreasing with complexity) and variance (increasing with complexity). The optimal complexity balances these two components. Double descent extends this picture into the overparameterised regime, where error can decrease again.}
+    \label{fig:bias-variance}
+\end{figure}
+
+\textbf{Why does the peak occur at $p \approx n$?} At the interpolation threshold:
+\begin{itemize}
+    \item The model \textit{just barely} has enough parameters to fit the training data
+    \item Small changes in data cause large changes in the fitted model
+    \item Variance is extremely high because the solution is sensitive to every training point
+    \item This is the worst of both worlds: interpolating noise with high variance
+\end{itemize}
+
+\textbf{Why does error decrease in the overparameterised regime?} When $p \gg n$:
+\begin{itemize}
+    \item Many different parameter vectors can interpolate the data
+    \item The minimum-norm solution selects the ``simplest'' interpolator
+    \item This implicit regularisation keeps the solution smooth despite perfect training fit
+    \item As $p$ increases, the minimum-norm solution becomes even smoother
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figures/week_04_generalization/choosing M.png}
+    \caption{Effect of model complexity on fit. (a) Low complexity (e.g., degree 2 polynomial): underfitting, high bias-the model cannot capture the pattern. (b) Medium complexity (e.g., degree 14): good fit-balancing bias and variance. (c) High complexity (e.g., degree 20): classical overfitting, high variance. (d) Training error decreases monotonically with complexity; test error is U-shaped in the classical regime but can exhibit double descent in the overparameterised regime.}
+    \label{fig:model-complexity}
+\end{figure}
+
+\begin{redbox}[Implications for Deep Learning]
+Double descent helps explain why deep neural networks with millions of parameters can generalise well despite classical theory predicting massive overfitting:
+\begin{itemize}
+    \item They operate deep in the overparameterised regime ($p \gg n$)
+    \item Gradient descent provides implicit regularisation toward ``simpler'' solutions
+    \item The effective complexity is much lower than the parameter count suggests
+\end{itemize}
+
+However, this does \textbf{not} mean ``more parameters is always better'':
+\begin{itemize}
+    \item The peak at the interpolation threshold is real and can be severe
+    \item Implicit regularisation depends on the optimisation algorithm and architecture
+    \item Explicit regularisation (weight decay, dropout) is still beneficial
+\end{itemize}
+\end{redbox}
+
+\begin{bluebox}[Connection to Week 5]
+Week 5 develops the theory of \textbf{benign overfitting}, explaining when and why interpolating models can generalise well:
+\begin{itemize}
+    \item The \textbf{manifold hypothesis}: data has low intrinsic dimension even in high-dimensional spaces
+    \item \textbf{$k$-split analysis}: SVD separates signal from noise components
+    \item \textbf{Conditions for benign overfitting}: requires high-dimensional noise to be roughly isotropic
+\end{itemize}
+This provides a modern perspective complementing classical learning theory.
+\end{bluebox}
+
+%═══════════════════════════════════════════════════════════════════════════════
+\section{Bias-Variance Decomposition}
+%═══════════════════════════════════════════════════════════════════════════════
+
+The expected prediction error can be decomposed into interpretable components, providing fundamental insight into the sources of error.
+
+\begin{greybox}[Bias-Variance-Noise Decomposition]
+For squared error loss, the expected prediction error at a new point $x$ can be written:
+$$\mathbb{E}[(y - \hat{f}(x))^2] = \underbrace{\text{Bias}[\hat{f}(x)]^2}_{\text{Systematic error}} + \underbrace{\text{Var}[\hat{f}(x)]}_{\text{Estimation variability}} + \underbrace{\sigma^2}_{\text{Irreducible noise}}$$
+
+where:
+\begin{itemize}
+    \item $\text{Bias}[\hat{f}(x)] = \mathbb{E}[\hat{f}(x)] - f^*(x)$ measures systematic deviation from the truth
+    \item $\text{Var}[\hat{f}(x)] = \mathbb{E}[(\hat{f}(x) - \mathbb{E}[\hat{f}(x)])^2]$ measures sensitivity to training data
+    \item $\sigma^2$ is the inherent noise in the data-generating process
+\end{itemize}
+\end{greybox}
+
+\textit{Unpacking each term}:
+
+\textbf{Bias}: If we could train our model on infinitely many datasets from the same distribution, bias is the difference between the average prediction and the truth. High bias means the model is systematically wrong, usually because it's too simple to capture the true pattern.
+
+\textbf{Variance}: How much does the prediction change when we train on different datasets? High variance means the model is very sensitive to the particular training set-it's picking up on noise rather than signal.
+
+\textbf{Irreducible error}: Even with the perfect model and infinite data, we can't do better than $\sigma^2$ because of inherent noise in $y$.
+
+\textbf{The fundamental tradeoff}:
+\begin{itemize}
+    \item \textbf{Simple models} (few parameters, strong regularisation): High bias, low variance. They consistently make similar predictions regardless of training data, but those predictions may be systematically off.
+    \item \textbf{Complex models} (many parameters, weak regularisation): Low bias, high variance. They can capture complex patterns but are sensitive to the particular training set.
+\end{itemize}
+
+\begin{bluebox}[Bias-Variance in Different Regimes]
+\textbf{Underparameterised ($p < n$)}:
+\begin{itemize}
+    \item Increasing complexity: bias $\downarrow$, variance $\uparrow$
+    \item Optimal complexity balances the two
+    \item Classical U-shaped test error curve
+\end{itemize}
+
+\textbf{At interpolation threshold ($p \approx n$)}:
+\begin{itemize}
+    \item Variance can become very large
+    \item Small changes in data cause large changes in the fit
+    \item Often the worst point for generalisation
+\end{itemize}
+
+\textbf{Overparameterised ($p \gg n$)}:
+\begin{itemize}
+    \item With implicit regularisation: both bias and variance can be low
+    \item This is the ``benign overfitting'' regime
+    \item The minimum-norm solution provides regularisation
+\end{itemize}
+\end{bluebox}
+
+%═══════════════════════════════════════════════════════════════════════════════
+\section{Summary}
+%═══════════════════════════════════════════════════════════════════════════════
+
+\begin{bluebox}[Key Concepts from Week 4]
+\begin{enumerate}
+    \item \textbf{Cross-validation}: The practical workhorse for estimating generalisation error
+    \begin{itemize}
+        \item K-fold CV balances bias and variance of the estimate ($K = 10$ is standard)
+        \item LOOCV has a closed-form shortcut for linear regression via the hat matrix
+        \item One standard error rule implements Occam's razor-prefer simpler models within noise margin
+        \item Use grouped/time-series variants for non-i.i.d.\ data to prevent information leakage
+        \item Nested CV provides unbiased estimation when also tuning hyperparameters
+    \end{itemize}
+
+    \item \textbf{Model selection criteria}: AIC and BIC as alternatives to CV
+    \begin{itemize}
+        \item AIC: targets prediction, penalty $2k$, tends to select larger models
+        \item BIC: targets model identification, penalty $k \log n$, tends to select smaller models
+        \item Both require likelihood framework; CV is more flexible
+    \end{itemize}
+
+    \item \textbf{Generalisation bounds}: Theoretical guarantees combining concentration inequalities (Hoeffding) and union bounds
+    \begin{itemize}
+        \item Error scales with $|\mathcal{H}|$ or VC dimension
+        \item Error decreases with sample size $n$
+        \item Bounds are typically loose but provide conceptual insight
+    \end{itemize}
+
+    \item \textbf{VC dimension}: Measures hypothesis class complexity via shattering
+    \begin{itemize}
+        \item Does not always equal parameter count ($\sin(\omega x)$ is the classic counterexample)
+        \item Enables bounds for infinite hypothesis classes
+        \item For linear classifiers in $\mathbb{R}^d$: $\text{VC} = d + 1$
+    \end{itemize}
+
+    \item \textbf{Rademacher complexity}: Data-dependent complexity measure
+    \begin{itemize}
+        \item Measures ability to fit random labels
+        \item Can give tighter bounds than VC dimension for specific data distributions
+    \end{itemize}
+
+    \item \textbf{Dimensional regimes}: Low-dim ($p \ll n$) and high-dim ($p \gg n$) have different error dynamics
+    \begin{itemize}
+        \item Low-dim: variance dominates, more data helps rapidly ($\propto 1/n$)
+        \item High-dim: bias dominates, more data helps marginally
+        \item Double descent: error peaks at $p \approx n$, then decreases in overparameterised regime
+    \end{itemize}
+
+    \item \textbf{Bias-variance tradeoff}: Fundamental decomposition of prediction error
+    \begin{itemize}
+        \item Simple models: high bias, low variance
+        \item Complex models: low bias, high variance
+        \item Overparameterised models with implicit regularisation: can achieve low bias \textit{and} low variance
+    \end{itemize}
+\end{enumerate}
+\end{bluebox}

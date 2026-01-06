@@ -1,0 +1,1048 @@
+% =============================================================================
+% Week 4: Calculus I: Differentiation and Maximum Likelihood Estimation
+% =============================================================================
+
+\chapter{Week 4: Calculus I: Differentiation and Maximum Likelihood Estimation}
+\label{ch:week4}
+
+\begin{bluebox}[Learning Objectives]
+By the end of this chapter, you should be able to:
+\begin{itemize}
+    \item State and apply the fundamental rules of differentiation: constant, power, sum, product, quotient, and chain rules
+    \item Derive and apply formulas for exponential and logarithmic functions
+    \item Understand the relationship between differentiation and finding optima
+    \item Construct likelihood functions from probability models
+    \item Apply maximum likelihood estimation to derive estimators for common distributions
+    \item Use the log-likelihood to simplify optimisation problems
+    \item Verify maxima using the second derivative test
+\end{itemize}
+\end{bluebox}
+
+\textbf{Prerequisites:} This chapter assumes familiarity with basic algebraic manipulation and function notation, the concept of a limit (intuitive understanding suffices), probability distributions: Bernoulli, Binomial, Poisson (\cref{ch:week2}), and the i.i.d.\ assumption for random samples.
+
+% =============================================================================
+\section{Differentiation: Foundations}
+\label{sec:differentiation-foundations}
+% =============================================================================
+
+Differentiation is the mathematical tool for measuring instantaneous rates of change. Given a function $f(x)$, its derivative $f'(x)$ tells us how rapidly $f$ changes as $x$ varies. In data science, differentiation is indispensable for:
+
+\begin{itemize}
+    \item \textbf{Optimisation:} Finding maxima and minima of functions (e.g., maximising likelihood, minimising loss)
+    \item \textbf{Sensitivity analysis:} Understanding how outputs depend on inputs
+    \item \textbf{Gradient-based learning:} Training neural networks via backpropagation
+\end{itemize}
+
+\begin{definition}[Derivative]
+\label{def:derivative}
+The derivative of a function $f$ at a point $x$ is defined as the limit:
+\begin{equation}
+    f'(x) = \lim_{h \to 0} \frac{f(x + h) - f(x)}{h}
+    \label{eq:derivative-def}
+\end{equation}
+provided this limit exists. Alternative notations include $\frac{df}{dx}$, $\frac{d}{dx}f(x)$, and $Df(x)$.
+\end{definition}
+
+\begin{intuition}[The Derivative as a Slope]
+The derivative $f'(x)$ is the slope of the tangent line to the curve $y = f(x)$ at the point $(x, f(x))$. The limit definition captures this by considering the slope of secant lines through $(x, f(x))$ and $(x + h, f(x + h))$, then taking $h \to 0$ to get the tangent.
+\end{intuition}
+
+% =============================================================================
+\section{Differentiation Rules}
+\label{sec:differentiation-rules}
+% =============================================================================
+
+Rather than computing derivatives from the limit definition each time, we use a collection of rules that cover most practical cases. We present each rule with a formal statement and proof.
+
+\subsection{Rule 1: Constant Rule}
+
+\begin{theorem}[Constant Rule]
+\label{thm:constant-rule}
+If $f(x) = c$ where $c$ is a constant, then:
+\[
+    \frac{d}{dx}[c] = 0
+\]
+\end{theorem}
+
+\begin{proof}
+Using the limit definition:
+\[
+    \frac{d}{dx}[c] = \lim_{h \to 0} \frac{c - c}{h} = \lim_{h \to 0} \frac{0}{h} = \lim_{h \to 0} 0 = 0 \qedhere
+\]
+\end{proof}
+
+\begin{intuition}
+A constant function is a horizontal line. Horizontal lines have zero slope everywhere, so the derivative is zero.
+\end{intuition}
+
+\subsection{Rule 2: Power Rule}
+
+\begin{theorem}[Power Rule]
+\label{thm:power-rule}
+For any real number $n$:
+\begin{equation}
+    \frac{d}{dx}[x^n] = nx^{n-1}
+    \label{eq:power-rule}
+\end{equation}
+\end{theorem}
+
+\begin{bluebox}[Power Rule]
+\[
+    \frac{d}{dx}[x^n] = nx^{n-1}
+\]
+Examples:
+\begin{itemize}
+    \item $\frac{d}{dx}[x^3] = 3x^2$
+    \item $\frac{d}{dx}[x^{-1}] = -x^{-2}$
+    \item $\frac{d}{dx}[\sqrt{x}] = \frac{d}{dx}[x^{1/2}] = \frac{1}{2}x^{-1/2}$
+\end{itemize}
+\end{bluebox}
+
+\begin{proof}
+We prove this for positive integer $n$ using the binomial theorem. For $f(x) = x^n$:
+\[
+    f'(x) = \lim_{h \to 0} \frac{(x + h)^n - x^n}{h}
+\]
+Expanding $(x + h)^n$ using the binomial theorem:
+\[
+    (x + h)^n = \sum_{k=0}^{n} \binom{n}{k} x^{n-k} h^k = x^n + nx^{n-1}h + \binom{n}{2}x^{n-2}h^2 + \cdots + h^n
+\]
+Therefore:
+\begin{align*}
+    f'(x) &= \lim_{h \to 0} \frac{x^n + nx^{n-1}h + \binom{n}{2}x^{n-2}h^2 + \cdots + h^n - x^n}{h} \\
+    &= \lim_{h \to 0} \frac{nx^{n-1}h + \binom{n}{2}x^{n-2}h^2 + \cdots + h^n}{h} \\
+    &= \lim_{h \to 0} \left( nx^{n-1} + \binom{n}{2}x^{n-2}h + \cdots + h^{n-1} \right) \\
+    &= nx^{n-1}
+\end{align*}
+The result extends to all real $n$ via logarithmic differentiation (see \cref{sec:log-diff}).
+\end{proof}
+
+\subsection{Rule 3: Constant Multiple Rule}
+
+\begin{theorem}[Constant Multiple Rule]
+\label{thm:constant-multiple-rule}
+If $c$ is a constant and $f$ is differentiable, then:
+\begin{equation}
+    \frac{d}{dx}[c \cdot f(x)] = c \cdot \frac{d}{dx}[f(x)] = c \cdot f'(x)
+    \label{eq:constant-multiple-rule}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Using the limit definition:
+\begin{align*}
+    \frac{d}{dx}[c \cdot f(x)] &= \lim_{h \to 0} \frac{c \cdot f(x + h) - c \cdot f(x)}{h} \\
+    &= \lim_{h \to 0} c \cdot \frac{f(x + h) - f(x)}{h} \\
+    &= c \cdot \lim_{h \to 0} \frac{f(x + h) - f(x)}{h} \\
+    &= c \cdot f'(x) \qedhere
+\end{align*}
+\end{proof}
+
+\begin{intuition}
+Constants factor out of derivatives. This is because differentiation is a \emph{linear operator}: scaling a function scales its rate of change by the same factor.
+\end{intuition}
+
+\subsection{Rule 4: Sum and Difference Rule}
+
+\begin{theorem}[Sum and Difference Rule]
+\label{thm:sum-diff-rule}
+If $f$ and $g$ are differentiable, then:
+\begin{equation}
+    \frac{d}{dx}[f(x) \pm g(x)] = f'(x) \pm g'(x)
+    \label{eq:sum-diff-rule}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+For the sum (the difference follows analogously):
+\begin{align*}
+    \frac{d}{dx}[f(x) + g(x)] &= \lim_{h \to 0} \frac{[f(x + h) + g(x + h)] - [f(x) + g(x)]}{h} \\
+    &= \lim_{h \to 0} \frac{f(x + h) - f(x)}{h} + \lim_{h \to 0} \frac{g(x + h) - g(x)}{h} \\
+    &= f'(x) + g'(x) \qedhere
+\end{align*}
+\end{proof}
+
+\begin{bluebox}[Linearity of Differentiation]
+Combining the constant multiple and sum rules, differentiation is a linear operator:
+\[
+    \frac{d}{dx}[af(x) + bg(x)] = a \cdot f'(x) + b \cdot g'(x)
+\]
+for any constants $a$ and $b$.
+\end{bluebox}
+
+\subsection{Rule 5: Product Rule}
+
+\begin{theorem}[Product Rule]
+\label{thm:product-rule}
+If $f$ and $g$ are differentiable, then:
+\begin{equation}
+    \frac{d}{dx}[f(x) \cdot g(x)] = f'(x) \cdot g(x) + f(x) \cdot g'(x)
+    \label{eq:product-rule}
+\end{equation}
+\end{theorem}
+
+\begin{bluebox}[Product Rule]
+\[
+    (fg)' = f'g + fg'
+\]
+Mnemonic: derivative of first times second, plus first times derivative of second.
+\end{bluebox}
+
+\begin{proof}
+Using a clever algebraic manipulation:
+\[
+    \frac{d}{dx}[f(x)g(x)] = \lim_{h \to 0} \frac{f(x + h)g(x + h) - f(x)g(x)}{h}
+\]
+We add and subtract $f(x + h)g(x)$ in the numerator:
+\begin{align*}
+    &= \lim_{h \to 0} \frac{f(x + h)g(x + h) - f(x + h)g(x) + f(x + h)g(x) - f(x)g(x)}{h} \\
+    &= \lim_{h \to 0} \frac{f(x + h)[g(x + h) - g(x)] + g(x)[f(x + h) - f(x)]}{h} \\
+    &= \lim_{h \to 0} f(x + h) \cdot \frac{g(x + h) - g(x)}{h} + \lim_{h \to 0} g(x) \cdot \frac{f(x + h) - f(x)}{h} \\
+    &= f(x) \cdot g'(x) + g(x) \cdot f'(x)
+\end{align*}
+where we used that $\lim_{h \to 0} f(x + h) = f(x)$ by continuity (differentiability implies continuity).
+\end{proof}
+
+\begin{example}[Product Rule Application]
+\label{ex:product-rule}
+Find $\frac{d}{dx}[x^2 \sin(x)]$.
+
+\textbf{Solution:} Let $f(x) = x^2$ and $g(x) = \sin(x)$. Then $f'(x) = 2x$ and $g'(x) = \cos(x)$.
+\[
+    \frac{d}{dx}[x^2 \sin(x)] = 2x \cdot \sin(x) + x^2 \cdot \cos(x) = 2x\sin(x) + x^2\cos(x)
+\]
+\end{example}
+
+\begin{warning}[The Derivative of a Product is NOT the Product of Derivatives]
+A common error is to assume $(fg)' = f' \cdot g'$. This is false. For example:
+\[
+    \frac{d}{dx}[x \cdot x] = \frac{d}{dx}[x^2] = 2x \neq 1 \cdot 1 = 1
+\]
+Always use the product rule.
+\end{warning}
+
+\subsection{Rule 6: Quotient Rule}
+
+\begin{theorem}[Quotient Rule]
+\label{thm:quotient-rule}
+If $f$ and $g$ are differentiable and $g(x) \neq 0$, then:
+\begin{equation}
+    \frac{d}{dx}\left[\frac{f(x)}{g(x)}\right] = \frac{f'(x) \cdot g(x) - f(x) \cdot g'(x)}{[g(x)]^2}
+    \label{eq:quotient-rule}
+\end{equation}
+\end{theorem}
+
+\begin{bluebox}[Quotient Rule]
+\[
+    \left(\frac{f}{g}\right)' = \frac{f'g - fg'}{g^2}
+\]
+Mnemonic: lo d-hi minus hi d-lo, over lo-lo (where hi = numerator, lo = denominator).
+\end{bluebox}
+
+\begin{proof}
+We can derive this from the product rule by writing $\frac{f}{g} = f \cdot g^{-1}$:
+\[
+    \frac{d}{dx}\left[\frac{f(x)}{g(x)}\right] = \frac{d}{dx}[f(x) \cdot (g(x))^{-1}]
+    = f'(x) \cdot (g(x))^{-1} + f(x) \cdot \frac{d}{dx}[(g(x))^{-1}]
+\]
+Using the chain rule (proved below), $\frac{d}{dx}[(g(x))^{-1}] = -\frac{g'(x)}{(g(x))^2}$. Therefore:
+\begin{align*}
+    \frac{d}{dx}\left[\frac{f(x)}{g(x)}\right] &= \frac{f'(x)}{g(x)} - \frac{f(x) \cdot g'(x)}{(g(x))^2} \\
+    &= \frac{f'(x) \cdot g(x) - f(x) \cdot g'(x)}{(g(x))^2} \qedhere
+\end{align*}
+\end{proof}
+
+\begin{example}[Quotient Rule Application]
+\label{ex:quotient-rule}
+Find $\frac{d}{dx}\left[\frac{x^2 + 1}{x - 3}\right]$.
+
+\textbf{Solution:} Let $f(x) = x^2 + 1$ and $g(x) = x - 3$. Then $f'(x) = 2x$ and $g'(x) = 1$.
+\begin{align*}
+    \frac{d}{dx}\left[\frac{x^2 + 1}{x - 3}\right] &= \frac{2x(x - 3) - (x^2 + 1)(1)}{(x - 3)^2} \\
+    &= \frac{2x^2 - 6x - x^2 - 1}{(x - 3)^2} \\
+    &= \frac{x^2 - 6x - 1}{(x - 3)^2}
+\end{align*}
+\end{example}
+
+\subsection{Rule 7: Chain Rule}
+
+The chain rule is perhaps the most important differentiation rule, as it allows us to differentiate compositions of functions.
+
+\begin{theorem}[Chain Rule]
+\label{thm:chain-rule}
+If $g$ is differentiable at $x$ and $f$ is differentiable at $g(x)$, then the composite function $f \circ g$ is differentiable at $x$, and:
+\begin{equation}
+    \frac{d}{dx}[f(g(x))] = f'(g(x)) \cdot g'(x)
+    \label{eq:chain-rule}
+\end{equation}
+\end{theorem}
+
+\begin{bluebox}[Chain Rule]
+Using Leibniz notation, if $y = f(u)$ and $u = g(x)$, then:
+\[
+    \frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx}
+\]
+In words: the derivative of the outer function (evaluated at the inner) times the derivative of the inner function.
+\end{bluebox}
+
+\begin{proof}[Proof Sketch]
+The intuitive argument proceeds as follows. If $u = g(x)$, then a small change $\Delta x$ in $x$ produces a change $\Delta u \approx g'(x)\Delta x$ in $u$. This change in $u$ then produces a change $\Delta y \approx f'(u)\Delta u$ in $y$. Combining:
+\[
+    \frac{\Delta y}{\Delta x} \approx \frac{f'(u)\Delta u}{\Delta x} = f'(u) \cdot \frac{\Delta u}{\Delta x} \approx f'(g(x)) \cdot g'(x)
+\]
+Taking limits as $\Delta x \to 0$ yields the result. A rigorous proof requires careful handling of the case when $g(x + h) = g(x)$ for arbitrarily small $h$.
+\end{proof}
+
+\begin{example}[Chain Rule Application]
+\label{ex:chain-rule}
+Find $\frac{d}{dx}\left[(x^2 + 1)^{10}\right]$.
+
+\textbf{Solution:} Let $u = g(x) = x^2 + 1$ (inner function) and $y = f(u) = u^{10}$ (outer function).
+
+\textbf{Step 1:} Differentiate the outer function: $\frac{dy}{du} = 10u^9$
+
+\textbf{Step 2:} Differentiate the inner function: $\frac{du}{dx} = 2x$
+
+\textbf{Step 3:} Apply the chain rule:
+\[
+    \frac{dy}{dx} = \frac{dy}{du} \cdot \frac{du}{dx} = 10u^9 \cdot 2x = 10(x^2 + 1)^9 \cdot 2x = 20x(x^2 + 1)^9
+\]
+\end{example}
+
+\begin{example}[Chain Rule: Normal Distribution PDF]
+\label{ex:chain-normal-pdf}
+The standard normal probability density function is:
+\[
+    \phi(x) = \frac{1}{\sqrt{2\pi}} e^{-\frac{1}{2}x^2}
+\]
+Find $\phi'(x)$.
+
+\textbf{Solution:} First, factor out the constant $\frac{1}{\sqrt{2\pi}}$:
+\[
+    \phi'(x) = \frac{1}{\sqrt{2\pi}} \cdot \frac{d}{dx}\left[e^{-\frac{1}{2}x^2}\right]
+\]
+Let $u = -\frac{1}{2}x^2$ (inner) and $y = e^u$ (outer). Then:
+\[
+    \frac{dy}{du} = e^u, \qquad \frac{du}{dx} = -x
+\]
+By the chain rule:
+\[
+    \frac{d}{dx}\left[e^{-\frac{1}{2}x^2}\right] = e^{-\frac{1}{2}x^2} \cdot (-x) = -xe^{-\frac{1}{2}x^2}
+\]
+Therefore:
+\[
+    \phi'(x) = \frac{1}{\sqrt{2\pi}} \cdot \left(-xe^{-\frac{1}{2}x^2}\right) = -\frac{x}{\sqrt{2\pi}} e^{-\frac{1}{2}x^2} = -x \cdot \phi(x)
+\]
+This shows that the derivative of the standard normal PDF is $-x$ times the PDF itself.
+\end{example}
+
+% =============================================================================
+\section{Exponential and Logarithmic Derivatives}
+\label{sec:exp-log-derivatives}
+% =============================================================================
+
+Exponential and logarithmic functions are ubiquitous in statistics and data science: they appear in probability distributions, likelihood functions, entropy, and information theory. Understanding their derivatives is essential.
+
+\subsection{The Natural Exponential Function}
+
+\begin{theorem}[Derivative of the Natural Exponential]
+\label{thm:exp-derivative}
+The function $f(x) = e^x$ is its own derivative:
+\begin{equation}
+    \frac{d}{dx}[e^x] = e^x
+    \label{eq:exp-derivative}
+\end{equation}
+\end{theorem}
+
+\begin{bluebox}[Exponential Derivative]
+\[
+    \frac{d}{dx}[e^x] = e^x
+\]
+This is the defining property of the number $e \approx 2.71828$. The exponential function is the unique function (up to scaling) that equals its own derivative.
+\end{bluebox}
+
+\begin{proof}
+This can be proved from the definition $e = \lim_{n \to \infty} \left(1 + \frac{1}{n}\right)^n$, but a cleaner approach uses the series definition:
+\[
+    e^x = \sum_{k=0}^{\infty} \frac{x^k}{k!} = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \cdots
+\]
+Differentiating term by term:
+\[
+    \frac{d}{dx}[e^x] = 0 + 1 + \frac{2x}{2!} + \frac{3x^2}{3!} + \cdots = 1 + x + \frac{x^2}{2!} + \cdots = e^x \qedhere
+\]
+\end{proof}
+
+\begin{corollary}[Chain Rule with Exponential]
+\label{cor:exp-chain}
+For any differentiable function $u(x)$:
+\[
+    \frac{d}{dx}[e^{u(x)}] = e^{u(x)} \cdot u'(x)
+\]
+\end{corollary}
+
+\subsection{General Exponential Functions}
+
+\begin{theorem}[Derivative of General Exponential]
+\label{thm:general-exp}
+For any positive constant $a > 0$, $a \neq 1$:
+\begin{equation}
+    \frac{d}{dx}[a^x] = a^x \ln(a)
+    \label{eq:general-exp}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+We use the identity $a^x = e^{x \ln a}$. By the chain rule:
+\[
+    \frac{d}{dx}[a^x] = \frac{d}{dx}[e^{x \ln a}] = e^{x \ln a} \cdot \ln(a) = a^x \ln(a) \qedhere
+\]
+\end{proof}
+
+\begin{warning}[Power Rule vs Exponential Rule]
+The power rule applies when the base is the variable: $\frac{d}{dx}[x^n] = nx^{n-1}$
+
+The exponential rule applies when the exponent is the variable: $\frac{d}{dx}[a^x] = a^x \ln(a)$
+
+These are fundamentally different operations. A common error is to apply the power rule to exponential functions.
+\end{warning}
+
+\begin{example}[General Exponential Derivatives]
+\label{ex:general-exp}
+\begin{enumerate}
+    \item $\frac{d}{dx}[10^x] = 10^x \ln(10)$
+    \item $\frac{d}{dx}[2^{4x}]$: Here $u = 4x$, so by the chain rule:
+    \[
+        \frac{d}{dx}[2^{4x}] = 2^{4x} \ln(2) \cdot 4 = 4\ln(2) \cdot 2^{4x}
+    \]
+    \item $\frac{d}{dx}[2^{4x} + 4x^2] = 4\ln(2) \cdot 2^{4x} + 8x$
+\end{enumerate}
+\end{example}
+
+More generally, when differentiating $a^{u(x)}$ where $u$ is a function of $x$:
+\begin{equation}
+    \frac{d}{dx}[a^{u(x)}] = a^{u(x)} \cdot \ln(a) \cdot u'(x)
+    \label{eq:general-exp-chain}
+\end{equation}
+
+\subsection{The Natural Logarithm}
+
+\begin{theorem}[Derivative of the Natural Logarithm]
+\label{thm:ln-derivative}
+For $x > 0$:
+\begin{equation}
+    \frac{d}{dx}[\ln(x)] = \frac{1}{x}
+    \label{eq:ln-derivative}
+\end{equation}
+\end{theorem}
+
+\begin{bluebox}[Logarithmic Derivative]
+\[
+    \frac{d}{dx}[\ln(x)] = \frac{1}{x}
+\]
+This is the inverse relationship to $\frac{d}{dx}[e^x] = e^x$.
+\end{bluebox}
+
+\begin{proof}
+Since $\ln(x)$ is the inverse of $e^x$, we have $e^{\ln x} = x$. Differentiating both sides:
+\[
+    \frac{d}{dx}[e^{\ln x}] = \frac{d}{dx}[x]
+\]
+By the chain rule on the left:
+\[
+    e^{\ln x} \cdot \frac{d}{dx}[\ln x] = 1
+\]
+Since $e^{\ln x} = x$:
+\[
+    x \cdot \frac{d}{dx}[\ln x] = 1 \implies \frac{d}{dx}[\ln x] = \frac{1}{x} \qedhere
+\]
+\end{proof}
+
+\begin{corollary}[Chain Rule with Logarithm]
+\label{cor:ln-chain}
+For any positive differentiable function $u(x) > 0$:
+\[
+    \frac{d}{dx}[\ln(u(x))] = \frac{u'(x)}{u(x)}
+\]
+\end{corollary}
+
+\begin{example}[Logarithmic Derivatives]
+\label{ex:log-derivatives}
+\begin{enumerate}
+    \item $\frac{d}{dx}[\ln(x^2 + 1)]$: Let $u = x^2 + 1$, so $u' = 2x$:
+    \[
+        \frac{d}{dx}[\ln(x^2 + 1)] = \frac{2x}{x^2 + 1}
+    \]
+    \item $\frac{d}{d\theta}[\ln(1 - \theta)]$: Let $u = 1 - \theta$, so $\frac{du}{d\theta} = -1$:
+    \[
+        \frac{d}{d\theta}[\ln(1 - \theta)] = \frac{-1}{1 - \theta} = -\frac{1}{1 - \theta}
+    \]
+    This derivative appears frequently in MLE derivations.
+\end{enumerate}
+\end{example}
+
+\subsection{Logarithmic Differentiation}
+\label{sec:log-diff}
+
+Logarithmic differentiation is a powerful technique for differentiating complicated products, quotients, and functions with variable bases and exponents.
+
+\begin{theorem}[General Power Rule via Logarithmic Differentiation]
+\label{thm:general-power-rule}
+For $x > 0$ and any real $n$:
+\[
+    \frac{d}{dx}[x^n] = nx^{n-1}
+\]
+\end{theorem}
+
+\begin{proof}
+Write $y = x^n$. Taking logarithms: $\ln y = n \ln x$.
+
+Differentiating both sides with respect to $x$:
+\[
+    \frac{1}{y} \cdot \frac{dy}{dx} = \frac{n}{x}
+\]
+Solving for $\frac{dy}{dx}$:
+\[
+    \frac{dy}{dx} = y \cdot \frac{n}{x} = x^n \cdot \frac{n}{x} = nx^{n-1} \qedhere
+\]
+\end{proof}
+
+% =============================================================================
+\section{Power Series: A Brief Introduction}
+\label{sec:power-series}
+% =============================================================================
+
+Power series provide a way to represent functions as infinite polynomials. This is particularly useful because polynomials are easy to differentiate, integrate, and manipulate.
+
+\begin{definition}[Power Series]
+\label{def:power-series}
+A power series centred at $a$ is an infinite sum of the form:
+\begin{equation}
+    \sum_{k=0}^{\infty} c_k (x - a)^k = c_0 + c_1(x - a) + c_2(x - a)^2 + c_3(x - a)^3 + \cdots
+    \label{eq:power-series}
+\end{equation}
+where $c_0, c_1, c_2, \ldots$ are constants called the \emph{coefficients}. When $a = 0$, this simplifies to:
+\[
+    \sum_{k=0}^{\infty} c_k x^k = c_0 + c_1 x + c_2 x^2 + c_3 x^3 + \cdots
+\]
+\end{definition}
+
+\begin{bluebox}[Why Power Series Matter]
+Many ``ugly'' functions (exponentials, logarithms, trigonometric functions) have power series representations. When we express a function as a power series:
+\begin{itemize}
+    \item We can differentiate term by term using the power rule
+    \item We can integrate term by term
+    \item We can approximate the function by truncating the series
+\end{itemize}
+\end{bluebox}
+
+\begin{warning}[Convergence]
+Not every power series converges for all $x$. The \emph{radius of convergence} $R$ determines where the series is valid:
+\begin{itemize}
+    \item If $|x - a| < R$: the series converges (the partial sums approach a finite limit)
+    \item If $|x - a| > R$: the series diverges (the partial sums grow without bound)
+    \item At $|x - a| = R$: convergence must be checked individually
+\end{itemize}
+For example, the geometric series $\sum_{k=0}^{\infty} x^k$ converges to $\frac{1}{1-x}$ only when $|x| < 1$.
+\end{warning}
+
+\begin{example}[Geometric Series]
+\label{ex:geometric-series}
+For $|x| < 1$:
+\[
+    \sum_{k=0}^{\infty} x^k = 1 + x + x^2 + x^3 + \cdots = \frac{1}{1 - x}
+\]
+To verify: if $S = 1 + x + x^2 + \cdots$, then $xS = x + x^2 + x^3 + \cdots = S - 1$, so $S - xS = 1$, giving $S = \frac{1}{1-x}$.
+\end{example}
+
+The Taylor series (covered in detail in later chapters) provides a systematic way to find the coefficients $c_k$ for a given function. For now, the key insight is that power series connect to differentiation: the coefficients are determined by the function's derivatives at the centre point $a$.
+
+% =============================================================================
+\section{Optimisation: Finding Maxima and Minima}
+\label{sec:optimisation}
+% =============================================================================
+
+One of the most important applications of differentiation is finding the maximum or minimum values of a function. This is directly relevant to Maximum Likelihood Estimation.
+
+\subsection{Critical Points}
+
+\begin{definition}[Critical Point]
+\label{def:critical-point}
+A \textbf{critical point} of a function $f$ is a point $x = c$ where either:
+\begin{enumerate}
+    \item $f'(c) = 0$ (the derivative is zero), or
+    \item $f'(c)$ does not exist
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Fermat's Theorem]
+\label{thm:fermat}
+If $f$ has a local maximum or minimum at $c$, and $f'(c)$ exists, then $f'(c) = 0$.
+\end{theorem}
+
+\begin{warning}[Converse is False]
+The converse of Fermat's theorem is not true: $f'(c) = 0$ does not guarantee that $c$ is a local extremum. For example, $f(x) = x^3$ has $f'(0) = 0$, but $x = 0$ is neither a maximum nor a minimum (it's an inflection point).
+\end{warning}
+
+\subsection{Second Derivative Test}
+
+The second derivative test helps classify critical points.
+
+\begin{theorem}[Second Derivative Test]
+\label{thm:second-derivative-test}
+Suppose $f''$ is continuous near $c$ and $f'(c) = 0$. Then:
+\begin{enumerate}
+    \item If $f''(c) > 0$, then $f$ has a \textbf{local minimum} at $c$
+    \item If $f''(c) < 0$, then $f$ has a \textbf{local maximum} at $c$
+    \item If $f''(c) = 0$, the test is \textbf{inconclusive}
+\end{enumerate}
+\end{theorem}
+
+\begin{bluebox}[Second Derivative Test for MLE]
+In Maximum Likelihood Estimation, we want to maximise the likelihood. After finding a critical point $\hat{\theta}$ where $\left.\frac{d\ell}{d\theta}\right|_{\theta = \hat{\theta}} = 0$, we verify it's a maximum by checking:
+\[
+    \left.\frac{d^2\ell}{d\theta^2}\right|_{\theta = \hat{\theta}} < 0
+\]
+A negative second derivative confirms we have a maximum.
+\end{bluebox}
+
+\begin{intuition}[Concavity and the Second Derivative]
+The second derivative measures concavity:
+\begin{itemize}
+    \item $f''(x) > 0$: the function is \emph{concave up} (shaped like a cup $\cup$) --- holds water
+    \item $f''(x) < 0$: the function is \emph{concave down} (shaped like a cap $\cap$) --- sheds water
+\end{itemize}
+At a critical point with $f'(c) = 0$:
+\begin{itemize}
+    \item Concave up $\implies$ local minimum (the cup's bottom)
+    \item Concave down $\implies$ local maximum (the cap's peak)
+\end{itemize}
+\end{intuition}
+
+% =============================================================================
+\section{Maximum Likelihood Estimation}
+\label{sec:mle}
+% =============================================================================
+
+Maximum Likelihood Estimation (MLE) is a fundamental method for estimating the parameters of a statistical model. Given observed data, MLE finds the parameter values that make the observed data most probable.
+
+\subsection{The Core Idea}
+
+\begin{bluebox}[The MLE Philosophy]
+Suppose we observe data $x_1, x_2, \ldots, x_n$. We believe this data comes from some probability distribution with unknown parameter $\theta$. Different values of $\theta$ assign different probabilities to our observed data:
+\begin{itemize}
+    \item Some values of $\theta$ make our data look very likely
+    \item Some values of $\theta$ make our data look very unlikely
+\end{itemize}
+MLE chooses the value of $\theta$ that makes our observed data as likely as possible.
+\end{bluebox}
+
+\subsection{The Likelihood Function}
+
+\begin{definition}[Likelihood Function]
+\label{def:likelihood}
+Given a statistical model with parameter $\theta$ and observed data $\mathbf{x} = (x_1, x_2, \ldots, x_n)$, the \textbf{likelihood function} is:
+\begin{equation}
+    L(\theta; \mathbf{x}) = f(\mathbf{x}; \theta)
+    \label{eq:likelihood}
+\end{equation}
+where $f(\mathbf{x}; \theta)$ is the joint PMF (for discrete data) or joint PDF (for continuous data), viewed as a function of $\theta$ with the data $\mathbf{x}$ held fixed.
+\end{definition}
+
+\begin{bluebox}[Likelihood for i.i.d.\ Data]
+If $X_1, X_2, \ldots, X_n$ are \textbf{independent and identically distributed (i.i.d.)} with common PMF/PDF $f(x; \theta)$, then:
+\begin{equation}
+    L(\theta; \mathbf{x}) = \prod_{i=1}^{n} f(x_i; \theta)
+    \label{eq:likelihood-iid}
+\end{equation}
+The likelihood is the product of individual probabilities.
+\end{bluebox}
+
+\begin{warning}[Likelihood is NOT Probability]
+The likelihood $L(\theta; \mathbf{x})$ is not a probability distribution over $\theta$:
+\begin{itemize}
+    \item It need not integrate to 1 over $\theta$
+    \item It should not be interpreted as $P(\theta \mid \mathbf{x})$
+\end{itemize}
+Rather, likelihood measures the \emph{plausibility} of different parameter values given the observed data. For Bayesian inference that does provide $P(\theta \mid \mathbf{x})$, see later chapters.
+\end{warning}
+
+\subsection{The Log-Likelihood}
+
+In practice, we almost always work with the logarithm of the likelihood.
+
+\begin{definition}[Log-Likelihood]
+\label{def:log-likelihood}
+The \textbf{log-likelihood function} is:
+\begin{equation}
+    \ell(\theta; \mathbf{x}) = \ln L(\theta; \mathbf{x})
+    \label{eq:log-likelihood}
+\end{equation}
+\end{definition}
+
+\begin{bluebox}[Why Use Log-Likelihood?]
+The log-likelihood has several computational and numerical advantages:
+\begin{enumerate}
+    \item \textbf{Products become sums:} For i.i.d.\ data, $\ell(\theta) = \sum_{i=1}^{n} \ln f(x_i; \theta)$
+    \item \textbf{Powers become products:} $\ln(\theta^k) = k\ln\theta$, simplifying derivatives
+    \item \textbf{Numerical stability:} Products of many small probabilities can underflow; sums of logs are more stable
+    \item \textbf{Same optimum:} Since $\ln$ is monotonically increasing, $\arg\max_{\theta} L(\theta) = \arg\max_{\theta} \ell(\theta)$
+\end{enumerate}
+\end{bluebox}
+
+\begin{bluebox}[Key Logarithm Rules for MLE]
+\begin{align*}
+    \ln(ab) &= \ln(a) + \ln(b) \\
+    \ln\left(\frac{a}{b}\right) &= \ln(a) - \ln(b) \\
+    \ln\left(\prod_{j=1}^{n} a_j\right) &= \sum_{j=1}^{n} \ln(a_j) \\
+    \ln(a^b) &= b\ln(a)
+\end{align*}
+\end{bluebox}
+
+\subsection{The MLE Procedure}
+
+\begin{bluebox}[Steps for Maximum Likelihood Estimation]
+\begin{enumerate}
+    \item \textbf{Specify the model:} Identify the distribution and its parameter(s) $\theta$
+    \item \textbf{Write the likelihood:} $L(\theta; \mathbf{x}) = \prod_{i=1}^{n} f(x_i; \theta)$
+    \item \textbf{Take the log:} $\ell(\theta) = \sum_{i=1}^{n} \ln f(x_i; \theta)$
+    \item \textbf{Differentiate:} Compute $\frac{d\ell}{d\theta}$ (the \emph{score function})
+    \item \textbf{Set to zero and solve:} Solve $\frac{d\ell}{d\theta} = 0$ for $\hat{\theta}_{\text{MLE}}$
+    \item \textbf{Verify maximum:} Check $\left.\frac{d^2\ell}{d\theta^2}\right|_{\theta = \hat{\theta}} < 0$
+\end{enumerate}
+\end{bluebox}
+
+% =============================================================================
+\section{MLE Examples}
+\label{sec:mle-examples}
+% =============================================================================
+
+We now work through MLE derivations for several important distributions. These examples illustrate the general procedure and build familiarity with the calculus involved.
+
+\subsection{Example 1: Bernoulli Distribution}
+
+\begin{example}[MLE for Bernoulli Distribution]
+\label{ex:mle-bernoulli}
+Let $X_1, X_2, \ldots, X_n$ be i.i.d.\ Bernoulli$(\theta)$, where $\theta \in (0, 1)$ is the unknown success probability. Each $X_i$ takes value 1 (success) with probability $\theta$ and 0 (failure) with probability $1 - \theta$.
+
+\textbf{Step 1: PMF}
+\[
+    f(x; \theta) = \theta^x (1 - \theta)^{1-x}, \quad x \in \{0, 1\}
+\]
+
+\textbf{Step 2: Likelihood}
+\[
+    L(\theta; \mathbf{x}) = \prod_{i=1}^{n} \theta^{x_i} (1 - \theta)^{1-x_i} = \theta^{\sum_{i=1}^{n} x_i} (1 - \theta)^{n - \sum_{i=1}^{n} x_i}
+\]
+Let $s = \sum_{i=1}^{n} x_i$ denote the total number of successes. Then:
+\[
+    L(\theta) = \theta^s (1 - \theta)^{n-s}
+\]
+
+\textbf{Step 3: Log-likelihood}
+\[
+    \ell(\theta) = s\ln\theta + (n - s)\ln(1 - \theta)
+\]
+
+\textbf{Step 4: Differentiate}
+\[
+    \frac{d\ell}{d\theta} = \frac{s}{\theta} + (n - s) \cdot \frac{-1}{1 - \theta} = \frac{s}{\theta} - \frac{n - s}{1 - \theta}
+\]
+
+\textbf{Step 5: Set to zero and solve}
+\begin{align*}
+    0 &= \frac{s}{\hat{\theta}} - \frac{n - s}{1 - \hat{\theta}} \\
+    \frac{s}{\hat{\theta}} &= \frac{n - s}{1 - \hat{\theta}} \\
+    s(1 - \hat{\theta}) &= (n - s)\hat{\theta} \\
+    s - s\hat{\theta} &= n\hat{\theta} - s\hat{\theta} \\
+    s &= n\hat{\theta}
+\end{align*}
+Therefore:
+\[
+    \hat{\theta}_{\text{MLE}} = \frac{s}{n} = \frac{\sum_{i=1}^{n} x_i}{n} = \bar{x}
+\]
+The MLE is the sample proportion: the number of successes divided by the number of trials.
+
+\textbf{Step 6: Verify maximum}
+\[
+    \frac{d^2\ell}{d\theta^2} = -\frac{s}{\theta^2} - \frac{n - s}{(1 - \theta)^2}
+\]
+For $\theta \in (0, 1)$ and $0 < s < n$, both terms are negative, so $\frac{d^2\ell}{d\theta^2} < 0$. This confirms we have a maximum.
+\end{example}
+
+\subsection{Example 2: Binomial Distribution (Goalie Example)}
+
+\begin{example}[MLE for Binomial: Goalie Saves]
+\label{ex:mle-binomial}
+A goalkeeper faces $m = 5$ penalty kicks in each of $n = 4$ games. The number of saves in each game is recorded:
+\[
+    \text{Game 1: 1 save}, \quad \text{Game 2: 3 saves}, \quad \text{Game 3: 2 saves}, \quad \text{Game 4: 2 saves}
+\]
+Assuming each save is an independent Bernoulli trial with unknown success probability $\theta$, we model $X_i \sim \text{Binomial}(5, \theta)$.
+
+\textbf{Step 1: PMF}
+
+The Binomial PMF for $m = 5$ trials is:
+\[
+    f(k; \theta) = \binom{5}{k} \theta^k (1 - \theta)^{5-k}, \quad k \in \{0, 1, 2, 3, 4, 5\}
+\]
+
+\textbf{Step 2: Likelihood}
+
+The observations are $x_1 = 1$, $x_2 = 3$, $x_3 = 2$, $x_4 = 2$. The likelihood is:
+\begin{align*}
+    L(\theta) &= \prod_{i=1}^{4} \binom{5}{x_i} \theta^{x_i} (1 - \theta)^{5 - x_i} \\
+    &= \binom{5}{1}\binom{5}{3}\binom{5}{2}\binom{5}{2} \cdot \theta^{1+3+2+2} (1 - \theta)^{(5-1)+(5-3)+(5-2)+(5-2)} \\
+    &= (5)(10)(10)(10) \cdot \theta^8 (1 - \theta)^{12} \\
+    &= 5000 \cdot \theta^8 (1 - \theta)^{12}
+\end{align*}
+
+\textbf{Step 3: Log-likelihood}
+\[
+    \ell(\theta) = \ln(5000) + 8\ln\theta + 12\ln(1 - \theta)
+\]
+
+\textbf{Step 4: Differentiate}
+\[
+    \frac{d\ell}{d\theta} = \frac{8}{\theta} - \frac{12}{1 - \theta}
+\]
+
+\textbf{Step 5: Set to zero and solve}
+\begin{align*}
+    0 &= \frac{8}{\hat{\theta}} - \frac{12}{1 - \hat{\theta}} \\
+    \frac{8}{\hat{\theta}} &= \frac{12}{1 - \hat{\theta}} \\
+    8(1 - \hat{\theta}) &= 12\hat{\theta} \\
+    8 - 8\hat{\theta} &= 12\hat{\theta} \\
+    8 &= 20\hat{\theta}
+\end{align*}
+Therefore:
+\[
+    \hat{\theta}_{\text{MLE}} = \frac{8}{20} = \frac{2}{5} = 0.4
+\]
+\textbf{Interpretation:} The MLE equals $\frac{\text{total saves}}{\text{total kicks}} = \frac{1+3+2+2}{4 \times 5} = \frac{8}{20} = 0.4$.
+
+\textbf{Step 6: Verify maximum}
+\[
+    \frac{d^2\ell}{d\theta^2} = -\frac{8}{\theta^2} - \frac{12}{(1 - \theta)^2} < 0
+\]
+for all $\theta \in (0, 1)$, confirming a maximum.
+\end{example}
+
+\begin{bluebox}[General Binomial MLE]
+For i.i.d.\ observations $X_1, \ldots, X_n$ from Binomial$(m, \theta)$:
+\[
+    \hat{\theta}_{\text{MLE}} = \frac{\sum_{i=1}^{n} x_i}{mn} = \frac{\text{total successes}}{\text{total trials}}
+\]
+This is the sample proportion of successes across all trials.
+\end{bluebox}
+
+\subsection{Example 3: Poisson Distribution}
+
+\begin{example}[MLE for Poisson Distribution]
+\label{ex:mle-poisson}
+Let $X_1, X_2, \ldots, X_n$ be i.i.d.\ Poisson$(\lambda)$, where $\lambda > 0$ is the unknown rate parameter.
+
+\textbf{Step 1: PMF}
+\[
+    f(k; \lambda) = \frac{\lambda^k e^{-\lambda}}{k!}, \quad k \in \{0, 1, 2, \ldots\}
+\]
+
+\textbf{Step 2: Likelihood}
+\[
+    L(\lambda; \mathbf{x}) = \prod_{i=1}^{n} \frac{\lambda^{x_i} e^{-\lambda}}{x_i!} = \frac{\lambda^{\sum_{i=1}^{n} x_i} e^{-n\lambda}}{\prod_{i=1}^{n} x_i!}
+\]
+
+\textbf{Step 3: Log-likelihood}
+
+Let $s = \sum_{i=1}^{n} x_i$. Then:
+\[
+    \ell(\lambda) = s\ln\lambda - n\lambda - \sum_{i=1}^{n} \ln(x_i!)
+\]
+The last term is a constant (does not depend on $\lambda$).
+
+\textbf{Step 4: Differentiate}
+\[
+    \frac{d\ell}{d\lambda} = \frac{s}{\lambda} - n
+\]
+
+\textbf{Step 5: Set to zero and solve}
+\begin{align*}
+    0 &= \frac{s}{\hat{\lambda}} - n \\
+    n &= \frac{s}{\hat{\lambda}} \\
+    \hat{\lambda} &= \frac{s}{n}
+\end{align*}
+Therefore:
+\[
+    \hat{\lambda}_{\text{MLE}} = \frac{\sum_{i=1}^{n} x_i}{n} = \bar{x}
+\]
+The MLE for the Poisson rate is the sample mean.
+
+\textbf{Step 6: Verify maximum}
+\[
+    \frac{d^2\ell}{d\lambda^2} = -\frac{s}{\lambda^2} < 0
+\]
+for $\lambda > 0$ and $s > 0$, confirming a maximum.
+\end{example}
+
+\subsection{Example 4: Exponential Distribution}
+
+\begin{example}[MLE for Exponential Distribution]
+\label{ex:mle-exponential}
+Let $X_1, X_2, \ldots, X_n$ be i.i.d.\ Exponential$(\lambda)$, where $\lambda > 0$ is the rate parameter.
+
+\textbf{Step 1: PDF}
+\[
+    f(x; \lambda) = \lambda e^{-\lambda x}, \quad x \geq 0
+\]
+
+\textbf{Step 2: Likelihood}
+\[
+    L(\lambda; \mathbf{x}) = \prod_{i=1}^{n} \lambda e^{-\lambda x_i} = \lambda^n e^{-\lambda \sum_{i=1}^{n} x_i}
+\]
+
+\textbf{Step 3: Log-likelihood}
+
+Let $s = \sum_{i=1}^{n} x_i$. Then:
+\[
+    \ell(\lambda) = n\ln\lambda - \lambda s
+\]
+
+\textbf{Step 4: Differentiate}
+\[
+    \frac{d\ell}{d\lambda} = \frac{n}{\lambda} - s
+\]
+
+\textbf{Step 5: Set to zero and solve}
+\begin{align*}
+    0 &= \frac{n}{\hat{\lambda}} - s \\
+    s &= \frac{n}{\hat{\lambda}} \\
+    \hat{\lambda} &= \frac{n}{s}
+\end{align*}
+Therefore:
+\[
+    \hat{\lambda}_{\text{MLE}} = \frac{n}{\sum_{i=1}^{n} x_i} = \frac{1}{\bar{x}}
+\]
+The MLE for the exponential rate is the reciprocal of the sample mean.
+
+\textbf{Step 6: Verify maximum}
+\[
+    \frac{d^2\ell}{d\lambda^2} = -\frac{n}{\lambda^2} < 0
+\]
+for $\lambda > 0$, confirming a maximum.
+\end{example}
+
+\begin{bluebox}[Exponential MLE]
+The Exponential$(\lambda)$ distribution has mean $\frac{1}{\lambda}$. The MLE sets the population mean equal to the sample mean:
+\[
+    \frac{1}{\hat{\lambda}} = \bar{x} \implies \hat{\lambda} = \frac{1}{\bar{x}}
+\]
+This is an example of the method of moments coinciding with MLE.
+\end{bluebox}
+
+\subsection{Example 5: Normal Distribution (Mean)}
+
+\begin{example}[MLE for Normal Mean (Known Variance)]
+\label{ex:mle-normal}
+Let $X_1, X_2, \ldots, X_n$ be i.i.d.\ $N(\mu, \sigma^2)$, where $\mu$ is unknown and $\sigma^2$ is known.
+
+\textbf{Step 1: PDF}
+\[
+    f(x; \mu) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)
+\]
+
+\textbf{Step 2: Likelihood}
+\begin{align*}
+    L(\mu; \mathbf{x}) &= \prod_{i=1}^{n} \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(x_i - \mu)^2}{2\sigma^2}\right) \\
+    &= \left(\frac{1}{2\pi\sigma^2}\right)^{n/2} \exp\left(-\frac{1}{2\sigma^2} \sum_{i=1}^{n} (x_i - \mu)^2\right)
+\end{align*}
+
+\textbf{Step 3: Log-likelihood}
+\[
+    \ell(\mu) = -\frac{n}{2}\ln(2\pi\sigma^2) - \frac{1}{2\sigma^2} \sum_{i=1}^{n} (x_i - \mu)^2
+\]
+
+\textbf{Step 4: Differentiate}
+\[
+    \frac{d\ell}{d\mu} = -\frac{1}{2\sigma^2} \sum_{i=1}^{n} 2(x_i - \mu)(-1) = \frac{1}{\sigma^2} \sum_{i=1}^{n} (x_i - \mu)
+\]
+
+\textbf{Step 5: Set to zero and solve}
+\begin{align*}
+    0 &= \sum_{i=1}^{n} (x_i - \hat{\mu}) \\
+    0 &= \sum_{i=1}^{n} x_i - n\hat{\mu} \\
+    n\hat{\mu} &= \sum_{i=1}^{n} x_i
+\end{align*}
+Therefore:
+\[
+    \hat{\mu}_{\text{MLE}} = \frac{\sum_{i=1}^{n} x_i}{n} = \bar{x}
+\]
+The MLE for the normal mean is the sample mean.
+
+\textbf{Step 6: Verify maximum}
+\[
+    \frac{d^2\ell}{d\mu^2} = -\frac{n}{\sigma^2} < 0
+\]
+confirming a maximum.
+\end{example}
+
+% =============================================================================
+\section{Summary: MLE Pattern Recognition}
+\label{sec:mle-summary}
+% =============================================================================
+
+\begin{bluebox}[Common MLE Results]
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Distribution} & \textbf{Parameter} & \textbf{MLE} \\
+\midrule
+Bernoulli$(\theta)$ & $\theta$ (success prob.) & $\bar{x}$ (sample proportion) \\
+Binomial$(m, \theta)$ & $\theta$ (success prob.) & $\frac{\sum x_i}{mn}$ (total proportion) \\
+Poisson$(\lambda)$ & $\lambda$ (rate) & $\bar{x}$ (sample mean) \\
+Exponential$(\lambda)$ & $\lambda$ (rate) & $1/\bar{x}$ (reciprocal of sample mean) \\
+Normal$(\mu, \sigma^2)$ & $\mu$ (mean, $\sigma^2$ known) & $\bar{x}$ (sample mean) \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{bluebox}
+
+\begin{intuition}[Why Sample Mean Appears So Often]
+For many distributions in the \emph{exponential family}, the MLE takes a simple form involving the sample mean or sample proportion. This is not coincidental: for exponential family distributions, there exist \emph{sufficient statistics} that capture all information about the parameter, and the MLE is typically a function of these sufficient statistics.
+\end{intuition}
+
+% =============================================================================
+\section{Properties of Maximum Likelihood Estimators}
+\label{sec:mle-properties}
+% =============================================================================
+
+Maximum Likelihood Estimators have several desirable statistical properties that make them the default choice in many applications.
+
+\begin{bluebox}[Properties of MLEs (Overview)]
+Under suitable regularity conditions, MLEs are:
+\begin{enumerate}
+    \item \textbf{Consistent:} As $n \to \infty$, $\hat{\theta}_{\text{MLE}} \xrightarrow{p} \theta$ (converges in probability to the true value)
+    \item \textbf{Asymptotically efficient:} Among all consistent estimators, MLEs achieve the smallest asymptotic variance (the Cram\'{e}r--Rao lower bound)
+    \item \textbf{Asymptotically normal:} $\sqrt{n}(\hat{\theta}_{\text{MLE}} - \theta) \xrightarrow{d} N(0, I(\theta)^{-1})$ where $I(\theta)$ is the Fisher information
+    \item \textbf{Invariant:} If $\hat{\theta}$ is the MLE of $\theta$, then $g(\hat{\theta})$ is the MLE of $g(\theta)$ for any function $g$
+\end{enumerate}
+\end{bluebox}
+
+These properties are studied in detail in advanced statistics courses. For now, the key takeaway is that MLE is a principled, well-behaved estimation method with strong theoretical foundations.
+
+% =============================================================================
+\section{Practice Exercises}
+\label{sec:practice-exercises}
+% =============================================================================
+
+\textbf{Differentiation}
+
+\begin{enumerate}
+    \item Find $\frac{d}{dx}[x^4 - 3x^2 + 5x - 7]$.
+
+    \item Find $\frac{d}{dx}[(2x + 1)^5]$ using the chain rule.
+
+    \item Find $\frac{d}{dx}\left[\frac{e^x}{x^2 + 1}\right]$ using the quotient rule.
+
+    \item Find $\frac{d}{dx}[\ln(x^2 + e^x)]$.
+
+    \item Find $\frac{d}{dx}[x^x]$ for $x > 0$ using logarithmic differentiation.
+\end{enumerate}

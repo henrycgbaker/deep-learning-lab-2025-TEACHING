@@ -1,0 +1,1695 @@
+% Week 8b: Sampling Strategies
+
+\section{Overview}
+
+\begin{bluebox}[Chapter Summary]
+This chapter addresses a fundamental question: \textbf{which data should we collect?} When labelling is expensive, strategic sampling can dramatically reduce costs while maintaining model quality. We cover:
+\begin{itemize}
+    \item \textbf{Data leakage}: The silent killer of ML models-using information unavailable at prediction time
+    \item \textbf{Sampling schemes}: Random, stratified, cluster, and systematic sampling
+    \item \textbf{Importance sampling}: Reweighting samples from one distribution to estimate expectations under another
+    \item \textbf{Active learning}: Iteratively selecting the most informative points to label
+    \item \textbf{Leverage score sampling}: Exploiting linear algebra for efficient regression
+    \item \textbf{Random Fourier Features}: Efficient kernel approximations
+    \item \textbf{Multi-armed bandits}: Balancing exploration and exploitation for reward maximisation
+    \item \textbf{AIPW}: Combining models with sampling corrections for unbiased prevalence estimation
+\end{itemize}
+\end{bluebox}
+
+How should we choose which data to collect? This question can be approached from three distinct perspectives, each addressing a different goal:
+
+\begin{enumerate}
+    \item \textbf{Sampling for better models}: Active learning, leverage score sampling
+    \item \textbf{Sampling for better decisions}: Multi-armed bandits
+    \item \textbf{Sampling to measure prevalence}: AIPW
+\end{enumerate}
+
+\begin{greybox}[The Setup]
+We have $N$ observations of features $X$, but measuring labels $y$ is expensive.
+
+\textbf{Examples}:
+\begin{itemize}
+    \item \textbf{Hate speech detection}: $X$ (text) is free to obtain; $y$ (is it hate speech?) requires human judgement
+    \item \textbf{Medical diagnosis}: $X$ (symptoms, basic tests) is cheap; $y$ (diagnosis) requires expensive tests or specialist review
+    \item \textbf{Drug discovery}: $X$ (molecular structure) is known or computable; $y$ (biological activity) requires costly lab experiments
+    \item \textbf{Satellite imagery}: $X$ (image) is available; $y$ (land use classification) requires expert annotation
+\end{itemize}
+
+\textbf{Core Question}: How should we choose which $n \ll N$ observations to label?
+
+\textbf{Iterative Formulation}: Alternatively, suppose we already have $n_0$ labelled observations $\{(X_i, y_i)\}_{i=1}^{n_0}$. Based on our current model, how should we choose the next $n_1$ observations to label, using only their features $X$?
+\end{greybox}
+
+\subsection{Explanation vs Prediction}
+
+Before diving into sampling strategies, it is worth distinguishing two fundamentally different objectives in machine learning, as they lead to different sampling considerations:
+
+\textbf{Explanation}: The objective is to understand the causal impact of feature(s) $A$ on outcome $Y$. We seek to uncover causal relationships or explain variations in the outcome. In sampling, this might involve selecting samples that provide the best information about causal relationships, often requiring careful design to avoid confounding factors.
+
+\textbf{Prediction}: The objective is to predict an unseen outcome $Y$ based on observed features $X$. We aim to build models that generalise well to new, unseen data. The focus is on optimising predictive accuracy rather than understanding mechanisms.
+
+\begin{bluebox}[Two Paths to Better Data]
+\textbf{For explanation}:
+\begin{itemize}
+    \item Improve causal inferences from existing data: Observational methods
+    \item Improve the data used for causal inference: Experimentation
+\end{itemize}
+
+\textbf{For prediction}:
+\begin{itemize}
+    \item Improve models for prediction: Most of this course
+    \item Improve the data used for prediction: This chapter
+\end{itemize}
+\end{bluebox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Data Leakage}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{bluebox}[Section Summary]
+Data leakage occurs when training uses information unavailable at prediction time, leading to overly optimistic performance estimates that collapse in production. Common sources include \textbf{temporal leakage} (using future to predict past), \textbf{target leakage} (features derived from the outcome), and \textbf{preprocessing leakage} (fitting transformations before splitting). Prevention requires understanding the deployment context and ensuring train/test splits mirror production conditions.
+\end{bluebox}
+
+Data leakage is one of the most insidious problems in applied machine learning. Models with data leakage may appear to perform exceptionally well during training and testing, but fail dramatically on truly unseen data. The problem is subtle because the model genuinely learns something-it just learns patterns that will not be available in production.
+
+\begin{greybox}[Definition: Data Leakage]
+\textbf{Data leakage} occurs when information is used during model training that would not be legitimately available when the model makes predictions in production.
+
+Formally, if $\mathcal{I}_{\text{train}}$ denotes the information available during training and $\mathcal{I}_{\text{deploy}}$ denotes the information available at deployment:
+$$\mathcal{I}_{\text{train}} \supsetneq \mathcal{I}_{\text{deploy}} \implies \text{leakage}$$
+
+The consequence is that empirical performance estimates (cross-validation, test set error) are \textbf{optimistically biased}-the model appears better than it actually is.
+\end{greybox}
+
+\textbf{Unpacking the definition}: The set inclusion $\mathcal{I}_{\text{train}} \supsetneq \mathcal{I}_{\text{deploy}}$ means that training has access to strictly more information than deployment. This could be:
+\begin{itemize}
+    \item \textbf{Direct access}: A feature that exists in training data but will not exist at prediction time
+    \item \textbf{Indirect access}: Information encoded in other features, preprocessing statistics, or the structure of the train/test split itself
+    \item \textbf{Temporal access}: Knowledge of what happens after the prediction point
+\end{itemize}
+
+\begin{redbox}
+Data leakage is insidious because it often produces models that appear to work brilliantly during development but fail catastrophically in production. Unlike other modelling errors, leakage can be difficult to detect from performance metrics alone-the test set error may look excellent precisely because it suffers from the same leakage as training.
+
+\textbf{The fundamental question}: ``Would this information be available at the time I need to make a prediction?''
+\end{redbox}
+
+\subsection{Types of Data Leakage}
+
+Understanding the different forms leakage can take helps in prevention and detection.
+
+\subsubsection{Temporal Leakage}
+
+Using information from the future to predict the past. This is the most common form of leakage in time-dependent problems.
+
+\begin{greybox}[Example: Stock Price Prediction]
+Suppose we want to predict whether a stock will go up tomorrow. A naive approach might include features like:
+\begin{itemize}
+    \item Moving averages computed over windows that include future data
+    \item Analyst ratings that were updated after the prediction date
+    \item Market indices from the same day (if predicting opening from closing)
+\end{itemize}
+
+Even a simple random train/test split causes leakage: if training includes data from 2023 and testing includes data from 2022, the model has ``seen the future.''
+
+\textbf{Prevention}: Always use a \textbf{temporal split}. Training data must strictly precede test data. See Week 4 for time series cross-validation.
+\end{greybox}
+
+\textbf{Why temporal leakage is so common}: Many datasets are created retrospectively, with all features computed at once. It is easy to include a feature that, while technically available in the historical record, would not have been known at the time predictions were needed. A classic example: using end-of-quarter financial reports to predict stock movements during that quarter.
+
+\subsubsection{Target Leakage}
+
+Features that are derived from or highly correlated with the target variable, often because they are caused by the target rather than causing it.
+
+\begin{greybox}[Example: Medical Diagnosis]
+Predicting whether a patient has disease $Y$:
+\begin{itemize}
+    \item Feature: ``Treatment for $Y$ prescribed'' - this is caused by the diagnosis!
+    \item Feature: ``Referred to specialist for $Y$'' - same problem
+    \item Feature: ``Blood marker $Z$'' where $Z$ is only measured when $Y$ is suspected
+\end{itemize}
+
+These features have high predictive power in training but will not be available before diagnosis in production.
+
+\textbf{Prevention}: For each feature, ask: ``Would this feature be available at the time the prediction needs to be made?''
+\end{greybox}
+
+\textbf{The causal structure of target leakage}: In target leakage, the problematic feature is typically a \textit{consequence} of the target, not a \textit{cause}. The causal graph looks like:
+
+$$\text{Target } Y \longrightarrow \text{Feature } X$$
+
+The model learns the reverse arrow (predicting $Y$ from $X$), which works perfectly in training but fails when $X$ is not yet observed because $Y$ has not yet occurred.
+
+\subsubsection{Train-Test Contamination}
+
+Information from test observations leaking into training, either directly or indirectly.
+
+\begin{greybox}[Common Sources of Contamination]
+\textbf{Duplicate or near-duplicate observations}: If the same patient appears in both train and test, the model may memorise rather than generalise. This is especially problematic in medical imaging where the same patient may have multiple scans.
+
+\textbf{Grouped observations split incorrectly}: Multiple measurements from the same subject, location, or time window split across train/test. The model learns subject-specific patterns that will not generalise. For example, if predicting customer churn, putting some purchases from customer A in training and others in testing allows the model to ``recognise'' customer A in the test set.
+
+\textbf{Data augmentation after splitting}: If augmented copies of test images are created before splitting, originals may land in training and augmented versions in testing-the model has effectively seen the test data.
+\end{greybox}
+
+\subsubsection{Preprocessing Leakage}
+
+Fitting preprocessing steps on the entire dataset before splitting. This is perhaps the most subtle and commonly overlooked form of leakage.
+
+\begin{greybox}[Example: Standardisation]
+Consider standardising features to zero mean and unit variance:
+$$x_{\text{scaled}} = \frac{x - \bar{x}}{\sigma_x}$$
+
+If $\bar{x}$ and $\sigma_x$ are computed on the full dataset (including test data), then test observations influence the transformation applied to training data.
+
+\textbf{Correct procedure}:
+\begin{enumerate}
+    \item Split data into train/test
+    \item Compute $\bar{x}_{\text{train}}$ and $\sigma_{x,\text{train}}$ from training data only
+    \item Apply this transformation to both train and test data
+\end{enumerate}
+
+This also applies to: imputation (computing fill values), feature selection, PCA, and any data-driven transformation.
+\end{greybox}
+
+\textbf{Why preprocessing leakage matters}: The impact may seem minor-after all, how much can knowing the test set mean and variance really help? But consider:
+\begin{itemize}
+    \item For small test sets, the statistics can be substantially influenced by test data
+    \item More importantly, it sets a bad precedent and methodology that can lead to worse forms of leakage
+    \item In some cases (e.g., feature selection), the leakage is severe
+\end{itemize}
+
+\begin{redbox}
+\textbf{Feature selection before cross-validation is leakage.} If you select the top 100 features by correlation with $y$ using all data, then perform CV, your CV estimate is biased. The feature selection already ``saw'' the test folds.
+
+Correct approach: Perform feature selection \textit{inside} each CV fold. This means you select (potentially different) features for each fold, and the CV error honestly reflects the full feature-selection-plus-model-fitting pipeline.
+\end{redbox}
+
+\subsection{Detecting Data Leakage}
+
+Prevention is ideal, but detection is also important for catching leakage that slipped through.
+
+\begin{bluebox}[Leakage Detection Strategies]
+\begin{enumerate}
+    \item \textbf{Suspiciously good performance}: If your model achieves near-perfect accuracy on a hard problem, be suspicious. Real-world problems rarely have easy solutions.
+    \item \textbf{Production performance drop}: Large gap between offline metrics and online performance suggests leakage. The model looked great in testing but fails when deployed.
+    \item \textbf{Feature importance analysis}: If a feature is unexpectedly dominant, investigate whether it could encode the target. A feature you expected to be minor turning out to be decisive warrants scrutiny.
+    \item \textbf{Temporal validation}: For time-series problems, compare random CV to forward validation. Large discrepancy suggests temporal leakage.
+    \item \textbf{Ablation studies}: Remove suspicious features and check if performance degrades unreasonably. If removing a single feature causes accuracy to drop from 99\% to 60\%, that feature may be leaking information.
+\end{enumerate}
+\end{bluebox}
+
+\subsection{Prevention Framework}
+
+A systematic approach to preventing leakage before it occurs.
+
+\begin{greybox}[Leakage Prevention Checklist]
+Before training any model, answer these questions:
+
+\textbf{1. What is the prediction task in production?}
+\begin{itemize}
+    \item When will predictions be made?
+    \item What information will be available at prediction time?
+    \item Who will use the predictions and for what purpose?
+\end{itemize}
+
+\textbf{2. Does my train/test split mirror production?}
+\begin{itemize}
+    \item Temporal ordering preserved? (If predicting the future, train on past only)
+    \item Groups kept together? (All data from one patient in same split)
+    \item No duplicate observations across splits?
+\end{itemize}
+
+\textbf{3. Are all features legitimately available?}
+\begin{itemize}
+    \item Would each feature exist at prediction time?
+    \item Is any feature derived from or caused by the target?
+    \item Could any feature encode post-hoc information?
+\end{itemize}
+
+\textbf{4. Is preprocessing done correctly?}
+\begin{itemize}
+    \item Fit preprocessing only on training data?
+    \item Feature selection inside CV loops?
+    \item No global statistics computed before splitting?
+\end{itemize}
+\end{greybox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Sampling Schemes}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{bluebox}[Section Summary]
+The choice of sampling strategy depends on the data structure and the goal. \textbf{Simple random sampling} is the baseline-unbiased but potentially inefficient. \textbf{Stratified sampling} ensures representation of subgroups, critical for rare classes. \textbf{Cluster sampling} is practical when observations come in natural groups. \textbf{Systematic sampling} offers simplicity but risks aliasing with periodic patterns.
+\end{bluebox}
+
+Before considering sophisticated adaptive sampling methods, we review the classical sampling schemes from survey methodology. These form the foundation upon which more advanced methods build.
+
+\subsection{Simple Random Sampling}
+
+\begin{greybox}[Simple Random Sampling (SRS)]
+Each unit in the population has equal probability of selection:
+$$P(\text{unit } i \text{ selected}) = \frac{n}{N}$$
+
+where $n$ is sample size and $N$ is population size.
+
+\textbf{Properties}:
+\begin{itemize}
+    \item \textbf{Unbiased}: $\mathbb{E}[\bar{X}_{\text{sample}}] = \bar{X}_{\text{population}}$
+    \item \textbf{Variance}: $\text{Var}(\bar{X}) = \frac{\sigma^2}{n}\left(1 - \frac{n}{N}\right)$
+    \item The factor $(1 - n/N)$ is the \textbf{finite population correction}
+\end{itemize}
+\end{greybox}
+
+\textbf{Unpacking the variance formula}:
+\begin{itemize}
+    \item $\sigma^2/n$ is the familiar variance of the sample mean under infinite population sampling
+    \item The factor $(1 - n/N)$ accounts for sampling \textit{without replacement} from a finite population
+    \item When $n \ll N$, this factor is approximately 1 and can be ignored
+    \item When $n$ is a substantial fraction of $N$, sampling without replacement reduces variance because we are ``using up'' population variability
+    \item In the extreme case $n = N$, the variance is zero-we have sampled everyone
+\end{itemize}
+
+\begin{bluebox}[When to Use SRS]
+\begin{itemize}
+    \item Population is relatively homogeneous
+    \item No important subgroups that might be undersampled by chance
+    \item Complete sampling frame is available (a list of all population members)
+    \item No structural dependencies (temporal, spatial, hierarchical)
+\end{itemize}
+
+SRS is the \textbf{gold standard} for unbiasedness but may be inefficient when population structure can be exploited.
+\end{bluebox}
+
+\subsection{Stratified Sampling}
+
+When the population has known subgroups with different characteristics, stratified sampling can improve efficiency.
+
+\begin{greybox}[Stratified Random Sampling]
+Divide the population into $K$ non-overlapping strata, then sample independently within each stratum.
+
+Let $N_k$ be the population size and $n_k$ the sample size for stratum $k$. Common allocation schemes:
+
+\textbf{Proportional allocation}: $n_k \propto N_k$
+$$n_k = n \cdot \frac{N_k}{N}$$
+Each stratum is sampled in proportion to its population share.
+
+\textbf{Optimal (Neyman) allocation}: $n_k \propto N_k \sigma_k$
+$$n_k = n \cdot \frac{N_k \sigma_k}{\sum_{j=1}^K N_j \sigma_j}$$
+
+where $\sigma_k$ is the standard deviation within stratum $k$. This minimises variance of the population mean estimator.
+\end{greybox}
+
+\textbf{Intuition for Neyman allocation}: We should sample more from strata that are:
+\begin{itemize}
+    \item \textbf{Larger} ($N_k$ large): More of the population to learn about
+    \item \textbf{More variable} ($\sigma_k$ large): More uncertainty to reduce
+\end{itemize}
+A small, homogeneous stratum needs fewer samples; a large, heterogeneous stratum needs more.
+
+\begin{bluebox}[Stratified Sampling: When and Why]
+\textbf{Use when}:
+\begin{itemize}
+    \item Population has known subgroups with different characteristics
+    \item Some subgroups are rare but important (class imbalance)
+    \item You need guaranteed representation of all subgroups
+    \item Within-stratum variance is lower than between-stratum variance
+\end{itemize}
+
+\textbf{Variance reduction}: If strata are internally homogeneous:
+$$\text{Var}_{\text{stratified}} < \text{Var}_{\text{SRS}}$$
+
+The more different the strata means, the greater the efficiency gain.
+\end{bluebox}
+
+\begin{greybox}[Example: Fraud Detection]
+In a credit card transaction dataset:
+\begin{itemize}
+    \item 99.9\% legitimate transactions
+    \item 0.1\% fraudulent transactions
+\end{itemize}
+
+With SRS of 1000 transactions, we expect $\approx 1$ fraud case-insufficient to learn fraud patterns.
+
+Stratified sampling with 500 from each class ensures adequate representation of fraud, enabling the model to learn the minority class.
+
+\textbf{Caveat}: When deploying, predictions must account for the true class distribution. If we trained on 50/50 data, the model's probability estimates will be miscalibrated for the true 99.9/0.1 distribution. This is corrected via importance weighting (see below).
+\end{greybox}
+
+\subsection{Cluster Sampling}
+
+\begin{greybox}[Cluster Sampling]
+The population is divided into clusters (groups). A random sample of clusters is selected, and all units within selected clusters are observed.
+
+\textbf{Two-stage cluster sampling}: Select clusters, then sample within clusters.
+
+\textbf{Design effect}: The ratio of variance under cluster sampling to variance under SRS:
+$$\text{DEFF} = 1 + (m - 1)\rho$$
+
+where $m$ is the average cluster size and $\rho$ is the intra-cluster correlation. When $\rho > 0$ (units within clusters are similar), cluster sampling is less efficient than SRS.
+\end{greybox}
+
+\textbf{Understanding the design effect}:
+\begin{itemize}
+    \item $\rho$ measures how similar units within the same cluster are (0 = no more similar than random pairs; 1 = identical within clusters)
+    \item If $\rho = 0$, clusters provide no information about similarity, and DEFF = 1 (cluster sampling is as efficient as SRS)
+    \item If $\rho > 0$, observations within a cluster are redundant-you learn less per observation than with SRS
+    \item Large clusters ($m$ large) with high correlation ($\rho$ large) lead to very inefficient sampling
+\end{itemize}
+
+\begin{bluebox}[Cluster Sampling: When and Why]
+\textbf{Use when}:
+\begin{itemize}
+    \item No complete list of individuals, but lists of clusters exist (e.g., households, schools, hospitals)
+    \item Cost of sampling is reduced by geographic clustering (cheaper to visit 10 schools than 100 students scattered across a city)
+    \item Natural grouping structure exists
+\end{itemize}
+
+\textbf{Tradeoff}: Cluster sampling is often \textbf{administratively convenient} but \textbf{statistically inefficient} compared to SRS of the same size.
+
+The key insight: clusters should be internally heterogeneous (each cluster ``looks like'' the population) for efficiency. Homogeneous clusters waste samples.
+\end{bluebox}
+
+\subsection{Systematic Sampling}
+
+\begin{greybox}[Systematic Sampling]
+Select every $k$th unit from an ordered list, starting from a random position.
+
+\textbf{Procedure}:
+\begin{enumerate}
+    \item Compute sampling interval: $k = \lfloor N/n \rfloor$
+    \item Choose random start: $r \sim \text{Uniform}\{1, \ldots, k\}$
+    \item Select units: $r, r+k, r+2k, \ldots$
+\end{enumerate}
+
+\textbf{Advantage}: Simple to implement, spreads sample evenly across the list.
+
+\textbf{Disadvantage}: If the list has periodic patterns with period $k$, systematic sampling can be severely biased.
+\end{greybox}
+
+\begin{redbox}
+\textbf{Periodicity hazard}: If a factory produces items on an assembly line and every 10th item comes from a particular machine, systematic sampling with $k=10$ might sample entirely from one machine.
+
+Always examine the ordering of the sampling frame for patterns before using systematic sampling. If in doubt, randomise the ordering first, or use simple random sampling.
+\end{redbox}
+
+\subsection{Comparison of Sampling Schemes}
+
+\begin{bluebox}[Choosing a Sampling Scheme]
+\begin{center}
+\begin{tabular}{p{3cm}p{5cm}p{5cm}}
+\textbf{Method} & \textbf{Best when} & \textbf{Avoid when} \\
+\hline
+Simple random & Homogeneous population & Rare subgroups matter \\
+Stratified & Known important subgroups & Strata unknown or impractical \\
+Cluster & Practical constraints on access & High intra-cluster correlation \\
+Systematic & Need even spread; no periodicity & Periodic patterns in list \\
+\end{tabular}
+\end{center}
+\end{bluebox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Importance Sampling}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{bluebox}[Section Summary]
+Importance sampling enables estimation of expectations under one distribution using samples from another. This is essential for correcting sampling bias and handling \textbf{covariate shift}-when training and test distributions differ. The key is appropriate reweighting, but beware: importance weights can have high variance, making estimates unstable.
+\end{bluebox}
+
+\subsection{The Core Idea}
+
+Suppose we want to compute an expectation under distribution $p$, but we can only sample from distribution $q$. This situation arises frequently:
+\begin{itemize}
+    \item We oversampled rare events for training; now we want to evaluate on the true distribution
+    \item Our training data comes from one population; we want to deploy to another
+    \item The target distribution $p$ is hard to sample from, but $q$ is easy
+\end{itemize}
+
+\begin{greybox}[Importance Sampling]
+We want to estimate $\mathbb{E}_{p}[f(X)]$ but can only sample from distribution $q$.
+
+\textbf{Key identity}:
+\begin{align*}
+\mathbb{E}_{p}[f(X)] &= \int f(x) p(x) dx \\
+&= \int f(x) \frac{p(x)}{q(x)} q(x) dx \\
+&= \mathbb{E}_{q}\left[f(X) \frac{p(X)}{q(X)}\right]
+\end{align*}
+
+The \textbf{importance weights} are $w(x) = \frac{p(x)}{q(x)}$.
+
+\textbf{Estimator}: Given samples $x_1, \ldots, x_n \sim q$:
+$$\hat{\mu}_{\text{IS}} = \frac{1}{n}\sum_{i=1}^{n} f(x_i) w(x_i) = \frac{1}{n}\sum_{i=1}^{n} f(x_i) \frac{p(x_i)}{q(x_i)}$$
+\end{greybox}
+
+\textbf{Understanding the importance weights}: The ratio $p(x)/q(x)$ tells us how much more (or less) likely observation $x$ is under the target distribution $p$ than under the sampling distribution $q$:
+\begin{itemize}
+    \item If $p(x) > q(x)$: This region is underrepresented in our sample; upweight these observations
+    \item If $p(x) < q(x)$: This region is overrepresented; downweight these observations
+    \item If $p(x) = q(x)$ everywhere: The distributions match; weights are all 1
+\end{itemize}
+
+\begin{bluebox}[The Unifying Principle]
+\textbf{Multiply by what you want, divide by what you have.}
+
+This captures the essence of importance sampling: we have samples from $q$ (``what we have'') and want expectations under $p$ (``what we want''). The importance weight $p/q$ corrects for this mismatch.
+\end{bluebox}
+
+\begin{greybox}[Self-Normalised Importance Sampling]
+When $p$ and $q$ are known only up to normalising constants (common in Bayesian inference), we cannot compute $w(x) = p(x)/q(x)$ exactly.
+
+The \textbf{self-normalised} estimator uses:
+$$\hat{\mu}_{\text{SNIS}} = \frac{\sum_{i=1}^{n} f(x_i) w(x_i)}{\sum_{i=1}^{n} w(x_i)}$$
+
+where $w(x_i) = \tilde{p}(x_i)/\tilde{q}(x_i)$ uses unnormalised densities $\tilde{p}$ and $\tilde{q}$.
+
+This is biased but consistent, and often has lower variance than the standard IS estimator because the normalisation constants cancel.
+\end{greybox}
+
+\subsection{Variance Considerations}
+
+Importance sampling is unbiased, but it can have very high variance-sometimes so high that the estimator is practically useless.
+
+\begin{greybox}[Variance of Importance Sampling Estimator]
+$$\text{Var}_q(\hat{\mu}_{\text{IS}}) = \frac{1}{n}\text{Var}_q\left(f(X)w(X)\right) = \frac{1}{n}\left(\mathbb{E}_q[f(X)^2 w(X)^2] - \mu^2\right)$$
+
+The variance depends on $\mathbb{E}_q[w(X)^2]$-the second moment of the importance weights.
+
+\textbf{Effective sample size} (ESS) quantifies efficiency:
+$$\text{ESS} = \frac{\left(\sum_i w_i\right)^2}{\sum_i w_i^2} = \frac{n}{1 + \text{Var}(w_i)/\bar{w}^2}$$
+
+When weights are uniform, $\text{ESS} = n$. When weights are highly variable, $\text{ESS} \ll n$.
+\end{greybox}
+
+\textbf{Interpreting effective sample size}: ESS answers the question: ``How many i.i.d. samples from $p$ would give us the same precision as our $n$ importance-weighted samples from $q$?'' If ESS = 10 but $n = 1000$, we are effectively throwing away 99\% of our samples due to weight variability.
+
+\begin{redbox}
+\textbf{Weight degeneracy}: If $p$ and $q$ have poor overlap, a few observations may receive almost all the weight. This leads to:
+\begin{itemize}
+    \item Extremely high variance estimates
+    \item Effective sample size approaching 1
+    \item Estimates dominated by a single observation
+\end{itemize}
+
+\textbf{Rule of thumb}: Importance sampling works well when $p/q$ is bounded. If $p$ has heavier tails than $q$, expect trouble-the regions where $p$ is large but $q$ is small will produce enormous weights.
+\end{redbox}
+
+\subsection{Application: Covariate Shift}
+
+One of the most important applications of importance sampling in machine learning is correcting for distribution shift between training and deployment.
+
+\begin{greybox}[Covariate Shift]
+Training data comes from distribution $p_{\text{train}}(x, y) = p(y|x)p_{\text{train}}(x)$.
+
+Test data comes from distribution $p_{\text{test}}(x, y) = p(y|x)p_{\text{test}}(x)$.
+
+The conditional $p(y|x)$ is the same, but the marginal over $x$ differs.
+
+\textbf{Examples}:
+\begin{itemize}
+    \item Training on hospital A, deploying at hospital B (different patient demographics)
+    \item Training on summer data, predicting in winter
+    \item Training on volunteer survey responses, inferring for general population
+    \item Training on English Wikipedia, deploying on legal documents
+\end{itemize}
+\end{greybox}
+
+\textbf{Why covariate shift matters}: If the feature distribution changes but the relationship between features and outcomes does not, we can still use our model-but we need to account for the changed distribution when evaluating performance.
+
+\begin{greybox}[Correcting for Covariate Shift]
+The population risk under test distribution:
+$$R_{\text{test}}(f) = \mathbb{E}_{p_{\text{test}}(x)}[\ell(y, f(x))]$$
+
+Using importance weighting with training samples:
+$$\hat{R}_{\text{test}}(f) = \frac{1}{n}\sum_{i=1}^{n} \frac{p_{\text{test}}(x_i)}{p_{\text{train}}(x_i)} \ell(y_i, f(x_i))$$
+
+\textbf{Challenge}: We rarely know $p_{\text{train}}$ and $p_{\text{test}}$ exactly. Common approaches:
+\begin{itemize}
+    \item \textbf{Density ratio estimation}: Estimate the ratio $p_{\text{test}}/p_{\text{train}}$ directly using kernel methods or neural networks
+    \item \textbf{Domain adaptation}: Learn representations that are invariant to the domain
+    \item \textbf{Discriminative approach}: Train a classifier to distinguish train from test; use predicted probabilities to construct weights
+\end{itemize}
+\end{greybox}
+
+\begin{bluebox}[Key Applications of Importance Sampling]
+Importance sampling is a general tool for:
+\begin{itemize}
+    \item \textbf{Correcting non-random sampling}: Oversample rare events for training, then downweight for evaluation
+    \item \textbf{Adapting to distribution shift}: Reweight training data to match deployment distribution
+    \item \textbf{Variance reduction}: Sample where the integrand is large (in Monte Carlo integration)
+    \item \textbf{Bayesian computation}: Sample from tractable proposal distributions to approximate intractable posteriors
+\end{itemize}
+\end{bluebox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Random vs Non-Random Sampling}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{bluebox}[Why Random Sampling?]
+We care about \textbf{population risk}:
+$$R(f) = \mathbb{E}_{p(x,y)}[\ell(y, f(x))]$$
+
+This measures how well our model $f$ performs on average across all possible inputs, weighted by how likely each input is to occur.
+
+Random sampling ensures ERM approximates population risk without bias.
+\end{bluebox}
+
+Population risk is a theoretical quantity we cannot compute directly (we do not have access to the entire population). We approximate it via ERM on a sample:
+$$\hat{R}(f) = \frac{1}{n} \sum_{i=1}^{n} \ell(y_i, f(x_i))$$
+
+When the sample is drawn uniformly at random, $\hat{R}(f)$ is an unbiased estimator of $R(f)$. But when is it worth departing from random sampling?
+
+\subsection{Heteroskedastic Noise}
+
+\begin{greybox}[Heteroskedasticity]
+\textbf{Definition}: The variance of the error term depends on the predictor values.
+$$y_i = X_i\beta + \epsilon_i, \quad \epsilon_i \sim \mathcal{N}(0, \sigma^2(X_i))$$
+
+where $\sigma^2(X_i)$ varies with $X_i$, rather than being constant.
+
+\textbf{Contrast with homoskedasticity}: Under homoskedasticity, $\sigma^2(X_i) = \sigma^2$ for all $i$-the noise is the same everywhere.
+\end{greybox}
+
+\textbf{Why heteroskedasticity matters for sampling}: If noise varies across the feature space, then:
+\begin{itemize}
+    \item Some regions are inherently harder to predict (high noise)
+    \item Some regions are easier (low noise)
+    \item Uniform sampling may waste effort on easy regions while undersampling hard ones
+\end{itemize}
+
+\begin{greybox}[Examples of Heteroskedasticity]
+\textbf{Income vs expenditure}: Variance of expenditure increases with income. High earners have more discretionary spending variability-a millionaire might spend \$100 or \$10,000 on a dinner, while a minimum-wage worker's dinner expenses are more constrained.
+
+\textbf{Company size vs returns}: Larger companies tend to have less variable returns than smaller companies (large companies are more stable).
+
+\textbf{Measurement precision}: Some regions of feature space may be harder to measure precisely. For example, measuring very small quantities (near detection limits) or extreme temperatures introduces more noise.
+
+\textbf{Learning curves}: Early in training, predictions are more variable than after convergence.
+\end{greybox}
+
+\subsubsection{Detecting Heteroskedasticity}
+
+Before addressing heteroskedasticity, we need to detect it.
+
+\begin{bluebox}[Detection Methods]
+\textbf{Visual inspection}: Plot residuals $e_i = y_i - \hat{y}_i$ against fitted values $\hat{y}_i$ or predictors $X_i$. Look for ``funnel'' or ``fan'' patterns where residual spread changes systematically.
+
+\textbf{Breusch-Pagan test}: Regress squared residuals on predictors. Test whether coefficients are jointly zero.
+$$e_i^2 = \gamma_0 + \gamma_1 X_{i1} + \cdots + \gamma_p X_{ip} + \nu_i$$
+
+Under $H_0$ (homoskedasticity), $nR^2 \sim \chi^2_p$. A significant test suggests heteroskedasticity.
+
+\textbf{White test}: Similar to Breusch-Pagan but includes squares and cross-products of predictors. More general but uses more degrees of freedom.
+\end{bluebox}
+
+\subsubsection{Consequences for OLS}
+
+What happens if we ignore heteroskedasticity and use ordinary least squares?
+
+\begin{greybox}[OLS under Heteroskedasticity]
+Recall the OLS estimator: $\hat{\beta} = (X^\top X)^{-1}X^\top y$
+
+Under heteroskedasticity:
+\begin{itemize}
+    \item $\hat{\beta}$ is still \textbf{unbiased}: $\mathbb{E}[\hat{\beta}] = \beta$
+    \item $\hat{\beta}$ is still \textbf{consistent}: $\hat{\beta} \xrightarrow{p} \beta$
+    \item But $\hat{\beta}$ is \textbf{no longer efficient}: there exist estimators with lower variance
+    \item Standard errors are \textbf{wrong}: the usual formula $\hat{\sigma}^2(X^\top X)^{-1}$ assumes homoskedasticity
+\end{itemize}
+
+The consequence: hypothesis tests and confidence intervals based on standard OLS standard errors are invalid. You may reject the null hypothesis too often (if you underestimate standard errors) or too rarely (if you overestimate them).
+\end{greybox}
+
+\subsubsection{Solution 1: Weighted Least Squares}
+
+If we know (or can estimate) the variance structure, we can incorporate it directly into estimation.
+
+\begin{greybox}[Weighted Least Squares (WLS)]
+If we know (or can estimate) the variance function $\sigma^2(X_i) = \sigma_i^2$, use weights $w_i = 1/\sigma_i^2$.
+
+\textbf{Objective}:
+$$\hat{\beta}_{\text{WLS}} = \argmin_\beta \sum_{i=1}^n w_i (y_i - X_i\beta)^2$$
+
+\textbf{Solution}:
+$$\hat{\beta}_{\text{WLS}} = (X^\top W X)^{-1}X^\top W y$$
+
+where $W = \text{diag}(w_1, \ldots, w_n)$.
+
+\textbf{Interpretation}: Observations with high variance (unreliable) get low weight; observations with low variance (precise) get high weight.
+\end{greybox}
+
+\textbf{Intuition for WLS}: Think of it as giving each observation a ``credibility score'' based on how noisy it is. High-noise observations are less trustworthy and should influence the fit less. This is similar to how a meta-analysis weights studies by their precision.
+
+\begin{bluebox}[WLS Properties]
+When weights correctly specify relative variances:
+\begin{itemize}
+    \item $\hat{\beta}_{\text{WLS}}$ is unbiased
+    \item $\hat{\beta}_{\text{WLS}}$ is the \textbf{Best Linear Unbiased Estimator} (BLUE)
+    \item $\hat{\beta}_{\text{WLS}}$ achieves the Gauss-Markov bound
+    \item Standard inference (t-tests, F-tests) is valid
+\end{itemize}
+
+In practice, weights are often estimated, introducing additional uncertainty not accounted for in standard WLS inference. This is sometimes called ``feasible GLS'' and requires more careful inference.
+\end{bluebox}
+
+\subsubsection{Solution 2: Robust Standard Errors}
+
+An alternative approach: do not try to model the variance structure; just make inference robust to it.
+
+\begin{greybox}[Heteroskedasticity-Robust Standard Errors]
+Rather than trying to model the variance structure, use \textbf{robust} (Huber-White, sandwich) standard errors.
+
+The robust covariance estimator:
+$$\widehat{\text{Var}}(\hat{\beta}) = (X^\top X)^{-1} \left(\sum_{i=1}^n e_i^2 x_i x_i^\top\right) (X^\top X)^{-1}$$
+
+where $e_i = y_i - X_i\hat{\beta}$ are the OLS residuals.
+
+This is valid under heteroskedasticity without specifying the form of $\sigma^2(X)$. The ``sandwich'' name comes from the structure: bread-meat-bread, where the meat is the middle term that accounts for heteroskedasticity.
+\end{greybox}
+
+\begin{bluebox}[When to Use Which]
+\textbf{Use WLS when}:
+\begin{itemize}
+    \item You have a good model for the variance structure
+    \item Efficiency gains are important (small samples)
+    \item The goal is prediction (WLS predictions are optimal)
+\end{itemize}
+
+\textbf{Use robust SEs when}:
+\begin{itemize}
+    \item Variance structure is unknown or complex
+    \item Primary goal is valid inference, not efficiency
+    \item Sample size is large (robust SEs need asymptotics)
+\end{itemize}
+
+\textbf{Best practice}: Report robust SEs by default. They are (almost) never wrong; classical SEs can be badly wrong if heteroskedasticity is present.
+\end{bluebox}
+
+\subsection{Implications for Sampling}
+
+Heteroskedasticity motivates departing from uniform random sampling.
+
+\begin{greybox}[Non-Uniform Sampling Motivation]
+High-noise regions require more samples to achieve the same accuracy. This motivates \textbf{non-uniform sampling}:
+\begin{itemize}
+    \item Sample more densely where the signal-to-noise ratio is low
+    \item Sample less where predictions are already precise
+\end{itemize}
+
+But care is needed: non-uniform sampling for training can be corrected via reweighting; non-uniform sampling for testing is more dangerous.
+\end{greybox}
+
+\begin{redbox}
+Non-random sampling for \textbf{training} data can be corrected via importance weighting.
+
+Non-random sampling for \textbf{test} data is dangerous-you may have no idea how the model performs on the true population. Your test set may look good simply because it avoids the hard cases. There is no way to correct for not knowing what you do not know.
+\end{redbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Active Learning}
+\label{sec:active-learning}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{bluebox}[Section Summary]
+Active learning selects the most informative points for labelling, reducing annotation costs while maintaining model quality. \textbf{Uncertainty sampling} queries where the model is least confident. \textbf{Query-by-committee} queries where an ensemble disagrees. \textbf{BALD} targets reducible (epistemic) uncertainty, not inherent noise. Active learning helps most when the decision boundary is complex and labels are expensive.
+\end{bluebox}
+
+Active learning optimises the training process by iteratively selecting the most informative data points for labelling. This is particularly valuable when labelling is expensive or time-consuming-medical diagnoses, expert annotations, physical experiments.
+
+\begin{greybox}[Active Learning: The Setup]
+\textbf{Pool-based active learning}:
+\begin{enumerate}
+    \item Start with a large pool of unlabelled data $\mathcal{U} = \{x_1, \ldots, x_N\}$
+    \item Maintain a (initially small) labelled set $\mathcal{L}$
+    \item Iteratively:
+    \begin{enumerate}
+        \item Train model on $\mathcal{L}$
+        \item Use acquisition function to select most informative $x \in \mathcal{U}$
+        \item Query oracle for label; add $(x, y)$ to $\mathcal{L}$
+        \item Remove $x$ from $\mathcal{U}$
+    \end{enumerate}
+\end{enumerate}
+
+\textbf{Stream-based active learning}: Observations arrive one at a time; decide immediately whether to query.
+
+The key question: What makes a point ``informative''?
+\end{greybox}
+
+\subsection{Criteria for Selecting Data Points}
+
+Several strategies exist for identifying informative points:
+
+\begin{itemize}
+    \item \textbf{Uncertainty sampling}: Choose points where the model is most uncertain
+    \item \textbf{Query by committee}: Maintain multiple models and choose points where they disagree most
+    \item \textbf{Expected model change}: Select points that, when labelled, would cause the largest change to model parameters
+    \item \textbf{Expected error reduction}: Choose points expected to most reduce overall error on the unlabelled set
+    \item \textbf{Density-weighted methods}: Combine uncertainty with density, preferring uncertain points that are also representative
+\end{itemize}
+
+\subsection{Uncertainty Sampling}
+
+The simplest and most common active learning approach: select points where the model is most uncertain about its prediction.
+
+\begin{greybox}[Uncertainty Measures (Classification)]
+For a classifier producing class probabilities $p_c = P(Y = c | x)$:
+
+\textbf{Least confidence}:
+$$u_{\text{LC}}(x) = 1 - \max_c p_c$$
+High when the model is unsure about its best guess. Simplest measure; focuses only on the top prediction. Best when boosting confidence in top predictions is the priority.
+
+\textbf{Margin sampling}:
+$$u_{\text{margin}}(x) = p_{\text{top}} - p_{\text{second}}$$
+Low when the model cannot distinguish the top two classes. (Note: select where margin is \textit{smallest}.) Useful for refining decision boundaries between classes.
+
+\textbf{Entropy}:
+$$u_{\text{entropy}}(x) = -\sum_c p_c \log p_c = H(Y|x)$$
+High when predictions are spread across classes; low when confident. Considers the full probability distribution. Best when any misclassification is equally costly.
+
+For binary classification, all three are equivalent (monotonic transformations of each other).
+\end{greybox}
+
+\textbf{Intuition}: Points near the decision boundary are most informative because:
+\begin{itemize}
+    \item The model is most uncertain about them
+    \item They help refine exactly where the boundary should be
+    \item A small change in the model could flip their predictions
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_08_sampling/uncertaintysampling.png}
+    \caption{Uncertainty sampling in action: points near the decision boundary (where the model is uncertain) are selected for labelling. These are precisely the points where additional labels provide the most information for refining the boundary.}
+    \label{fig:uncertainty-sampling}
+\end{figure}
+
+\begin{greybox}[Uncertainty Sampling for Regression]
+For regression with predictive distribution $p(y|x)$:
+
+\textbf{Predictive variance}:
+$$u(x) = \text{Var}[y|x]$$
+
+For linear regression: $\text{Var}[y|x] = \sigma^2(1 + x^\top(X^\top X)^{-1}x)$
+
+The term $x^\top(X^\top X)^{-1}x$ is the \textbf{leverage} of point $x$. Points with high leverage (far from training data in feature space) have high predictive variance.
+\end{greybox}
+
+\subsection{Query-by-Committee}
+
+A more robust approach that uses an ensemble of models.
+
+\begin{greybox}[Query-by-Committee (QBC)]
+Maintain a \textbf{committee} of models $\{f_1, \ldots, f_C\}$, each trained on the same data but with different:
+\begin{itemize}
+    \item Random initialisations (neural networks)
+    \item Bootstrap samples (bagging)
+    \item Hyperparameters
+    \item Posterior samples (Bayesian)
+\end{itemize}
+
+Query points where committee members \textbf{disagree}:
+$$u_{\text{QBC}}(x) = \text{disagreement}(f_1(x), \ldots, f_C(x))$$
+
+\textbf{Disagreement measures}:
+\begin{itemize}
+    \item \textbf{Vote entropy}: Entropy of the vote distribution
+    \item \textbf{KL divergence}: Average divergence from consensus
+    \item \textbf{Variance}: For regression, variance across committee predictions
+\end{itemize}
+\end{greybox}
+
+\begin{bluebox}[QBC vs Uncertainty Sampling]
+\textbf{QBC advantages}:
+\begin{itemize}
+    \item Naturally captures model uncertainty, not just predictive uncertainty
+    \item Robust to overconfident models (a single model may be wrongly confident)
+    \item Can distinguish ``hard examples'' from ``ambiguous examples''
+\end{itemize}
+
+\textbf{QBC disadvantages}:
+\begin{itemize}
+    \item Computationally expensive (train and query multiple models)
+    \item Committee construction is non-trivial
+    \item May select points where \textit{all} models are wrong but confident
+\end{itemize}
+\end{bluebox}
+
+\subsection{Expected Model Change}
+
+Rather than focusing on uncertainty, focus on how much labelling a point would change the model.
+
+\begin{greybox}[Expected Model Change (EMC)]
+Select points that would \textbf{most change the model} if labelled.
+
+$$u_{\text{EMC}}(x) = \mathbb{E}_{y|x}\left[\|\nabla_\theta \ell(y, f_\theta(x))\|\right]$$
+
+\textbf{Intuition}: Points with large expected gradient would cause large parameter updates, suggesting they contain information not yet captured by the model.
+
+\textbf{Variants}:
+\begin{itemize}
+    \item \textbf{Expected gradient length} (EGL): As above
+    \item \textbf{Expected model change}: Change in predictions across the input space
+    \item \textbf{Fisher information}: Expected gradient outer product
+\end{itemize}
+
+Computationally expensive: requires computing gradients for each candidate point under each possible label.
+\end{greybox}
+
+\subsection{Bayesian Active Learning by Disagreement (BALD)}
+
+A more sophisticated approach that addresses a key limitation of simple uncertainty sampling: not all uncertainty is reducible.
+
+\begin{greybox}[The Problem with Pure Uncertainty Sampling]
+Consider a region where the true relationship is genuinely noisy-even with infinite data, predictions would remain uncertain. Pure uncertainty sampling might waste labelling budget on these inherently unpredictable regions.
+
+BALD addresses this by distinguishing between:
+\begin{itemize}
+    \item \textbf{Epistemic uncertainty}: Uncertainty about the model parameters, which \emph{can} be reduced with more data
+    \item \textbf{Aleatoric uncertainty}: Inherent noise in the data, which \emph{cannot} be reduced
+\end{itemize}
+\end{greybox}
+
+\begin{greybox}[BALD: Formal Definition]
+The \textbf{key insight}: Not all uncertainty is equal. Decompose total uncertainty:
+
+$$\underbrace{H(Y|x, \mathcal{D})}_{\text{Total uncertainty}} = \underbrace{\mathbb{E}_{p(\theta|\mathcal{D})}[H(Y|x, \theta)]}_{\text{Aleatoric (irreducible)}} + \underbrace{I(Y; \theta | x, \mathcal{D})}_{\text{Epistemic (reducible)}}$$
+
+\textbf{Aleatoric uncertainty}: Inherent randomness in $Y$ given $x$. Cannot be reduced by more data-some $x$ values are just noisy.
+
+\textbf{Epistemic uncertainty}: Uncertainty due to not knowing the true model. Can be reduced by more data.
+
+\textbf{BALD acquisition function}: Select points maximising epistemic uncertainty:
+$$u_{\text{BALD}}(x) = H(Y|x, \mathcal{D}) - \mathbb{E}_{p(\theta|\mathcal{D})}[H(Y|x, \theta)]$$
+
+This is the mutual information between $Y$ and $\theta$ given $x$.
+\end{greybox}
+
+\textbf{Unpacking the BALD formula}:
+\begin{itemize}
+    \item $H(Y|x, \mathcal{D})$: Total uncertainty in predicting $y$ given $x$ and all observed data. This is what uncertainty sampling uses.
+    \item $\mathbb{E}_{p(\theta|\mathcal{D})}[H(Y|x, \theta)]$: Average uncertainty when we know the true parameters. This is the inherent noise we cannot reduce, averaged over our posterior belief about $\theta$.
+    \item The difference: Epistemic uncertainty-the part we \emph{can} reduce by collecting more data.
+\end{itemize}
+
+\begin{bluebox}[BALD: Why It Matters]
+Consider two uncertain predictions:
+\begin{enumerate}
+    \item A fair coin flip: $P(Y=1|x) = 0.5$ with high confidence
+    \item Model uncertainty: Different plausible models give $P(Y=1|x) \in [0.2, 0.8]$
+\end{enumerate}
+
+Both have high entropy, but:
+\begin{itemize}
+    \item Case 1: Labelling will not help-the example is inherently noisy. All models agree it is a coin flip.
+    \item Case 2: Labelling will help distinguish between models. The models disagree about what the probability should be.
+\end{itemize}
+
+BALD correctly targets case 2; naive uncertainty sampling treats them equally.
+\end{bluebox}
+
+\begin{greybox}[BALD via Information Gain]
+Equivalently, BALD selects points that maximise the expected information gain about model parameters:
+$$\mathbb{E}_{y|x,\mathcal{D}}\left[D_{KL}\left[p(\theta|\mathcal{D},x,y) \,\|\, p(\theta|\mathcal{D})\right]\right]$$
+
+Breaking this down:
+\begin{itemize}
+    \item $p(\theta|\mathcal{D})$: Current posterior over model parameters given observed data $\mathcal{D}$
+    \item $p(\theta|\mathcal{D},x,y)$: Updated posterior after observing a new point $(x,y)$
+    \item $D_{KL}[\cdot\|\cdot]$: Kullback-Leibler divergence measuring how much the posterior would change
+    \item The expectation is taken over possible values of $y$ (since we do not know $y$ yet)
+\end{itemize}
+
+Intuitively: we ``hallucinate'' what might happen if we labelled point $x$, and measure how much we would learn about the model.
+\end{greybox}
+
+\subsection{When Does Active Learning Help?}
+
+Active learning is not always beneficial. Understanding when it helps guides its application.
+
+\begin{greybox}[Conditions for Active Learning Success]
+Active learning provides the largest gains when:
+\begin{enumerate}
+    \item \textbf{Labels are expensive}: Medical diagnoses, expert annotations, physical experiments
+    \item \textbf{Unlabelled data is abundant}: Web data, sensor readings, images
+    \item \textbf{Decision boundary is complex}: Many regions of uncertainty exist
+    \item \textbf{Initial model is reasonable}: If the model is completely wrong, uncertainty sampling may focus on the wrong regions
+\end{enumerate}
+
+Active learning may provide \textbf{little benefit} when:
+\begin{itemize}
+    \item Labels are cheap relative to unlabelled data collection
+    \item Data is uniformly informative (no regions are more important)
+    \item Class imbalance is extreme (random sampling rarely finds minority class)
+\end{itemize}
+\end{greybox}
+
+\begin{redbox}
+\textbf{Cold start problem}: Active learning needs a reasonable initial model to identify informative points. With very few initial labels, the model may be so poor that its uncertainty estimates are meaningless.
+
+\textbf{Mitigation}: Start with random sampling until the model achieves baseline competence, then switch to active selection.
+\end{redbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Correcting for Non-Uniform Sampling}
+\label{sec:ipw}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+When we sample non-uniformly for training data (as in active learning), we need to correct the resulting bias to recover unbiased estimates of population risk.
+
+\subsection{The Problem}
+
+Suppose we sample observation $i$ with probability $p_i$ (which may depend on $X_i$). Our sample no longer represents the true population distribution. If we naively apply ERM, we get a biased estimate of population risk.
+
+\subsection{Inverse Probability Weighting (IPW)}
+
+\begin{greybox}[Inverse Probability Weighting]
+To recover an unbiased estimate of population risk from a non-uniform sample, reweight each observation by the inverse of its sampling probability:
+$$\hat{R}(f) = \frac{1}{\sum_i 1/p_i} \sum_{i=1}^{n} \frac{1}{p_i} \ell(y_i, f(x_i))$$
+
+Points sampled with low probability get high weight; points sampled with high probability get low weight. This ``undoes'' the sampling bias.
+
+\textbf{Unbiasedness}: If $p_i > 0$ for all $i$ in the population:
+$$\mathbb{E}[\hat{R}(f)] = R(f)$$
+\end{greybox}
+
+\textbf{Why IPW works}: Let $s_i \in \{0, 1\}$ indicate whether observation $i$ was sampled. The key insight is:
+$$\mathbb{E}\left[\frac{s_i}{p_i} \cdot \ell(y_i, f(x_i))\right] = \mathbb{E}[\ell(y_i, f(x_i))]$$
+since $\mathbb{E}[s_i] = p_i$. The inverse weighting exactly cancels the sampling probability.
+
+\begin{bluebox}[Practical Implications of IPW]
+IPW allows us to:
+\begin{itemize}
+    \item Use non-uniform sampling strategies (active learning, leverage score sampling) to collect training data efficiently
+    \item Then correct for the induced bias to get unbiased estimates
+    \item Achieve both \textbf{efficiency} (fewer labels needed) and \textbf{unbiasedness} (correct population risk estimates)
+\end{itemize}
+\end{bluebox}
+
+\begin{redbox}
+IPW requires that $p_i > 0$ for all observations you want to generalise to (\textbf{positivity assumption}). If some regions of the population have $p_i = 0$, no amount of reweighting can tell you about them.
+
+Also beware of \textbf{extreme weights}: if some $p_i$ are very small, those observations receive very large weights, leading to high variance estimates. This is the same weight degeneracy problem as in importance sampling.
+\end{redbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Leverage Score Sampling}
+\label{sec:leverage}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{bluebox}[Section Summary]
+Leverage scores measure how influential each observation is for linear regression. High-leverage points lie far from the centre of the predictor space and disproportionately affect the fit. Sampling proportionally to leverage scores enables efficient approximation of full-data regression with sample size depending on $p$ (features) rather than $n$ (observations).
+\end{bluebox}
+
+For ordinary least squares (OLS) regression, some observations are inherently more influential than others. Leverage score sampling exploits this structure.
+
+\subsection{Leverage Scores in Linear Regression}
+
+\begin{greybox}[Leverage Scores]
+For linear regression with design matrix $X$ ($n \times p$), the \textbf{leverage} of observation $i$ is:
+$$h_{ii} = x_i^\top(X^\top X)^{-1}x_i$$
+
+This is the $i$th diagonal element of the \textbf{hat matrix}:
+$$H = X(X^\top X)^{-1}X^\top$$
+
+The hat matrix ``puts the hat on $y$'': $\hat{y} = Hy$.
+\end{greybox}
+
+\textbf{Why ``hat matrix''?}: The matrix $H$ transforms the observed responses $y$ into the fitted values $\hat{y}$. We say it ``puts the hat on $y$'' because it takes $y$ and produces $\hat{y}$.
+
+\begin{greybox}[Properties of Leverage Scores]
+\begin{enumerate}
+    \item \textbf{Range}: $0 \leq h_{ii} \leq 1$ (with intercept: $1/n \leq h_{ii} \leq 1$)
+    \item \textbf{Sum}: $\sum_{i=1}^n h_{ii} = \text{tr}(H) = p$ (number of parameters)
+    \item \textbf{Average}: $\bar{h} = p/n$
+    \item \textbf{Self-influence}: $\frac{\partial \hat{y}_i}{\partial y_i} = h_{ii}$-leverage measures how much changing $y_i$ affects its own prediction
+\end{enumerate}
+\end{greybox}
+
+\textbf{Understanding property 4}: The leverage $h_{ii}$ tells us: if we change $y_i$ by one unit, how much does $\hat{y}_i$ change? High-leverage observations have more influence on their own fitted values-and on the regression line overall.
+
+\subsection{Geometric Interpretation}
+
+\begin{greybox}[Leverage as Distance from Centre]
+Leverage measures how ``unusual'' an observation's predictor values are.
+
+For centred data with $X^\top X = n\hat{\Sigma}$ (sample covariance):
+$$h_{ii} = \frac{1}{n}(x_i - \bar{x})^\top \hat{\Sigma}^{-1}(x_i - \bar{x}) + \frac{1}{n}$$
+
+The first term is the \textbf{Mahalanobis distance} from the centroid. Points far from the centre (in the metric defined by the covariance) have high leverage.
+\end{greybox}
+
+\textbf{Intuition}: Imagine fitting a regression line through a cloud of points. Points near the centre of the cloud have many neighbours that ``anchor'' them-moving one such point does not change the line much. But an isolated point at the edge of the cloud has no neighbours to counterbalance it-it can ``tilt'' the entire regression line.
+
+\begin{bluebox}[Why Leverage Matters]
+High-leverage observations:
+\begin{itemize}
+    \item Have more influence on the fitted coefficients
+    \item Determine the regression line more strongly
+    \item If they also have unusual $y$ values, they are \textbf{influential} (change predictions substantially)
+    \item Are candidates for outlier investigation
+\end{itemize}
+
+\textbf{Connection to Week 4}: The LOOCV shortcut uses leverage:
+$$e_i^{(-i)} = \frac{e_i}{1 - h_{ii}}$$
+where $e_i^{(-i)}$ is the leave-one-out residual and $e_i$ is the ordinary residual. High-leverage points have their residuals inflated more when computing LOOCV.
+\end{bluebox}
+
+\subsection{Leverage Score Sampling for Large-Scale Regression}
+
+\begin{greybox}[Leverage Score Sampling]
+For very large $n$, computing the full OLS solution is expensive ($O(np^2)$). Instead:
+
+\begin{enumerate}
+    \item Compute (approximate) leverage scores $h_{ii}$ for all observations
+    \item Sample $m \ll n$ observations with probability $\propto h_{ii}$
+    \item Fit OLS on the subsample (with importance weights)
+\end{enumerate}
+
+\textbf{Theoretical guarantee} (Cohen \& Peng, 2014): With $m = O(p \log n / \epsilon^2)$ samples, the subsampled solution achieves:
+$$\|X\hat{\beta}_{\text{sub}} - X\hat{\beta}\|_2 \leq (1 + \epsilon)\|X\hat{\beta} - y\|_2$$
+
+The sample size depends on $p$ (features) not $n$ (population size)!
+\end{greybox}
+
+\textbf{The remarkable implication}: This result says we can achieve near-optimal regression accuracy using a number of samples that scales with the complexity of the model ($p$), not the size of the data ($n$). For $n = 10^9$ and $p = 100$, we might need only thousands of samples instead of billions.
+
+\begin{bluebox}[Why Leverage Sampling Works]
+\textbf{Intuition}: Regression is most sensitive to observations that ``span'' the feature space. High-leverage points define the extremes; middle points are redundant.
+
+\textbf{Random sampling failure}: Random sampling might miss high-leverage points entirely, leading to a poorly conditioned subsample. If all sampled points are near the centre, we cannot reliably estimate the slope.
+
+\textbf{Leverage sampling}: Ensures high-leverage points are included, preserving the essential geometry of the problem.
+\end{bluebox}
+
+\subsection{Connection to Optimal Experimental Design}
+
+Leverage score sampling connects to a classical statistical problem: experimental design.
+
+\begin{greybox}[Optimal Experimental Design]
+In experimental design, we choose which $x$ values to observe to minimise estimation uncertainty.
+
+\textbf{D-optimal design}: Maximise $\det(X^\top X)$, equivalently minimise volume of confidence ellipsoid for $\beta$.
+
+\textbf{A-optimal design}: Minimise $\text{tr}((X^\top X)^{-1})$, the average variance of coefficient estimates.
+
+\textbf{Connection}: D-optimal designs tend to place observations at high-leverage positions-the ``corners'' of the design space. If you can choose where to collect data, put observations at the extremes.
+
+Leverage score sampling is an adaptive version: given existing data, sample where additional observations would be most informative.
+\end{greybox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Random Fourier Features}
+\label{sec:rff}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Kernel methods are powerful but computationally expensive. Random Fourier Features provide an efficient approximation.
+
+\subsection{The Computational Challenge}
+
+\begin{greybox}[The Gram Matrix Problem]
+Kernel methods transform input data into a higher-dimensional space where linear methods become more powerful. The kernel trick avoids explicitly computing high-dimensional features, but requires computing the Gram matrix $K$, where $K_{ij} = k(x_i, x_j)$.
+
+\textbf{Computational complexity}:
+\begin{itemize}
+    \item Storage: $O(n^2)$ for the $n \times n$ matrix
+    \item Computation: Up to $O(n^3)$ for inversion or eigendecomposition
+\end{itemize}
+
+For large $n$, this becomes prohibitive. With $n = 10^6$, storing the Gram matrix requires $\sim 8$ TB (at 8 bytes per entry)!
+\end{greybox}
+
+\subsection{The Random Fourier Features Approximation}
+
+\begin{greybox}[Random Fourier Features (RFF)]
+For shift-invariant kernels (e.g., the RBF/Gaussian kernel), the kernel function can be approximated as:
+$$k(x, x') \approx \frac{2}{R}\sum_{r=1}^{R} \cos(w_r^\top x + b_r) \cos(w_r^\top x' + b_r)$$
+
+where:
+\begin{itemize}
+    \item $w_r \sim \mathcal{N}(0, I/\sigma^2)$: Random frequency vectors drawn from a Gaussian
+    \item $b_r \sim \text{Uniform}(0, 2\pi)$: Random phase shifts
+    \item $R$: Number of random features (a hyperparameter)
+    \item $\sigma$: Kernel bandwidth parameter
+\end{itemize}
+
+\textbf{Theoretical basis}: Bochner's theorem states that any positive-definite shift-invariant kernel is the Fourier transform of a probability measure. By sampling from this distribution, we create explicit random features that approximate the kernel.
+\end{greybox}
+
+\textbf{Unpacking Bochner's theorem}: A shift-invariant kernel depends only on $x - x'$: $k(x, x') = k(x - x')$. Bochner's theorem says such kernels can be written as:
+$$k(x - x') = \int e^{iw^\top(x - x')} p(w) dw$$
+for some probability distribution $p(w)$. By sampling $w \sim p$ and using the real part (cosines), we approximate this integral.
+
+\begin{bluebox}[RFF Computational Savings]
+\textbf{Original kernel regression}: $O(n^3)$ complexity
+
+\textbf{With RFF}: $O(R^3)$ complexity, where $R \ll n$
+
+We transform each input $x$ into a new feature vector $\phi(x) \in \mathbb{R}^R$:
+$$\phi(x) = \sqrt{\frac{2}{R}}\begin{bmatrix} \cos(w_1^\top x + b_1) \\ \vdots \\ \cos(w_R^\top x + b_R) \end{bmatrix}$$
+
+Then run standard linear regression on these transformed features. This reduces complexity dramatically while maintaining good approximation quality.
+\end{bluebox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/week_08_sampling/Rff.png}
+    \caption{RFF approximation quality improves with more random features. Panel 1 shows the true RBF kernel function we aim to approximate. Subsequent panels show how the approximation improves as we increase the number of random features $R$.}
+    \label{fig:rff}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\linewidth]{figures/week_08_sampling/rff2.png}
+    \caption{Regression predictions using Random Fourier Features. The approximation quality depends on choosing a sufficient number of random features $R$ relative to the complexity of the underlying function.}
+    \label{fig:rff2}
+\end{figure}
+
+\begin{greybox}[Combining Leverage Scores with RFF]
+A powerful combination: first use RFF to create explicit features $\phi(x)$, then compute leverage scores in this transformed space. This allows efficient kernel regression even on massive datasets:
+\begin{enumerate}
+    \item Transform all points using RFF: $\phi(x_i) = \sqrt{2/R}[\cos(w_1^\top x_i + b_1), \ldots, \cos(w_R^\top x_i + b_R)]^\top$
+    \item Compute leverage scores in the RFF feature space
+    \item Sample according to leverage scores
+    \item Run regression on the sampled points
+\end{enumerate}
+
+This combines the approximation power of kernels with the sampling efficiency of leverage scores.
+\end{greybox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Practical Sampling Pipelines}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{bluebox}[Section Summary]
+Proper data splitting is fundamental to reliable ML. The basic train/validation/test split serves different purposes: training for fitting, validation for tuning, testing for final evaluation. For structured data, splits must respect the structure-groups stay together, time moves forward. \textbf{Never look at the test set until the very end.}
+\end{bluebox}
+
+\subsection{Train/Validation/Test Splits}
+
+\begin{greybox}[The Three-Way Split]
+\textbf{Training set} ($\sim$60-80\%): Fit model parameters.
+
+\textbf{Validation set} ($\sim$10-20\%): Tune hyperparameters, select among models.
+
+\textbf{Test set} ($\sim$10-20\%): Final, unbiased performance estimate.
+
+\textbf{Why three sets?}
+\begin{itemize}
+    \item Training error is optimistically biased (model has seen the data)
+    \item Validation error becomes biased after hyperparameter tuning (information leakage)
+    \item Test error on a truly held-out set provides honest assessment
+\end{itemize}
+\end{greybox}
+
+\begin{redbox}
+\textbf{Test set discipline}: The test set must be used \textbf{exactly once}, at the very end. If you tune hyperparameters based on test performance, the test set becomes another validation set, and you have no honest estimate of generalisation.
+
+Kaggle competitions enforce this: you submit predictions, and the test labels are never revealed until the competition ends.
+\end{redbox}
+
+\subsection{Time Series: Forward Validation}
+
+\begin{greybox}[Time Series Splits]
+For temporal data, the future cannot be used to predict the past.
+
+\textbf{Walk-forward validation}:
+\begin{enumerate}
+    \item Train on $[1, t]$
+    \item Validate on $[t+1, t+h]$ (horizon $h$)
+    \item Expand: Train on $[1, t+h]$
+    \item Validate on $[t+h+1, t+2h]$
+    \item Repeat
+\end{enumerate}
+
+\textbf{Sliding window}: Use fixed-size training window instead of expanding.
+
+\textbf{Gap}: Sometimes include a gap between train and test to avoid information leakage from autocorrelation.
+\end{greybox}
+
+\begin{bluebox}[Time Series Best Practices]
+\begin{enumerate}
+    \item Never shuffle time series data
+    \item Training set must precede validation/test temporally
+    \item Be cautious with features that could leak future information
+    \item Consider multiple test periods to assess stability
+    \item Account for seasonality (test should cover same seasons as deployment)
+\end{enumerate}
+
+See Week 4 for detailed treatment of time series cross-validation.
+\end{bluebox}
+
+\subsection{Cross-Validation Revisited}
+
+\begin{greybox}[When to Use Which CV Strategy]
+\textbf{Standard K-fold}: i.i.d. data, sufficient sample size.
+
+\textbf{Stratified K-fold}: Classification with imbalanced classes. Ensures each fold has representative class distribution.
+
+\textbf{Group K-fold}: Data has natural clusters (patients, users, locations). Keep all observations from a group in the same fold.
+
+\textbf{Time series split}: Temporal ordering matters. Train on past, test on future.
+
+\textbf{Nested CV}: Need both hyperparameter tuning and honest performance estimate. Outer loop for evaluation, inner loop for tuning.
+
+For detailed coverage of cross-validation methods, see Week 4.
+\end{greybox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Multi-Armed Bandits}
+\label{sec:bandits}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{bluebox}[Section Summary]
+Multi-armed bandits address the exploration-exploitation tradeoff in sequential decision-making. $\epsilon$-greedy is simple but wasteful. UCB provides principled optimism under uncertainty with regret guarantees. Thompson sampling takes a Bayesian approach, sampling from posterior beliefs. All achieve sublinear regret, meaning cumulative loss relative to the best arm grows slower than linearly.
+\end{bluebox}
+
+We now shift from sampling for better models to sampling for better \textbf{decisions}. When the goal is maximising reward rather than building an accurate model, bandit algorithms provide the appropriate framework.
+
+\begin{greybox}[Multi-Armed Bandit Problem]
+Imagine a row of slot machines (``one-armed bandits''), each with a different (unknown) payout rate. You have a limited number of plays. How should you allocate your plays to maximise total winnings?
+
+\textbf{Formally}, at each time $t$:
+\begin{enumerate}
+    \item Choose action $a_t$ from $K$ available options (``arms'')
+    \item Observe reward $r_t$ (stochastic, depending on which arm was pulled)
+\end{enumerate}
+
+\textbf{Objective}: Maximise cumulative reward $\sum_{t=1}^{T} r_t$
+
+\textbf{Contextual bandits}: Reward depends on context $x_t$: $r_t = r(a_t, x_t)$. This is more general-the best action may depend on the situation.
+\end{greybox}
+
+\textbf{Why ``bandit''?}: The metaphor comes from being ``robbed'' by slot machines. A multi-armed bandit is a collection of slot machines, each with a hidden probability of paying out.
+
+\textbf{Practical applications}:
+\begin{itemize}
+    \item \textbf{A/B testing}: Which website design leads to more clicks?
+    \item \textbf{Clinical trials}: Which treatment is most effective?
+    \item \textbf{Advertisement placement}: Which ad generates most revenue?
+    \item \textbf{Recommendation systems}: Which item should we recommend?
+\end{itemize}
+
+\subsection{Exploration vs Exploitation}
+
+\begin{bluebox}[The Core Tradeoff]
+\textbf{Exploitation}: Choose the action with highest estimated reward. Make the best decision given what you know now.
+
+\textbf{Exploration}: Try actions with uncertain rewards to learn more. Gather information that might lead to better decisions later.
+
+\textbf{The tension}:
+\begin{itemize}
+    \item Too much exploitation $\Rightarrow$ miss better options you never tried
+    \item Too much exploration $\Rightarrow$ waste resources on actions you already know are bad
+\end{itemize}
+
+A good bandit algorithm must balance these competing goals dynamically over time-exploring early and exploiting later.
+\end{bluebox}
+
+\begin{greybox}[Regret]
+\textbf{Regret} measures how much worse we do compared to always playing the best arm:
+$$\text{Regret}_T = T \cdot \mu^* - \sum_{t=1}^T \mu_{a_t}$$
+
+where $\mu^* = \max_a \mu_a$ is the expected reward of the best arm, and $\mu_{a_t}$ is the expected reward of the arm we chose at time $t$.
+
+A good algorithm achieves \textbf{sublinear regret}: $\text{Regret}_T = o(T)$. This means the average regret per step goes to zero: we make fewer and fewer mistakes over time.
+\end{greybox}
+
+\textbf{Why sublinear regret matters}:
+\begin{itemize}
+    \item \textbf{Linear regret} $O(T)$: Average performance never improves-each mistake is equally costly. This happens with pure random exploration.
+    \item \textbf{Sublinear regret} $O(\sqrt{T \log T})$: We learn! Per-round regret $\to 0$ as $T \to \infty$.
+\end{itemize}
+
+\subsection{Solution 1: $\epsilon$-Greedy}
+
+The simplest approach to balancing exploration and exploitation.
+
+\begin{greybox}[$\epsilon$-Greedy Algorithm]
+At each time step:
+\begin{itemize}
+    \item With probability $1 - \epsilon$: choose action with highest estimated reward (exploit)
+    \item With probability $\epsilon$: choose uniformly at random (explore)
+\end{itemize}
+
+Typically $\epsilon$ is small (e.g., 0.05 or 0.1).
+
+\textbf{Variant}: Decaying $\epsilon_t = \min(1, c/t)$ reduces exploration over time.
+\end{greybox}
+
+\begin{bluebox}[$\epsilon$-Greedy: Pros and Cons]
+\textbf{Advantages}:
+\begin{itemize}
+    \item Extremely simple to implement
+    \item Works with any reward estimator
+    \item Robust to model misspecification
+\end{itemize}
+
+\textbf{Disadvantages}:
+\begin{itemize}
+    \item Explores uniformly, even when some arms are clearly bad
+    \item Regret is linear in $T$ for fixed $\epsilon$
+    \item Tuning $\epsilon$ is non-trivial
+    \item The exploration rate is constant-we pay the same exploration cost early (when exploration is valuable) and late (when we should mostly exploit)
+\end{itemize}
+\end{bluebox}
+
+\subsection{Solution 2: Upper Confidence Bound (UCB)}
+
+A more intelligent approach that adapts exploration based on uncertainty.
+
+\begin{greybox}[UCB Algorithm]
+At each time step, choose action maximising:
+$$\bar{r}_a + \sqrt{\frac{2 \log t}{n_a}}$$
+
+\begin{itemize}
+    \item $\bar{r}_a$: Average observed reward of action $a$ (\textbf{exploitation term})
+    \item $\sqrt{\frac{2 \log t}{n_a}}$: Uncertainty bonus (\textbf{exploration term})
+    \item $n_a$: Number of times action $a$ has been played
+    \item $t$: Total number of time steps so far
+\end{itemize}
+
+\textbf{Principle}: ``Optimism in the face of uncertainty''-give underexplored actions the benefit of the doubt.
+\end{greybox}
+
+\begin{greybox}[UCB Derivation Sketch]
+The exploration bonus comes from Hoeffding's inequality. With probability $\geq 1 - \delta$:
+$$\mu_a \leq \bar{r}_a + \sqrt{\frac{\log(1/\delta)}{2n_a}}$$
+
+Setting $\delta = 1/t^2$ and applying a union bound over arms gives the $\sqrt{2\log t / n_a}$ bonus.
+
+This is an \textbf{upper confidence bound} on the true mean-the true value is likely below this bound.
+\end{greybox}
+
+\textbf{Unpacking the UCB formula}:
+\begin{itemize}
+    \item \textbf{Large when $n_a$ small}: Arms we have rarely tried get a big bonus
+    \item \textbf{Decreases as $n_a$ grows}: As we learn more about an arm, the bonus shrinks
+    \item \textbf{Grows (slowly) with $t$}: Even well-explored arms get revisited occasionally
+\end{itemize}
+
+\begin{bluebox}[UCB Properties]
+\begin{itemize}
+    \item \textbf{Regret bound}: $O(\sqrt{KT \log T})$ where $K$ is the number of arms
+    \item \textbf{Early behaviour}: Explores widely (uncertainty term dominates)
+    \item \textbf{Late behaviour}: Exploits best arm (reward term dominates)
+    \item \textbf{Never stops exploring}: The $\log t$ term grows forever, so even well-explored arms occasionally get revisited
+\end{itemize}
+\end{bluebox}
+
+\textbf{When UCB may struggle}: UCB assumes a stationary environment where reward distributions do not change. In non-stationary settings, $\epsilon$-greedy (with its constant exploration) may adapt better.
+
+\subsection{Solution 3: Thompson Sampling}
+
+A Bayesian alternative that achieves the same theoretical guarantees as UCB but through a different mechanism.
+
+\begin{greybox}[Thompson Sampling]
+Maintain a \textbf{posterior distribution} over each arm's reward.
+
+At each step:
+\begin{enumerate}
+    \item Sample from each arm's posterior: $\tilde{\mu}_a \sim p(\mu_a | \text{data})$
+    \item Choose the arm with highest sample: $a_t = \argmax_a \tilde{\mu}_a$
+    \item Observe reward, update posterior
+\end{enumerate}
+
+\textbf{Key insight}: Exploration is automatic. Uncertain arms have high-variance posteriors, so they sometimes produce high samples and get selected.
+\end{greybox}
+
+\begin{greybox}[Thompson Sampling: Beta-Bernoulli Example]
+For binary rewards $r \in \{0, 1\}$:
+\begin{itemize}
+    \item Prior: $\mu_a \sim \text{Beta}(\alpha_0, \beta_0)$ (e.g., $\alpha_0 = \beta_0 = 1$)
+    \item After $s_a$ successes and $f_a$ failures: $\mu_a | \text{data} \sim \text{Beta}(\alpha_0 + s_a, \beta_0 + f_a)$
+\end{itemize}
+
+\textbf{Algorithm}:
+\begin{enumerate}
+    \item Sample $\tilde{\mu}_a \sim \text{Beta}(\alpha_0 + s_a, \beta_0 + f_a)$ for each arm
+    \item Play $a_t = \argmax_a \tilde{\mu}_a$
+    \item If reward is 1, increment $s_{a_t}$; else increment $f_{a_t}$
+\end{enumerate}
+\end{greybox}
+
+\begin{bluebox}[Thompson Sampling Advantages]
+\begin{itemize}
+    \item Also achieves $O(\sqrt{KT \log T})$ regret
+    \item Natural Bayesian interpretation
+    \item Adapts well to non-stationary environments (posteriors can incorporate forgetting)
+    \item Empirically often outperforms UCB
+    \item Easy to incorporate prior knowledge
+    \item Naturally maintains calibrated uncertainty estimates
+    \item Often the default choice in practice (e.g., A/B testing platforms)
+\end{itemize}
+\end{bluebox}
+
+\begin{greybox}[Thompson Sampling vs UCB]
+\textbf{UCB}: Deterministically chooses the arm with the highest upper confidence bound. The exploration is ``forced'' by the confidence bonus.
+
+\textbf{Thompson Sampling}: Stochastically chooses arms, with exploration emerging naturally from posterior uncertainty. No explicit exploration bonus is needed.
+
+Both achieve the same asymptotic regret bounds, but Thompson Sampling often performs better in practice and generalises more easily to complex settings.
+\end{greybox}
+
+\begin{greybox}[Comparison of Bandit Algorithms]
+\begin{center}
+\begin{tabular}{lccc}
+& \textbf{$\epsilon$-Greedy} & \textbf{UCB} & \textbf{Thompson} \\
+\hline
+Regret & $O(T)$ or $O(\sqrt{T})$ & $O(\sqrt{KT\log T})$ & $O(\sqrt{KT\log T})$ \\
+Exploration & Random & Deterministic & Stochastic \\
+Framework & Frequentist & Frequentist & Bayesian \\
+Requires prior & No & No & Yes \\
+Computational cost & Low & Low & Low-Medium \\
+\end{tabular}
+\end{center}
+\end{greybox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Estimating Prevalence: AIPW}
+\label{sec:aipw}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{bluebox}[Section Summary]
+When the goal is estimating a population quantity (not building a predictor), AIPW combines model predictions with sampling corrections. It achieves the best of both worlds: low variance from the model, unbiasedness from inverse probability weighting. The ``double robustness'' property means the estimator is consistent if \textit{either} the outcome model \textit{or} the propensity score is correctly specified.
+\end{bluebox}
+
+Finally, we consider a different goal: estimating a population quantity (e.g., the fraction of online comments that are hate speech) rather than building a predictor or making decisions.
+
+\subsection{The Problem}
+
+\begin{greybox}[The Prevalence Estimation Challenge]
+Suppose we want to estimate how common a trait is in a population, but measuring the trait is expensive.
+
+\textbf{Example}: What fraction of tweets contain hate speech?
+\begin{itemize}
+    \item We can easily access millions of tweets ($X$)
+    \item But determining if each is hate speech ($y$) requires human review
+    \item We can only afford to label a small subset
+\end{itemize}
+
+Two natural approaches, each with drawbacks:
+\end{greybox}
+
+\textbf{Approach 1: Random Sampling}
+\begin{itemize}
+    \item Randomly sample tweets, have humans label them, compute the average
+    \item \textbf{Pro}: Unbiased estimate of the true prevalence
+    \item \textbf{Con}: High variance-need many labels for a precise estimate
+\end{itemize}
+
+\textbf{Approach 2: Model Predictions}
+\begin{itemize}
+    \item Train a classifier on a labelled subset, then average predictions on the full population
+    \item \textbf{Pro}: Low variance-can predict on millions of tweets
+    \item \textbf{Con}: Biased if the model is miscalibrated (which it usually is)
+\end{itemize}
+
+\begin{bluebox}[The AIPW Solution]
+AIPW (Augmented Inverse Propensity Weighting) combines both approaches:
+\begin{itemize}
+    \item Use model predictions for variance reduction
+    \item Correct for model bias using labelled examples
+    \item Achieve low variance AND unbiased estimates
+\end{itemize}
+\end{bluebox}
+
+\subsection{Targeted Sampling for Prevalence}
+
+An important insight: trait prevalence is often not uniformly distributed. Hate speech might be concentrated in certain topics or communities. This suggests a targeted sampling strategy.
+
+\begin{greybox}[Model-Based Sampling]
+Rather than uniform random sampling:
+\begin{enumerate}
+    \item Train a preliminary model $f(x)$ to predict the trait
+    \item Sample more frequently from units where $f(x)$ is high (where the trait is predicted to be more common)
+    \item This gives more labelled examples of the trait, reducing variance in estimates of the trait-positive subpopulation
+\end{enumerate}
+
+\textbf{Example scheme}:
+\begin{itemize}
+    \item Sample with probability $p$ if $f(x) \leq 0.5$
+    \item Sample with probability $2p$ if $f(x) > 0.5$
+\end{itemize}
+
+This targeted sampling must then be corrected for via inverse propensity weighting.
+\end{greybox}
+
+\subsection{The AIPW Estimator}
+
+\begin{greybox}[Augmented Inverse Propensity Weighting]
+Let:
+\begin{itemize}
+    \item $\hat{g}(X)$: Model prediction of $Y$ given $X$
+    \item $\pi(X)$: Probability of being sampled (propensity score)
+    \item $R$: Indicator for whether unit was sampled ($R = 1$ if labelled)
+    \item $Y$: True label (observed only if $R = 1$)
+\end{itemize}
+
+The AIPW estimator for unit $i$:
+$$\hat{Y}_{\text{AIPW},i} = \hat{g}(X_i) + \frac{R_i}{\pi(X_i)}(Y_i - \hat{g}(X_i))$$
+
+For the population mean:
+$$\hat{\mu}_{\text{AIPW}} = \frac{1}{N}\sum_{i=1}^N \left[\hat{g}(X_i) + \frac{R_i}{\pi(X_i)}(Y_i - \hat{g}(X_i))\right]$$
+\end{greybox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{figures/week_08_sampling/AIPW.png}
+    \caption{The AIPW workflow: (1) Fit a model on gold-standard labelled data, (2) Construct pseudo-outcomes that combine model predictions with IPW corrections, (3) Use pseudo-outcomes for population inference.}
+    \label{fig:aipw}
+\end{figure}
+
+\begin{greybox}[Understanding AIPW]
+Rewrite the AIPW estimator:
+$$\hat{Y}_{\text{AIPW}} = \underbrace{\hat{g}(X)}_{\text{Model prediction}} + \underbrace{\frac{R}{\pi(X)}}_{\text{IPW}} \cdot \underbrace{(Y - \hat{g}(X))}_{\text{Prediction error}}$$
+
+\textbf{Interpretation}:
+\begin{itemize}
+    \item Start with the model prediction for everyone
+    \item For labelled units, add a correction for the prediction error
+    \item The IPW term ensures the correction is unbiased despite non-random sampling
+\end{itemize}
+
+When $R = 0$ (unit not sampled), the formula simplifies to $\hat{g}(X)$-we use the model prediction.
+
+When $R = 1$ (unit sampled), we get $\hat{g}(X) + \frac{1}{\pi(X)}(Y - \hat{g}(X))$-the model prediction plus an IPW-corrected residual.
+\end{greybox}
+
+\subsection{Step-by-Step AIPW Process}
+
+\textbf{Step 1: Model Fitting}
+\begin{itemize}
+    \item Train a model $\hat{g}(X)$ to predict $Y$ from $X$ using a labelled ``gold standard'' dataset
+    \item This model provides predictions for all units, including unlabelled ones
+\end{itemize}
+
+\textbf{Step 2: Pseudo-Outcome Construction}
+\begin{itemize}
+    \item For each unit, compute the pseudo-outcome: $\hat{Y} = \hat{g}(X) + \frac{R}{\pi(X)}(Y - \hat{g}(X))$
+    \item This combines the model prediction with an IPW-corrected residual
+    \item The correction term $\frac{R}{\pi(X)}(Y - \hat{g}(X))$ is zero for unlabelled units and corrects for model errors in labelled units
+\end{itemize}
+
+\textbf{Step 3: Population Inference}
+\begin{itemize}
+    \item Average the pseudo-outcomes across the population
+    \item This gives an unbiased estimate of the true population mean
+\end{itemize}
+
+\begin{bluebox}[Why AIPW Works: Two Scenarios]
+\textbf{If model is perfect}: $Y = \hat{g}(X)$, so the correction term is zero. Use the model on everyone-no need for labels.
+
+\textbf{If model is wrong}: The correction term fixes the bias using labelled data, weighted by IPW.
+
+\textbf{Double robustness}: AIPW is consistent (converges to the true value) if:
+\begin{itemize}
+    \item The outcome model $\hat{g}(X)$ is correctly specified, OR
+    \item The propensity score $\pi(X)$ is correctly specified
+\end{itemize}
+
+You only need to get one of them right!
+\end{bluebox}
+
+\begin{greybox}[Double Robustness Explained]
+\textbf{Why is this valuable?} In practice, we rarely know the true model. Double robustness gives us two chances to get it right, making AIPW more reliable than alternatives that rely on a single model being correct.
+
+\textbf{Contrast with alternatives}:
+\begin{itemize}
+    \item \textbf{Pure IPW}: Requires correct propensity score; model does not help
+    \item \textbf{Pure model-based}: Requires correct outcome model; propensity does not help
+    \item \textbf{AIPW}: Works if either is correct
+\end{itemize}
+\end{greybox}
+
+\begin{greybox}[Variance Reduction]
+Under regularity conditions, AIPW achieves the \textbf{semiparametric efficiency bound}-it has the lowest possible variance among regular asymptotically linear estimators.
+
+The variance reduction from using $\hat{g}$ can be substantial:
+$$\text{Var}(\hat{\mu}_{\text{AIPW}}) \approx \text{Var}(\hat{\mu}_{\text{IPW}}) \cdot (1 - R^2)$$
+
+where $R^2$ is the variance explained by the model. A good model ($R^2$ near 1) dramatically reduces variance.
+\end{greybox}
+
+\begin{redbox}
+\textbf{The Best of Both Worlds}:
+
+AIPW delivers the \textbf{variance-reducing} benefits of using model predictions on every unit, combined with the \textbf{unbiasedness} guarantee of inverse propensity weighting.
+
+This makes it the method of choice when:
+\begin{itemize}
+    \item You need to estimate population quantities, not just make predictions
+    \item Labelling is expensive but you have access to features for the whole population
+    \item You want robustness to model misspecification
+\end{itemize}
+\end{redbox}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Summary}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{bluebox}[Key Concepts from Week 8b]
+\textbf{Three perspectives on sampling}:
+
+\textbf{1. Sampling for Better Models}:
+\begin{itemize}
+    \item \textbf{Active learning}: Iteratively label the most informative points
+    \item \textbf{Uncertainty sampling}: Label where the model is uncertain
+    \item \textbf{BALD}: Target epistemic (reducible) uncertainty, not aleatoric (irreducible) uncertainty
+    \item \textbf{IPW correction}: Reweight non-uniform samples to recover population risk
+    \item \textbf{Leverage scores}: Sample influential points for efficient regression ($O(p \log n / \epsilon^2)$ samples suffice)
+    \item \textbf{Random Fourier Features}: Approximate kernels in $O(R^3)$ instead of $O(n^3)$
+\end{itemize}
+
+\textbf{2. Sampling for Better Decisions (Multi-Armed Bandits)}:
+\begin{itemize}
+    \item \textbf{Exploration--exploitation tradeoff}: Balance learning and earning
+    \item \textbf{$\epsilon$-greedy}: Simple but inefficient constant exploration
+    \item \textbf{UCB}: ``Optimism under uncertainty''-give underexplored arms a bonus
+    \item \textbf{Thompson Sampling}: Bayesian approach, exploration from posterior sampling
+    \item All achieve sublinear regret: mistakes per round $\to 0$
+\end{itemize}
+
+\textbf{3. Sampling for Prevalence Estimation (AIPW)}:
+\begin{itemize}
+    \item Combine model predictions (low variance) with IPW correction (unbiased)
+    \item Double robustness: consistent if either model or propensity is correct
+    \item Best of both worlds for population inference
+\end{itemize}
+\end{bluebox}
+
+\begin{bluebox}[Additional Key Concepts]
+\begin{enumerate}
+    \item \textbf{Data leakage}: Using information unavailable at prediction time; detect via suspiciously good performance; prevent by understanding deployment context
+    \item \textbf{Sampling schemes}: SRS for homogeneous populations; stratified for important subgroups; cluster for practical constraints; systematic with caution
+    \item \textbf{Importance sampling}: Reweight samples to estimate expectations under different distributions; beware of variance from extreme weights
+    \item \textbf{Heteroskedasticity}: Non-constant variance invalidates OLS standard errors; use WLS or robust standard errors
+\end{enumerate}
+\end{bluebox}
+
+\begin{redbox}
+\textbf{Critical Reminders}:
+\begin{itemize}
+    \item \textbf{Data leakage}: Never use information at training time that will not be available at prediction time
+    \item \textbf{Test data must be random}: Non-uniform training samples can be corrected; non-uniform test samples cannot
+    \item \textbf{Match your method to your goal}: Model accuracy, decision quality, and prevalence estimation require different approaches
+\end{itemize}
+\end{redbox}

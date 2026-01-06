@@ -1,0 +1,2108 @@
+% Week 6: Recurrent Neural Networks and Sequence Modeling
+\chapter{Week 6: Recurrent Neural Networks and Sequence Modeling}
+\label{ch:week6}
+
+% This chapter addresses a fundamental question: how do we build neural networks
+% that can process data where ORDER matters? Standard feedforward networks treat
+% each input independently, but language, music, stock prices, and countless other
+% phenomena are inherently sequential -- the meaning depends on what came before.
+
+\begin{quickref}[Chapter Overview]
+\textbf{Core goal:} Understand how neural networks process sequential data with temporal dependencies.
+
+\textbf{Key topics:}
+\begin{itemize}
+    \item Sequential data characteristics and challenges
+    \item Recurrent Neural Networks (RNNs) and the recurrence mechanism
+    \item Backpropagation Through Time (BPTT) and gradient pathologies
+    \item Long Short-Term Memory (LSTM) and gating mechanisms
+    \item Gated Recurrent Units (GRUs)
+    \item 1D CNNs, causal and dilated convolutions
+    \item Introduction to attention mechanisms
+\end{itemize}
+
+\textbf{Key equations:}
+\begin{itemize}
+    \item RNN hidden state: $h_t = \tanh(W_{hh}h_{t-1} + W_{xh}x_t + b_h)$
+    \item LSTM cell state: $c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t$
+    \item GRU hidden state: $h_t = (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t$
+    \item BPTT gradient: $\frac{\partial L}{\partial W_{hh}} = \sum_{t=1}^{T} \sum_{k=1}^{t} \frac{\partial L_t}{\partial h_t} \left(\prod_{j=k+1}^{t} \frac{\partial h_j}{\partial h_{j-1}}\right) \frac{\partial h_k}{\partial W_{hh}}$
+\end{itemize}
+
+\textbf{Learning path:} We begin by understanding what makes sequential data special (Section~\ref{sec:intro-sequence}), then explore how RNNs use \textit{recurrence} to maintain memory across time steps (Section~\ref{sec:rnn}). We'll see why vanilla RNNs struggle with long sequences due to the vanishing gradient problem (Section~\ref{sec:bptt}), and how LSTM and GRU architectures solve this through \textit{gating mechanisms} (Sections~\ref{sec:lstm}--\ref{sec:gru}). Finally, we examine convolutional approaches to sequences (Section~\ref{sec:cnn-sequences}) and preview the attention mechanism that powers modern Transformers (Section~\ref{sec:attention-intro}).
+\end{quickref}
+
+%==============================================================================
+\section{Introduction to Sequence Modeling}
+\label{sec:intro-sequence}
+%==============================================================================
+
+Consider these two sentences: ``Dog bites man'' and ``Man bites dog.'' They contain exactly the same words, but their meanings are completely different. The \textit{order} of words carries crucial information. This is the essence of sequential data-the arrangement of elements matters as much as the elements themselves.
+
+Most of the machine learning techniques we have studied so far treat data points as independent, interchangeable observations. A tabular dataset of customer records, for instance, can be shuffled without losing information. But many real-world phenomena are fundamentally sequential: language flows word by word, music unfolds note by note, stock prices evolve tick by tick, and your heartbeat follows a temporal rhythm. In all these cases, rearranging the data destroys its meaning.
+
+This chapter introduces neural network architectures designed specifically for sequential data. The core challenge is this: \textbf{how do we build networks that remember what came before?} Standard feedforward networks have no memory-they process each input in isolation. We need something more: networks with \textit{recurrence}, where the output at each step depends not just on the current input but on the entire history of previous inputs.
+
+Sequential data refers to data where the \textbf{ordering of instances} matters and there are \textbf{dependencies between instances}.
+
+\begin{rigour}[Sequential vs Non-Sequential Data]
+\textbf{Sequential data} is characterised by:
+\begin{itemize}
+    \item \textbf{Order dependency}: Rearranging instances loses information
+    \item \textbf{Instance dependency}: Each instance depends on previous ones
+    \item \textbf{Variable length}: Sequences can have different lengths
+\end{itemize}
+
+\textbf{Non-sequential data} (e.g., tabular data):
+\begin{itemize}
+    \item Order of rows does not matter
+    \item Each instance is independent
+    \item Fixed number of features per instance
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[Non-Sequential Data Characteristics]
+\textbf{Three defining properties of non-sequential data:}
+
+\textbf{1. Order of instances within the dataset does not matter:}
+\begin{itemize}
+    \item Rearranging or shuffling the instances does not change the information content or alter the meaning of the data.
+    \item \textit{Example}: In a dataset of customer records (age, income, location), changing the row order does not affect the information, as each record is independent.
+\end{itemize}
+
+\textbf{2. Values of one instance do not depend on values of another:}
+\begin{itemize}
+    \item Each data point is independent of others-information within one row does not rely on or influence information from other rows.
+    \item \textit{Example}: In an image classification dataset, each image is treated as a separate entity. The pixels in one image have no relationship or dependency on the pixels in another image.
+\end{itemize}
+
+\textbf{3. Same size of each of the instances:}
+\begin{itemize}
+    \item Non-sequential data typically has a consistent format or number of features for each instance.
+    \item \textit{Example}: In a survey dataset, each respondent has the same number of features (age, gender, response score). This fixed structure is required for traditional ML algorithms that expect inputs of uniform size.
+\end{itemize}
+
+\textbf{Why These Properties Matter:}
+\begin{itemize}
+    \item No need to account for dependencies between instances-models treat each instance independently
+    \item Fixed-size inputs enable simpler models with no requirement to handle variable-length sequences
+\end{itemize}
+
+In contrast, sequential data has \textbf{dependencies across instances}, \textbf{meaningful ordering}, and \textbf{variable length sequences}-requiring specialised models that capture relationships over time or positions.
+\end{quickref}
+
+\begin{quickref}[Examples of Sequential Data]
+\begin{itemize}
+    \item \textbf{Text}: Words depend on context
+    \item \textbf{Time series}: Stock prices, sensor readings, log files
+    \item \textbf{DNA sequences}: Nucleotide positions carry meaning
+    \item \textbf{Audio/Video}: Temporal patterns in signals
+\end{itemize}
+\end{quickref}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/log files.png}
+    \caption{Log files as time series data.}
+    \label{fig:log-files}
+\end{figure}
+
+\subsection{Challenges in Modeling Sequential Data}
+
+\begin{rigour}[Key Challenges]
+\begin{enumerate}
+    \item \textbf{Variable lengths}: Models typically require fixed-size inputs
+    \item \textbf{Long-term dependencies}: Information from distant time steps may be relevant
+    \item \textbf{Vanishing/exploding gradients}: Backpropagation through many time steps causes gradient instability
+\end{enumerate}
+\end{rigour}
+
+\subsection{Time Series in Public Policy}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_6/time series.png}
+    \caption{Time series examples: market prices, sensor values, system logs.}
+    \label{fig:time-series}
+\end{figure}
+
+Time series is sequential data \textbf{indexed by time}. Applications include:
+\begin{itemize}
+    \item \textbf{Market prices}: Financial forecasting
+    \item \textbf{Sensor values}: Environmental monitoring, predictive maintenance
+    \item \textbf{Log files}: System diagnostics, security breach detection
+\end{itemize}
+
+%==============================================================================
+\section{Sequence Modeling Tasks}
+\label{sec:sequence-tasks}
+%==============================================================================
+
+Sequential data opens up a rich variety of modelling tasks that go beyond simple prediction. Each task leverages the temporal or structural dependencies within sequences in different ways. Understanding these tasks helps clarify what kind of model architecture might be most appropriate for your problem.
+
+\begin{quickref}[Common Tasks]
+Sequence modelling tasks leverage the temporal or structural dependencies within sequential data to perform a variety of predictive, diagnostic, and analytical functions. Each task has unique challenges and requires models that can effectively capture and interpret dependencies across time steps or within subsequences.
+
+\begin{itemize}
+    \item \textbf{Forecasting}: Predict future values from past observations
+    \item \textbf{Classification}: Categorise entire sequences
+    \item \textbf{Clustering}: Group similar sequences
+    \item \textbf{Pattern matching}: Find known patterns within sequences
+    \item \textbf{Anomaly detection}: Identify unusual subsequences
+    \item \textbf{Motif detection}: Find frequently recurring patterns
+\end{itemize}
+\end{quickref}
+
+\subsection{Forecasting and Predicting Next Steps}
+
+Forecasting is the task of predicting future values based on past observations. In time series forecasting, models analyse patterns and dependencies in historical data to generate future estimates. This is perhaps the most common application of sequence models.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{images/week_6/Electricity load forecasting.png}
+    \caption{Electricity load forecasting: predicting consumption patterns is crucial for grid management and energy planning.}
+    \label{fig:load-forecasting}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/search query completion.png}
+    \caption{Search query completion: predictive text algorithms anticipate the next words in a query based on previous user inputs.}
+    \label{fig:search-query}
+\end{figure}
+
+\subsection{Classification}
+
+Classification tasks involve categorising a sequence or parts of a sequence based on learned patterns. In sequence classification, we are classifying the \textit{entire sequence} into a category-for example, determining whether an email is spam or not based on its full text, or identifying which appliance is running based on its power consumption signature.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/non-intrusive load monitoring.png}
+    \caption{Non-Intrusive Load Monitoring (NILM): uses energy consumption patterns from electrical devices to classify which appliances are active based on their unique power signatures.}
+    \label{fig:nilm}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/sound classification.png}
+    \caption{Sound classification: identifying types of sounds (e.g., engine noise, sirens, or speech) from audio recordings by analysing frequency and amplitude patterns over time.}
+    \label{fig:sound-classification}
+\end{figure}
+
+\subsection{Clustering}
+
+Clustering organises sequences into groups based on similarity. This technique is useful for discovering natural groupings in data without predefined labels. For example, an energy company might cluster customers by their daily usage patterns to identify groups with similar consumption behaviours.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_6/clustering.png}
+    \caption{Clusters of load profiles of industrial customers determined by k-Means clustering. By clustering load profiles, energy companies can group customers with similar usage patterns, helping them offer tailored tariffs or demand response strategies.}
+    \label{fig:clustering}
+\end{figure}
+
+\subsection{Pattern Matching}
+
+Pattern matching identifies instances of a specific, known pattern within a longer sequence. Unlike classification (which labels the whole sequence), pattern matching \textit{locates} where a particular subsequence occurs.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/pattern matching.png}
+    \caption{Pattern matching: finding heartbeat patterns in continuous signals. In medical data, pattern matching can locate heartbeat patterns within a continuous signal to monitor health conditions.}
+    \label{fig:pattern-matching}
+\end{figure}
+
+Applications include:
+\begin{itemize}
+    \item \textbf{Heartbeat detection}: In medical data, pattern matching can locate heartbeat patterns within a continuous signal to monitor health conditions
+    \item \textbf{DNA sequencing}: Finding specific DNA patterns within genetic data can help identify genes or mutations associated with diseases
+\end{itemize}
+
+\subsection{Anomaly Detection}
+
+Anomaly detection focuses on identifying unusual data points or subsequences that deviate from expected patterns. This is particularly useful in fields where detecting deviations from the norm is crucial for safety, security, or maintenance.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/Anomaly Detection.png}
+    \caption{Anomaly detection in time series: identifying unusual subsequences that deviate from expected patterns.}
+    \label{fig:anomaly-detection}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Predictive maintenance}: In industrial systems, detecting anomalies in sensor readings can indicate equipment wear or imminent failure, allowing for preventative measures
+    \item \textbf{Fraud detection}: Unusual patterns in financial transactions may indicate fraudulent activity
+    \item \textbf{Network security}: Anomalous network traffic patterns can signal intrusion attempts
+\end{itemize}
+
+\subsection{Motif Detection}
+
+Motif detection finds frequently occurring subsequences within a longer sequence. Unlike pattern matching (where we know what pattern to look for), motif detection \textit{discovers} recurring patterns without prior knowledge of what they look like.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/motif detection.png}
+    \caption{Motif detection: finding frequently recurring patterns within sequences.}
+    \label{fig:motif-detection}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{DNA analysis}: Repeated patterns in DNA sequences, known as motifs, can provide insights into genetic functions or evolutionary relationships
+    \item \textbf{Music analysis}: Identifying recurring melodic phrases or rhythmic patterns
+\end{itemize}
+
+%==============================================================================
+\section{Approaches to Sequence Modeling}
+\label{sec:approaches}
+%==============================================================================
+
+Before diving into recurrent neural networks, it is worth understanding the landscape of approaches to sequence modelling. Broadly, there are two paradigms: \textbf{feature engineering} (extracting hand-crafted features and feeding them to standard ML models) and \textbf{end-to-end learning} (letting the neural network learn features directly from raw sequences).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_6/Screenshot 2024-10-29 at 17.32.44.png}
+    \caption{Feature engineering vs end-to-end learning for sequences. The choice between approaches depends on data complexity, domain knowledge availability, and computational resources.}
+    \label{fig:approaches}
+\end{figure}
+
+\begin{rigour}[Two Paradigms]
+\textbf{Traditional ML (Feature Engineering):}
+\begin{itemize}
+    \item Manually extract features: lags, moving averages, seasonality indicators
+    \item Feed features to standard ML models (XGBoost, random forests, etc.)
+    \item \textbf{Limitation}: Does not fully exploit temporal structure-we could shuffle all examples around without affecting the model
+\end{itemize}
+
+\textbf{Deep Learning (End-to-End):}
+\begin{itemize}
+    \item Learn features directly from raw sequences
+    \item Models capture temporal dependencies automatically
+    \item Feature representation is implicit within the model
+    \item \textbf{Requirement}: Large amounts of data and compute
+\end{itemize}
+\end{rigour}
+
+\subsection{Feature Engineering for Text: Bag-of-Words}
+
+A classic example of feature engineering for sequences is the \textbf{Bag-of-Words (BoW)} model in natural language processing:
+\begin{itemize}
+    \item Each unique word in the corpus is included in the vocabulary
+    \item A text sequence is represented by a vector indicating the count (or presence) of each vocabulary word in the sequence
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\linewidth]{images/week_6/BoW.png}
+    \caption{Bag-of-Words representation: each sequence is mapped to a fixed-length vector indicating word occurrence, but the model loses information about word order.}
+    \label{fig:bow}
+\end{figure}
+
+\begin{redbox}
+\textbf{Bag-of-Words limitation:} Traditional NLP approaches like Bag-of-Words lose word order, discarding crucial contextual information and structure. The sentences ``dog bites man'' and ``man bites dog'' have identical BoW representations despite opposite meanings. BoW can also result in high-dimensional, sparse vectors as vocabulary size increases, especially when using n-grams to capture some word order.
+\end{redbox}
+
+\begin{quickref}[Feature Engineering for Load Forecasting]
+For electricity load forecasting, common engineered features include:
+
+\textbf{External Variables:}
+\begin{itemize}
+    \item Weather conditions: temperature, solar irradiance, humidity
+    \item Day/time indicators: hour, day of week, holidays
+\end{itemize}
+
+\textbf{Seasonality Features:}
+\begin{itemize}
+    \item Daily patterns (morning/evening peaks)
+    \item Weekly patterns (weekday vs weekend)
+    \item Annual cycles (heating/cooling seasons)
+\end{itemize}
+
+\textbf{Lagged Values:}
+\begin{itemize}
+    \item Load values from previous hours (lag-1, lag-2, ...)
+    \item Load values from same hour on previous days
+    \item Rolling averages and standard deviations
+\end{itemize}
+
+\textbf{Socioeconomic Indicators:}
+\begin{itemize}
+    \item Number of residents in service area
+    \item Industrial activity levels
+    \item Energy tariff structure and pricing
+    \item Building characteristics (floor space, age)
+\end{itemize}
+
+These features are represented as variables $(X)$ in a feature matrix to predict target values $(y)$ such as future load demands. This enables models to capture feature-target relationships, \textbf{but fundamentally we are still NOT exploiting the series' chronology}-we could shuffle all examples around without affecting the model. To fully exploit the sequential aspect of our data, we need deep learning approaches.
+\end{quickref}
+
+\subsection{Challenges in Raw Sequence Modelling}
+
+Modelling raw sequences is challenging because of the complexities inherent in sequential data. In machine learning, we are learning functions:
+\[
+\underset{\text{NN model}}{f} \underset{\text{Data point}}{(x)} = \underset{\text{Prediction}}{\hat{y}}
+\]
+
+But this gets hard for sequential data due to two key challenges:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/1.png}
+    \label{fig:challenge1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/2.png}
+    \label{fig:challenge2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/3.png}
+    \caption{Challenges in raw sequence modelling: fixed-size requirements and multi-scale temporal dependencies.}
+    \label{fig:challenge3}
+\end{figure}
+
+\begin{rigour}[Challenge 1: Fixed Size Requirement]
+Most traditional machine learning models compute $f: \mathbb{R}^d \rightarrow \mathbb{R}$ where $d$ is a fixed size vector. This creates a short receptive field-the model will not see more than is in the filter. However, sequence data often varies in length (e.g., sentences of different word counts, time series with variable lengths). This limitation necessitates additional \textbf{preprocessing} or \textbf{padding} strategies when using fixed-size models.
+\end{rigour}
+
+\begin{rigour}[Challenge 2: Temporal Dependencies at Multiple Scales]
+In many sequences, dependencies exist across both short and long time scales:
+\begin{itemize}
+    \item In sound processing, dependencies may exist within milliseconds (e.g., vibrations) and seconds (e.g., syllables in speech)
+    \item In time series, dependencies may span minutes, hours, or even days, depending on the application
+\end{itemize}
+
+This \textbf{multi-scale dependency} makes it difficult for simple models with \textbf{short receptive fields} (e.g., convolutional layers with fixed-size filters) to capture the full range of temporal patterns. Models that can learn these multi-scale dependencies, such as recurrent neural networks (RNNs) or transformers with attention mechanisms, are more suitable for such tasks.
+\end{rigour}
+
+%==============================================================================
+\section{Recurrent Neural Networks (RNNs)}
+\label{sec:rnn}
+%==============================================================================
+
+We now arrive at the central topic of this chapter: \textbf{Recurrent Neural Networks (RNNs)}. RNNs are a class of neural networks that excel in processing sequential data by \textit{maintaining a connection between elements in the sequence}. The key insight is simple but powerful: instead of processing each input independently, we process them one at a time while maintaining a ``memory'' of what we have seen so far.
+
+RNNs process sequences by maintaining a \textbf{hidden state} that carries information across time steps. Unlike feedforward networks that process inputs independently, RNNs have \textit{memory}-their output at each step depends on both the current input and all previous inputs.
+
+\subsection{Why Not Fully Connected Networks?}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/FC.png}
+    \caption{Fully connected networks require fixed input dimension.}
+    \label{fig:fc-network}
+\end{figure}
+
+\begin{rigour}[FC Network Limitations for Sequences]
+Fully connected networks compute $f(x_1, \ldots, x_d)$ where $d$ is \textbf{fixed}.
+
+\textbf{Problems for sequences:}
+\begin{itemize}
+    \item Cannot handle variable-length inputs
+    \item Cannot capture dependencies between positions
+    \item Each input treated independently
+\end{itemize}
+
+\textbf{Solution}: Compute the function \textit{recurrently}!
+\end{rigour}
+
+\subsection{The Recurrence Mechanism}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{images/week_6/recurrence relationship.png}
+    \caption{The recurrence relationship: hidden state updated at each step.}
+    \label{fig:recurrence}
+\end{figure}
+
+\begin{rigour}[Formal Definition of RNN]
+\label{def:rnn-formal}
+A \textbf{Recurrent Neural Network} is a parameterised function that maps a variable-length input sequence $(x_1, x_2, \ldots, x_T)$ to a sequence of hidden states $(h_1, h_2, \ldots, h_T)$ via the recurrence:
+\[
+h_t = f_\theta(h_{t-1}, x_t)
+\]
+where:
+\begin{itemize}
+    \item $x_t \in \mathbb{R}^{d_x}$ is the input at time $t$
+    \item $h_t \in \mathbb{R}^{d_h}$ is the hidden state at time $t$ (the network's ``memory'')
+    \item $h_0 \in \mathbb{R}^{d_h}$ is the initial hidden state (typically zero or learned)
+    \item $f_\theta: \mathbb{R}^{d_h} \times \mathbb{R}^{d_x} \to \mathbb{R}^{d_h}$ is the \textbf{state transition function}
+    \item $\theta$ denotes the learnable parameters, shared across all time steps
+\end{itemize}
+
+The key property is that the \textbf{same function $f_\theta$} (with the same parameters) is applied at every time step. This parameter sharing:
+\begin{enumerate}
+    \item Allows processing of arbitrary-length sequences
+    \item Provides translation invariance in time
+    \item Dramatically reduces the number of parameters compared to separate networks per time step
+\end{enumerate}
+\end{rigour}
+
+The RNN maintains information about the past through its hidden state $h_t$. Intuitively, $h_t$ is a \textit{compressed summary} of the sequence $(x_1, \ldots, x_t)$. At each step, this summary is updated to incorporate the new input $x_t$.
+
+\begin{quickref}[RNN as a Dynamical System]
+An RNN can be viewed as a discrete-time dynamical system:
+\begin{itemize}
+    \item \textbf{State}: $h_t$ (hidden state)
+    \item \textbf{Input}: $x_t$ (external driving signal)
+    \item \textbf{Dynamics}: $h_t = f_\theta(h_{t-1}, x_t)$
+    \item \textbf{Output}: $y_t = g_\phi(h_t)$ (optional output function)
+\end{itemize}
+
+The hidden state evolves through a state space $\mathbb{R}^{d_h}$, driven by inputs. This perspective connects RNNs to control theory and state-space models.
+\end{quickref}
+
+\subsection{Unrolling an RNN}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_6/RNN.png}
+    \caption{Unrolled RNN: same network applied at each time step with shared parameters. Each copy of the network shares the same parameters and structure, and the hidden state $h_t$ at each time step is passed to the next time step.}
+    \label{fig:unrolled-rnn}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_6/unrolled_rnn2.png}
+    \caption{Alternative view of an unrolled RNN showing the flow of information through time.}
+    \label{fig:unrolled-rnn2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/key.png}
+    \caption{Key notation for RNN diagrams.}
+    \label{fig:key-notation}
+\end{figure}
+
+\begin{rigour}[Unrolled Computation Graph]
+``Unrolling'' an RNN means explicitly writing out the computation for each time step. For a sequence of length $T$:
+\begin{align*}
+h_1 &= f_\theta(h_0, x_1) \\
+h_2 &= f_\theta(h_1, x_2) = f_\theta(f_\theta(h_0, x_1), x_2) \\
+h_3 &= f_\theta(h_2, x_3) = f_\theta(f_\theta(f_\theta(h_0, x_1), x_2), x_3) \\
+&\vdots \\
+h_T &= f_\theta(h_{T-1}, x_T)
+\end{align*}
+
+The unrolled RNN is equivalent to a deep feedforward network with:
+\begin{itemize}
+    \item $T$ ``layers'' (one per time step)
+    \item \textbf{Weight sharing} across all layers (same $\theta$ everywhere)
+    \item Skip connections from the input at each step
+\end{itemize}
+
+The final output $h_T$ is a function of \textit{all} inputs: $h_T = F_\theta(x_1, x_2, \ldots, x_T; h_0)$.
+\end{rigour}
+
+\begin{quickref}[RNN as Deep Network]
+An unrolled RNN can be viewed as a \textbf{deep network} where:
+\begin{itemize}
+    \item Each time step is a ``layer''
+    \item \textbf{Parameters are shared} across all time steps
+    \item Hidden state passes information forward
+\end{itemize}
+\end{quickref}
+
+\subsection{Vanilla RNN Formulation}
+
+The simplest instantiation of an RNN uses a single-layer affine transformation followed by a $\tanh$ nonlinearity. This is often called the ``vanilla'' RNN or Elman network (after Jeffrey Elman, who popularised this architecture in 1990).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/Vanilla RNN.png}
+    \caption{Vanilla RNN architecture: a single layer with recurrent connections.}
+    \label{fig:vanilla-rnn}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\linewidth]{images/week_6/Vanilla RNN unit.png}
+    \caption{Vanilla RNN unit: the basic building block of recurrent networks.}
+    \label{fig:vanilla-rnn-unit}
+\end{figure}
+
+\begin{rigour}[Vanilla (Elman) RNN]
+\label{def:vanilla-rnn}
+The \textbf{vanilla RNN} (or Elman network) defines the state transition as:
+\[
+h_t = \tanh(W_{hh}h_{t-1} + W_{xh}x_t + b_h)
+\]
+where:
+\begin{itemize}
+    \item $W_{hh} \in \mathbb{R}^{d_h \times d_h}$: hidden-to-hidden weight matrix
+    \item $W_{xh} \in \mathbb{R}^{d_h \times d_x}$: input-to-hidden weight matrix
+    \item $b_h \in \mathbb{R}^{d_h}$: bias vector
+    \item $\tanh$: element-wise hyperbolic tangent (outputs in $[-1, 1]$)
+\end{itemize}
+
+The parameters are $\theta = \{W_{hh}, W_{xh}, b_h\}$.
+
+\textbf{Equivalent concatenated form:}
+\[
+h_t = \tanh(W \cdot [h_{t-1}; x_t] + b_h)
+\]
+where $[h_{t-1}; x_t] \in \mathbb{R}^{d_h + d_x}$ is the concatenation and $W \in \mathbb{R}^{d_h \times (d_h + d_x)}$ combines both weight matrices.
+\end{rigour}
+
+\begin{quickref}[Why $\tanh$?]
+The $\tanh$ activation is preferred over sigmoid for hidden states because:
+\begin{itemize}
+    \item \textbf{Zero-centred}: Outputs in $[-1, 1]$, not $[0, 1]$, reducing bias in gradients
+    \item \textbf{Stronger gradients}: Maximum gradient of 1 (vs 0.25 for sigmoid)
+    \item \textbf{Symmetry}: Can represent both positive and negative activations
+\end{itemize}
+ReLU is less common in vanilla RNNs due to the risk of exploding activations without careful initialisation.
+\end{quickref}
+
+\begin{rigour}[Parameter Sharing]
+\textbf{One weight matrix $W$} and \textbf{one bias $b$} are shared across all time steps.
+
+For $d_h = 4$ (hidden size) and $d_x = 3$ (input features):
+\begin{itemize}
+    \item Concatenated input: $[h_{t-1}; x_t] \in \mathbb{R}^7$
+    \item Weight matrix: $W \in \mathbb{R}^{4 \times 7}$
+    \item Output: $h_t \in \mathbb{R}^4$
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[Vector Concatenation in RNNs]
+\textbf{Why $h_{t-1}$ is a vector:}
+
+The hidden state $h_{t-1}$ represents the internal memory of the RNN at time $t-1$. It is a vector because it contains multiple values that together encode the accumulated information from the sequence so far.
+
+\textbf{Concatenation Operation:}
+
+Let $h_{t-1} \in \mathbb{R}^{d_h}$ and $x_t \in \mathbb{R}^{d_x}$:
+\[
+h_{t-1} = \begin{bmatrix} h_{t-1,1} \\ h_{t-1,2} \\ h_{t-1,3} \end{bmatrix}, \quad
+x_t = \begin{bmatrix} x_{t,1} \\ x_{t,2} \\ x_{t,3} \end{bmatrix}
+\]
+
+The concatenation $[h_{t-1}; x_t]$ stacks these vectors:
+\[
+[h_{t-1}; x_t] = \begin{bmatrix} h_{t-1,1} \\ h_{t-1,2} \\ h_{t-1,3} \\ x_{t,1} \\ x_{t,2} \\ x_{t,3} \end{bmatrix} \in \mathbb{R}^{d_h + d_x}
+\]
+
+\textbf{Dimensionality:}
+\begin{itemize}
+    \item $\dim(h_{t-1}) = d_h$
+    \item $\dim(x_t) = d_x$
+    \item $\dim([h_{t-1}; x_t]) = d_h + d_x$
+\end{itemize}
+
+This concatenation allows the RNN to jointly process both the previous context (via $h_{t-1}$) and the current input (via $x_t$) through a single weight matrix $W$.
+\end{quickref}
+
+\begin{rigour}[Expanded Matrix View: RNN Computation]
+At each time step $t$, the input to an RNN cell is the concatenation of $h_{t-1}$ and $x_t$. For $d_h = 4$ and $d_x = 3$:
+
+\textbf{Concatenated input vector} ($\mathbb{R}^{7}$):
+\[
+[h_{t-1}; x_t] =
+\begin{bmatrix}
+h_{t-1,1} \\ h_{t-1,2} \\ h_{t-1,3} \\ h_{t-1,4} \\ x_{t,1} \\ x_{t,2} \\ x_{t,3}
+\end{bmatrix}
+\]
+
+\textbf{Weight matrix} $W \in \mathbb{R}^{4 \times 7}$:
+\[
+W =
+\begin{bmatrix}
+w_{11} & w_{12} & w_{13} & w_{14} & w_{15} & w_{16} & w_{17} \\
+w_{21} & w_{22} & w_{23} & w_{24} & w_{25} & w_{26} & w_{27} \\
+w_{31} & w_{32} & w_{33} & w_{34} & w_{35} & w_{36} & w_{37} \\
+w_{41} & w_{42} & w_{43} & w_{44} & w_{45} & w_{46} & w_{47}
+\end{bmatrix}
+\]
+
+\textbf{Bias vector} $b \in \mathbb{R}^{4}$:
+\[
+b = \begin{bmatrix} b_1 \\ b_2 \\ b_3 \\ b_4 \end{bmatrix}
+\]
+
+\textbf{Matrix multiplication} $W \cdot [h_{t-1}; x_t]$ produces a vector in $\mathbb{R}^{4}$:
+\[
+W \cdot [h_{t-1}; x_t] =
+\begin{bmatrix}
+w_{11} h_{t-1,1} + w_{12} h_{t-1,2} + w_{13} h_{t-1,3} + w_{14} h_{t-1,4} + w_{15} x_{t,1} + w_{16} x_{t,2} + w_{17} x_{t,3} \\
+w_{21} h_{t-1,1} + w_{22} h_{t-1,2} + w_{23} h_{t-1,3} + w_{24} h_{t-1,4} + w_{25} x_{t,1} + w_{26} x_{t,2} + w_{27} x_{t,3} \\
+w_{31} h_{t-1,1} + w_{32} h_{t-1,2} + w_{33} h_{t-1,3} + w_{34} h_{t-1,4} + w_{35} x_{t,1} + w_{36} x_{t,2} + w_{37} x_{t,3} \\
+w_{41} h_{t-1,1} + w_{42} h_{t-1,2} + w_{43} h_{t-1,3} + w_{44} h_{t-1,4} + w_{45} x_{t,1} + w_{46} x_{t,2} + w_{47} x_{t,3}
+\end{bmatrix}
+\]
+
+\textbf{Final hidden state:} Apply activation element-wise:
+\[
+h_t = \tanh\left( W \cdot [h_{t-1}; x_t] + b \right)
+\]
+
+Note: $h_t \in \mathbb{R}^4$ has the same dimension as $h_{t-1}$, ensuring the recurrence can continue.
+\end{rigour}
+
+\subsection{RNN Architectures}
+\label{sec:rnn-architectures}
+
+Different tasks require different input-output configurations. RNNs are flexible enough to handle all of these.
+
+\begin{rigour}[RNN Architecture Taxonomy]
+RNNs can be configured for various sequence-to-sequence mappings:
+
+\textbf{1. Many-to-One (Sequence Classification):}
+\begin{itemize}
+    \item Input: Sequence $(x_1, \ldots, x_T)$
+    \item Output: Single vector $y = g(h_T)$
+    \item Example: Sentiment analysis, document classification
+\end{itemize}
+
+\textbf{2. One-to-Many (Sequence Generation):}
+\begin{itemize}
+    \item Input: Single vector $x$ (or start token)
+    \item Output: Sequence $(y_1, \ldots, y_T)$
+    \item Example: Image captioning, music generation
+\end{itemize}
+
+\textbf{3. Many-to-Many (Synchronous):}
+\begin{itemize}
+    \item Input: Sequence $(x_1, \ldots, x_T)$
+    \item Output: Sequence $(y_1, \ldots, y_T)$ of same length
+    \item Example: POS tagging, named entity recognition
+\end{itemize}
+
+\textbf{4. Many-to-Many (Asynchronous / Encoder-Decoder):}
+\begin{itemize}
+    \item Input: Sequence $(x_1, \ldots, x_T)$
+    \item Output: Sequence $(y_1, \ldots, y_{T'})$ of different length
+    \item Example: Machine translation, summarisation
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[Architecture Diagrams (Conceptual)]
+\textbf{Many-to-One:}
+\begin{verbatim}
+x_1 -> [RNN] -> h_1
+x_2 -> [RNN] -> h_2
+...
+x_T -> [RNN] -> h_T -> [Dense] -> y
+\end{verbatim}
+
+\textbf{One-to-Many:}
+\begin{verbatim}
+x -> [RNN] -> h_1 -> y_1
+     [RNN] -> h_2 -> y_2
+     ...
+     [RNN] -> h_T -> y_T
+\end{verbatim}
+
+\textbf{Many-to-Many (Encoder-Decoder):}
+\begin{verbatim}
+Encoder: x_1, x_2, ..., x_T -> h_T (context vector)
+Decoder: h_T -> y_1, y_2, ..., y_T'
+\end{verbatim}
+\end{quickref}
+
+\begin{rigour}[Bidirectional RNNs]
+\label{def:bidirectional-rnn}
+A \textbf{bidirectional RNN} processes the sequence in both directions:
+
+\textbf{Forward pass:}
+\[
+\overrightarrow{h}_t = f_\theta(\overrightarrow{h}_{t-1}, x_t)
+\]
+
+\textbf{Backward pass:}
+\[
+\overleftarrow{h}_t = f_\phi(\overleftarrow{h}_{t+1}, x_t)
+\]
+
+\textbf{Combined representation:}
+\[
+h_t = [\overrightarrow{h}_t; \overleftarrow{h}_t] \in \mathbb{R}^{2d_h}
+\]
+
+The forward RNN captures dependencies from $x_1, \ldots, x_t$ while the backward RNN captures dependencies from $x_T, \ldots, x_t$. The concatenated hidden state at position $t$ thus has access to the \textbf{entire sequence context}.
+
+\textbf{Use cases:} Sequence labelling tasks where future context is available (NER, POS tagging). Cannot be used for autoregressive generation where future tokens are unknown.
+\end{rigour}
+
+\begin{quickref}[RNN Advantages and Challenges]
+\textbf{Advantages of RNNs:}
+\begin{itemize}
+    \item \textbf{Variable-length input handling}: RNNs process sequences of any length by iterating over each element
+    \item \textbf{Temporal dependency modelling}: The hidden state maintains information about past inputs, making RNNs effective for tasks where prior context is essential
+    \item \textbf{Parameter efficiency}: Weights are shared across time steps, reducing the number of parameters compared to a separate network for each position
+\end{itemize}
+
+\textbf{Challenges with RNNs:}
+\begin{itemize}
+    \item \textbf{Vanishing/exploding gradients}: As sequence length grows, gradients during backpropagation may diminish or explode, making it difficult to learn long-term dependencies
+    \item \textbf{Limited long-term memory}: Standard RNNs struggle to retain information over many time steps-variants like LSTM and GRU address this through gating mechanisms
+    \item \textbf{Sequential processing}: Cannot parallelise across time steps, leading to slower training compared to CNNs or Transformers
+\end{itemize}
+\end{quickref}
+
+\subsection{Output Layers and Vector Notation}
+
+So far we have focused on how the hidden state evolves. But in practice, we also need to produce \textbf{outputs} from the RNN. The relationship between hidden states and outputs depends on the task.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/vector notation.png}
+    \caption{RNN with hidden state showing the relationship between inputs, hidden states, and outputs.}
+    \label{fig:vector-notation}
+\end{figure}
+
+\begin{rigour}[Hidden State Dimensions]
+The hidden state $H_t$ is the hidden layer output with dimensions $n \times h$:
+\begin{itemize}
+    \item $n$: batch size (number of sequences processed in parallel)
+    \item $h$: hidden state size (number of hidden units)
+\end{itemize}
+
+Each row in $H_t$ represents the hidden state for an individual sequence in the batch at time step $t$:
+\[
+H_t =
+\begin{bmatrix}
+h_{t,1} \\
+h_{t,2} \\
+\vdots \\
+h_{t,n}
+\end{bmatrix}, \quad \text{where each row } h_{t,i} \in \mathbb{R}^h
+\]
+
+The hidden state encodes information about the sequence observed up to time step $t$, maintaining a memory of previous inputs to model dependencies over time.
+\end{rigour}
+
+\begin{quickref}[RNN Output Layer Computation]
+\textbf{Hidden State in RNNs:}
+
+The hidden state update can be written as:
+\[
+H_t = \phi(X_t W_{xh} + H_{t-1} W_{hh} + b_h)
+\]
+
+where:
+\begin{itemize}
+    \item $W_{xh}$: weight matrix connecting input $X_t$ to hidden state
+    \item $W_{hh}$: weight matrix connecting previous hidden state $H_{t-1}$ to current hidden state
+    \item $\phi$: activation function (typically $\tanh$ or ReLU)
+\end{itemize}
+
+\textbf{Output Layer:}
+
+The output at each time step is generated from the hidden state:
+\[
+O_t = H_t W_{hq} + b_q
+\]
+
+where:
+\begin{itemize}
+    \item $W_{hq}$: weight matrix from hidden state to output
+    \item $b_q$: bias term for the output layer
+\end{itemize}
+
+This output layer can be tailored for different tasks:
+\begin{itemize}
+    \item \textbf{Classification}: Softmax over classes
+    \item \textbf{Regression}: Linear output
+    \item \textbf{Sequence-to-sequence}: Output at each time step
+\end{itemize}
+\end{quickref}
+
+%==============================================================================
+\section{Backpropagation Through Time (BPTT)}
+\label{sec:bptt}
+%==============================================================================
+
+We have seen how RNNs perform a \textit{forward pass} through a sequence, updating hidden states one step at a time. But how do we \textit{train} these networks? How do we compute the gradients needed for gradient descent?
+
+The answer is \textbf{Backpropagation Through Time (BPTT)}-essentially standard backpropagation applied to the ``unrolled'' RNN. The key insight is that when we unroll an RNN across $T$ time steps, we get a computation graph that looks like a very deep feedforward network with $T$ layers. The twist is that all these ``layers'' share the same parameters.
+
+\textbf{Why is this tricky?} In a standard feedforward network, each layer has its own parameters, and we compute $\frac{\partial L}{\partial W_\ell}$ for layer $\ell$. In an RNN, the \textit{same} weight matrix $W$ is used at every time step. This means that when we compute $\frac{\partial L}{\partial W}$, we must \textit{sum up} the contributions from every single time step where $W$ was used. The gradient reflects how $W$ affected the loss through \textit{all} its applications.
+
+Training RNNs requires computing gradients with respect to the shared parameters. Because the same parameters are used at every time step, we must aggregate gradients across all time steps-this is \textbf{Backpropagation Through Time (BPTT)}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/BPTT.png}
+    \caption{Computational graph for BPTT showing dependencies across time. Boxes represent variables (not shaded) or parameters (shaded), and circles represent operators. The loss $L$ depends on the $y$s and the $o$s (activations), which are themselves dependent on the previous hidden states ($h$s), which depend on the repeated weight matrices $W$.}
+    \label{fig:bptt}
+\end{figure}
+
+\subsection{The Computational Graph}
+
+\begin{rigour}[RNN Forward Pass (Full)]
+Consider an RNN processing sequence $(x_1, \ldots, x_T)$ with per-step losses and a total loss:
+
+\textbf{Forward equations:}
+\begin{align}
+a_t &= W_{hh} h_{t-1} + W_{xh} x_t + b_h \label{eq:rnn-preact} \\
+h_t &= \tanh(a_t) \label{eq:rnn-hidden} \\
+o_t &= W_{hy} h_t + b_y \label{eq:rnn-output} \\
+\hat{y}_t &= \text{softmax}(o_t) \quad \text{(for classification)} \label{eq:rnn-softmax}
+\end{align}
+
+\textbf{Loss function:}
+\[
+L = \sum_{t=1}^{T} L_t = \sum_{t=1}^{T} \ell(\hat{y}_t, y_t)
+\]
+
+where $\ell$ is the per-step loss (e.g., cross-entropy).
+
+\textbf{Parameters:} $\theta = \{W_{hh}, W_{xh}, W_{hy}, b_h, b_y\}$
+\end{rigour}
+
+\subsection{BPTT Derivation}
+
+\begin{rigour}[BPTT: Gradient Computation]
+\label{thm:bptt-gradient}
+The gradient of the total loss with respect to a parameter $\theta$ sums contributions from all time steps:
+\[
+\frac{\partial L}{\partial \theta} = \sum_{t=1}^{T} \frac{\partial L_t}{\partial \theta}
+\]
+
+For the hidden-to-hidden weights $W_{hh}$, each $L_t$ depends on $W_{hh}$ through all previous hidden states. Using the chain rule:
+
+\[
+\frac{\partial L_t}{\partial W_{hh}} = \sum_{k=1}^{t} \frac{\partial L_t}{\partial h_t} \frac{\partial h_t}{\partial h_k} \frac{\partial^+ h_k}{\partial W_{hh}}
+\]
+
+where $\frac{\partial^+ h_k}{\partial W_{hh}}$ denotes the \textbf{immediate} (direct) dependence of $h_k$ on $W_{hh}$, ignoring the dependence through $h_{k-1}$.
+
+The term $\frac{\partial h_t}{\partial h_k}$ is the \textbf{accumulated Jacobian} from step $k$ to step $t$:
+\[
+\frac{\partial h_t}{\partial h_k} = \prod_{j=k+1}^{t} \frac{\partial h_j}{\partial h_{j-1}}
+\]
+
+\textbf{Full gradient:}
+\[
+\boxed{\frac{\partial L}{\partial W_{hh}} = \sum_{t=1}^{T} \sum_{k=1}^{t} \frac{\partial L_t}{\partial h_t} \left(\prod_{j=k+1}^{t} \frac{\partial h_j}{\partial h_{j-1}}\right) \frac{\partial^+ h_k}{\partial W_{hh}}}
+\]
+\end{rigour}
+
+\begin{rigour}[BPTT: Step-by-Step Derivation]
+\label{derivation:bptt-detailed}
+
+\textbf{Setup:} We derive gradients for a vanilla RNN with:
+\[
+h_t = \tanh(W_{hh} h_{t-1} + W_{xh} x_t + b_h), \quad o_t = W_{hy} h_t, \quad L = \sum_{t=1}^T L_t
+\]
+
+\textbf{Step 1: Output layer gradients}
+
+Starting from the loss at time $t$:
+\[
+\frac{\partial L_t}{\partial o_t} = \hat{y}_t - y_t \quad \text{(for cross-entropy with softmax)}
+\]
+
+Gradient w.r.t. output weights:
+\[
+\frac{\partial L_t}{\partial W_{hy}} = \frac{\partial L_t}{\partial o_t} \cdot h_t^\top
+\]
+
+Gradient flowing back to hidden state:
+\[
+\frac{\partial L_t}{\partial h_t} = W_{hy}^\top \frac{\partial L_t}{\partial o_t}
+\]
+
+\textbf{Step 2: Hidden state gradients}
+
+Define $\delta_t = \frac{\partial L}{\partial h_t}$ as the total gradient at hidden state $h_t$. This receives contributions from:
+\begin{enumerate}
+    \item The loss at time $t$: $\frac{\partial L_t}{\partial h_t}$
+    \item The loss at future times through $h_{t+1}$: $\frac{\partial L_{t+1:T}}{\partial h_{t+1}} \cdot \frac{\partial h_{t+1}}{\partial h_t}$
+\end{enumerate}
+
+The recurrence for $\delta_t$ (going backwards from $t=T$ to $t=1$):
+\[
+\delta_t = \frac{\partial L_t}{\partial h_t} + \delta_{t+1} \cdot \frac{\partial h_{t+1}}{\partial h_t}
+\]
+
+with terminal condition $\delta_{T+1} = 0$.
+
+\textbf{Step 3: Jacobian of hidden state transition}
+
+The key term is $\frac{\partial h_{t+1}}{\partial h_t}$. From $h_{t+1} = \tanh(W_{hh} h_t + W_{xh} x_{t+1} + b_h)$:
+\[
+\frac{\partial h_{t+1}}{\partial h_t} = \text{diag}(1 - h_{t+1}^2) \cdot W_{hh}
+\]
+
+where $\text{diag}(1 - h_{t+1}^2)$ is the diagonal matrix of $\tanh$ derivatives evaluated at $h_{t+1}$.
+
+\textbf{Step 4: Parameter gradients}
+
+Once we have all $\delta_t$, we compute parameter gradients by summing over time:
+\[
+\frac{\partial L}{\partial W_{hh}} = \sum_{t=1}^{T} \delta_t \cdot \text{diag}(1 - h_t^2) \cdot h_{t-1}^\top
+\]
+
+\[
+\frac{\partial L}{\partial W_{xh}} = \sum_{t=1}^{T} \delta_t \cdot \text{diag}(1 - h_t^2) \cdot x_t^\top
+\]
+
+\[
+\frac{\partial L}{\partial b_h} = \sum_{t=1}^{T} \delta_t \cdot \text{diag}(1 - h_t^2) \cdot \mathbf{1}
+\]
+
+where $\text{diag}(1 - h_t^2)$ is the Jacobian of $\tanh$ at step $t$.
+\end{rigour}
+
+\begin{quickref}[BPTT Summary]
+\textbf{Key insight}: The gradient for shared parameters requires summing contributions from all time steps where those parameters were used.
+
+\textbf{Algorithm:}
+\begin{enumerate}
+    \item \textbf{Forward pass}: Compute and store all $h_t$, $o_t$ for $t = 1, \ldots, T$
+    \item \textbf{Backward pass}: For $t = T, T-1, \ldots, 1$:
+    \begin{itemize}
+        \item Compute $\frac{\partial L_t}{\partial h_t}$ from output layer
+        \item Accumulate gradient through time: $\delta_t = \frac{\partial L_t}{\partial h_t} + \delta_{t+1} \cdot \frac{\partial h_{t+1}}{\partial h_t}$
+        \item Accumulate parameter gradients
+    \end{itemize}
+    \item \textbf{Update}: Apply accumulated gradients to parameters
+\end{enumerate}
+
+\textbf{Memory}: $O(T)$ to store all hidden states (can be traded for compute via checkpointing).
+
+\textbf{Time}: $O(T)$ sequential operations-cannot be parallelised across time.
+\end{quickref}
+
+\subsection{The Vanishing and Exploding Gradient Problem}
+\label{sec:vanishing-gradient}
+
+The product of Jacobians in BPTT leads to a fundamental problem: gradients either vanish or explode exponentially with sequence length.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{images/week_6/short term.png}
+    \caption{Short-term context: ``the clouds are in the \textit{sky}'' - easy for RNNs.}
+    \label{fig:short-term}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/longterm.png}
+    \caption{Long-term context: ``I grew up in France... I speak fluent \textit{French}'' - difficult for vanilla RNNs.}
+    \label{fig:long-term}
+\end{figure}
+
+\begin{rigour}[Vanishing/Exploding Gradients: Formal Analysis]
+\label{thm:vanishing-gradient}
+Consider the gradient flow from time step $t$ to an earlier step $k$:
+\[
+\frac{\partial h_t}{\partial h_k} = \prod_{j=k+1}^{t} \frac{\partial h_j}{\partial h_{j-1}} = \prod_{j=k+1}^{t} \text{diag}(\sigma'_j) \cdot W_{hh}
+\]
+
+where $\sigma'_j = 1 - h_j^2$ for $\tanh$ activation.
+
+\textbf{Eigenvalue analysis:} Let $\lambda_{\max}$ and $\lambda_{\min}$ be the largest and smallest singular values of $W_{hh}$. Since $|\sigma'_j| \leq 1$ for $\tanh$:
+
+\[
+\left\|\frac{\partial h_t}{\partial h_k}\right\| \leq \prod_{j=k+1}^{t} \|\text{diag}(\sigma'_j)\| \cdot \|W_{hh}\| \leq \lambda_{\max}^{t-k}
+\]
+
+\textbf{Consequences:}
+\begin{itemize}
+    \item If $\lambda_{\max} < 1$: $\left\|\frac{\partial h_t}{\partial h_k}\right\| \to 0$ as $(t-k) \to \infty$ \quad \textbf{(Vanishing)}
+    \item If $\lambda_{\max} > 1$: $\left\|\frac{\partial h_t}{\partial h_k}\right\| \to \infty$ as $(t-k) \to \infty$ \quad \textbf{(Exploding)}
+\end{itemize}
+
+The gradient signal decays/grows \textbf{exponentially} with the temporal distance $(t-k)$.
+\end{rigour}
+
+\begin{redbox}
+\textbf{Vanishing/Exploding Gradients:} Consider 3 steps:
+\[
+h_3 = A(A(A(h_0, x_1), x_2), x_3)
+\]
+
+Each $A$ contains weight matrix $W$. Backpropagation involves:
+\[
+\frac{\partial L}{\partial h_t} \propto (W^\top)^{T-t}
+\]
+
+\begin{itemize}
+    \item If eigenvalues of $W < 1$: gradients \textbf{vanish} exponentially
+    \item If eigenvalues of $W > 1$: gradients \textbf{explode} exponentially
+\end{itemize}
+
+This limits vanilla RNNs to short-term dependencies and motivated the ``AI winter'' for sequence models until LSTM/GRU were developed.
+\end{redbox}
+
+\begin{quickref}[Numerical Example: Gradient Decay]
+Consider $W_{hh}$ with largest singular value $\sigma_1 = 0.9$ and $\tanh$ derivatives bounded by 1.
+
+Gradient scaling over $k$ steps: $0.9^k$
+\begin{center}
+\begin{tabular}{cc}
+\toprule
+\textbf{Steps $k$} & \textbf{Gradient scale $0.9^k$} \\
+\midrule
+5 & 0.59 \\
+10 & 0.35 \\
+20 & 0.12 \\
+50 & 0.005 \\
+100 & $2.7 \times 10^{-5}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+After 100 steps, gradients are attenuated by a factor of $10^5$-the network cannot learn dependencies beyond a few dozen time steps.
+\end{quickref}
+
+\begin{rigour}[Mitigating Strategies]
+\textbf{For exploding gradients:}
+\begin{itemize}
+    \item \textbf{Gradient clipping}: Rescale gradients when $\|\nabla\| > \tau$:
+    \[
+    \tilde{\nabla} = \begin{cases} \nabla & \text{if } \|\nabla\| \leq \tau \\ \tau \cdot \frac{\nabla}{\|\nabla\|} & \text{otherwise} \end{cases}
+    \]
+    \item \textbf{Careful initialisation}: Orthogonal weight matrices have singular values $\approx 1$
+\end{itemize}
+
+\textbf{For vanishing gradients:}
+\begin{itemize}
+    \item \textbf{Gated architectures}: LSTM and GRU (see Sections~\ref{sec:lstm} and \ref{sec:gru})
+    \item \textbf{Skip connections}: Residual RNNs, highway networks
+    \item \textbf{Attention mechanisms}: Direct connections bypassing the sequential bottleneck (see Section~\ref{sec:attention-intro})
+\end{itemize}
+\end{rigour}
+
+\subsection{Truncated BPTT}
+
+\begin{rigour}[Truncated Backpropagation Through Time]
+\label{def:truncated-bptt}
+For very long sequences, full BPTT is computationally expensive and memory-intensive. \textbf{Truncated BPTT} limits the backward pass to a fixed number of steps $k$:
+
+\[
+\frac{\partial L_t}{\partial W_{hh}} \approx \sum_{j=\max(1, t-k)}^{t} \frac{\partial L_t}{\partial h_t} \left(\prod_{i=j+1}^{t} \frac{\partial h_i}{\partial h_{i-1}}\right) \frac{\partial^+ h_j}{\partial W_{hh}}
+\]
+
+\textbf{Procedure:}
+\begin{enumerate}
+    \item Process sequence in chunks of length $k$
+    \item Forward pass: $h_0 \to h_1 \to \cdots \to h_k$
+    \item Backward pass: backpropagate through only $k$ steps
+    \item Carry forward: use $h_k$ as initial state for next chunk
+    \item Repeat for subsequent chunks
+\end{enumerate}
+
+\textbf{Trade-off:}
+\begin{itemize}
+    \item \textbf{Pro}: Bounded memory and compute per step
+    \item \textbf{Con}: Cannot learn dependencies longer than $k$ steps
+\end{itemize}
+\end{rigour}
+
+%==============================================================================
+\section{Long Short-Term Memory (LSTM)}
+\label{sec:lstm}
+%==============================================================================
+
+The vanishing gradient problem seemed insurmountable for years-it was a fundamental consequence of how vanilla RNNs work. But in 1997, Sepp Hochreiter and Juergen Schmidhuber proposed an elegant solution: the \textbf{Long Short-Term Memory (LSTM)} network.
+
+The key idea is deceptively simple: \textit{what if we had a separate ``memory'' that information could flow through without being multiplied by weight matrices?} In a vanilla RNN, information must pass through matrix multiplication and nonlinear activation at every time step, causing gradients to shrink exponentially. LSTMs introduce a ``cell state'' that acts as a \textbf{conveyor belt}-information can flow along it relatively unchanged, with the network learning to \textit{selectively} add or remove information through \textbf{gates}.
+
+Think of it like a highway running alongside the sequential processing. The main RNN computation happens on the ``local roads'' (the hidden state), but important long-term information can travel on the ``highway'' (the cell state), only exiting when needed.
+
+LSTMs solve the vanishing gradient problem by introducing \textbf{gating mechanisms} to control information flow. Introduced by Hochreiter and Schmidhuber (1997), LSTMs have been the workhorse of sequence modelling for two decades.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/LTSM.png}
+    \caption{LSTM architecture with gates and cell state.}
+    \label{fig:lstm}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/LSTM unit.png}
+    \caption{LSTM unit: the core building block showing the interaction between gates and states.}
+    \label{fig:lstm-unit}
+\end{figure}
+
+\subsection{The Key Insight: Additive Updates}
+
+The fundamental problem with vanilla RNNs is the \textbf{multiplicative} interaction between hidden states:
+\[
+h_t = \tanh(W_{hh} h_{t-1} + \ldots)
+\]
+
+This multiplication causes gradients to vanish or explode. LSTMs introduce a separate \textbf{cell state} $c_t$ that is updated \textbf{additively}:
+\[
+c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t
+\]
+
+The additive structure creates a ``gradient highway''-gradients can flow through the cell state with minimal attenuation.
+
+\subsection{Cell State and Hidden State}
+
+\begin{rigour}[LSTM States]
+LSTMs maintain \textbf{two states}:
+
+\textbf{Cell state $c_t$} (long-term memory):
+\begin{itemize}
+    \item Carries information across many time steps
+    \item Modified only through addition (no vanishing gradients!)
+    \item Acts as a ``memory highway''
+\end{itemize}
+
+\textbf{Hidden state $h_t$} (short-term memory):
+\begin{itemize}
+    \item Output for current time step
+    \item Contains recent, relevant information
+    \item Passed to next time step and output layer
+\end{itemize}
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/cell state.png}
+    \caption{Cell state flows through time with minimal modification, acting as a memory highway.}
+    \label{fig:cell-state}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/cell state 2.png}
+    \caption{Cell state detail: the current state (both $h_t$ and $c_t$) depends on the current input value $x_t$, previous hidden state $h_{t-1}$, and previous cell state $c_{t-1}$.}
+    \label{fig:cell-state-2}
+\end{figure}
+
+\subsection{The Three Gates}
+
+\begin{rigour}[LSTM Equations (Complete)]
+\label{def:lstm-equations}
+All gates receive the same input: the concatenation $[h_{t-1}; x_t]$.
+
+\textbf{Forget gate} (what to discard from cell state):
+\[
+f_t = \sigma(W_f \cdot [h_{t-1}; x_t] + b_f)
+\]
+
+\textbf{Input gate} (what new information to add):
+\[
+i_t = \sigma(W_i \cdot [h_{t-1}; x_t] + b_i)
+\]
+
+\textbf{Candidate cell state} (new information to potentially add):
+\[
+\tilde{c}_t = \tanh(W_c \cdot [h_{t-1}; x_t] + b_c)
+\]
+
+\textbf{Cell state update}:
+\[
+c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t
+\]
+
+\textbf{Output gate} (what to output from cell state):
+\[
+o_t = \sigma(W_o \cdot [h_{t-1}; x_t] + b_o)
+\]
+
+\textbf{Hidden state}:
+\[
+h_t = o_t \odot \tanh(c_t)
+\]
+
+where:
+\begin{itemize}
+    \item $\sigma(\cdot)$ is the sigmoid function: $\sigma(x) = \frac{1}{1 + e^{-x}} \in (0, 1)$
+    \item $\odot$ denotes element-wise (Hadamard) product
+    \item $W_f, W_i, W_c, W_o \in \mathbb{R}^{d_h \times (d_h + d_x)}$ are weight matrices
+    \item $b_f, b_i, b_c, b_o \in \mathbb{R}^{d_h}$ are bias vectors
+\end{itemize}
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/forget gate.png}
+    \caption{Forget gate: sigmoid outputs 0 (forget) to 1 (retain).}
+    \label{fig:forget-gate}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/forget gate 2.png}
+    \caption{Forget gate detail: the sigmoid function determines what fraction of each cell state component to retain.}
+    \label{fig:forget-gate-2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/input gate.png}
+    \caption{Input gate: controls addition of new information.}
+    \label{fig:input-gate}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/input gate 2.png}
+    \caption{Input gate detail: the combination of $i_t$ and $\tilde{c}_t$ determines what new information enters the cell state.}
+    \label{fig:input-gate-2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.72\linewidth]{images/week_6/output gate.png}
+    \caption{Output gate: controls what cell state is exposed as the hidden state.}
+    \label{fig:output-gate}
+\end{figure}
+
+\begin{quickref}[LSTM Gate Summary]
+\begin{itemize}
+    \item \textbf{Forget gate $f_t$}: ``How much of $c_{t-1}$ to keep?'' (0 = forget, 1 = keep)
+    \item \textbf{Input gate $i_t$}: ``How much of $\tilde{c}_t$ to add?''
+    \item \textbf{Output gate $o_t$}: ``How much of $c_t$ to expose as $h_t$?''
+\end{itemize}
+
+Sigmoid ($\sigma$) outputs $\in (0, 1)$ act as ``soft switches''.
+\end{quickref}
+
+\subsection{Gate Mechanisms in Detail}
+
+\begin{rigour}[Forget Gate: Detailed Mechanism]
+The forget gate determines how much of the previous cell state $c_{t-1}$ should be retained:
+\[
+f_t = \sigma(W_f \cdot [h_{t-1}; x_t] + b_f)
+\]
+
+\textbf{Relationship to hidden state and cell state:}
+\begin{itemize}
+    \item The previous hidden state $h_{t-1}$ provides context about prior inputs
+    \item Combined with current input $x_t$, it influences what should be forgotten
+    \item The resulting $f_t$ acts element-wise on $c_{t-1}$
+\end{itemize}
+
+\textbf{Sigmoid output interpretation:}
+\begin{itemize}
+    \item $f_t \approx 0$: completely forget the information in $c_{t-1}$
+    \item $f_t \approx 1$: retain everything from $c_{t-1}$
+    \item Values in between: partial retention
+\end{itemize}
+
+\textbf{Key insight:} The forget gate ensures the cell state can maintain long-term dependencies by selectively discarding irrelevant information, allowing the LSTM to focus on pertinent information as the sequence progresses.
+\end{rigour}
+
+\begin{rigour}[Input Gate: Detailed Mechanism]
+The input gate has two components that together determine what new information to add to the cell state.
+
+\textbf{1. Input Gate Activation $i_t$:}
+\[
+i_t = \sigma(W_i \cdot [h_{t-1}; x_t] + b_i)
+\]
+\begin{itemize}
+    \item Sigmoid output in $(0, 1)$ acts as a filter
+    \item Values close to 1: allow more of $\tilde{c}_t$ to pass through
+    \item Values close to 0: restrict new information
+\end{itemize}
+
+\textbf{2. Candidate Cell State $\tilde{c}_t$:}
+\[
+\tilde{c}_t = \tanh(W_c \cdot [h_{t-1}; x_t] + b_c)
+\]
+\begin{itemize}
+    \item $\tanh$ produces values in $[-1, 1]$
+    \item Represents new information potentially to be added
+    \item Computed from both previous context and current input
+\end{itemize}
+
+\textbf{Cell state update:}
+\[
+c_t = f_t \odot c_{t-1} + i_t \odot \tilde{c}_t
+\]
+
+The input gate $i_t$ modulates how much of the candidate $\tilde{c}_t$ gets added, while the forget gate $f_t$ controls retention of previous information. Together they balance old vs new information.
+\end{rigour}
+
+\begin{rigour}[Output Gate: Detailed Mechanism]
+The output gate determines what information from the cell state should be exposed as the hidden state.
+
+\textbf{Output Gate Activation:}
+\[
+o_t = \sigma(W_o \cdot [h_{t-1}; x_t] + b_o)
+\]
+
+\textbf{Hidden State Computation:}
+\[
+h_t = o_t \odot \tanh(c_t)
+\]
+
+\textbf{Why $\tanh(c_t)$?}
+\begin{itemize}
+    \item Compresses cell state values to $[-1, 1]$
+    \item Enables smooth, controlled adjustments
+    \item Prevents unbounded growth of hidden state values
+\end{itemize}
+
+\textbf{Intuition:} The output gate serves as a filter for the cell state, determining what portion should be shared with other parts of the network. This enables:
+\begin{itemize}
+    \item Selective revelation of only relevant aspects at each time step
+    \item Balance between long-term information (in $c_t$) and short-term context-sensitive information (controlled through $o_t$)
+    \item Controlled flow preventing the model from being overwhelmed by unnecessary details
+\end{itemize}
+\end{rigour}
+
+\begin{redbox}
+\textbf{Gate Interactions:} All three gates jointly control information flow:
+\begin{enumerate}
+    \item \textbf{Forget gate}: What to discard from long-term memory
+    \item \textbf{Input gate}: What new information to store in long-term memory
+    \item \textbf{Output gate}: What to output from long-term memory
+\end{enumerate}
+
+The current state ($h_t$ and $c_t$) depends on:
+\begin{itemize}
+    \item Current input $x_t$
+    \item Previous hidden state $h_{t-1}$
+    \item Previous cell state $c_{t-1}$
+\end{itemize}
+
+This three-way dependency enables LSTMs to learn when to remember, when to forget, and when to output-solving the vanishing gradient problem that plagued vanilla RNNs.
+\end{redbox}
+
+\subsection{Why LSTMs Solve the Vanishing Gradient Problem}
+
+\begin{rigour}[LSTM Gradient Flow Analysis]
+\label{thm:lstm-gradient-flow}
+Consider the gradient flow through the cell state:
+\[
+\frac{\partial c_t}{\partial c_{t-1}} = f_t + \frac{\partial(i_t \odot \tilde{c}_t)}{\partial c_{t-1}}
+\]
+
+The key insight is that $\frac{\partial c_t}{\partial c_{t-1}} \approx f_t$ when the second term is small.
+
+\textbf{For the gradient over $k$ steps:}
+\[
+\frac{\partial c_t}{\partial c_{t-k}} = \prod_{j=t-k+1}^{t} \frac{\partial c_j}{\partial c_{j-1}} \approx \prod_{j=t-k+1}^{t} f_j
+\]
+
+\textbf{Critical difference from vanilla RNN:}
+\begin{itemize}
+    \item \textbf{Vanilla RNN}: Gradient involves $\prod_j \text{diag}(\sigma'_j) \cdot W_{hh}$ - multiplicative with weight matrix
+    \item \textbf{LSTM}: Gradient involves $\prod_j f_j$ - multiplicative with learned gate values
+\end{itemize}
+
+When the network learns to set $f_j \approx 1$, the gradient flows almost unchanged:
+\[
+\frac{\partial c_t}{\partial c_{t-k}} \approx 1
+\]
+
+This is the ``\textbf{constant error carousel}''-the cell state acts as a highway for gradients.
+\end{rigour}
+
+\begin{quickref}[LSTM Gradient Advantage]
+\textbf{Why gradients don't vanish:}
+\begin{enumerate}
+    \item Cell state uses \textbf{additive} updates: $c_t = f_t \odot c_{t-1} + \ldots$
+    \item Gradient w.r.t. $c_{t-1}$ is approximately $f_t$, not a matrix product
+    \item When $f_t \approx 1$, gradient flows unimpeded
+    \item Network \textbf{learns} what to remember via $f_t$
+\end{enumerate}
+
+\textbf{Contrast with vanilla RNN:}
+\begin{itemize}
+    \item Vanilla: $\frac{\partial h_t}{\partial h_{t-1}} = \text{diag}(\sigma') \cdot W_{hh}$ (matrix multiplication)
+    \item LSTM: $\frac{\partial c_t}{\partial c_{t-1}} \approx f_t$ (element-wise, learnable)
+\end{itemize}
+\end{quickref}
+
+\subsection{LSTM Variants}
+
+\begin{rigour}[Peephole Connections]
+\label{def:peephole}
+Standard LSTMs compute gates based only on $[h_{t-1}; x_t]$. \textbf{Peephole connections} (Gers \& Schmidhuber, 2000) allow gates to also inspect the cell state:
+
+\textbf{Forget gate with peephole:}
+\[
+f_t = \sigma(W_f \cdot [h_{t-1}; x_t] + W_{pf} \odot c_{t-1} + b_f)
+\]
+
+\textbf{Input gate with peephole:}
+\[
+i_t = \sigma(W_i \cdot [h_{t-1}; x_t] + W_{pi} \odot c_{t-1} + b_i)
+\]
+
+\textbf{Output gate with peephole:}
+\[
+o_t = \sigma(W_o \cdot [h_{t-1}; x_t] + W_{po} \odot c_t + b_o)
+\]
+
+where $W_{pf}, W_{pi}, W_{po} \in \mathbb{R}^{d_h}$ are peephole weight vectors (element-wise, not matrix multiplication).
+
+\textbf{Intuition:} Peepholes allow gates to make decisions based on the actual memory content, not just the filtered output. Useful when precise timing is important (e.g., speech recognition).
+\end{rigour}
+
+\begin{quickref}[LSTM Worked Example]
+\textbf{Setup:} $d_h = 2$, $d_x = 1$, sequence $(x_1, x_2) = (0.5, -0.3)$.
+
+Assume $h_0 = [0, 0]^\top$, $c_0 = [0, 0]^\top$.
+
+\textbf{Step 1 ($x_1 = 0.5$):}
+
+Suppose after computing with learned weights:
+\begin{itemize}
+    \item $f_1 = [0.8, 0.9]^\top$ (mostly retain)
+    \item $i_1 = [0.7, 0.6]^\top$ (allow input)
+    \item $\tilde{c}_1 = [0.3, -0.2]^\top$ (candidate)
+    \item $o_1 = [0.9, 0.5]^\top$ (mostly output)
+\end{itemize}
+
+Cell state update:
+\[
+c_1 = f_1 \odot c_0 + i_1 \odot \tilde{c}_1 = [0, 0]^\top + [0.7 \times 0.3, 0.6 \times (-0.2)]^\top = [0.21, -0.12]^\top
+\]
+
+Hidden state:
+\[
+h_1 = o_1 \odot \tanh(c_1) = [0.9, 0.5]^\top \odot [\tanh(0.21), \tanh(-0.12)]^\top \approx [0.9 \times 0.207, 0.5 \times (-0.119)]^\top
+\]
+\[
+h_1 \approx [0.186, -0.060]^\top
+\]
+
+\textbf{Interpretation:} The cell state stores information about the first input. The high forget gate values mean if there were previous information, most would be retained.
+\end{quickref}
+
+%==============================================================================
+\section{Gated Recurrent Units (GRUs)}
+\label{sec:gru}
+%==============================================================================
+
+LSTMs were revolutionary, but their complexity-three gates, two state vectors, many parameters-led researchers to ask: \textit{can we simplify this?} In 2014, Cho et al.\ introduced the \textbf{Gated Recurrent Unit (GRU)}, which achieves similar performance to LSTMs with a simpler architecture.
+
+The key simplifications are:
+\begin{itemize}
+    \item \textbf{One state instead of two}: GRUs merge the cell state and hidden state into a single hidden state
+    \item \textbf{Two gates instead of three}: The forget and input gates are combined into a single ``update gate''
+\end{itemize}
+
+This results in fewer parameters (roughly 25\% fewer than LSTMs) and faster training, while maintaining the ability to learn long-term dependencies.
+
+GRUs simplify LSTMs by combining gates and merging the cell/hidden states. Introduced by Cho et al.\ (2014), GRUs achieve similar performance to LSTMs with fewer parameters.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/GRU unit.png}
+    \caption{GRU architecture: simpler than LSTM with comparable performance.}
+    \label{fig:gru}
+\end{figure}
+
+\subsection{GRU Equations}
+
+\begin{rigour}[GRU Equations]
+\label{def:gru-equations}
+\textbf{Update gate} (combines forget and input gates):
+\[
+z_t = \sigma(W_z \cdot [h_{t-1}; x_t] + b_z)
+\]
+
+\textbf{Reset gate} (controls how much past to forget when computing candidate):
+\[
+r_t = \sigma(W_r \cdot [h_{t-1}; x_t] + b_r)
+\]
+
+\textbf{Candidate hidden state}:
+\[
+\tilde{h}_t = \tanh(W_h \cdot [r_t \odot h_{t-1}; x_t] + b_h)
+\]
+
+\textbf{Final hidden state} (interpolation between old and new):
+\[
+h_t = (1 - z_t) \odot h_{t-1} + z_t \odot \tilde{h}_t
+\]
+
+where $W_z, W_r, W_h \in \mathbb{R}^{d_h \times (d_h + d_x)}$ and $b_z, b_r, b_h \in \mathbb{R}^{d_h}$.
+\end{rigour}
+
+\begin{quickref}[GRU Gate Intuition]
+\textbf{Update gate $z_t$:}
+\begin{itemize}
+    \item Controls how much of the new candidate to use
+    \item $z_t \approx 0$: keep old hidden state ($h_t \approx h_{t-1}$)
+    \item $z_t \approx 1$: replace with candidate ($h_t \approx \tilde{h}_t$)
+    \item Combines LSTM's forget and input gates into one
+\end{itemize}
+
+\textbf{Reset gate $r_t$:}
+\begin{itemize}
+    \item Controls how much of $h_{t-1}$ influences the candidate
+    \item $r_t \approx 0$: ignore past when computing $\tilde{h}_t$ (fresh start)
+    \item $r_t \approx 1$: fully use past information
+\end{itemize}
+\end{quickref}
+
+\subsection{GRU vs LSTM Comparison}
+
+\begin{rigour}[Structural Comparison]
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Aspect} & \textbf{LSTM} & \textbf{GRU} \\
+\midrule
+Number of gates & 3 (forget, input, output) & 2 (update, reset) \\
+State vectors & 2 ($c_t$, $h_t$) & 1 ($h_t$) \\
+Parameters per unit & $4(d_h^2 + d_h \cdot d_x + d_h)$ & $3(d_h^2 + d_h \cdot d_x + d_h)$ \\
+Output & Filtered by output gate & Direct hidden state \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Key architectural differences:}
+\begin{enumerate}
+    \item GRU has no separate cell state-only hidden state
+    \item GRU's update gate performs role of both LSTM's forget and input gates
+    \item GRU has no output gate-hidden state is exposed directly
+    \item GRU uses reset gate to control candidate computation; LSTM doesn't
+\end{enumerate}
+\end{rigour}
+
+\begin{quickref}[LSTM vs GRU: When to Use Which]
+\begin{tabular}{lcc}
+\toprule
+& \textbf{LSTM} & \textbf{GRU} \\
+\midrule
+Gates & 3 (forget, input, output) & 2 (update, reset) \\
+States & 2 ($c_t$, $h_t$) & 1 ($h_t$) \\
+Parameters & More & $\sim$25\% fewer \\
+Training speed & Slower & Faster \\
+Long sequences & Often better & Comparable \\
+Small datasets & May overfit & Often better \\
+\bottomrule
+\end{tabular}
+
+\textbf{Rule of thumb:} GRUs are often preferred when computational resources are limited or datasets are small. Performance is task-dependent-empirical comparison is recommended.
+\end{quickref}
+
+\subsection{Limitations of LSTM and GRU}
+
+\begin{redbox}
+\textbf{Practical limitations:}
+\begin{itemize}
+    \item \textbf{Training difficulty}: Prone to overfitting, especially on time series
+    \item \textbf{Depth}: 100-word sequence = 100-layer network
+    \item \textbf{Slow training}: Sequential processing prevents parallelisation
+    \item \textbf{Limited transfer learning}: Unlike transformers, LSTMs don't transfer well
+\end{itemize}
+
+LSTMs have been largely replaced by Transformers for NLP tasks, but remain useful for time series and resource-constrained applications.
+\end{redbox}
+
+%==============================================================================
+\section{Convolutional Neural Networks for Sequences}
+\label{sec:cnn-sequences}
+%==============================================================================
+
+RNNs process sequences one step at a time-this sequential nature makes them slow to train because we cannot parallelise across time steps. Convolutional Neural Networks (CNNs) offer an alternative approach: instead of maintaining a hidden state that evolves through time, CNNs apply \textbf{sliding window} filters that look at local neighbourhoods of the sequence.
+
+The key insight is that many sequential patterns are \textit{local}-they depend on nearby elements rather than distant ones. A word's meaning often depends heavily on its immediate neighbours; a spike in a time series is defined by nearby values. CNNs excel at capturing such local patterns efficiently.
+
+\textbf{Why consider CNNs for sequences?}
+\begin{itemize}
+    \item \textbf{Parallelisation}: Unlike RNNs, CNN operations can be computed in parallel across all positions, dramatically speeding up training on GPUs
+    \item \textbf{Stable gradients}: The computation graph has fixed depth regardless of sequence length
+    \item \textbf{Efficient}: Highly optimised convolutional operations
+\end{itemize}
+
+The main challenge is \textbf{receptive field}-a standard CNN with small filters can only ``see'' a limited context around each position. We will see how \textbf{dilated convolutions} address this limitation.
+
+CNNs can process sequences using sliding window convolutions. Unlike RNNs, CNNs can parallelise across positions, making them much faster to train.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{images/week_6/CNN sequence.png}
+    \caption{CNN for sequences: windows of data fed through convolutional layers.}
+    \label{fig:cnn-sequence}
+\end{figure}
+
+\subsection{1D Convolutions}
+
+\begin{rigour}[1D Convolution]
+For input sequence $x = [x_1, \ldots, x_n]$ and kernel $w$ of size $k = 2p+1$:
+\[
+h_j = \sum_{m=0}^{k-1} x_{j+m} \cdot w_m
+\]
+
+Each output is a \textbf{locally weighted sum} of neighbouring inputs.
+
+\textbf{Output length} (without padding): $n - k + 1$
+
+\textbf{With padding $p$}: Output length = $n$ (same convolution)
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/1d convolution.png}
+    \caption{1D convolution operation on a sequence.}
+    \label{fig:1d-conv}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{images/week_6/convolution_1d.png}
+    \caption{Alternative view of 1D convolution showing the sliding window operation.}
+    \label{fig:1d-conv-alt}
+\end{figure}
+
+\begin{quickref}[1D Convolution as Cross-Correlation: Worked Example]
+In practice, convolution is implemented as \textbf{cross-correlation} (kernel not flipped). The operation becomes:
+\[
+h_j = (x_{j-1} \times w_{-1}) + (x_j \times w_0) + (x_{j+1} \times w_1)
+\]
+
+\textbf{Numerical Example:}
+
+Input sequence $x$:
+\[
+\begin{array}{|c|c|c|c|c|c|}
+\hline
+x_1 & x_2 & x_3 & x_4 & x_5 & x_6 \\
+\hline
+1 & 3 & 3 & 0 & 1 & 2 \\
+\hline
+\end{array}
+\]
+
+Kernel $w$ (size 3):
+\[
+\begin{array}{|c|c|c|}
+\hline
+w_1 & w_0 & w_{-1} \\
+\hline
+2 & 0 & 1 \\
+\hline
+\end{array}
+\]
+
+\textbf{Computing outputs} (sliding window):
+\begin{align*}
+h_2 &= (1 \times 2) + (3 \times 0) + (3 \times 1) = 2 + 0 + 3 = 5 \\
+h_3 &= (3 \times 2) + (3 \times 0) + (0 \times 1) = 6 + 0 + 0 = 6 \\
+h_4 &= (3 \times 2) + (0 \times 0) + (1 \times 1) = 6 + 0 + 1 = 7 \\
+h_5 &= (0 \times 2) + (1 \times 0) + (2 \times 1) = 0 + 0 + 2 = 2
+\end{align*}
+
+Output sequence:
+\[
+\begin{array}{|c|c|c|c|}
+\hline
+h_2 & h_3 & h_4 & h_5 \\
+\hline
+5 & 6 & 7 & 2 \\
+\hline
+\end{array}
+\]
+
+Note: The output length is $n - k + 1$ where $n$ is input length and $k$ is kernel size (without padding).
+\end{quickref}
+
+\subsection{Causal Convolutions}
+
+\begin{rigour}[Causal Convolution]
+Standard convolutions use future values, causing \textbf{data leakage} for prediction tasks.
+
+Causal convolutions use only past and current values:
+\[
+h_t = \sum_{m=0}^{k-1} x_{t-m} \cdot w_m
+\]
+
+\textbf{No future information} is used in predictions.
+
+\textbf{Implementation:} Left-pad input with $k-1$ zeros, apply standard convolution, result is causal.
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_6/causal conv.png}
+    \caption{Causal convolutions: each output depends only on past inputs.}
+    \label{fig:causal-conv}
+\end{figure}
+
+\begin{redbox}
+\textbf{Causal vs Non-Causal:}
+\begin{itemize}
+    \item \textbf{Non-causal}: Used when full sequence is available (classification, encoding)
+    \item \textbf{Causal}: Required for autoregressive generation and real-time prediction
+\end{itemize}
+Using non-causal convolutions for prediction tasks is a common bug that leads to unrealistically good results-the model ``cheats'' by seeing the future.
+\end{redbox}
+
+\subsection{Dilated Convolutions}
+
+\begin{rigour}[Dilated Convolution]
+Standard convolutions have \textbf{limited receptive field}. Dilated convolutions expand it exponentially.
+
+With dilation factor $d$:
+\[
+h_t = \sum_{m=0}^{k-1} x_{t - d \cdot m} \cdot w_m
+\]
+
+The kernel ``skips'' $d-1$ inputs between each weight application.
+
+\textbf{Receptive field growth:}
+\begin{itemize}
+    \item Layer 1 ($d=1$): receptive field = $k$
+    \item Layer 2 ($d=2$): receptive field = $k + (k-1) \times 2$
+    \item Layer $\ell$ ($d=2^{\ell-1}$): receptive field grows exponentially
+\end{itemize}
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/week_6/Dilated convolutions.png}
+    \caption{Dilated convolutions: larger receptive field without more parameters.}
+    \label{fig:dilated-conv}
+\end{figure}
+
+\begin{rigour}[Receptive Field Calculation]
+For a stack of $L$ dilated causal convolutional layers with kernel size $k$ and dilation factors $d_\ell = 2^{\ell-1}$:
+
+\textbf{Receptive field size:}
+\[
+R = 1 + \sum_{\ell=1}^{L} (k-1) \cdot d_\ell = 1 + (k-1) \cdot \sum_{\ell=1}^{L} 2^{\ell-1} = 1 + (k-1)(2^L - 1)
+\]
+
+\textbf{Example:} With $k=2$ and $L=10$ layers:
+\[
+R = 1 + 1 \cdot (2^{10} - 1) = 1024
+\]
+
+A network with only 10 layers and 2-wide kernels can see 1024 time steps back!
+\end{rigour}
+
+\begin{quickref}[CNN for Sequences: Pros and Cons]
+\textbf{Advantages over RNNs:}
+\begin{itemize}
+    \item \textbf{Parallelisable}: All positions computed simultaneously (much faster training)
+    \item \textbf{Efficient}: Vectorised operations on modern hardware
+    \item \textbf{Stable gradients}: Fixed-depth computation graph
+\end{itemize}
+
+\textbf{Disadvantages:}
+\begin{itemize}
+    \item \textbf{Fixed receptive field}: Cannot adapt to sequence-specific dependencies
+    \item \textbf{Not inherently sequential}: Requires positional information
+    \item \textbf{Memory}: Must pad all sequences to same length in batch
+\end{itemize}
+\end{quickref}
+
+%==============================================================================
+\section{Temporal Convolutional Networks}
+\label{sec:tcn}
+%==============================================================================
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/wavenetge.png}
+    \caption{WaveNet: dilated causal convolutions for audio generation.}
+    \label{fig:wavenet}
+\end{figure}
+
+\begin{rigour}[WaveNet and TCN]
+\textbf{WaveNet} (DeepMind, 2016):
+\begin{itemize}
+    \item Designed for high-frequency audio generation (16kHz+)
+    \item Stacked dilated causal convolutions
+    \item Models long-range dependencies without recurrence
+    \item Achieved state-of-the-art text-to-speech quality
+\end{itemize}
+
+\textbf{Temporal Convolutional Networks (TCN)} (Bai et al., 2018):
+\begin{itemize}
+    \item Generalises WaveNet architecture for time series tasks
+    \item Combines: dilated convolutions + causal convolutions + residual connections
+    \item Efficient alternative to LSTMs for many applications
+\end{itemize}
+\end{rigour}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/TCN.png}
+    \caption{TCN architecture with residual connections.}
+    \label{fig:tcn}
+\end{figure}
+
+\begin{rigour}[TCN Architecture Details]
+A TCN block consists of:
+
+\textbf{1. Dilated causal convolution:}
+\[
+\text{Conv1D}(x; d) \quad \text{with dilation } d
+\]
+
+\textbf{2. Weight normalisation and ReLU activation}
+
+\textbf{3. Dropout for regularisation}
+
+\textbf{4. Residual connection:}
+\[
+\text{output} = \text{Conv1D}(x) + x
+\]
+
+If input and output dimensions differ, a $1 \times 1$ convolution adjusts dimensions.
+
+\textbf{Stacking:} Multiple blocks with exponentially increasing dilation ($d = 1, 2, 4, 8, \ldots$) create large receptive fields efficiently.
+\end{rigour}
+
+%==============================================================================
+\section{Introduction to Attention Mechanisms}
+\label{sec:attention-intro}
+%==============================================================================
+
+We have now seen three approaches to sequence modelling:
+\begin{itemize}
+    \item \textbf{RNNs}: Sequential processing with hidden state memory
+    \item \textbf{LSTMs/GRUs}: Gated RNNs that mitigate vanishing gradients
+    \item \textbf{CNNs}: Parallel processing with local receptive fields
+\end{itemize}
+
+All of these have a fundamental limitation: to connect distant positions, information must flow through intermediate representations. In an RNN, information from position 1 must flow through positions 2, 3, 4, ... to reach position 100. This creates a ``bottleneck''-the farther apart two positions are, the harder it is for the network to learn dependencies between them.
+
+\textbf{Attention} offers a radical alternative: \textit{what if any position could directly attend to any other position?} Instead of information flowing sequentially, we compute a weighted combination of \textit{all} positions, with the weights learned based on relevance. This creates \textbf{direct connections} between any pair of positions, regardless of distance.
+
+This idea-seemingly simple but profoundly powerful-is the foundation of the \textbf{Transformer} architecture that has revolutionised NLP since 2017.
+
+Before diving into Transformers (Chapter~\ref{ch:week7}), we introduce the core concept of \textbf{attention}-a mechanism that allows models to focus on relevant parts of the input, regardless of position.
+
+\subsection{Motivation: The Bottleneck Problem}
+
+\begin{rigour}[Encoder-Decoder Bottleneck]
+In sequence-to-sequence tasks (e.g., translation), the standard encoder-decoder architecture:
+\[
+\underbrace{(x_1, \ldots, x_T)}_{\text{source}} \xrightarrow{\text{Encoder}} \underbrace{h_T}_{\text{context}} \xrightarrow{\text{Decoder}} \underbrace{(y_1, \ldots, y_{T'})}_{\text{target}}
+\]
+
+\textbf{Problem:} The entire source sequence must be compressed into a single fixed-size vector $h_T$. This creates an information bottleneck:
+\begin{itemize}
+    \item Long sequences lose information
+    \item Distant context is difficult to preserve
+    \item All source positions are weighted equally (no notion of ``relevance'')
+\end{itemize}
+\end{rigour}
+
+\begin{quickref}[The Alignment Problem]
+Consider translating: ``The cat sat on the mat'' to French.
+
+When generating ``chat'' (cat), the decoder should focus on ``cat'' in the source.
+
+When generating ``tapis'' (mat), the decoder should focus on ``mat'' in the source.
+
+\textbf{Attention} provides a mechanism for this dynamic, position-dependent focus.
+\end{quickref}
+
+\subsection{Basic Attention Mechanism}
+
+\begin{rigour}[Attention: Query-Key-Value Framework]
+\label{def:attention-qkv}
+Attention computes a weighted combination of \textbf{values} based on the similarity between a \textbf{query} and \textbf{keys}.
+
+\textbf{Given:}
+\begin{itemize}
+    \item Query: $q \in \mathbb{R}^{d_k}$ (what we're looking for)
+    \item Keys: $K = [k_1, \ldots, k_n]^\top \in \mathbb{R}^{n \times d_k}$ (what we have)
+    \item Values: $V = [v_1, \ldots, v_n]^\top \in \mathbb{R}^{n \times d_v}$ (what we want to retrieve)
+\end{itemize}
+
+\textbf{Attention weights} (how much to attend to each position):
+\[
+\alpha_i = \frac{\exp(q^\top k_i / \sqrt{d_k})}{\sum_{j=1}^{n} \exp(q^\top k_j / \sqrt{d_k})}
+\]
+
+\textbf{Output} (weighted combination of values):
+\[
+\text{Attention}(q, K, V) = \sum_{i=1}^{n} \alpha_i v_i = V^\top \alpha
+\]
+
+where $\alpha = [\alpha_1, \ldots, \alpha_n]^\top$ is the vector of attention weights.
+
+The $\sqrt{d_k}$ scaling prevents dot products from growing too large (which would make softmax saturate).
+\end{rigour}
+
+\begin{quickref}[Attention Intuition]
+\textbf{Query}: ``What am I looking for?'' (current decoder state)
+
+\textbf{Keys}: ``What's available?'' (encoder hidden states)
+
+\textbf{Values}: ``What information to retrieve?'' (encoder hidden states)
+
+\textbf{Attention weights}: ``How relevant is each source position?''
+
+\textbf{Output}: Weighted average of values, emphasising relevant positions.
+
+\textbf{Analogy}: Attention is like a soft database lookup-instead of retrieving one exact match, it retrieves a weighted blend of all entries based on similarity.
+\end{quickref}
+
+\subsection{Self-Attention Preview}
+
+\begin{rigour}[Self-Attention]
+\label{def:self-attention}
+\textbf{Self-attention} applies attention within a single sequence-each position attends to all positions (including itself).
+
+For input sequence $X = [x_1, \ldots, x_n]^\top \in \mathbb{R}^{n \times d}$:
+
+\textbf{Compute Q, K, V via learned projections:}
+\begin{align*}
+Q &= X W_Q \in \mathbb{R}^{n \times d_k} \\
+K &= X W_K \in \mathbb{R}^{n \times d_k} \\
+V &= X W_V \in \mathbb{R}^{n \times d_v}
+\end{align*}
+
+\textbf{Self-attention output:}
+\[
+\text{SelfAttention}(X) = \text{softmax}\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
+\]
+
+\textbf{Key properties:}
+\begin{itemize}
+    \item Each position can attend to every other position directly
+    \item No sequential bottleneck-long-range dependencies are first-class
+    \item Computation is $O(n^2)$ in sequence length but highly parallelisable
+\end{itemize}
+\end{rigour}
+
+\begin{redbox}
+\textbf{RNN vs Attention for Long-Range Dependencies:}
+
+\textbf{RNN}: Information must flow through all intermediate steps.
+\[
+x_1 \to h_1 \to h_2 \to \cdots \to h_{100} \to \text{use info from } x_1
+\]
+Path length: $O(T)$ - gradients must traverse 100 steps.
+
+\textbf{Attention}: Direct connection between any two positions.
+\[
+x_1 \xleftrightarrow{\text{attention}} x_{100}
+\]
+Path length: $O(1)$ - constant regardless of distance.
+
+This is why Transformers (attention-based) excel at long-range dependencies.
+\end{redbox}
+
+\begin{quickref}[Bridge to Week 7]
+This section introduced the \textbf{attention mechanism}-the foundation of Transformers. In Week 7, we will cover:
+\begin{itemize}
+    \item Multi-head attention
+    \item Positional encodings
+    \item The full Transformer architecture
+    \item Pre-trained language models (BERT, GPT)
+\end{itemize}
+
+Attention has largely replaced RNNs for NLP tasks due to better parallelisation and long-range dependency modelling.
+\end{quickref}
+
+%==============================================================================
+\section{Time Series Forecasting}
+\label{sec:time-series}
+%==============================================================================
+
+\subsection{When to Use Deep Learning for Time Series}
+
+\begin{quickref}[Statistical Models vs Deep Learning]
+\textbf{Prefer statistical models} (ARIMA, exponential smoothing):
+\begin{itemize}
+    \item Simple, local models (single product/location)
+    \item Low-resolution data (daily, weekly, yearly)
+    \item Well-understood seasonality and covariates
+    \item Small datasets
+\end{itemize}
+
+\textbf{Prefer deep learning}:
+\begin{itemize}
+    \item Global models across multiple related series
+    \item Hierarchical time series (units aggregating to totals)
+    \item Complex probabilistic forecasting
+    \item Non-linear interactions and irregular patterns
+    \item Large datasets with high-frequency data
+\end{itemize}
+\end{quickref}
+
+\begin{redbox}
+\textbf{Practical workflow:}
+\begin{enumerate}
+    \item Start with \textbf{benchmark models} (seasonal naive, ARIMA, exponential smoothing)
+    \item Try \textbf{feature-based ML} (gradient boosting with engineered features)
+    \item Only then implement \textbf{deep learning} and compare against benchmarks
+\end{enumerate}
+
+You must demonstrate that complex models outperform simple baselines!
+\end{redbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/tree ensemble.png}
+    \caption{Tree ensembles as intermediate step before deep learning.}
+    \label{fig:tree-ensemble}
+\end{figure}
+
+%==============================================================================
+\section{Transformers (Preview)}
+%==============================================================================
+
+\textit{See Chapter~\ref{ch:week7} for detailed coverage.}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{images/week_6/transformer arhcitecture.png}
+    \caption{Transformer architecture.}
+    \label{fig:transformer}
+\end{figure}
+
+\begin{quickref}[Transformers Overview]
+\begin{itemize}
+    \item \textbf{Self-attention}: Each position attends to all others
+    \item \textbf{Parallelisable}: All positions processed simultaneously
+    \item \textbf{Positional encoding}: Injects sequence order information
+    \item \textbf{Multi-head attention}: Multiple attention patterns in parallel
+\end{itemize}
+
+Transformers have largely replaced LSTMs for NLP due to better long-range dependency modeling and scalability.
+\end{quickref}
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+\begin{quickref}[Chapter Summary]
+\textbf{RNNs:}
+\begin{itemize}
+    \item Process sequences via recurrence: $h_t = f(h_{t-1}, x_t)$
+    \item Parameter sharing enables variable-length inputs
+    \item Vanilla RNNs suffer from vanishing/exploding gradients
+\end{itemize}
+
+\textbf{BPTT:}
+\begin{itemize}
+    \item Gradient computation via unrolled computational graph
+    \item Product of Jacobians causes exponential gradient decay/growth
+    \item Truncated BPTT trades long-range learning for computational efficiency
+\end{itemize}
+
+\textbf{LSTM:}
+\begin{itemize}
+    \item Additive cell state update creates gradient highway
+    \item Three gates (forget, input, output) control information flow
+    \item Solves vanishing gradient problem for sequences up to hundreds of steps
+\end{itemize}
+
+\textbf{GRU:}
+\begin{itemize}
+    \item Simplified LSTM with two gates (update, reset)
+    \item Single hidden state (no separate cell state)
+    \item Fewer parameters, often comparable performance
+\end{itemize}
+
+\textbf{1D CNNs:}
+\begin{itemize}
+    \item Parallelisable alternative to RNNs
+    \item Causal convolutions for autoregressive tasks
+    \item Dilated convolutions for exponential receptive field growth
+\end{itemize}
+
+\textbf{Attention:}
+\begin{itemize}
+    \item Query-key-value framework for weighted retrieval
+    \item Enables direct long-range connections (constant path length)
+    \item Foundation for Transformers (Week 7)
+\end{itemize}
+\end{quickref}

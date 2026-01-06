@@ -1,0 +1,621 @@
+\contentsline {section}{\numberline {1}Philosophical Foundations: The Computational Theory of Mind}{2}{section.1}%
+\contentsline {section}{\numberline {2}Cybernetics and Early Neural Models (1940s--1950s)}{4}{section.2}%
+\contentsline {section}{\numberline {3}The Birth of Artificial Intelligence (1956)}{7}{section.3}%
+\contentsline {section}{\numberline {4}The Perceptron and Supervised Learning}{9}{section.4}%
+\contentsline {section}{\numberline {5}The First AI Winter (1970s)}{12}{section.5}%
+\contentsline {section}{\numberline {6}Knowledge-Based Systems and Expert Systems (1980s)}{14}{section.6}%
+\contentsline {section}{\numberline {7}The Connectionist Revival (1980s)}{16}{section.7}%
+\contentsline {section}{\numberline {8}The Second AI Winter (Late 1980s--Early 1990s)}{18}{section.8}%
+\contentsline {section}{\numberline {9}Unsupervised Learning}{18}{section.9}%
+\contentsline {section}{\numberline {10}Reinforcement Learning}{20}{section.10}%
+\contentsline {section}{\numberline {11}The Statistical ML Renaissance (1990s--2000s)}{22}{section.11}%
+\contentsline {subsection}{\numberline {11.1}Support Vector Machines}{22}{subsection.11.1}%
+\contentsline {subsection}{\numberline {11.2}Ensemble Methods}{23}{subsection.11.2}%
+\contentsline {subsection}{\numberline {11.3}Probabilistic Graphical Models}{23}{subsection.11.3}%
+\contentsline {section}{\numberline {12}The Deep Learning Revolution (2010s--Present)}{24}{section.12}%
+\contentsline {subsection}{\numberline {12.1}Why Now? The Convergence of Factors}{24}{subsection.12.1}%
+\contentsline {subsection}{\numberline {12.2}Convolutional Networks and the Path to ImageNet}{25}{subsection.12.2}%
+\contentsline {subsection}{\numberline {12.3}Transformers and Language Models}{26}{subsection.12.3}%
+\contentsline {section}{\numberline {13}Summary: Recurring Themes in AI History}{28}{section.13}%
+\contentsline {subsection}{\numberline {13.1}Looking Ahead}{29}{subsection.13.1}%
+\contentsline {section}{\numberline {14}The Optimisation Framework}{30}{section.14}%
+\contentsline {section}{\numberline {15}Maximum Likelihood Estimation (MLE)}{31}{section.15}%
+\contentsline {subsection}{\numberline {15.1}The i.i.d.\ Assumption}{31}{subsection.15.1}%
+\contentsline {subsection}{\numberline {15.2}From Likelihood to Negative Log-Likelihood}{32}{subsection.15.2}%
+\contentsline {section}{\numberline {16}Linear Regression as MLE}{33}{section.16}%
+\contentsline {subsection}{\numberline {16.1}The Probabilistic Model}{34}{subsection.16.1}%
+\contentsline {subsection}{\numberline {16.2}Deriving the NLL}{34}{subsection.16.2}%
+\contentsline {section}{\numberline {17}Residual Sum of Squares and the OLS Solution}{36}{section.17}%
+\contentsline {subsection}{\numberline {17.1}The Analytic Solution}{36}{subsection.17.1}%
+\contentsline {subsection}{\numberline {17.2}Geometric Interpretation: Orthogonal Projection}{38}{subsection.17.2}%
+\contentsline {subsection}{\numberline {17.3}What OLS Gives Us}{39}{subsection.17.3}%
+\contentsline {section}{\numberline {18}KL Divergence and Cross-Entropy}{39}{section.18}%
+\contentsline {subsection}{\numberline {18.1}Kullback-Leibler Divergence}{40}{subsection.18.1}%
+\contentsline {subsection}{\numberline {18.2}Information-Theoretic Intuition}{40}{subsection.18.2}%
+\contentsline {subsection}{\numberline {18.3}Why Asymmetry Matters}{41}{subsection.18.3}%
+\contentsline {subsection}{\numberline {18.4}Cross-Entropy as a Loss Function}{42}{subsection.18.4}%
+\contentsline {section}{\numberline {19}Variance of the OLS Estimator}{43}{section.19}%
+\contentsline {subsection}{\numberline {19.1}Deriving the Variance}{43}{subsection.19.1}%
+\contentsline {subsection}{\numberline {19.2}Homoskedastic Errors}{44}{subsection.19.2}%
+\contentsline {subsection}{\numberline {19.3}Heteroskedastic Errors}{44}{subsection.19.3}%
+\contentsline {section}{\numberline {20}Bayesian Inference and MAP Estimation}{46}{section.20}%
+\contentsline {subsection}{\numberline {20.1}Maximum A Posteriori (MAP) Estimation}{47}{subsection.20.1}%
+\contentsline {subsection}{\numberline {20.2}Interpreting Uncertainty: Credible vs Confidence Intervals}{48}{subsection.20.2}%
+\contentsline {section}{\numberline {21}Empirical Risk Minimisation}{49}{section.21}%
+\contentsline {subsection}{\numberline {21.1}Common Loss Functions}{50}{subsection.21.1}%
+\contentsline {subsection}{\numberline {21.2}The Problem with 0-1 Loss}{50}{subsection.21.2}%
+\contentsline {subsection}{\numberline {21.3}Classification Errors}{51}{subsection.21.3}%
+\contentsline {section}{\numberline {22}Convexity and Optimisation}{52}{section.22}%
+\contentsline {subsection}{\numberline {22.1}Convex Functions}{53}{subsection.22.1}%
+\contentsline {subsection}{\numberline {22.2}Gradient Descent}{54}{subsection.22.2}%
+\contentsline {subsection}{\numberline {22.3}Choosing the Learning Rate}{55}{subsection.22.3}%
+\contentsline {subsection}{\numberline {22.4}Stochastic Gradient Descent (SGD)}{55}{subsection.22.4}%
+\contentsline {section}{\numberline {23}Logistic Regression}{56}{section.23}%
+\contentsline {subsection}{\numberline {23.1}Training: Binary Cross-Entropy}{58}{subsection.23.1}%
+\contentsline {subsection}{\numberline {23.2}Decision Boundaries}{59}{subsection.23.2}%
+\contentsline {section}{\numberline {24}The Bias-Variance Tradeoff}{59}{section.24}%
+\contentsline {subsection}{\numberline {24.1}Full Derivation of the Decomposition}{60}{subsection.24.1}%
+\contentsline {subsection}{\numberline {24.2}Prediction Error Decomposition}{60}{subsection.24.2}%
+\contentsline {subsection}{\numberline {24.3}Visual Intuition: The Bullseye}{61}{subsection.24.3}%
+\contentsline {subsection}{\numberline {24.4}Example: Shrinkage Estimators}{62}{subsection.24.4}%
+\contentsline {section}{\numberline {25}Preview: Regularisation and its Geometry}{63}{section.25}%
+\contentsline {subsection}{\numberline {25.1}Regularised Loss Functions}{63}{subsection.25.1}%
+\contentsline {subsection}{\numberline {25.2}Geometric Interpretation}{64}{subsection.25.2}%
+\contentsline {subsection}{\numberline {25.3}Ridge Regression: Closed Form}{64}{subsection.25.3}%
+\contentsline {section}{\numberline {26}Summary}{66}{section.26}%
+\contentsline {section}{\numberline {27}Supervised Learning: A Quick Recap}{67}{section.27}%
+\contentsline {subsection}{\numberline {27.1}OLS Recap}{67}{subsection.27.1}%
+\contentsline {section}{\numberline {28}From Linear to Nonlinear: Polynomial Regression}{68}{section.28}%
+\contentsline {subsection}{\numberline {28.1}Why Polynomials Are Attractive (In Theory)}{69}{subsection.28.1}%
+\contentsline {subsection}{\numberline {28.2}Feature Expansion: Power and Peril}{69}{subsection.28.2}%
+\contentsline {subsection}{\numberline {28.3}The Problem: Choosing $M$}{71}{subsection.28.3}%
+\contentsline {subsection}{\numberline {28.4}Numerical Instability in High-Degree Polynomials}{72}{subsection.28.4}%
+\contentsline {subsubsection}{\numberline {28.4.1}Condition Numbers: A Deeper Look}{73}{subsubsection.28.4.1}%
+\contentsline {subsection}{\numberline {28.5}Runge's Phenomenon}{75}{subsection.28.5}%
+\contentsline {subsubsection}{\numberline {28.5.1}Solutions to Runge's Phenomenon}{75}{subsubsection.28.5.1}%
+\contentsline {section}{\numberline {29}The Curse of Dimensionality}{76}{section.29}%
+\contentsline {subsection}{\numberline {29.1}Volume Concentration}{77}{subsection.29.1}%
+\contentsline {subsection}{\numberline {29.2}Distance Concentration}{78}{subsection.29.2}%
+\contentsline {subsection}{\numberline {29.3}Implications for Machine Learning}{78}{subsection.29.3}%
+\contentsline {section}{\numberline {30}Decomposing Prediction Error}{79}{section.30}%
+\contentsline {subsection}{\numberline {30.1}The Bias-Variance Tradeoff: A First Look}{79}{subsection.30.1}%
+\contentsline {subsection}{\numberline {30.2}Evaluation Metrics: Defining ``Risk''}{80}{subsection.30.2}%
+\contentsline {subsection}{\numberline {30.3}Population Risk vs Empirical Risk}{82}{subsection.30.3}%
+\contentsline {subsection}{\numberline {30.4}Three Levels of Optimality}{83}{subsection.30.4}%
+\contentsline {subsection}{\numberline {30.5}Approximation vs Estimation Error}{84}{subsection.30.5}%
+\contentsline {subsubsection}{\numberline {30.5.1}Approximation Error}{85}{subsubsection.30.5.1}%
+\contentsline {subsubsection}{\numberline {30.5.2}Estimation Error}{85}{subsubsection.30.5.2}%
+\contentsline {subsubsection}{\numberline {30.5.3}The Fundamental Tradeoff}{86}{subsubsection.30.5.3}%
+\contentsline {subsection}{\numberline {30.6}Estimating Generalisation Error}{86}{subsection.30.6}%
+\contentsline {section}{\numberline {31}Regularisation}{87}{section.31}%
+\contentsline {subsection}{\numberline {31.1}The Mechanics of Regularisation}{88}{subsection.31.1}%
+\contentsline {subsection}{\numberline {31.2}Uses of Regularisation}{88}{subsection.31.2}%
+\contentsline {subsection}{\numberline {31.3}Ridge Regression (L2 Regularisation)}{89}{subsection.31.3}%
+\contentsline {subsubsection}{\numberline {31.3.1}Ridge as Rescaled OLS}{89}{subsubsection.31.3.1}%
+\contentsline {subsubsection}{\numberline {31.3.2}Geometric Interpretation of Ridge}{89}{subsubsection.31.3.2}%
+\contentsline {subsection}{\numberline {31.4}Lasso Regression (L1 Regularisation)}{90}{subsection.31.4}%
+\contentsline {subsubsection}{\numberline {31.4.1}Lasso as Soft Thresholding}{90}{subsubsection.31.4.1}%
+\contentsline {subsubsection}{\numberline {31.4.2}Why Lasso Produces Sparsity: Geometric Intuition}{91}{subsubsection.31.4.2}%
+\contentsline {subsection}{\numberline {31.5}Elastic Net}{92}{subsection.31.5}%
+\contentsline {section}{\numberline {32}Multiple Perspectives on Regularisation}{92}{section.32}%
+\contentsline {subsection}{\numberline {32.1}Perspective 1: Necessity (Invertibility)}{93}{subsection.32.1}%
+\contentsline {subsection}{\numberline {32.2}Perspective 2: Bias-Variance Tradeoff}{93}{subsection.32.2}%
+\contentsline {subsection}{\numberline {32.3}Perspective 3: Bayesian Interpretation (MAP)}{94}{subsection.32.3}%
+\contentsline {subsection}{\numberline {32.4}Perspective 4: Geometric Interpretation}{96}{subsection.32.4}%
+\contentsline {subsection}{\numberline {32.5}Perspective 5: Measurement Error}{96}{subsection.32.5}%
+\contentsline {section}{\numberline {33}Model Selection and Validation}{97}{section.33}%
+\contentsline {subsection}{\numberline {33.1}Validation Sets}{97}{subsection.33.1}%
+\contentsline {subsection}{\numberline {33.2}Cross-Validation}{98}{subsection.33.2}%
+\contentsline {section}{\numberline {34}Regularised Polynomial Regression}{99}{section.34}%
+\contentsline {section}{\numberline {35}Summary}{101}{section.35}%
+\contentsline {section}{\numberline {36}Cross-Validation}{102}{section.36}%
+\contentsline {subsection}{\numberline {36.1}The Core Problem}{102}{subsection.36.1}%
+\contentsline {subsection}{\numberline {36.2}Why Train-Test Split Isn't Enough}{103}{subsection.36.2}%
+\contentsline {subsection}{\numberline {36.3}K-Fold Cross-Validation}{103}{subsection.36.3}%
+\contentsline {subsubsection}{\numberline {36.3.1}Bias-Variance Tradeoff in K-Fold CV}{104}{subsubsection.36.3.1}%
+\contentsline {subsubsection}{\numberline {36.3.2}Computational Cost}{105}{subsubsection.36.3.2}%
+\contentsline {subsection}{\numberline {36.4}LOOCV for Linear Regression}{105}{subsection.36.4}%
+\contentsline {subsection}{\numberline {36.5}One Standard Error Rule}{108}{subsection.36.5}%
+\contentsline {subsubsection}{\numberline {36.5.1}Worked Example: Ridge Regression}{110}{subsubsection.36.5.1}%
+\contentsline {subsubsection}{\numberline {36.5.2}When to Use the One Standard Error Rule}{110}{subsubsection.36.5.2}%
+\contentsline {subsection}{\numberline {36.6}Grouped Cross-Validation}{111}{subsection.36.6}%
+\contentsline {subsubsection}{\numberline {36.6.1}When Groups Matter}{112}{subsubsection.36.6.1}%
+\contentsline {subsubsection}{\numberline {36.6.2}Stratified Cross-Validation}{113}{subsubsection.36.6.2}%
+\contentsline {subsubsection}{\numberline {36.6.3}Nested Cross-Validation}{113}{subsubsection.36.6.3}%
+\contentsline {section}{\numberline {37}Model Selection Criteria}{114}{section.37}%
+\contentsline {subsection}{\numberline {37.1}Akaike Information Criterion (AIC)}{115}{subsection.37.1}%
+\contentsline {subsection}{\numberline {37.2}Bayesian Information Criterion (BIC)}{116}{subsection.37.2}%
+\contentsline {subsection}{\numberline {37.3}AIC vs BIC: Different Goals}{116}{subsection.37.3}%
+\contentsline {subsection}{\numberline {37.4}Comparison with Cross-Validation}{117}{subsection.37.4}%
+\contentsline {section}{\numberline {38}Frequentist vs Bayesian Risk}{118}{section.38}%
+\contentsline {section}{\numberline {39}Generalisation Bounds}{119}{section.39}%
+\contentsline {subsection}{\numberline {39.1}Error Decomposition Recap}{120}{subsection.39.1}%
+\contentsline {subsection}{\numberline {39.2}Building Blocks: Concentration Inequalities}{121}{subsection.39.2}%
+\contentsline {subsection}{\numberline {39.3}First Generalisation Bound}{122}{subsection.39.3}%
+\contentsline {subsection}{\numberline {39.4}Limitations of This Bound}{123}{subsection.39.4}%
+\contentsline {section}{\numberline {40}Measuring Hypothesis Class Complexity}{123}{section.40}%
+\contentsline {subsection}{\numberline {40.1}Intrinsic Dimensionality and the Manifold Hypothesis}{124}{subsection.40.1}%
+\contentsline {subsection}{\numberline {40.2}VC Dimension}{125}{subsection.40.2}%
+\contentsline {subsection}{\numberline {40.3}The VC Bound}{126}{subsection.40.3}%
+\contentsline {subsection}{\numberline {40.4}Rademacher Complexity}{127}{subsection.40.4}%
+\contentsline {section}{\numberline {41}Structural Risk Minimisation}{128}{section.41}%
+\contentsline {section}{\numberline {42}Generalisation in Linear Regression}{128}{section.42}%
+\contentsline {subsection}{\numberline {42.1}OLS Estimation Error}{129}{subsection.42.1}%
+\contentsline {subsection}{\numberline {42.2}Singular Value Decomposition (SVD)}{129}{subsection.42.2}%
+\contentsline {section}{\numberline {43}Low vs High Dimensional Regimes}{131}{section.43}%
+\contentsline {subsection}{\numberline {43.1}Low-Dimensional Regime: $p \ll n$}{131}{subsection.43.1}%
+\contentsline {subsection}{\numberline {43.2}High-Dimensional Regime: $p > n$}{132}{subsection.43.2}%
+\contentsline {subsection}{\numberline {43.3}The Interpolation Threshold and Double Descent}{133}{subsection.43.3}%
+\contentsline {section}{\numberline {44}Bias-Variance Decomposition}{135}{section.44}%
+\contentsline {section}{\numberline {45}Summary}{139}{section.45}%
+\contentsline {section}{\numberline {46}The Overfitting Paradox}{140}{section.46}%
+\contentsline {subsection}{\numberline {46.1}Classical Wisdom: Interpolation is Bad}{140}{subsection.46.1}%
+\contentsline {subsection}{\numberline {46.2}Modern Observation: Deep Networks Interpolate and Generalise}{141}{subsection.46.2}%
+\contentsline {section}{\numberline {47}Recap: OLS in Different Regimes}{141}{section.47}%
+\contentsline {subsection}{\numberline {47.1}Low-Dimensional Regime: $p \ll n$}{142}{subsection.47.1}%
+\contentsline {subsection}{\numberline {47.2}High-Dimensional Regime: $p \gg n$}{143}{subsection.47.2}%
+\contentsline {subsection}{\numberline {47.3}Comparing the Two Regimes}{144}{subsection.47.3}%
+\contentsline {subsection}{\numberline {47.4}The Regularisation Paradox}{144}{subsection.47.4}%
+\contentsline {section}{\numberline {48}The Double Descent Phenomenon}{145}{section.48}%
+\contentsline {subsection}{\numberline {48.1}From U-Curve to Double Descent}{145}{subsection.48.1}%
+\contentsline {subsection}{\numberline {48.2}What Happens at the Interpolation Threshold?}{146}{subsection.48.2}%
+\contentsline {subsection}{\numberline {48.3}Why Does Error Decrease Again?}{147}{subsection.48.3}%
+\contentsline {section}{\numberline {49}Minimum-Norm Interpolation}{148}{section.49}%
+\contentsline {subsection}{\numberline {49.1}Definition and Motivation}{148}{subsection.49.1}%
+\contentsline {subsection}{\numberline {49.2}Why Minimum Norm Helps Generalisation}{149}{subsection.49.2}%
+\contentsline {section}{\numberline {50}SVD Perspective on Overparameterised Regression}{150}{section.50}%
+\contentsline {subsection}{\numberline {50.1}SVD Basics Revisited}{150}{subsection.50.1}%
+\contentsline {subsection}{\numberline {50.2}Minimum-Norm Solution via SVD}{152}{subsection.50.2}%
+\contentsline {subsection}{\numberline {50.3}Signal vs Noise: The $k$-Split Perspective}{153}{subsection.50.3}%
+\contentsline {subsection}{\numberline {50.4}Two Perspectives on the $k$-Split}{155}{subsection.50.4}%
+\contentsline {section}{\numberline {51}Benign Overfitting: Formal Conditions}{155}{section.51}%
+\contentsline {subsection}{\numberline {51.1}Effective Rank: Measuring Spread}{155}{subsection.51.1}%
+\contentsline {subsection}{\numberline {51.2}The Risk Bound}{156}{subsection.51.2}%
+\contentsline {subsection}{\numberline {51.3}Understanding the Two Terms}{157}{subsection.51.3}%
+\contentsline {subsection}{\numberline {51.4}Three Conditions for Benign Overfitting}{158}{subsection.51.4}%
+\contentsline {subsection}{\numberline {51.5}Why SVD Makes This Automatic}{159}{subsection.51.5}%
+\contentsline {section}{\numberline {52}The Manifold Hypothesis}{160}{section.52}%
+\contentsline {section}{\numberline {53}Connection to Deep Learning}{162}{section.53}%
+\contentsline {subsection}{\numberline {53.1}Why Neural Networks Benefit from Overparameterisation}{162}{subsection.53.1}%
+\contentsline {subsection}{\numberline {53.2}Limitations of the Linear Theory}{163}{subsection.53.2}%
+\contentsline {section}{\numberline {54}Kernel Methods and Benign Overfitting}{164}{section.54}%
+\contentsline {section}{\numberline {55}Historical Context}{165}{section.55}%
+\contentsline {subsection}{\numberline {55.1}Classical Statistical Wisdom}{166}{subsection.55.1}%
+\contentsline {subsection}{\numberline {55.2}The Modern Revolution}{166}{subsection.55.2}%
+\contentsline {subsection}{\numberline {55.3}Reconciling Old and New}{166}{subsection.55.3}%
+\contentsline {section}{\numberline {56}Practical Implications}{167}{section.56}%
+\contentsline {section}{\numberline {57}Summary}{169}{section.57}%
+\contentsline {section}{\numberline {58}Introduction to Kernel Methods}{171}{section.58}%
+\contentsline {subsection}{\numberline {58.1}A New Way to Think About Learning}{171}{subsection.58.1}%
+\contentsline {subsection}{\numberline {58.2}The Problem: Linear Methods Meet Nonlinear Data}{171}{subsection.58.2}%
+\contentsline {section}{\numberline {59}An Alternative View of Regression}{172}{section.59}%
+\contentsline {subsection}{\numberline {59.1}Two Equivalent Formulations of Ridge Regression}{172}{subsection.59.1}%
+\contentsline {subsection}{\numberline {59.2}Similarity as Dot Product}{173}{subsection.59.2}%
+\contentsline {subsection}{\numberline {59.3}Regression as Weighted Averaging}{174}{subsection.59.3}%
+\contentsline {subsection}{\numberline {59.4}The Importance of Defining Similarity Correctly}{175}{subsection.59.4}%
+\contentsline {section}{\numberline {60}Feature Maps and the Kernel Trick}{176}{section.60}%
+\contentsline {subsection}{\numberline {60.1}Feature Expansion}{176}{subsection.60.1}%
+\contentsline {subsection}{\numberline {60.2}The Kernel Trick}{177}{subsection.60.2}%
+\contentsline {subsection}{\numberline {60.3}The Gram Matrix}{179}{subsection.60.3}%
+\contentsline {section}{\numberline {61}What Makes a Valid Kernel?}{179}{section.61}%
+\contentsline {subsection}{\numberline {61.1}Constructing Kernels}{180}{subsection.61.1}%
+\contentsline {section}{\numberline {62}Common Kernels}{183}{section.62}%
+\contentsline {subsection}{\numberline {62.1}Linear Kernel}{183}{subsection.62.1}%
+\contentsline {subsection}{\numberline {62.2}Polynomial Kernel}{183}{subsection.62.2}%
+\contentsline {subsection}{\numberline {62.3}Gaussian (RBF) Kernel}{185}{subsection.62.3}%
+\contentsline {subsubsection}{\numberline {62.3.1}Why the RBF Kernel is Infinite-Dimensional}{185}{subsubsection.62.3.1}%
+\contentsline {subsection}{\numberline {62.4}Other Common Kernels}{187}{subsection.62.4}%
+\contentsline {section}{\numberline {63}Kernel Ridge Regression}{188}{section.63}%
+\contentsline {subsection}{\numberline {63.1}Derivation via the Dual}{188}{subsection.63.1}%
+\contentsline {section}{\numberline {64}Support Vector Machines}{192}{section.64}%
+\contentsline {subsection}{\numberline {64.1}Maximum Margin Classification}{192}{subsection.64.1}%
+\contentsline {subsection}{\numberline {64.2}Hard-Margin SVM}{193}{subsection.64.2}%
+\contentsline {subsection}{\numberline {64.3}Soft-Margin SVM}{195}{subsection.64.3}%
+\contentsline {subsection}{\numberline {64.4}Kernel SVMs}{196}{subsection.64.4}%
+\contentsline {section}{\numberline {65}Reproducing Kernel Hilbert Spaces}{198}{section.65}%
+\contentsline {section}{\numberline {66}Related Methods}{200}{section.66}%
+\contentsline {subsection}{\numberline {66.1}K-Nearest Neighbours}{200}{subsection.66.1}%
+\contentsline {section}{\numberline {67}Practical Considerations}{202}{section.67}%
+\contentsline {subsection}{\numberline {67.1}Kernel Selection}{202}{subsection.67.1}%
+\contentsline {subsection}{\numberline {67.2}Computational Scaling}{203}{subsection.67.2}%
+\contentsline {section}{\numberline {68}The Curse of Dimensionality}{204}{section.68}%
+\contentsline {subsection}{\numberline {68.1}Why Distance Fails in High Dimensions}{204}{subsection.68.1}%
+\contentsline {subsection}{\numberline {68.2}Implications for Machine Learning}{206}{subsection.68.2}%
+\contentsline {section}{\numberline {69}Summary}{207}{section.69}%
+\contentsline {section}{\numberline {70}Introduction: Why Fairness Matters}{209}{section.70}%
+\contentsline {section}{\numberline {71}Machine Learning in Social Context}{209}{section.71}%
+\contentsline {subsection}{\numberline {71.1}Feedback Loops}{210}{subsection.71.1}%
+\contentsline {subsection}{\numberline {71.2}Language Models and Encoded Bias}{211}{subsection.71.2}%
+\contentsline {section}{\numberline {72}Sources of Bias}{211}{section.72}%
+\contentsline {subsection}{\numberline {72.1}Feature Omission as a Source of Bias}{214}{subsection.72.1}%
+\contentsline {section}{\numberline {73}Types of Harm}{214}{section.73}%
+\contentsline {section}{\numberline {74}What is Fairness?}{216}{section.74}%
+\contentsline {subsection}{\numberline {74.1}Legitimacy: The Prior Question}{216}{subsection.74.1}%
+\contentsline {subsection}{\numberline {74.2}Relative Treatment: Fairness Metrics}{217}{subsection.74.2}%
+\contentsline {subsection}{\numberline {74.3}Procedural Fairness: The Right to Reasons}{217}{subsection.74.3}%
+\contentsline {subsection}{\numberline {74.4}Individual vs Group Fairness}{218}{subsection.74.4}%
+\contentsline {section}{\numberline {75}Types of Automation}{220}{section.75}%
+\contentsline {section}{\numberline {76}Case Studies}{222}{section.76}%
+\contentsline {subsection}{\numberline {76.1}COMPAS: Recidivism Prediction}{222}{subsection.76.1}%
+\contentsline {subsection}{\numberline {76.2}Amazon Hiring Algorithm}{223}{subsection.76.2}%
+\contentsline {subsection}{\numberline {76.3}Healthcare Cost Prediction}{224}{subsection.76.3}%
+\contentsline {subsection}{\numberline {76.4}Facial Recognition Disparities}{225}{subsection.76.4}%
+\contentsline {section}{\numberline {77}Mitigation Strategies}{226}{section.77}%
+\contentsline {section}{\numberline {78}Agency and Recourse}{228}{section.78}%
+\contentsline {section}{\numberline {79}Culpability: Who Is Responsible?}{230}{section.79}%
+\contentsline {section}{\numberline {80}Philosophical Considerations}{231}{section.80}%
+\contentsline {subsection}{\numberline {80.1}What is ``Fair''?}{232}{subsection.80.1}%
+\contentsline {subsection}{\numberline {80.2}Who Decides?}{232}{subsection.80.2}%
+\contentsline {subsection}{\numberline {80.3}Tradeoffs}{233}{subsection.80.3}%
+\contentsline {section}{\numberline {81}The Limits of Technical Solutions}{233}{section.81}%
+\contentsline {section}{\numberline {82}Summary}{235}{section.82}%
+\contentsline {section}{\numberline {83}Introduction: From Qualitative to Quantitative Fairness}{237}{section.83}%
+\contentsline {section}{\numberline {84}Classification and Risk Scores}{237}{section.84}%
+\contentsline {subsection}{\numberline {84.1}Risk Scores and Probability Estimation}{238}{subsection.84.1}%
+\contentsline {subsection}{\numberline {84.2}Ideal Model versus Reality}{238}{subsection.84.2}%
+\contentsline {section}{\numberline {85}Evaluating Classifiers}{239}{section.85}%
+\contentsline {subsection}{\numberline {85.1}Accuracy and Its Limitations}{240}{subsection.85.1}%
+\contentsline {subsection}{\numberline {85.2}The Confusion Matrix and Error Types}{240}{subsection.85.2}%
+\contentsline {subsection}{\numberline {85.3}Cost-Sensitive Learning}{242}{subsection.85.3}%
+\contentsline {subsection}{\numberline {85.4}ROC Curves}{243}{subsection.85.4}%
+\contentsline {section}{\numberline {86}Discrimination in Classification}{245}{section.86}%
+\contentsline {subsection}{\numberline {86.1}How Discrimination Arises}{245}{subsection.86.1}%
+\contentsline {subsection}{\numberline {86.2}Redundant Encodings and the Limits of Attribute Removal}{246}{subsection.86.2}%
+\contentsline {subsection}{\numberline {86.3}Connection to Week 6: Types of Harm and Metrics}{246}{subsection.86.3}%
+\contentsline {section}{\numberline {87}Quantitative Fairness Criteria}{247}{section.87}%
+\contentsline {subsection}{\numberline {87.1}Demographic Parity (Independence)}{248}{subsection.87.1}%
+\contentsline {subsection}{\numberline {87.2}Equalised Odds (Separation)}{250}{subsection.87.2}%
+\contentsline {subsection}{\numberline {87.3}Equal Opportunity}{251}{subsection.87.3}%
+\contentsline {subsection}{\numberline {87.4}Calibration (Sufficiency)}{252}{subsection.87.4}%
+\contentsline {subsection}{\numberline {87.5}Geometric Interpretation: ROC Space}{254}{subsection.87.5}%
+\contentsline {section}{\numberline {88}Impossibility Theorems}{255}{section.88}%
+\contentsline {subsection}{\numberline {88.1}Chouldechova's Impossibility Theorem}{256}{subsection.88.1}%
+\contentsline {subsection}{\numberline {88.2}Kleinberg, Mullainathan, and Raghavan's Impossibility Theorem}{257}{subsection.88.2}%
+\contentsline {subsection}{\numberline {88.3}The Independence-Separation-Sufficiency Tradeoffs}{258}{subsection.88.3}%
+\contentsline {subsection}{\numberline {88.4}Practical Implications of Impossibility}{259}{subsection.88.4}%
+\contentsline {section}{\numberline {89}Fairness-Accuracy Tradeoffs}{260}{section.89}%
+\contentsline {subsection}{\numberline {89.1}Quantifying the Tradeoff}{261}{subsection.89.1}%
+\contentsline {subsection}{\numberline {89.2}When is Fairness ``Cheap'' or ``Expensive''?}{261}{subsection.89.2}%
+\contentsline {subsection}{\numberline {89.3}Multi-Objective Optimisation}{262}{subsection.89.3}%
+\contentsline {section}{\numberline {90}Algorithmic Interventions}{263}{section.90}%
+\contentsline {subsection}{\numberline {90.1}Pre-Processing: Modifying the Data}{264}{subsection.90.1}%
+\contentsline {subsection}{\numberline {90.2}In-Processing: Modifying the Algorithm}{265}{subsection.90.2}%
+\contentsline {subsection}{\numberline {90.3}Post-Processing: Modifying Predictions}{267}{subsection.90.3}%
+\contentsline {section}{\numberline {91}Evaluation and Auditing}{268}{section.91}%
+\contentsline {subsection}{\numberline {91.1}Auditing Procedure}{269}{subsection.91.1}%
+\contentsline {subsection}{\numberline {91.2}Statistical Considerations}{270}{subsection.91.2}%
+\contentsline {subsection}{\numberline {91.3}Multiple Metrics and Their Relationships}{271}{subsection.91.3}%
+\contentsline {subsection}{\numberline {91.4}Intersectionality}{271}{subsection.91.4}%
+\contentsline {section}{\numberline {92}Fairness is Not a Technical Problem}{272}{section.92}%
+\contentsline {subsection}{\numberline {92.1}POSIWID: The Purpose of a System is What it Does}{272}{subsection.92.1}%
+\contentsline {subsection}{\numberline {92.2}Returning to Week 6: The Full Picture}{273}{subsection.92.2}%
+\contentsline {section}{\numberline {93}Summary}{274}{section.93}%
+\contentsline {section}{\numberline {94}Decision Trees}{276}{section.94}%
+\contentsline {subsection}{\numberline {94.1}Intuition: Recursive Binary Partitioning}{276}{subsection.94.1}%
+\contentsline {subsection}{\numberline {94.2}Tree Structure and Terminology}{277}{subsection.94.2}%
+\contentsline {subsection}{\numberline {94.3}Prediction}{278}{subsection.94.3}%
+\contentsline {subsection}{\numberline {94.4}Properties of Decision Trees}{279}{subsection.94.4}%
+\contentsline {subsection}{\numberline {94.5}When to Use Trees}{281}{subsection.94.5}%
+\contentsline {section}{\numberline {95}Tree Construction: Splitting Criteria}{281}{section.95}%
+\contentsline {subsection}{\numberline {95.1}Splitting Continuous Features}{281}{subsection.95.1}%
+\contentsline {subsection}{\numberline {95.2}Splitting Categorical Features}{282}{subsection.95.2}%
+\contentsline {subsection}{\numberline {95.3}MSE Reduction for Regression}{283}{subsection.95.3}%
+\contentsline {subsection}{\numberline {95.4}Gini Impurity for Classification}{284}{subsection.95.4}%
+\contentsline {subsection}{\numberline {95.5}Entropy and Information Gain}{285}{subsection.95.5}%
+\contentsline {subsection}{\numberline {95.6}Comparing Gini and Entropy}{286}{subsection.95.6}%
+\contentsline {section}{\numberline {96}The Greedy Algorithm}{287}{section.96}%
+\contentsline {subsection}{\numberline {96.1}The Non-Differentiability Challenge}{287}{subsection.96.1}%
+\contentsline {subsection}{\numberline {96.2}Recursive Splitting Algorithm}{287}{subsection.96.2}%
+\contentsline {subsection}{\numberline {96.3}Stopping Criteria}{288}{subsection.96.3}%
+\contentsline {section}{\numberline {97}Pruning}{289}{section.97}%
+\contentsline {subsection}{\numberline {97.1}Why Trees Overfit}{289}{subsection.97.1}%
+\contentsline {subsection}{\numberline {97.2}Pre-Pruning vs Post-Pruning}{290}{subsection.97.2}%
+\contentsline {subsection}{\numberline {97.3}Cost-Complexity Pruning (CART)}{290}{subsection.97.3}%
+\contentsline {section}{\numberline {98}Worked Example: Building a Classification Tree}{293}{section.98}%
+\contentsline {section}{\numberline {99}Trees as Piecewise Constant Approximations}{295}{section.99}%
+\contentsline {subsection}{\numberline {99.1}The Approximation View}{295}{subsection.99.1}%
+\contentsline {subsection}{\numberline {99.2}Comparison with Linear Methods}{296}{subsection.99.2}%
+\contentsline {section}{\numberline {100}Ensemble Methods: Reducing Variance}{297}{section.100}%
+\contentsline {subsection}{\numberline {100.1}The Bias-Variance Motivation}{297}{subsection.100.1}%
+\contentsline {subsection}{\numberline {100.2}Bagging (Bootstrap Aggregating)}{298}{subsection.100.2}%
+\contentsline {subsubsection}{\numberline {100.2.1}Out-of-Bag (OOB) Error Estimation}{299}{subsubsection.100.2.1}%
+\contentsline {subsubsection}{\numberline {100.2.2}Variance of Correlated Estimators}{299}{subsubsection.100.2.2}%
+\contentsline {subsubsection}{\numberline {100.2.3}Variance Estimation with Bagging}{300}{subsubsection.100.2.3}%
+\contentsline {subsection}{\numberline {100.3}Random Forests}{300}{subsection.100.3}%
+\contentsline {subsection}{\numberline {100.4}Preview: Boosting}{302}{subsection.100.4}%
+\contentsline {section}{\numberline {101}Summary}{303}{section.101}%
+\contentsline {section}{\numberline {102}Review: Bagging vs Boosting}{304}{section.102}%
+\contentsline {section}{\numberline {103}Motivation: Correlated Errors in Ensembles}{305}{section.103}%
+\contentsline {subsection}{\numberline {103.1}Ensemble Prediction Function}{306}{subsection.103.1}%
+\contentsline {section}{\numberline {104}The Boosting Idea}{307}{section.104}%
+\contentsline {subsection}{\numberline {104.1}Weak Learners and Strong Learners}{308}{subsection.104.1}%
+\contentsline {subsection}{\numberline {104.2}Generic Boosting Loss Function}{310}{subsection.104.2}%
+\contentsline {subsection}{\numberline {104.3}The Double Optimisation Process}{310}{subsection.104.3}%
+\contentsline {section}{\numberline {105}Least Squares Boosting}{311}{section.105}%
+\contentsline {section}{\numberline {106}AdaBoost}{312}{section.106}%
+\contentsline {subsection}{\numberline {106.1}Binary Classification Encoding}{312}{subsection.106.1}%
+\contentsline {subsection}{\numberline {106.2}The Exponential Loss Function}{313}{subsection.106.2}%
+\contentsline {subsection}{\numberline {106.3}Comparing Loss Functions}{314}{subsection.106.3}%
+\contentsline {subsection}{\numberline {106.4}The AdaBoost Algorithm}{315}{subsection.106.4}%
+\contentsline {subsection}{\numberline {106.5}Derivation: AdaBoost as Exponential Loss Minimisation}{316}{subsection.106.5}%
+\contentsline {subsection}{\numberline {106.6}Convergence Guarantees}{317}{subsection.106.6}%
+\contentsline {subsection}{\numberline {106.7}Worked Example: AdaBoost Step-by-Step}{318}{subsection.106.7}%
+\contentsline {section}{\numberline {107}Gradient Boosting}{320}{section.107}%
+\contentsline {subsection}{\numberline {107.1}Relationship to Other Methods}{320}{subsection.107.1}%
+\contentsline {subsection}{\numberline {107.2}Gradient Descent in Function Space}{321}{subsection.107.2}%
+\contentsline {subsection}{\numberline {107.3}The Generic Algorithm}{322}{subsection.107.3}%
+\contentsline {subsection}{\numberline {107.4}Gradient Boosting for Regression (Squared Error)}{322}{subsection.107.4}%
+\contentsline {subsection}{\numberline {107.5}Gradient Boosting for Classification (Log Loss)}{323}{subsection.107.5}%
+\contentsline {subsection}{\numberline {107.6}Connection to AdaBoost}{324}{subsection.107.6}%
+\contentsline {section}{\numberline {108}XGBoost and LightGBM}{324}{section.108}%
+\contentsline {subsection}{\numberline {108.1}Regularised Objective}{325}{subsection.108.1}%
+\contentsline {subsection}{\numberline {108.2}Second-Order Approximation}{325}{subsection.108.2}%
+\contentsline {subsection}{\numberline {108.3}LightGBM Innovations}{327}{subsection.108.3}%
+\contentsline {section}{\numberline {109}Hyperparameters and Tuning}{328}{section.109}%
+\contentsline {section}{\numberline {110}Model Interpretation}{330}{section.110}%
+\contentsline {subsection}{\numberline {110.1}Feature Importance}{331}{subsection.110.1}%
+\contentsline {subsection}{\numberline {110.2}Partial Dependence Plots}{333}{subsection.110.2}%
+\contentsline {subsection}{\numberline {110.3}Interpretability vs Performance Trade-off}{335}{subsection.110.3}%
+\contentsline {section}{\numberline {111}Practical Considerations}{335}{section.111}%
+\contentsline {subsection}{\numberline {111.1}When Boosting Overfits}{335}{subsection.111.1}%
+\contentsline {subsection}{\numberline {111.2}Comparison with Neural Networks}{336}{subsection.111.2}%
+\contentsline {section}{\numberline {112}Summary}{336}{section.112}%
+\contentsline {section}{\numberline {113}Overview}{338}{section.113}%
+\contentsline {subsection}{\numberline {113.1}Explanation vs Prediction}{339}{subsection.113.1}%
+\contentsline {section}{\numberline {114}Data Leakage}{340}{section.114}%
+\contentsline {subsection}{\numberline {114.1}Types of Data Leakage}{340}{subsection.114.1}%
+\contentsline {subsubsection}{\numberline {114.1.1}Temporal Leakage}{341}{subsubsection.114.1.1}%
+\contentsline {subsubsection}{\numberline {114.1.2}Target Leakage}{341}{subsubsection.114.1.2}%
+\contentsline {subsubsection}{\numberline {114.1.3}Train-Test Contamination}{342}{subsubsection.114.1.3}%
+\contentsline {subsubsection}{\numberline {114.1.4}Preprocessing Leakage}{342}{subsubsection.114.1.4}%
+\contentsline {subsection}{\numberline {114.2}Detecting Data Leakage}{343}{subsection.114.2}%
+\contentsline {subsection}{\numberline {114.3}Prevention Framework}{343}{subsection.114.3}%
+\contentsline {section}{\numberline {115}Sampling Schemes}{344}{section.115}%
+\contentsline {subsection}{\numberline {115.1}Simple Random Sampling}{345}{subsection.115.1}%
+\contentsline {subsection}{\numberline {115.2}Stratified Sampling}{345}{subsection.115.2}%
+\contentsline {subsection}{\numberline {115.3}Cluster Sampling}{347}{subsection.115.3}%
+\contentsline {subsection}{\numberline {115.4}Systematic Sampling}{348}{subsection.115.4}%
+\contentsline {subsection}{\numberline {115.5}Comparison of Sampling Schemes}{349}{subsection.115.5}%
+\contentsline {section}{\numberline {116}Importance Sampling}{349}{section.116}%
+\contentsline {subsection}{\numberline {116.1}The Core Idea}{349}{subsection.116.1}%
+\contentsline {subsection}{\numberline {116.2}Variance Considerations}{351}{subsection.116.2}%
+\contentsline {subsection}{\numberline {116.3}Application: Covariate Shift}{351}{subsection.116.3}%
+\contentsline {section}{\numberline {117}Random vs Non-Random Sampling}{353}{section.117}%
+\contentsline {subsection}{\numberline {117.1}Heteroskedastic Noise}{353}{subsection.117.1}%
+\contentsline {subsubsection}{\numberline {117.1.1}Detecting Heteroskedasticity}{354}{subsubsection.117.1.1}%
+\contentsline {subsubsection}{\numberline {117.1.2}Consequences for OLS}{354}{subsubsection.117.1.2}%
+\contentsline {subsubsection}{\numberline {117.1.3}Solution 1: Weighted Least Squares}{355}{subsubsection.117.1.3}%
+\contentsline {subsubsection}{\numberline {117.1.4}Solution 2: Robust Standard Errors}{356}{subsubsection.117.1.4}%
+\contentsline {subsection}{\numberline {117.2}Implications for Sampling}{357}{subsection.117.2}%
+\contentsline {section}{\numberline {118}Active Learning}{358}{section.118}%
+\contentsline {subsection}{\numberline {118.1}Criteria for Selecting Data Points}{358}{subsection.118.1}%
+\contentsline {subsection}{\numberline {118.2}Uncertainty Sampling}{359}{subsection.118.2}%
+\contentsline {subsection}{\numberline {118.3}Query-by-Committee}{360}{subsection.118.3}%
+\contentsline {subsection}{\numberline {118.4}Expected Model Change}{361}{subsection.118.4}%
+\contentsline {subsection}{\numberline {118.5}Bayesian Active Learning by Disagreement (BALD)}{362}{subsection.118.5}%
+\contentsline {subsection}{\numberline {118.6}When Does Active Learning Help?}{364}{subsection.118.6}%
+\contentsline {section}{\numberline {119}Correcting for Non-Uniform Sampling}{365}{section.119}%
+\contentsline {subsection}{\numberline {119.1}The Problem}{365}{subsection.119.1}%
+\contentsline {subsection}{\numberline {119.2}Inverse Probability Weighting (IPW)}{365}{subsection.119.2}%
+\contentsline {section}{\numberline {120}Leverage Score Sampling}{366}{section.120}%
+\contentsline {subsection}{\numberline {120.1}Leverage Scores in Linear Regression}{366}{subsection.120.1}%
+\contentsline {subsection}{\numberline {120.2}Geometric Interpretation}{367}{subsection.120.2}%
+\contentsline {subsection}{\numberline {120.3}Leverage Score Sampling for Large-Scale Regression}{368}{subsection.120.3}%
+\contentsline {subsection}{\numberline {120.4}Connection to Optimal Experimental Design}{368}{subsection.120.4}%
+\contentsline {section}{\numberline {121}Random Fourier Features}{369}{section.121}%
+\contentsline {subsection}{\numberline {121.1}The Computational Challenge}{369}{subsection.121.1}%
+\contentsline {subsection}{\numberline {121.2}The Random Fourier Features Approximation}{370}{subsection.121.2}%
+\contentsline {section}{\numberline {122}Practical Sampling Pipelines}{372}{section.122}%
+\contentsline {subsection}{\numberline {122.1}Train/Validation/Test Splits}{372}{subsection.122.1}%
+\contentsline {subsection}{\numberline {122.2}Time Series: Forward Validation}{373}{subsection.122.2}%
+\contentsline {subsection}{\numberline {122.3}Cross-Validation Revisited}{373}{subsection.122.3}%
+\contentsline {section}{\numberline {123}Multi-Armed Bandits}{374}{section.123}%
+\contentsline {subsection}{\numberline {123.1}Exploration vs Exploitation}{375}{subsection.123.1}%
+\contentsline {subsection}{\numberline {123.2}Solution 1: $\epsilon $-Greedy}{375}{subsection.123.2}%
+\contentsline {subsection}{\numberline {123.3}Solution 2: Upper Confidence Bound (UCB)}{376}{subsection.123.3}%
+\contentsline {subsection}{\numberline {123.4}Solution 3: Thompson Sampling}{378}{subsection.123.4}%
+\contentsline {section}{\numberline {124}Estimating Prevalence: AIPW}{379}{section.124}%
+\contentsline {subsection}{\numberline {124.1}The Problem}{379}{subsection.124.1}%
+\contentsline {subsection}{\numberline {124.2}Targeted Sampling for Prevalence}{380}{subsection.124.2}%
+\contentsline {subsection}{\numberline {124.3}The AIPW Estimator}{381}{subsection.124.3}%
+\contentsline {subsection}{\numberline {124.4}Step-by-Step AIPW Process}{382}{subsection.124.4}%
+\contentsline {section}{\numberline {125}Summary}{384}{section.125}%
+\contentsline {section}{\numberline {126}Chapter Overview}{386}{section.126}%
+\contentsline {section}{\numberline {127}Why Uncertainty Matters}{386}{section.127}%
+\contentsline {subsection}{\numberline {127.1}Two Fundamental Types of Uncertainty}{386}{subsection.127.1}%
+\contentsline {subsection}{\numberline {127.2}Applications Requiring Uncertainty}{388}{subsection.127.2}%
+\contentsline {subsection}{\numberline {127.3}What is Calibration?}{388}{subsection.127.3}%
+\contentsline {section}{\numberline {128}Gaussian Processes}{389}{section.128}%
+\contentsline {subsection}{\numberline {128.1}The Core Idea: Distributions Over Functions}{389}{subsection.128.1}%
+\contentsline {subsection}{\numberline {128.2}The Bayesian Perspective: Distributions Over Functions}{391}{subsection.128.2}%
+\contentsline {subsection}{\numberline {128.3}Mean and Covariance Functions}{391}{subsection.128.3}%
+\contentsline {subsection}{\numberline {128.4}Sampling from a GP Prior}{392}{subsection.128.4}%
+\contentsline {subsection}{\numberline {128.5}GP Prior to Posterior: The Key Insight}{392}{subsection.128.5}%
+\contentsline {subsection}{\numberline {128.6}Derivation of the Posterior Predictive Distribution}{394}{subsection.128.6}%
+\contentsline {subsection}{\numberline {128.7}Connection to Kernel Ridge Regression}{396}{subsection.128.7}%
+\contentsline {subsection}{\numberline {128.8}Posterior of Function vs Posterior Predictive}{397}{subsection.128.8}%
+\contentsline {subsection}{\numberline {128.9}Variance Behaviour: A Key Feature of GPs}{398}{subsection.128.9}%
+\contentsline {section}{\numberline {129}GP Kernels}{400}{section.129}%
+\contentsline {subsection}{\numberline {129.1}Squared Exponential (RBF) Kernel}{400}{subsection.129.1}%
+\contentsline {subsection}{\numberline {129.2}Mat\'ern Family}{401}{subsection.129.2}%
+\contentsline {subsection}{\numberline {129.3}Periodic Kernel}{402}{subsection.129.3}%
+\contentsline {subsection}{\numberline {129.4}Linear Kernel}{402}{subsection.129.4}%
+\contentsline {subsection}{\numberline {129.5}Kernel Composition}{402}{subsection.129.5}%
+\contentsline {subsection}{\numberline {129.6}Automatic Relevance Determination (ARD)}{403}{subsection.129.6}%
+\contentsline {subsection}{\numberline {129.7}Hyperparameter Learning}{403}{subsection.129.7}%
+\contentsline {section}{\numberline {130}Computational Aspects of GPs}{405}{section.130}%
+\contentsline {subsection}{\numberline {130.1}Exact GP Complexity}{405}{subsection.130.1}%
+\contentsline {subsection}{\numberline {130.2}Sparse Gaussian Processes}{406}{subsection.130.2}%
+\contentsline {subsection}{\numberline {130.3}When to Use GPs}{407}{subsection.130.3}%
+\contentsline {section}{\numberline {131}Bayesian Optimisation}{407}{section.131}%
+\contentsline {section}{\numberline {132}Conformal Prediction}{409}{section.132}%
+\contentsline {subsection}{\numberline {132.1}The Coverage Guarantee}{409}{subsection.132.1}%
+\contentsline {subsection}{\numberline {132.2}Split Conformal Prediction}{409}{subsection.132.2}%
+\contentsline {subsection}{\numberline {132.3}Why Does It Work?}{411}{subsection.132.3}%
+\contentsline {subsection}{\numberline {132.4}Choice of Nonconformity Score}{411}{subsection.132.4}%
+\contentsline {subsection}{\numberline {132.5}Handling Heteroskedasticity}{412}{subsection.132.5}%
+\contentsline {subsection}{\numberline {132.6}Marginal vs Conditional Coverage}{412}{subsection.132.6}%
+\contentsline {subsection}{\numberline {132.7}Example: Non-Normal Errors}{413}{subsection.132.7}%
+\contentsline {subsection}{\numberline {132.8}Comparison: Conformal vs Bayesian Approaches}{413}{subsection.132.8}%
+\contentsline {section}{\numberline {133}Bayesian Neural Networks}{414}{section.133}%
+\contentsline {subsection}{\numberline {133.1}The BNN Framework}{415}{subsection.133.1}%
+\contentsline {subsection}{\numberline {133.2}The Challenge: Intractable Posterior}{415}{subsection.133.2}%
+\contentsline {subsection}{\numberline {133.3}Approximation Methods}{415}{subsection.133.3}%
+\contentsline {subsection}{\numberline {133.4}Connection to Gaussian Processes}{417}{subsection.133.4}%
+\contentsline {section}{\numberline {134}Calibration}{418}{section.134}%
+\contentsline {subsection}{\numberline {134.1}Reliability Diagrams}{418}{subsection.134.1}%
+\contentsline {subsection}{\numberline {134.2}Expected Calibration Error}{419}{subsection.134.2}%
+\contentsline {subsection}{\numberline {134.3}Temperature Scaling}{419}{subsection.134.3}%
+\contentsline {subsection}{\numberline {134.4}Platt Scaling}{420}{subsection.134.4}%
+\contentsline {subsection}{\numberline {134.5}Calibration in Regression}{421}{subsection.134.5}%
+\contentsline {section}{\numberline {135}Practical Guidance}{421}{section.135}%
+\contentsline {subsection}{\numberline {135.1}Method Selection}{422}{subsection.135.1}%
+\contentsline {subsection}{\numberline {135.2}Computational Considerations}{422}{subsection.135.2}%
+\contentsline {subsection}{\numberline {135.3}Validating Uncertainty Estimates}{423}{subsection.135.3}%
+\contentsline {section}{\numberline {136}Summary}{424}{section.136}%
+\contentsline {section}{\numberline {137}Overview}{425}{section.137}%
+\contentsline {section}{\numberline {138}Biological Motivation}{426}{section.138}%
+\contentsline {subsection}{\numberline {138.1}Neurons and Synapses}{426}{subsection.138.1}%
+\contentsline {subsection}{\numberline {138.2}The McCulloch-Pitts Neuron (1943)}{426}{subsection.138.2}%
+\contentsline {subsection}{\numberline {138.3}From Biology to Artificial Networks}{427}{subsection.138.3}%
+\contentsline {section}{\numberline {139}The Perceptron}{427}{section.139}%
+\contentsline {subsection}{\numberline {139.1}Architecture}{428}{subsection.139.1}%
+\contentsline {subsection}{\numberline {139.2}Geometric Interpretation}{428}{subsection.139.2}%
+\contentsline {subsection}{\numberline {139.3}The Perceptron Learning Algorithm}{429}{subsection.139.3}%
+\contentsline {subsection}{\numberline {139.4}Understanding the Update Rule}{431}{subsection.139.4}%
+\contentsline {subsection}{\numberline {139.5}The Perceptron Convergence Theorem}{432}{subsection.139.5}%
+\contentsline {section}{\numberline {140}Limitations of the Perceptron}{434}{section.140}%
+\contentsline {subsection}{\numberline {140.1}Linear Separability Requirement}{434}{subsection.140.1}%
+\contentsline {subsection}{\numberline {140.2}The XOR Problem}{434}{subsection.140.2}%
+\contentsline {subsection}{\numberline {140.3}No Margin Maximisation}{436}{subsection.140.3}%
+\contentsline {subsection}{\numberline {140.4}Solutions to the XOR Problem}{436}{subsection.140.4}%
+\contentsline {section}{\numberline {141}Multi-Layer Perceptrons (MLPs)}{437}{section.141}%
+\contentsline {subsection}{\numberline {141.1}From Fixed to Learned Features}{438}{subsection.141.1}%
+\contentsline {subsection}{\numberline {141.2}Architecture and Notation}{438}{subsection.141.2}%
+\contentsline {subsection}{\numberline {141.3}Why Non-Linearity is Essential}{439}{subsection.141.3}%
+\contentsline {subsection}{\numberline {141.4}What MLPs Learn: A Geometric View}{439}{subsection.141.4}%
+\contentsline {subsection}{\numberline {141.5}Universal Approximation Theorem}{440}{subsection.141.5}%
+\contentsline {subsection}{\numberline {141.6}Why Depth Matters}{441}{subsection.141.6}%
+\contentsline {section}{\numberline {142}Activation Functions}{442}{section.142}%
+\contentsline {subsection}{\numberline {142.1}The Saturation Problem}{445}{subsection.142.1}%
+\contentsline {subsection}{\numberline {142.2}Output Layer Activations}{445}{subsection.142.2}%
+\contentsline {section}{\numberline {143}Loss Functions}{446}{section.143}%
+\contentsline {subsection}{\numberline {143.1}Mean Squared Error (Regression)}{447}{subsection.143.1}%
+\contentsline {subsection}{\numberline {143.2}Cross-Entropy (Classification)}{447}{subsection.143.2}%
+\contentsline {section}{\numberline {144}Backpropagation}{449}{section.144}%
+\contentsline {subsection}{\numberline {144.1}The Credit Assignment Problem}{449}{subsection.144.1}%
+\contentsline {subsection}{\numberline {144.2}Chain Rule Review}{449}{subsection.144.2}%
+\contentsline {subsection}{\numberline {144.3}Forward and Backward Passes}{450}{subsection.144.3}%
+\contentsline {subsection}{\numberline {144.4}Worked Example: Two-Layer Network}{452}{subsection.144.4}%
+\contentsline {subsection}{\numberline {144.5}Computational Graph Perspective}{453}{subsection.144.5}%
+\contentsline {subsection}{\numberline {144.6}Automatic Differentiation}{453}{subsection.144.6}%
+\contentsline {section}{\numberline {145}Training Neural Networks}{454}{section.145}%
+\contentsline {subsection}{\numberline {145.1}Gradient Descent}{454}{subsection.145.1}%
+\contentsline {subsection}{\numberline {145.2}Learning Rate}{455}{subsection.145.2}%
+\contentsline {subsection}{\numberline {145.3}Optimisers}{456}{subsection.145.3}%
+\contentsline {section}{\numberline {146}Initialisation}{458}{section.146}%
+\contentsline {subsection}{\numberline {146.1}Why Initialisation Matters}{458}{subsection.146.1}%
+\contentsline {subsection}{\numberline {146.2}Xavier/Glorot Initialisation}{459}{subsection.146.2}%
+\contentsline {subsection}{\numberline {146.3}He Initialisation}{460}{subsection.146.3}%
+\contentsline {section}{\numberline {147}Vanishing and Exploding Gradients}{460}{section.147}%
+\contentsline {subsection}{\numberline {147.1}Solutions}{461}{subsection.147.1}%
+\contentsline {subsubsection}{\numberline {147.1.1}Non-Saturating Activations (for vanishing gradients)}{461}{subsubsection.147.1.1}%
+\contentsline {subsubsection}{\numberline {147.1.2}Gradient Clipping (for exploding gradients)}{462}{subsubsection.147.1.2}%
+\contentsline {subsubsection}{\numberline {147.1.3}Batch Normalisation}{462}{subsubsection.147.1.3}%
+\contentsline {section}{\numberline {148}Regularisation}{463}{section.148}%
+\contentsline {subsection}{\numberline {148.1}Weight Decay (L2 Regularisation)}{463}{subsection.148.1}%
+\contentsline {subsection}{\numberline {148.2}Dropout}{464}{subsection.148.2}%
+\contentsline {section}{\numberline {149}Neural Networks as Gaussian Processes}{465}{section.149}%
+\contentsline {section}{\numberline {150}Looking Ahead: Advanced Architectures}{466}{section.150}%
+\contentsline {section}{\numberline {151}Summary}{467}{section.151}%
+\contentsline {section}{\numberline {152}Overview}{469}{section.152}%
+\contentsline {section}{\numberline {153}Neural Network Design Recap}{469}{section.153}%
+\contentsline {subsection}{\numberline {153.1}Architecture Components}{470}{subsection.153.1}%
+\contentsline {subsection}{\numberline {153.2}Loss Functions}{470}{subsection.153.2}%
+\contentsline {subsection}{\numberline {153.3}Optimisers}{471}{subsection.153.3}%
+\contentsline {section}{\numberline {154}Vanishing and Exploding Gradients}{472}{section.154}%
+\contentsline {subsection}{\numberline {154.1}The Problem}{473}{subsection.154.1}%
+\contentsline {subsection}{\numberline {154.2}Gradient Clipping}{473}{subsection.154.2}%
+\contentsline {subsection}{\numberline {154.3}Vanishing Gradients and Activation Functions}{474}{subsection.154.3}%
+\contentsline {subsection}{\numberline {154.4}Batch Normalisation}{476}{subsection.154.4}%
+\contentsline {subsection}{\numberline {154.5}Regularisation}{477}{subsection.154.5}%
+\contentsline {subsubsection}{\numberline {154.5.1}Weight Decay (L2 Regularisation)}{477}{subsubsection.154.5.1}%
+\contentsline {subsubsection}{\numberline {154.5.2}Dropout}{478}{subsubsection.154.5.2}%
+\contentsline {section}{\numberline {155}Convolutional Neural Networks}{479}{section.155}%
+\contentsline {subsection}{\numberline {155.1}Motivation: Why Not Fully Connected?}{479}{subsection.155.1}%
+\contentsline {subsection}{\numberline {155.2}The Convolution Operation}{480}{subsection.155.2}%
+\contentsline {subsection}{\numberline {155.3}Feature Maps and Channels}{481}{subsection.155.3}%
+\contentsline {subsection}{\numberline {155.4}Convolution as Sparse Matrix Multiplication}{482}{subsection.155.4}%
+\contentsline {subsection}{\numberline {155.5}Parameter Sharing and Translation Equivariance}{483}{subsection.155.5}%
+\contentsline {subsection}{\numberline {155.6}Receptive Field}{484}{subsection.155.6}%
+\contentsline {subsection}{\numberline {155.7}Padding and Strides}{484}{subsection.155.7}%
+\contentsline {subsubsection}{\numberline {155.7.1}Padding}{484}{subsubsection.155.7.1}%
+\contentsline {subsubsection}{\numberline {155.7.2}Strides}{485}{subsubsection.155.7.2}%
+\contentsline {subsection}{\numberline {155.8}Pooling}{485}{subsection.155.8}%
+\contentsline {subsection}{\numberline {155.9}CNN Architecture}{486}{subsection.155.9}%
+\contentsline {subsection}{\numberline {155.10}Classic CNN Architectures}{487}{subsection.155.10}%
+\contentsline {subsection}{\numberline {155.11}Residual Connections}{488}{subsection.155.11}%
+\contentsline {section}{\numberline {156}Recurrent Neural Networks}{490}{section.156}%
+\contentsline {subsection}{\numberline {156.1}Architecture}{491}{subsection.156.1}%
+\contentsline {subsection}{\numberline {156.2}Unrolled View and Backpropagation Through Time}{491}{subsection.156.2}%
+\contentsline {subsection}{\numberline {156.3}Vanishing and Exploding Gradients in RNNs}{492}{subsection.156.3}%
+\contentsline {subsection}{\numberline {156.4}Long Short-Term Memory (LSTM)}{493}{subsection.156.4}%
+\contentsline {subsection}{\numberline {156.5}Gated Recurrent Unit (GRU)}{494}{subsection.156.5}%
+\contentsline {subsection}{\numberline {156.6}Bidirectional RNNs}{495}{subsection.156.6}%
+\contentsline {section}{\numberline {157}Attention Mechanisms}{495}{section.157}%
+\contentsline {subsection}{\numberline {157.1}Motivation: The Bottleneck Problem}{496}{subsection.157.1}%
+\contentsline {subsection}{\numberline {157.2}General Attention}{497}{subsection.157.2}%
+\contentsline {subsection}{\numberline {157.3}Scaled Dot-Product Attention}{498}{subsection.157.3}%
+\contentsline {subsubsection}{\numberline {157.3.1}Why Scale by $\sqrt {d_k}$?}{499}{subsubsection.157.3.1}%
+\contentsline {subsubsection}{\numberline {157.3.2}Softmax}{499}{subsubsection.157.3.2}%
+\contentsline {subsection}{\numberline {157.4}Multi-Head Attention}{499}{subsection.157.4}%
+\contentsline {subsection}{\numberline {157.5}Self-Attention}{500}{subsection.157.5}%
+\contentsline {section}{\numberline {158}Transformers}{501}{section.158}%
+\contentsline {subsection}{\numberline {158.1}Architecture Overview}{501}{subsection.158.1}%
+\contentsline {subsection}{\numberline {158.2}Positional Encoding}{502}{subsection.158.2}%
+\contentsline {subsection}{\numberline {158.3}Layer Normalisation}{503}{subsection.158.3}%
+\contentsline {subsection}{\numberline {158.4}Position-wise Feed-Forward Networks}{504}{subsection.158.4}%
+\contentsline {subsection}{\numberline {158.5}Masked Self-Attention}{504}{subsection.158.5}%
+\contentsline {subsection}{\numberline {158.6}Why Transformers Replaced RNNs}{505}{subsection.158.6}%
+\contentsline {subsection}{\numberline {158.7}Pre-training and Transfer Learning}{506}{subsection.158.7}%
+\contentsline {section}{\numberline {159}Practical Considerations}{507}{section.159}%
+\contentsline {subsection}{\numberline {159.1}Transfer Learning in Practice}{508}{subsection.159.1}%
+\contentsline {subsection}{\numberline {159.2}Modern Best Practices}{509}{subsection.159.2}%
+\contentsline {section}{\numberline {160}Summary}{510}{section.160}%
+\contentsline {section}{\numberline {161}Overview}{511}{section.161}%
+\contentsline {subsection}{\numberline {161.1}What is Unsupervised Learning?}{511}{subsection.161.1}%
+\contentsline {subsection}{\numberline {161.2}Why is Unsupervised Learning Hard?}{512}{subsection.161.2}%
+\contentsline {section}{\numberline {162}Principal Component Analysis}{513}{section.162}%
+\contentsline {subsection}{\numberline {162.1}Motivation}{513}{subsection.162.1}%
+\contentsline {subsection}{\numberline {162.2}Two Equivalent Formulations}{513}{subsection.162.2}%
+\contentsline {subsection}{\numberline {162.3}Solution via Eigendecomposition}{516}{subsection.162.3}%
+\contentsline {subsection}{\numberline {162.4}The PCA Algorithm}{517}{subsection.162.4}%
+\contentsline {subsection}{\numberline {162.5}Choosing the Number of Components}{518}{subsection.162.5}%
+\contentsline {subsection}{\numberline {162.6}PCA and Singular Value Decomposition}{519}{subsection.162.6}%
+\contentsline {subsection}{\numberline {162.7}Kernel PCA}{520}{subsection.162.7}%
+\contentsline {section}{\numberline {163}Other Linear Dimensionality Reduction Methods}{522}{section.163}%
+\contentsline {subsection}{\numberline {163.1}Factor Analysis}{522}{subsection.163.1}%
+\contentsline {subsection}{\numberline {163.2}Independent Component Analysis (ICA)}{523}{subsection.163.2}%
+\contentsline {section}{\numberline {164}Manifold Learning}{524}{section.164}%
+\contentsline {subsection}{\numberline {164.1}The Manifold Hypothesis}{524}{subsection.164.1}%
+\contentsline {subsection}{\numberline {164.2}Why Linear Methods Fail on Manifolds}{525}{subsection.164.2}%
+\contentsline {subsection}{\numberline {164.3}Stochastic Neighbour Embedding (SNE)}{525}{subsection.164.3}%
+\contentsline {subsection}{\numberline {164.4}t-Distributed SNE (t-SNE)}{526}{subsection.164.4}%
+\contentsline {subsection}{\numberline {164.5}UMAP}{528}{subsection.164.5}%
+\contentsline {section}{\numberline {165}Clustering}{530}{section.165}%
+\contentsline {subsection}{\numberline {165.1}K-Means Clustering}{531}{subsection.165.1}%
+\contentsline {subsection}{\numberline {165.2}Choosing $K$}{532}{subsection.165.2}%
+\contentsline {subsection}{\numberline {165.3}Hierarchical Clustering}{533}{subsection.165.3}%
+\contentsline {subsection}{\numberline {165.4}DBSCAN: Density-Based Clustering}{534}{subsection.165.4}%
+\contentsline {subsection}{\numberline {165.5}Gaussian Mixture Models}{535}{subsection.165.5}%
+\contentsline {section}{\numberline {166}Autoencoders}{537}{section.166}%
+\contentsline {subsection}{\numberline {166.1}Architecture and Training}{537}{subsection.166.1}%
+\contentsline {subsection}{\numberline {166.2}Relationship to PCA}{539}{subsection.166.2}%
+\contentsline {subsection}{\numberline {166.3}Bottleneck Dimension and Regularisation}{539}{subsection.166.3}%
+\contentsline {subsection}{\numberline {166.4}Autoencoder Variants}{540}{subsection.166.4}%
+\contentsline {subsection}{\numberline {166.5}Variational Autoencoders}{540}{subsection.166.5}%
+\contentsline {section}{\numberline {167}Self-Supervised Learning}{543}{section.167}%
+\contentsline {subsection}{\numberline {167.1}Pretext Tasks}{544}{subsection.167.1}%
+\contentsline {subsection}{\numberline {167.2}Contrastive Learning}{545}{subsection.167.2}%
+\contentsline {subsection}{\numberline {167.3}Non-Contrastive Methods}{547}{subsection.167.3}%
+\contentsline {section}{\numberline {168}Summary and Connections}{548}{section.168}%
